@@ -53,6 +53,7 @@ patches-*
 #
 bin/*
 win/*
+build/*
 
 #
 # VS temporary files
