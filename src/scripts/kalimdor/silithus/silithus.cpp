@@ -1196,39 +1196,73 @@ struct WarEffort
 
 static const WarEffort SharedObjectives[5] =
 {
-    {2840,  90000,  2840,  "Barre de cuivre", WAREFFORT_BAR},
-    {8831,  26000,  8831,  "Lotus pourpre", WAREFFORT_HERBS},
-    {4304,  80000,  4304,  "Cuir epais", WAREFFORT_SKINS},
-    {6887,  17000,  6887,  "Jaune-queue tachete", WAREFFORT_COOKING},
-    {14529, 400000, 14529, "Bandage en etoffe runique", WAREFFORT_BANDAGES}
+    /* Blizzlile
+    {2840,  90000,  2840,  "Copper Bar", WAREFFORT_BAR},
+    {8831,  26000,  8831,  "Purple Lotus", WAREFFORT_HERBS},
+    {4304,  80000,  4304,  "Thick Leather", WAREFFORT_SKINS},
+    {6887,  17000,  6887,  "Spotted Yellowtail", WAREFFORT_COOKING},
+    {14529, 400000, 14529, "Runecloth Bandage", WAREFFORT_BANDAGES}
+    */
+    
+    {2840,  1250000,  2840,  "Copper Bar",          WAREFFORT_BAR},
+    {8831,   700000,  8831,  "Purple Lotus",        WAREFFORT_HERBS},
+    {4304,  1300000,  4304,  "Thick Leather",       WAREFFORT_SKINS},
+    {6887,   600000,  6887,  "Spotted Yellowtail",  WAREFFORT_COOKING},
+    {14529, 2000000, 14529,  "Runecloth Bandage",   WAREFFORT_BANDAGES}
 };
 
 static const WarEffort AllianceObjectives[10] =
 {
-    {3575,  28000,  3575,   "Barre de fer", WAREFFORT_BAR},
-    {12359, 24000,  12359,  "Barre de thorium", WAREFFORT_BAR},
-    {8836,  20000,  8836,   "Larmes d'Arthas", WAREFFORT_HERBS},
-    {3820,  33000,  3820,   "Etouffante", WAREFFORT_HERBS},
-    {2318,  180000, 2318,   "Cuir leger", WAREFFORT_SKINS},
-    {2319,  110000, 2319,   "Cuir moyen", WAREFFORT_SKINS},
-    {12210, 20000,  12210,  "Roti de raptor", WAREFFORT_COOKING},
-    {5095,  14000,  5095,   "Thon arc-en-ciel", WAREFFORT_COOKING},
-    {1251,  800000, 1251,   "Bandage en lin", WAREFFORT_BANDAGES},
-    {6450,  600000, 6450,   "Bandage en soie", WAREFFORT_BANDAGES}
+    /* Blizzlile
+    {3575,  28000,  3575,   "Iron Bar", WAREFFORT_BAR},
+    {12359, 24000,  12359,  "Thorium Bar", WAREFFORT_BAR},
+    {8836,  20000,  8836,   "Arthas' Tears", WAREFFORT_HERBS},
+    {3820,  33000,  3820,   "Stranglekelp", WAREFFORT_HERBS},
+    {2318,  180000, 2318,   "Light Leather", WAREFFORT_SKINS},
+    {2319,  110000, 2319,   "Medium Leather", WAREFFORT_SKINS},
+    {12210, 20000,  12210,  "Roast Raptor", WAREFFORT_COOKING},
+    {5095,  14000,  5095,   "Rainbow Fin Albacore", WAREFFORT_COOKING},
+    {1251,  800000, 1251,   "Linen Bandage", WAREFFORT_BANDAGES},
+    {6450,  600000, 6450,   "Silk Bandage", WAREFFORT_BANDAGES}
+    */
+
+    {3575,   600000,  3575,   "Iron Bar",               WAREFFORT_BAR},
+    {12359,  850000,  12359,  "Thorium Bar",            WAREFFORT_BAR},
+    {8836,   425000,  8836,   "Arthas' Tears",          WAREFFORT_HERBS},
+    {3820,   450000,  3820,   "Stranglekelp",           WAREFFORT_HERBS},
+    {2318,   850000,  2318,   "Light Leather",          WAREFFORT_SKINS},
+    {2319,   575000,  2319,   "Medium Leather",         WAREFFORT_SKINS},
+    {12210,  450000,  12210,  "Roast Raptor",           WAREFFORT_COOKING},
+    {5095,   450000,  5095,   "Rainbow Fin Albacore",   WAREFFORT_COOKING},
+    {1251,  2000000,  1251,   "Linen Bandage",          WAREFFORT_BANDAGES},
+    {6450,  1600000,  6450,   "Silk Bandage",           WAREFFORT_BANDAGES}
 };
 
 static const WarEffort HordeObjectives[10] =
 {
-    {3576,  22000,  3576,   "Barre d'etain", WAREFFORT_BAR},
-    {3860,  18000,  3860,   "Barre de mithril", WAREFFORT_BAR},
-    {2447,  96000,  2447,   "Pacifique", WAREFFORT_HERBS},
-    {4625,  19000,  4625,   "Fleur de feu", WAREFFORT_HERBS},
-    {4234,  60000,  4234,   "Cuir lourd", WAREFFORT_SKINS},
-    {8170,  60000,  8170,   "Cuir robuste", WAREFFORT_SKINS},
-    {12209, 10000,  12209,  "Steak de loup", WAREFFORT_COOKING},
-    {13935, 10000,  13935,  "Pain de saumon", WAREFFORT_COOKING},
-    {3530,  250000, 3530,   "Bandage en laine", WAREFFORT_BANDAGES},
-    {8544,  250000, 8544,   "Bandage en tisse-mage", WAREFFORT_BANDAGES}
+    /* Blizzlile
+    {3576,  22000,  3576,   "Tin Bar", WAREFFORT_BAR},
+    {3860,  18000,  3860,   "Mithril Bar", WAREFFORT_BAR},
+    {2447,  96000,  2447,   "Peacebloom", WAREFFORT_HERBS},
+    {4625,  19000,  4625,   "Firebloom", WAREFFORT_HERBS},
+    {4234,  60000,  4234,   "Heavy Leather", WAREFFORT_SKINS},
+    {8170,  60000,  8170,   "Rugged Leather", WAREFFORT_SKINS},
+    {12209, 10000,  12209,  "Lean Wolf Steak", WAREFFORT_COOKING},
+    {13935, 10000,  13935,  "Baked Salmon", WAREFFORT_COOKING},
+    {3530,  250000, 3530,   "Wool Bandage", WAREFFORT_BANDAGES},
+    {8544,  250000, 8544,   "Mageweave Bandage", WAREFFORT_BANDAGES}
+    */
+
+    {3576,   425000, 3576,   "Tin Bar",           WAREFFORT_BAR},
+    {3860,   525000, 3860,   "Mithril Bar",       WAREFFORT_BAR},
+    {2447,   825000, 2447,   "Peacebloom",        WAREFFORT_HERBS},
+    {4625,   425000, 4625,   "Firebloom",         WAREFFORT_HERBS},
+    {4234,   700000, 4234,   "Heavy Leather",     WAREFFORT_SKINS},
+    {8170,   850000, 8170,   "Rugged Leather",    WAREFFORT_SKINS},
+    {12209,  275000, 12209,  "Lean Wolf Steak",   WAREFFORT_COOKING},
+    {13935,  375000, 13935,  "Baked Salmon",      WAREFFORT_COOKING},
+    {3530,  1250000, 3530,   "Wool Bandage",      WAREFFORT_BANDAGES},
+    {8544,  1000000, 8544,   "Mageweave Bandage", WAREFFORT_BANDAGES}
 };
 
 enum
@@ -1252,16 +1286,16 @@ bool GossipHello_npc_AQwar_effort(Player* pPlayer, Creature* pCreature)
     switch (pCreature->GetEntry())
     {
         case NPC_FIELD_MARSHAL_SNOWFALL:    // Shared + Alliance
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Effort de guerre commun", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Shared War Effort", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
         // no break
         case NPC_COMMANDER_STRONGHAMMER:    // Alliance only
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Effort de guerre Alliance", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Alliance War Effort", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
             break;
         case NPC_WARLORD_GORCHUK:           // Shared + Horde
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Effort de guerre commun", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Shared War Effort", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
         // no break
         case NPC_GENERAL_ZOG:               // Horde only
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Effort de guerre Horde", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Horde War Effort", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
             break;
         default:
             break;
@@ -1420,7 +1454,7 @@ bool GossipHello_npc_AQwar_collector(Player* pPlayer, Creature* pCreature)
             pCreature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 
         char sMessage[200] = "";
-        sprintf(sMessage, "La recolte de %s n'est plus necessaire.", itemNameReqReached);
+        sprintf(sMessage, "The collection of %s is no longer necessary.", itemNameReqReached);
 
         pPlayer->CLOSE_GOSSIP_MENU();
         pCreature->MonsterSay(sMessage, 0, 0);
@@ -1528,7 +1562,7 @@ void HandleWarEffortGameObject(GOWarEffort const* gameobjects, Creature* questGi
     uint32 Objective    = 0;
     uint32 current      = 0;
 
-    // Comptage de l'objectif
+    // Counting
     for (int i = 0; i < 5; ++i)
     {
         if (SharedObjectives[i].type == type)
@@ -1551,7 +1585,7 @@ void HandleWarEffortGameObject(GOWarEffort const* gameobjects, Creature* questGi
         }
     }
 
-    // Affichage des gameobjects
+    // Showing gameobjects
     uint32 tempCount = Objective;
     for (int j = 9; j >= 0; j--)
     {
@@ -1563,7 +1597,7 @@ void HandleWarEffortGameObject(GOWarEffort const* gameobjects, Creature* questGi
             {
                 if (!go->isSpawned())
                 {
-                    go->SetRespawnTime(1209600); // 14 jours
+                    go->SetRespawnTime(1209600); // 14 days
                     go->SaveToDB();
                 }
             }
@@ -1578,10 +1612,10 @@ bool QuestComplete_npc_AQwar_collector(Player* pPlayer, Creature* pQuestGiver, Q
         return false;
 
     uint32 var = sObjectMgr.GetSavedVariable(pQuest->ReqItemId[0], 0);
-    var += pQuest->ReqItemCount[0] * 2;
-    sObjectMgr.SetSavedVariable(pQuest->ReqItemId[0], var, true); // ICI ON MULTIPLIE L'APPORT POUR ACCELERER L'EFFORT DE GUERRE
+    var += pQuest->ReqItemCount[0];
+    sObjectMgr.SetSavedVariable(pQuest->ReqItemId[0], var, true);
 
-    // Gestion des UNIT_NPC_FLAG_QUESTGIVER et UNIT_NPC_FLAG_GOSSIP des PNJ "collector"
+    // Gestion des UNIT_NPC_FLAG_QUESTGIVER and UNIT_NPC_FLAG_GOSSIP des PNJ "collector"
     char itemName[51] = "";
     bool objectiveReached = false;
 
@@ -1665,7 +1699,7 @@ bool QuestComplete_npc_AQwar_collector(Player* pPlayer, Creature* pQuestGiver, Q
             pQuestGiver->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 
         char sMessage[200] = "";
-        sprintf(sMessage, "Felicitations %s ! La recolte de %s est enfin terminee !", pPlayer->GetName(), itemName);
+        sprintf(sMessage, "Congratulations %s! The collection of %s is finally finished!", pPlayer->GetName(), itemName);
         pQuestGiver->MonsterSay(sMessage, 0, 0);
         pQuestGiver->HandleEmote(EMOTE_ONESHOT_CHEER);
     }

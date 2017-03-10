@@ -194,7 +194,7 @@ public:
             case RACE_ORC:
                 mount = 18796;
                 if (mount60)
-                    mount = urand(0, 1) ? 12330 : 12330;
+                    mount = 12330;
                 break;
             case RACE_TAUREN:
                 mount = 15293;

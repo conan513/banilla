@@ -81,10 +81,10 @@ struct boss_chromaggusAI : public ScriptedAI
         m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
         if (m_pInstance)
         {
-            const static int NUM_BREATHS = sizeof(aPossibleBreaths) / sizeof(aPossibleBreaths[0]);
+            const static uint32 NUM_BREATHS = sizeof(aPossibleBreaths) / sizeof(aPossibleBreaths[0]);
             uint32 breaths = m_pInstance->GetData64(DATA_CHROM_BREATH);
             m_uiBreathOneSpell = aPossibleBreaths[breaths % NUM_BREATHS];
-            int idx2 = breaths / NUM_BREATHS;
+            uint32 idx2 = breaths / NUM_BREATHS;
             if (idx2 >= (breaths % NUM_BREATHS))
                 ++idx2;
             m_uiBreathTwoSpell = aPossibleBreaths[idx2 % NUM_BREATHS];

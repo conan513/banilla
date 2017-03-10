@@ -148,6 +148,7 @@ class Channel
         uint32 GetChannelId() const { return m_channelId; }
         bool IsConstant() const { return m_channelId != 0; }
         bool IsAnnounce() const { return m_announce; }
+        bool IsLevelRestricted() const { return m_levelRestricted; }
         bool IsLFG() const { return GetFlags() & CHANNEL_FLAG_LFG; }
         std::string GetPassword() const { return m_password; }
         void SetPassword(const std::string& npassword) { m_password = npassword; }
@@ -267,6 +268,7 @@ class Channel
         PlayerPointer GetPlayer(const char* name);
         bool        m_announce;
         bool        m_moderate;
+        bool        m_levelRestricted;
         std::string m_name;
         std::string m_password;
         uint8       m_flags;

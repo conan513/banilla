@@ -17,7 +17,43 @@
 
 # include(${CMAKE_SOURCE_DIR}/dep/tbb/tbbinclude.cmake)
 
-file(GLOB_RECURSE framework_SRCS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.cpp *.h)
+set (framework_SRCS 
+	Dynamic/FactoryHolder.h
+	Dynamic/ObjectRegistry.h
+	GameSystem/Grid.h
+	GameSystem/GridLoader.h
+	GameSystem/GridReference.h
+	GameSystem/GridRefManager.h
+	GameSystem/NGrid.h
+	GameSystem/TypeContainer.h
+	GameSystem/TypeContainerFunctions.h
+	GameSystem/TypeContainerFunctionsPtr.h
+	GameSystem/TypeContainerVisitor.h
+	Network/MangosSocket.h
+	Network/MangosSocketImpl.h
+	Network/MangosSocketMgr.h
+	Network/MangosSocketMgrImpl.h
+	Platform/CompilerDefs.h
+	Platform/Define.h
+	Policies/CreationPolicy.h
+	Policies/ObjectLifeTime.h
+	Policies/Singleton.h
+	Policies/SingletonImp.h
+	Policies/ThreadingModel.h
+	Utilities/ByteConverter.h
+	Utilities/Callback.h
+	Utilities/EventProcessor.h
+	Utilities/LinkedList.h
+	Utilities/TypeList.h
+	Utilities/UnorderedMapSet.h
+	Utilities/LinkedReference/Reference.h
+	Utilities/LinkedReference/RefManager.h
+	Policies/MemoryManagement.cpp
+	Policies/ObjectLifeTime.cpp
+	Utilities/EventProcessor.cpp
+
+)
+
 
 source_group("Other"
   REGULAR_EXPRESSION .*
@@ -51,6 +87,7 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${TBB_INCLUDE_DIRS}
   ${ACE_INCLUDE_DIR}
+  ${CMAKE_SOURCE_DIR}/src/shared
 )
 
 add_library(framework STATIC

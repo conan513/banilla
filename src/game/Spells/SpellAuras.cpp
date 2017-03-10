@@ -1081,29 +1081,6 @@ void Aura::TriggerSpell()
                             target->CastSpell(target, 23171, true, nullptr, this);
                         return;
                     }
-                    case 23184:                             // Mark of Frost
-                    case 25041:                             // Mark of Nature
-                    {
-                        std::list<Player*> targets;
-
-                        // spells existed in 1.x.x; 23183 - mark of frost; 25042 - mark of nature; both had radius of 100.0 yards in 1.x.x DBC
-                        // spells are used by Azuregos and the Emerald dragons in order to put a stun debuff on the players which resurrect during the encounter
-                        // in order to implement the missing spells we need to make a grid search for hostile players and check their auras; if they are marked apply debuff
-
-                        // Mark of Frost or Mark of Nature
-                        uint32 markSpellId = auraId == 23184 ? 23182 : 25040;
-                        // Aura of Frost or Aura of Nature
-                        uint32 debufSpellId = auraId == 23184 ? 23186 : 25043;
-
-                        MaNGOS::AnyPlayerInObjectRangeWithAuraCheck u_check(GetTarget(), 100.0f, markSpellId);
-                        MaNGOS::PlayerListSearcher<MaNGOS::AnyPlayerInObjectRangeWithAuraCheck > checker(targets, u_check);
-                        Cell::VisitWorldObjects(GetTarget(), checker, 100.0f);
-
-                        for (std::list<Player*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
-                            (*itr)->CastSpell((*itr), debufSpellId, true, nullptr, nullptr, casterGUID);
-
-                        return;
-                    }
                     case 23493:                             // Restoration
                     {
                         int32 heal = triggerTarget->GetMaxHealth() / 10;
@@ -1132,28 +1109,9 @@ void Aura::TriggerSpell()
 //                    case 24832: break;
                     case 24834:                             // Shadow Bolt Whirl
                     {
-                        // Lethon sends 4 volleys to the left, then 4 to the right, etc ...
-                        uint32 spellForTick[8] = {
-                            // All these spells have the same effect: shadowbolt volley in a cone in front of the caster
-                            24820,
-                            24821,
-                            24822,
-                            24823,
-                            24835,
-                            24836,
-                            24837,
-                            24838 };
-
+                        uint32 spellForTick[8] = { 24820, 24821, 24822, 24823, 24835, 24836, 24837, 24838 };
                         trigger_spell_id = spellForTick[GetAuraTicks() % 8];
-                        int tick = ((GetAuraTicks() % 8) / 4) % 2; // tick=0 => Left. Tick=1 => Right.
-
-                        // Really sad to hack here, but no way to do this properly in MaNGOS for now :/
-                        float orientationBefore = target->GetOrientation();
-                        float angle = target->GetOrientation() - ((tick * 2 - 1) * M_PI_F / 2);
-                        target->SetOrientation(angle);
-                        triggerTarget->CastSpell(triggerTarget, trigger_spell_id, true, nullptr, this, casterGUID);
-                        target->SetOrientation(orientationBefore);
-                        return;
+                        break;
                     }
 //                    // Stink Trap
 //                    case 24918: break;
@@ -1177,7 +1135,7 @@ void Aura::TriggerSpell()
                         else
                             newAngle -= M_PI_F / 40;
 
-                        MapManager::NormalizeOrientation(newAngle);
+                        newAngle = MapManager::NormalizeOrientation(newAngle);
                         target->SetFacingTo(newAngle);
                         target->CastSpell(target, 26029, true);
                         return;
@@ -1660,6 +1618,25 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
 
                 return;
             }
+            case 24906:                                     // Emeriss Aura
+            {
+                if (m_removeMode == AURA_REMOVE_BY_DEATH)
+                    target->CastSpell(target, 24904, true, nullptr, this);
+
+                return;
+            }
+            case 25042:                                     // Mark of Nature
+            {
+                if (m_removeMode == AURA_REMOVE_BY_DEATH)
+                    target->CastSpell(target, 25040, true, nullptr, this);
+                return;
+            }
+            case 23183:                                     // Mark of Frost
+            {
+                if (m_removeMode == AURA_REMOVE_BY_DEATH)
+                    target->CastSpell(target, 23182, true, nullptr, this);
+                    return;
+            }
             case 28169:                                     // Mutating Injection
             {
                 // Mutagen Explosion
@@ -2001,8 +1978,6 @@ void Aura::HandleAuraModShapeshift(bool apply, bool Real)
             break;
         case FORM_AQUA:
             if (Player::TeamForRace(target->getRace()) == ALLIANCE)
-                modelid = 2428;
-            else
                 modelid = 2428;
             break;
         case FORM_BEAR:
@@ -2599,12 +2574,10 @@ void Unit::ModPossess(Unit* target, bool apply, AuraRemoveMode m_removeMode)
 
         // target should became visible at SetView call(if not visible before):
         // otherwise client\p_caster will ignore packets from the target(SetClientControl for example)
-        if (p_caster)
-            p_caster->GetCamera().SetView(target);
+        p_caster->GetCamera().SetView(target);
 
         caster->SetCharm(target);
-        if (p_caster)
-            p_caster->SetMover(target);
+        p_caster->SetMover(target);
 
         target->CombatStop(true);
         target->DeleteThreatList();
@@ -2616,15 +2589,13 @@ void Unit::ModPossess(Unit* target, bool apply, AuraRemoveMode m_removeMode)
             charmInfo->SetCommandState(COMMAND_STAY);
         }
 
-        if (p_caster)
-            p_caster->PossessSpellInitialize();
+        p_caster->PossessSpellInitialize();
 
         if (Creature* pTargetCrea = target->ToCreature())
             if (pTargetCrea->AI()->SwitchAiAtControl())
                 pTargetCrea->AIM_Initialize();
 
         if (Player* p_target = target->ToPlayer())
-            if (!p_caster) // Caste par un mob sur un joueur.
                 p_target->SetControlledBy(caster);
         // Les mobs doivent attaquer celui qui est CM.
         // On appelle donc 'MoveInLineOfSight' pour les mobs a cote.
@@ -2641,19 +2612,15 @@ void Unit::ModPossess(Unit* target, bool apply, AuraRemoveMode m_removeMode)
 
         caster->InterruptSpell(CURRENT_CHANNELED_SPELL);  // the spell is not automatically canceled when interrupted, do it now
 
-        if (p_caster)
-            p_caster->SetMover(nullptr);
+        p_caster->SetMover(nullptr);
 
         caster->SetCharm(nullptr);
         caster->UpdateControl();
 
         // there is a possibility that target became invisible for client\p_caster at ResetView call:
         // it must be called after movement control unapplying, not before! the reason is same as at aura applying
-        if (p_caster)
-            p_caster->GetCamera().ResetView();
-
-        if (p_caster)
-            p_caster->RemovePetActionBar();
+        p_caster->GetCamera().ResetView();
+        p_caster->RemovePetActionBar();
 
         // on delete only do caster related effects
         if (m_removeMode == AURA_REMOVE_BY_DELETE)
@@ -4907,7 +4874,7 @@ void Aura::PeriodicTick(SpellEntry const* sProto, AuraType auraType, uint32 data
                 return;
 
             // Check for immune (not use charges)
-            if (target->IsImmunedToDamage(GetSpellSchoolMask(spellProto)) && !(spellProto->Attributes & SPELL_ATTR_UNAFFECTED_BY_INVULNERABILITY))
+            if (target->IsImmuneToDamage(GetSpellSchoolMask(spellProto)) && !(spellProto->Attributes & SPELL_ATTR_UNAFFECTED_BY_INVULNERABILITY))
                 return;
 
             uint32 absorb = 0;
@@ -5016,7 +4983,7 @@ void Aura::PeriodicTick(SpellEntry const* sProto, AuraType auraType, uint32 data
                 return;
 
             // Check for immune
-            if (target->IsImmunedToDamage(GetSpellSchoolMask(spellProto)))
+            if (target->IsImmuneToDamage(GetSpellSchoolMask(spellProto)))
                 return;
 
             uint32 absorb = 0;
@@ -5206,7 +5173,7 @@ void Aura::PeriodicTick(SpellEntry const* sProto, AuraType auraType, uint32 data
                 return;
 
             // Check for immune (not use charges)
-            if (target->IsImmunedToDamage(GetSpellSchoolMask(spellProto)))
+            if (target->IsImmuneToDamage(GetSpellSchoolMask(spellProto)))
                 return;
 
             // ignore non positive values (can be result apply spellmods to aura damage
@@ -5330,7 +5297,7 @@ void Aura::PeriodicTick(SpellEntry const* sProto, AuraType auraType, uint32 data
                 return;
 
             // Check for immune (not use charges)
-            if (target->IsImmunedToDamage(GetSpellSchoolMask(spellProto)))
+            if (target->IsImmuneToDamage(GetSpellSchoolMask(spellProto)))
                 return;
 
             int32 pdamage = m_modifier.m_amount > 0 ? m_modifier.m_amount : 0;
@@ -5441,7 +5408,7 @@ void Aura::PeriodicDummyTick()
                 case 7054:
                 {
                     uint32 spellRandom = urand(0, 14) + 7038;
-                    sLog.nostalrius("7054 %u", spellRandom);
+                    sLog.outInfo("7054 %u", spellRandom);
 
                     target->CastSpell(target, spellRandom, true, nullptr, this);
                     // Possibly need cast one of them (but
@@ -6504,6 +6471,8 @@ void Aura::CalculatePeriodic(Player * modOwner, bool create)
         case 14299: // Immolation Trap Effect (Rank 3)
         case 14300: // Immolation Trap Effect (Rank 4)
         case 14301: // Immolation Trap Effect (Rank 5)
+        case 23184: // Mark of Frost
+        case 25041: // Mark of Nature
             break;
         default:
             m_periodicTimer = m_modifier.periodictime;
@@ -6742,7 +6711,7 @@ bool Aura::ExclusiveAuraCanApply()
         // Il y a un souci dans le sort.
         if (mostImportant->IsInUse())
         {
-            sLog.nostalrius("[%s:Map%u:Aura%u:AuraImportant%u] Aura::ExclusiveAuraCanApply IsInUse", target->GetName(), target->GetMapId(), GetId(), mostImportant->GetId());
+            sLog.outInfo("[%s:Map%u:Aura%u:AuraImportant%u] Aura::ExclusiveAuraCanApply IsInUse", target->GetName(), target->GetMapId(), GetId(), mostImportant->GetId());
             return false;
         }
         ASSERT(!mostImportant->IsInUse());
@@ -6754,7 +6723,7 @@ bool Aura::ExclusiveAuraCanApply()
                 // doit etre applique.
                 if (!mostImportant->IsApplied())
                 {
-                    sLog.nostalrius("[%s:Map%u:Aura%u:AuraImportant%u] Aura::ExclusiveAuraCanApply IsApplied", target->GetName(), target->GetMapId(), GetId(), mostImportant->GetId());
+                    sLog.outInfo("[%s:Map%u:Aura%u:AuraImportant%u] Aura::ExclusiveAuraCanApply IsApplied", target->GetName(), target->GetMapId(), GetId(), mostImportant->GetId());
                     return false;
                 }
                 ASSERT(mostImportant->IsApplied());
@@ -6782,12 +6751,12 @@ void Aura::ExclusiveAuraUnapply()
     {
         if (mostImportant->IsInUse())
         {
-            sLog.nostalrius("[%s:Map%u:Aura%u:AuraImportant%u] Aura::ExclusiveAuraUnapply IsInUse", target->GetName(), target->GetMapId(), GetId(), mostImportant->GetId());
+            sLog.outInfo("[%s:Map%u:Aura%u:AuraImportant%u] Aura::ExclusiveAuraUnapply IsInUse", target->GetName(), target->GetMapId(), GetId(), mostImportant->GetId());
             return;
         }
         if (mostImportant->IsApplied())
         {
-            sLog.nostalrius("[%s:Map%u:Aura%u:AuraImportant%u] Aura::ExclusiveAuraUnapply IsApplied", target->GetName(), target->GetMapId(), GetId(), mostImportant->GetId());
+            sLog.outInfo("[%s:Map%u:Aura%u:AuraImportant%u] Aura::ExclusiveAuraUnapply IsApplied", target->GetName(), target->GetMapId(), GetId(), mostImportant->GetId());
             return;
         }
         ASSERT(!mostImportant->IsInUse());

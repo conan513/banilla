@@ -33,6 +33,11 @@
 #endif
 #endif
 
+
+#ifdef main
+#undef main
+#endif
+
 extern int main(int argc, char ** argv);
 extern char serviceLongName[];
 extern char serviceName[];

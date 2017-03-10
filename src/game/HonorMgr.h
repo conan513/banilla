@@ -34,7 +34,7 @@ typedef std::list<HonorStanding> HonorStandingList;
 struct WeeklyScore
 {
     WeeklyScore()
-        : level(0), account(0), hk(0), dk(0), standing(0),
+        : level(0), account(0), hk(0), dk(0), standing(0), highestRank(0),
             cp(0.0f), oldRp(0.0f), newRp(0.0f), earning(0.0f) {}
 
     uint8  level;
@@ -46,6 +46,7 @@ struct WeeklyScore
     float  newRp;
     float  earning;
     uint32 standing;
+    uint8  highestRank;
 };
 
 typedef std::unordered_map<uint32, WeeklyScore> WeeklyScoresHash;
@@ -154,9 +155,9 @@ class HonorMgr
         void ClearHonorData();
         void ClearHonorCP();
 
-        void InitRankInfo(HonorRankInfo &prk);
-        HonorRankInfo CalculateRank(float rankPoints);
-        HonorRankInfo CalculateRankInfo(HonorRankInfo& prk);
+        static void InitRankInfo(HonorRankInfo &prk);
+        static void CalculateRankInfo(HonorRankInfo& prk);
+        static HonorRankInfo CalculateRank(float rankPoints, uint32 totalHK = 0);
         uint32 CalculateTotalKills(Unit* victim) const;
         
         static float DishonorableKillPoints(uint8 level);
@@ -169,7 +170,7 @@ class HonorMgr
         void SetHighestRank(uint8 hignestRank)
         {
             m_highestRank.rank = hignestRank;
-            m_highestRank = CalculateRankInfo(m_highestRank);
+            CalculateRankInfo(m_highestRank);
         }
         uint32 GetStanding() const { return m_standing; }
         void SetStanding(uint32 standing) { m_standing = standing; }

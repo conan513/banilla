@@ -255,6 +255,22 @@ MaxCoreStuckTime = 0
 AddonChannel = 1
 CleanCharacterDB = 1
 
+# Server's Wow Patch
+#
+# 1.2   = 0
+# 1.3   = 1
+# 1.4   = 2
+# 1.5   = 3
+# 1.6   = 4
+# 1.7   = 5
+# 1.8   = 6
+# 1.9   = 7
+# 1.10  = 8
+# 1.11  = 9
+# 1.12  = 10
+
+WowPatch = 0
+
 ###################################################################################################################
 # SERVER LOGGING
 #
@@ -791,7 +807,7 @@ Event.Announce = 0
 BeepAtStart = 1
 ShowProgressBars = 0
 WaitAtStartupError = 0
-Motd = "Welcome to Nostalrius !"
+Motd = "Welcome to Elysium Project!"
 
 ###################################################################################################################
 # PLAYER INTERACTION
@@ -1589,10 +1605,9 @@ CharDelete.MinLevel = 0
 CharDelete.KeepDays = 30
 
 ###################################################################################################################
-#    NOSTALRIUS SPECIFIC CONFIGURATION
+#    CLUSTERING (Not working, still WIP)
 ###################################################################################################################
 
-# Clustering
 IsMapServer = 0
 NodesListenAddress = "127.0.0.1"
 NodesListenPort = 0
@@ -1600,13 +1615,17 @@ MasterListenAddress = "127.0.0.1"
 MasterListenPort = 0
 ServerName = "Master"
 
-# Database-based chat.
+###################################################################################################################
+#    Database-based chat
+###################################################################################################################
 OfflineChat.Enable = 0
 OfflineChat.Port   = 3444
 OfflineChat.IP     = 0.0.0.0
 OfflineChat.Password= "p8zqkt"
 
-# Playerbot - mainly used for performance perfs & forced 20 secondes delay at logout.
+###################################################################################################################
+#    Player bots
+###################################################################################################################
 PlayerBot.Enable = 1
 PlayerBot.Debug = 0
 PlayerBot.UpdateMs = 1000
@@ -1615,17 +1634,17 @@ PlayerBot.MaxBots = 0
 PlayerBot.Refresh = 10000
 PlayerBot.ForceLogoutDelay = 1
 
-# Nostalrius: it is possible to earn money at each level !
-#Nostalrius.ModMoney.56 = 150000
-
+###################################################################################################################
+#    Others settings
+###################################################################################################################
 # Fix duel distance here !
 DuelDist = 80
 
-# Nostalrius log file (sLog.nostalrius)
-NostalriusLogFile = "Nostalrius.log"
+#Info log file (sLog.outInfo)
+NostalriusLogFile = "Info.log"
 NostalriusLogTimestamp = 0
 
-# Nostalrius chat log file (LOG_CHAT)
+#Chat log file (LOG_CHAT)
 ChatLogFile = "Chat.log"
 ChatLogEnable = 1
 ChatLogTimestamp = 0
@@ -1642,7 +1661,7 @@ AHBot.itemcount = 50
 # Mmaps/pathfinding configuration
 mmap.enabled = 1
 
-# Gestion des phases
+
 Phase.Allow.Mail = 1
 Phase.Allow.Item = 1
 Phase.Allow.WhoList = 1
@@ -1765,6 +1784,9 @@ CriticalCommandsLogFile     = "gm_critical.log"
 # Mail flooding mitigation
 MailSpam.ExpireSecs                             = 0
 MailSpam.MaxMails                               = 2
+MailSpam.Level                                  = 1
+MailSpam.Money                                  = 0
+MailSpam.Item                                   = 0
 
 # Whisper spam mitigation
 WhispSpam.ExpireSecs                            = 0

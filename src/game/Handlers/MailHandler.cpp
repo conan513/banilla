@@ -55,7 +55,7 @@ bool WorldSession::CheckMailBox(ObjectGuid guid)
 class WorldSession::AsyncMailSendRequest
 {
 public:
-    AsyncMailSendRequest(): rcTeam(TEAM_NONE), mailsCount(0xFF), receiverPtr(NULL) {}
+    AsyncMailSendRequest(): rcTeam(TEAM_NONE), mailsCount(0xFF), receiverPtr(NULL), accountId(0), money(0), COD(0) {}
     uint32 accountId;
     ObjectGuid senderGuid;
     ObjectGuid receiver;
@@ -279,6 +279,15 @@ void WorldSession::HandleSendMailCallback(WorldSession::AsyncMailSendRequest* re
             pl->SendMailResult(0, MAIL_SEND, MAIL_ERR_CANT_SEND_WRAPPED_COD);
             return;
         }
+    }
+
+    // Antispam checks
+    if (loadedPlayer->getLevel() < sWorld.getConfig(CONFIG_UINT32_MAILSPAM_LEVEL) &&
+        req->money < sWorld.getConfig(CONFIG_UINT32_MAILSPAM_MONEY) &&
+        (sWorld.getConfig(CONFIG_BOOL_MAILSPAM_ITEM) && !req->itemGuid))
+    {
+        pl->SendMailResult(0, MAIL_SEND, MAIL_ERR_INTERNAL_ERROR);
+        return;
     }
 
     AccountPersistentData& data = sAccountMgr.GetAccountPersistentData(GetAccountId());

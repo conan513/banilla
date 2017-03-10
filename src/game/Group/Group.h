@@ -287,6 +287,7 @@ class MANGOS_DLL_SPEC Group
         }
 
         void SetTargetIcon(uint8 id, ObjectGuid targetGuid);
+        void ClearTargetIcon(ObjectGuid targetGuid);
         uint16 InInstance();
         bool InCombatToInstance(uint32 instanceId);
         void ResetInstances(InstanceResetMethod method, Player* SendMsgTo);

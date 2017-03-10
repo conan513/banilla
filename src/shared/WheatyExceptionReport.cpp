@@ -942,8 +942,10 @@ PVOID pAddress )
         {
             if ( !IsBadStringPtr( *(PSTR*)pAddress, 32) )
             {
+                DWORD AddressData = *(PDWORD)pAddress;
+                char* pStrAddressData = reinterpret_cast <char*> (&AddressData);
                 pszCurrBuffer += sprintf( pszCurrBuffer, " = \"%.31s\"",
-                    *(PDWORD)pAddress );
+                    pStrAddressData);
             }
             else
                 pszCurrBuffer += sprintf( pszCurrBuffer, " = %X",

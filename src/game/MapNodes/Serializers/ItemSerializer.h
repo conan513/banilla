@@ -3,6 +3,9 @@
 #include "Item.h"
 #include "ItemPrototype.h"
 
+#define SERIALIZE_VALUE(v) buf(m_uint32Values[v]);
+#define SERIALIZE_VALUE_GUID(v) buf(m_uint32Values[v]);buf(m_uint32Values[v+1]);
+
 namespace MaNGOS {
 namespace Serializer {
 
@@ -18,8 +21,6 @@ template <typename OP>
 void Item::Serialize(OP& buf)
 {
     // Copy pasted from Item::LoadFromDB to be sure to forget nothing
-#define SERIALIZE_VALUE(v) buf(m_uint32Values[v]);
-#define SERIALIZE_VALUE_GUID(v) buf(m_uint32Values[v]);buf(m_uint32Values[v+1]);
 
     SERIALIZE_VALUE(OBJECT_FIELD_ENTRY);
     SERIALIZE_VALUE_GUID(ITEM_FIELD_OWNER);

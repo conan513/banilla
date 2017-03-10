@@ -2889,7 +2889,7 @@ bool ChatHandler::HandleWpModifyCommand(char* args)
 
     char* arg_str = NULL;
     // Check for argument
-    if ((show.find("text") == std::string::npos) && (show != "del") && (show != "move") && (show != "add"))
+    if ((show != "del") && (show != "move") && (show != "add"))
     {
         // Text is enclosed in "<>", all other arguments not
         if (show.find("text") != std::string::npos)

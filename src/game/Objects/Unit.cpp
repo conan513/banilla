@@ -103,7 +103,7 @@ void GlobalCooldownMgr::CancelGlobalCooldown(SpellEntry const* spellInfo)
 Unit::Unit()
     : WorldObject(), i_motionMaster(this), m_ThreatManager(this), m_HostileRefManager(this),
       movespline(new Movement::MoveSpline()), _debugFlags(0), m_needUpdateVisibility(false),
-      m_AutoRepeatFirstCast(true), m_castingSpell(0), m_regenTimer(0)
+      m_AutoRepeatFirstCast(true), m_castingSpell(0), m_regenTimer(0), _lastDamageTaken(0)
 {
     m_objectType |= TYPEMASK_UNIT;
     m_objectTypeId = TYPEID_UNIT;
@@ -369,7 +369,7 @@ bool Unit::UpdateMeleeAttackingState()
         return false;
 
     uint8 swingError = 0;
-    if (!CanReachWithAutoAttack(victim))
+    if (!CanReachWithMeleeAttack(victim))
     {
         setAttackTimer(BASE_ATTACK, 100);
         setAttackTimer(OFF_ATTACK, 100);
@@ -1147,6 +1147,9 @@ void Unit::Kill(Unit* pVictim, SpellEntry const *spellProto, bool durabilityLoss
 
         if (!creature->IsPet())
         {
+            creature->LogDeath(this);
+            creature->UpdateCombatState(false);
+
             creature->DeleteThreatList();
             if (CreatureInfo const *cinfo = creature->GetCreatureInfo())
                 if (cinfo->lootid || cinfo->maxgold > 0)
@@ -1402,12 +1405,12 @@ void Unit::CalculateSpellDamage(SpellNonMeleeDamage *damageInfo, int32 damage, S
 {
     SpellSchoolMask damageSchoolMask = GetSchoolMask(damageInfo->school);
     Unit *pVictim = damageInfo->target;
+    if (!pVictim)
+        return;
 
     if (damage < 0)
         return;
 
-    if (!this || !pVictim)
-        return;
     if (!pVictim->isAlive())
         return;
 
@@ -1470,7 +1473,7 @@ void Unit::DealSpellDamage(SpellNonMeleeDamage *damageInfo, bool durabilityLoss)
 
     Unit *pVictim = damageInfo->target;
 
-    if (!this || !pVictim)
+    if (!pVictim)
         return;
 
     if (!pVictim->isAlive() || pVictim->IsTaxiFlying() || (pVictim->GetTypeId() == TYPEID_UNIT && ((Creature*)pVictim)->IsInEvadeMode()))
@@ -1547,7 +1550,7 @@ void Unit::CalculateMeleeDamage(Unit *pVictim, uint32 damage, CalcDamageInfo *da
             ? GetSchoolMask(GetWeaponDamageSchool(damageInfo->attackType, i))
             : GetMeleeDamageSchoolMask();
 
-        if (damageInfo->target->IsImmunedToDamage(subDamage->damageSchoolMask))
+        if (damageInfo->target->IsImmuneToDamage(subDamage->damageSchoolMask))
         {
             subDamage->damage = 0;
             continue;
@@ -1817,7 +1820,7 @@ void Unit::DealMeleeDamage(CalcDamageInfo *damageInfo, bool durabilityLoss)
     if (damageInfo == nullptr) return;
     Unit *pVictim = damageInfo->target;
 
-    if (!this || !pVictim)
+    if (!pVictim)
         return;
 
     if (!pVictim->isAlive() || pVictim->IsTaxiFlying() || (pVictim->GetTypeId() == TYPEID_UNIT && ((Creature*)pVictim)->IsInEvadeMode()))
@@ -2981,7 +2984,7 @@ SpellMissInfo Unit::SpellHitResult(Unit *pVictim, SpellEntry const *spell, bool 
         return SPELL_MISS_EVADE;
 
     // Check for immune (use charges)
-    if (pVictim != this && pVictim->IsImmuneToSpell(spell))
+    if (pVictim != this && pVictim->IsImmuneToSpell(spell, pVictim == this))
         return SPELL_MISS_IMMUNE;
 
     // All positive spells can`t miss
@@ -2996,7 +2999,7 @@ SpellMissInfo Unit::SpellHitResult(Unit *pVictim, SpellEntry const *spell, bool 
     else
         schoolMask = GetSpellSchoolMask(spell);
 
-    if (pVictim != this && pVictim->IsImmunedToDamage(schoolMask))
+    if (pVictim != this && pVictim->IsImmuneToDamage(schoolMask))
         return SPELL_MISS_IMMUNE;
 
     // Try victim reflect spell
@@ -3939,7 +3942,7 @@ bool Unit::AddSpellAuraHolder(SpellAuraHolder *holder)
 
     if (holder->IsDeleted())
     {
-        sLog.nostalrius("[Crash/Auras] Adding aura %u on player %s, but aura marked as deleted !", holder->GetId(), GetName());
+        sLog.outInfo("[Crash/Auras] Adding aura %u on player %s, but aura marked as deleted !", holder->GetId(), GetName());
         return false;
     }
     // add aura, register in lists and arrays
@@ -4534,7 +4537,7 @@ void Unit::RemoveSpellAuraHolder(SpellAuraHolder *holder, AuraRemoveMode mode)
         }
     }
     if (!foundInMap)
-        sLog.nostalrius("[Crash/Auras] Removing aura holder *not* in holders map ! Aura %u on %s", holder->GetId(), GetName());
+        sLog.outInfo("[Crash/Auras] Removing aura holder *not* in holders map ! Aura %u on %s", holder->GetId(), GetName());
     holder->SetRemoveMode(mode);
     holder->UnregisterSingleCastHolder();
 
@@ -5972,14 +5975,16 @@ Unit* Unit::SelectMagnetTarget(Unit *victim, Spell* spell, SpellEffectIndex eff)
         return nullptr;
 
     SpellEntry const* pProto = spell->m_spellInfo;
+    if (!pProto) return nullptr;
     // Example spell: Cause Insanity (Hakkar)
     if (pProto->AttributesEx & SPELL_ATTR_EX_CANT_BE_REDIRECTED)
         return victim;
-    // Par exemple : detection de la magie
+    // Magic case
+
     if (pProto->AttributesEx3 & SPELL_ATTR_EX3_NO_INITIAL_AGGRO)
         return victim;
-    // Magic case
-    if (pProto && (pProto->DmgClass == SPELL_DAMAGE_CLASS_MAGIC || pProto->SpellVisual == 7250) && pProto->Dispel != DISPEL_POISON && !(pProto->Attributes & 0x10))
+
+    if ((pProto->DmgClass == SPELL_DAMAGE_CLASS_MAGIC || pProto->SpellVisual == 7250) && pProto->Dispel != DISPEL_POISON && !(pProto->Attributes & 0x10))
     {
         Unit::AuraList const& magnetAuras = victim->GetAurasByType(SPELL_AURA_SPELL_MAGNET);
         for (Unit::AuraList::const_iterator itr = magnetAuras.begin(); itr != magnetAuras.end(); ++itr)
@@ -6608,7 +6613,7 @@ int32 Unit::SpellBaseHealingBonusTaken(SpellSchoolMask schoolMask)
     return AdvertisedBenefit;
 }
 
-bool Unit::IsImmunedToDamage(SpellSchoolMask shoolMask)
+bool Unit::IsImmuneToDamage(SpellSchoolMask shoolMask)
 {
     // If m_immuneToSchool type contain this school type, IMMUNE damage.
     SpellImmuneList const& schoolList = m_spellImmune[IMMUNITY_SCHOOL];
@@ -6625,7 +6630,7 @@ bool Unit::IsImmunedToDamage(SpellSchoolMask shoolMask)
     return false;
 }
 
-bool Unit::IsImmuneToSpell(SpellEntry const* spellInfo)
+bool Unit::IsImmuneToSpell(SpellEntry const *spellInfo, bool /*castOnSelf*/)
 {
     if (!spellInfo)
         return false;
@@ -6672,7 +6677,7 @@ bool Unit::IsImmuneToSpell(SpellEntry const* spellInfo)
     return false;
 }
 
-bool Unit::IsImmuneToSpellEffect(SpellEntry const* spellInfo, SpellEffectIndex index, bool castOnSelf) const
+bool Unit::IsImmuneToSpellEffect(SpellEntry const* spellInfo, SpellEffectIndex index, bool /*castOnSelf*/) const
 {
     //If m_immuneToEffect type contain this effect type, IMMUNE effect.
     uint32 effect = spellInfo->Effect[index];
@@ -9283,33 +9288,35 @@ void Unit::StopMoving()
     DisableSpline();
 }
 
+void Unit::SetFleeing(bool apply, ObjectGuid casterGuid, uint32 spellID, uint32 time)
+{
+    if (apply && HasAuraType(SPELL_AURA_PREVENTS_FLEEING))
+        return;
+
+    ModConfuseSpell(apply, casterGuid, spellID, MOV_MOD_FLEE_FOR_ASSISTANCE, time);
+}
+
 void Unit::SetFeared(bool apply, ObjectGuid casterGuid, uint32 spellID, uint32 time)
 {
     if (apply && HasAuraType(SPELL_AURA_PREVENTS_FLEEING))
         return;
-    ModConfuseSpell(apply, casterGuid, spellID, true, time);
+
+    ModConfuseSpell(apply, casterGuid, spellID, MOV_MOD_FLEE_IN_FEAR, time);
 }
 
 void Unit::SetConfused(bool apply, ObjectGuid casterGuid, uint32 spellID)
 {
-    ModConfuseSpell(apply, casterGuid, spellID, false, 0);
+    ModConfuseSpell(apply, casterGuid, spellID, MOV_MOD_CONFUSED, 0);
 }
 
-
-
-/**
-NOSTALRIUS
-Fonction utilisee par Unit::SetConfused et Unit::SetFeared
-**/
-void Unit::ModConfuseSpell(bool apply, ObjectGuid casterGuid, uint32 spellID, bool fear, uint32 time)
+void Unit::ModConfuseSpell(bool apply, ObjectGuid casterGuid, uint32 spellID, MovementModType modType, uint32 time)
 {
-    // Ne s'applique pas aux totems
     if (GetTypeId() == TYPEID_UNIT)
         if (ToCreature()->IsTotem())
             return;
 
     bool controlFinished = true;
-    // Encore des sorts de confusion
+
     if (HasAuraType(SPELL_AURA_MOD_CONFUSE))
     {
         controlFinished = false;
@@ -9332,13 +9339,24 @@ void Unit::ModConfuseSpell(bool apply, ObjectGuid casterGuid, uint32 spellID, bo
     {
         CastStop(GetObjectGuid() == casterGuid ? spellID : 0);
 
-        if (fear)
+        switch (modType)
         {
-            Unit* caster = IsInWorld() ?  GetMap()->GetUnit(casterGuid) : NULL;
-            GetMotionMaster()->MoveFleeing(caster, time);       // caster==NULL processed in MoveFleeing
+        case MOV_MOD_FLEE_FOR_ASSISTANCE:
+        {
+            Unit* caster = IsInWorld() ? GetMap()->GetUnit(casterGuid) : nullptr;
+            GetMotionMaster()->MoveFleeing(caster, time);
+            break;
         }
-        else
+        case MOV_MOD_FLEE_IN_FEAR:
+        {
+            Unit* caster = IsInWorld() ? GetMap()->GetUnit(casterGuid) : nullptr;
+            GetMotionMaster()->MoveFeared(caster, time);
+            break;
+        }            
+        case MOV_MOD_CONFUSED:
             GetMotionMaster()->MoveConfused();
+            break;
+        }
 
         if (casterGuid != GetObjectGuid())
             InterruptNonMeleeSpells(false);
@@ -9348,11 +9366,21 @@ void Unit::ModConfuseSpell(bool apply, ObjectGuid casterGuid, uint32 spellID, bo
     }
     else
     {
-        if (fear && !HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_FLEEING))
-            GetMotionMaster()->ClearType(FLEEING_MOTION_TYPE);
-        else if (!fear && !HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CONFUSED))
-            GetMotionMaster()->ClearType(CONFUSED_MOTION_TYPE);
-        // Nostalrius :
+        switch (modType)
+        {
+        case MOV_MOD_FLEE_FOR_ASSISTANCE:
+        case MOV_MOD_FLEE_IN_FEAR:
+        {
+            if (!HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_FLEEING))
+                GetMotionMaster()->ClearType(FLEEING_MOTION_TYPE);
+            break;
+        }
+        case MOV_MOD_CONFUSED:
+            if (!HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CONFUSED))
+                GetMotionMaster()->ClearType(CONFUSED_MOTION_TYPE);
+            break;
+        }
+
         // Si spellID=0, c'est pour interrompre (par exemple male de temerite - 704)
         // Donc on retire les effets meme si on a encore un aura de fear.
         if (!controlFinished && spellID)
@@ -9360,13 +9388,14 @@ void Unit::ModConfuseSpell(bool apply, ObjectGuid casterGuid, uint32 spellID, bo
 
         if (GetTypeId() != TYPEID_PLAYER && isAlive())
         {
-            Unit* caster = IsInWorld() ? GetMap()->GetUnit(casterGuid) : NULL;
+            Unit* caster = IsInWorld() ? GetMap()->GetUnit(casterGuid) : nullptr;
             if (caster)
                 AttackedBy(caster);
 
             // restore appropriate movement generator
             if (!SelectHostileTarget())
                 return;
+
             if (getVictim())
                 SetTargetGuid(getVictim()->GetObjectGuid());
 
@@ -10038,8 +10067,8 @@ void Unit::CleanupDeletedAuras()
             // - Pet::AddObjectToRemoveList
             // Seen happening with spells like [Health Funnel], [Tainted Blood]
             ACE_Stack_Trace st;
-            sLog.nostalrius("[Crash/Auras] Deleting aura holder %u in use (%s)", (*iter)->GetId(), GetObjectGuid().GetString().c_str());
-            sLog.nostalrius("%s", st.c_str());
+            sLog.outInfo("[Crash/Auras] Deleting aura holder %u in use (%s)", (*iter)->GetId(), GetObjectGuid().GetString().c_str());
+            sLog.outInfo("%s", st.c_str());
         }
         else
             delete *iter;
@@ -10052,8 +10081,8 @@ void Unit::CleanupDeletedAuras()
         if ((*iter)->IsInUse())
         {
             ACE_Stack_Trace st;
-            sLog.nostalrius("[Crash/Auras] Deleting aura %u in use (%s)", (*iter)->GetId(), GetObjectGuid().GetString().c_str());
-            sLog.nostalrius("%s", st.c_str());
+            sLog.outInfo("[Crash/Auras] Deleting aura %u in use (%s)", (*iter)->GetId(), GetObjectGuid().GetString().c_str());
+            sLog.outInfo("%s", st.c_str());
         }
         else
             delete *iter;
@@ -10392,25 +10421,10 @@ float Unit::GetCombatReach(Unit const* pVictim, bool forMeleeRange /*=true*/, fl
 	return reach;
 }
 
-bool Unit::CanReachWithMeleeAttack(Unit const * pVictim, float flat_mod) const
-{
-	if (!pVictim || !pVictim->IsInWorld())
-		return false;
-
-	float reach = GetCombatReach(pVictim, true, flat_mod);
-
-	// This check is not related to bounding radius
-	float dx = GetPositionX() - pVictim->GetPositionX();
-	float dy = GetPositionY() - pVictim->GetPositionY();
-	float dz = GetPositionZ() - pVictim->GetPositionZ();
-
-	return (dx * dx + dy * dy + dz * dz < reach * reach);
-}
-
-bool Unit::CanReachWithAutoAttack(Unit const* pVictim, float flat_mod /*= 0.0f*/) const
+bool Unit::CanReachWithMeleeAttack(Unit const* pVictim, float flat_mod /*= 0.0f*/) const
 {
     if (!pVictim || !pVictim->IsInWorld())
-		return false;
+        return false;
 
     float reach = GetCombatReach(pVictim, true, flat_mod);
 
@@ -10419,11 +10433,22 @@ bool Unit::CanReachWithAutoAttack(Unit const* pVictim, float flat_mod /*= 0.0f*/
     float dy = GetPositionY() - pVictim->GetPositionY();
     float dz = GetPositionZ() - pVictim->GetPositionZ();
 
-    // Limit vertical reach of melee attacks (e.g. for Onyxia phase 2)
-    if ((dz * dz) > MELEE_Z_LIMIT)
+    return (dx * dx + dy * dy < reach * reach) && ((dz * dz) < MELEE_Z_LIMIT);
+}
+
+bool Unit::CanReachWithMeleeSpellAttack(Unit const* pVictim, float flat_mod /*= 0.0f*/) const
+{
+    if (!pVictim || !pVictim->IsInWorld())
         return false;
 
-    return (dx * dx + dy * dy + dz * dz < reach * reach);
+    float reach = GetCombatReach(pVictim, true, flat_mod);
+
+    // This check is not related to bounding radius
+    float dx = GetPositionX() - pVictim->GetPositionX();
+    float dy = GetPositionY() - pVictim->GetPositionY();
+
+    // melee spells ignore Z-axis checks
+    return dx * dx + dy * dy < reach * reach;
 }
 
 Unit* Unit::GetUnit(WorldObject &obj, uint64 const &Guid)
@@ -10681,7 +10706,7 @@ Aura* Unit::GetMostImportantAuraAfter(Aura const* like, Aura const* except)
 
     if (auraName >= TOTAL_AURAS)
     {
-        sLog.nostalrius("[AURASTACK][%u] auraName %u invalide.", like->GetId(), auraName);
+        sLog.outInfo("[AURASTACK][%u] auraName %u invalide.", like->GetId(), auraName);
         return nullptr;
     }
 

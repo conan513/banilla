@@ -20,13 +20,13 @@
 #ifndef _OBJECT_H
 #define _OBJECT_H
 
-#include "Common.h"
-#include "ByteBuffer.h"
+#include "..\..\shared\Common.h"
+#include "..\..\shared\ByteBuffer.h"
 #include "UpdateFields.h"
 #include "UpdateData.h"
-#include "ObjectGuid.h"
-#include "Camera.h"
-#include "SpellEntry.h"
+#include "..\ObjectGuid.h"
+#include "..\Camera.h"
+#include "..\Spells\SpellEntry.h"
 
 #include <set>
 #include <string>
@@ -133,7 +133,8 @@ enum ObjectSpawnFlags
     SPAWN_FLAG_DISABLED             = 0x02,
     SPAWN_FLAG_RANDOM_RESPAWN_TIME  = 0x04,
     SPAWN_FLAG_DYNAMIC_RESPAWN_TIME = 0x08,
-    SPAWN_FLAG_FORCE_DYNAMIC_ELITE  = 0x10,
+    SPAWN_FLAG_FORCE_DYNAMIC_ELITE  = 0x10, // creature only
+    SPAWN_FLAG_EVADE_OUT_HOME_AREA  = 0x20, // creature only
 };
 
 // [-ZERO] Need check and update
@@ -754,7 +755,7 @@ class MANGOS_DLL_SPEC WorldObject : public Object
 
         float GetAngle( const WorldObject* obj ) const;
         float GetAngle( const float x, const float y ) const;
-        bool HasInArc( const float arcangle, const WorldObject* obj ) const;
+        bool HasInArc(const float arcangle, const WorldObject* obj, float offset = 0.0f) const;
         bool HasInArc(const float arcangle, const float x, const float y) const;
         bool isInFrontInMap(WorldObject const* target,float distance, float arc = M_PI) const;
         bool isInBackInMap(WorldObject const* target, float distance, float arc = M_PI) const;

@@ -195,9 +195,9 @@ extern int main(int argc, char **argv)
 #define XSTR(s) STR(s)
 
     //sLog.nostalrius("Starting worldserver CORE: %s SCRIPTS: %s " __DATE__ " " __TIME__ , XSTR(CORE_VERSION), XSTR(SCRIPT_VERSION));
-    sLog.nostalrius("Build params : \"" MANGOS_BUILD_OPTIONS "\"");
-    sLog.nostalrius("Alloc library: " MANGOS_ALLOC_LIB "");
-    sLog.nostalrius("Core Revision: " _FULLVERSION);
+    sLog.outInfo("Build params : \"" MANGOS_BUILD_OPTIONS "\"");
+    sLog.outInfo("Alloc library: " MANGOS_ALLOC_LIB "");
+    sLog.outInfo("Core Revision: " _FULLVERSION);
 
     DETAIL_LOG("%s (Library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
     if (SSLeay() < 0x009080bfL )

@@ -105,28 +105,28 @@ class MANGOS_DLL_SPEC MovementGeneratorMedium : public MovementGenerator
             //u->AssertIsType<T>();
             return (static_cast<D*>(this))->GetResetPosition(*((T*)&u), x, y, z);
         }
-    public:
+
         // will not link if not overridden in the generators
         void Initialize(T &u);
         void Finalize(T &u);
         void Interrupt(T &u);
         void Reset(T &u);
         bool Update(T &u, const uint32 &time_diff);
-        void UpdateAsync(T &u, uint32 time_diff) {}
+        void UpdateAsync(T &/*u*/, uint32 /*time_diff*/) {}
 
         // not need always overwrites
         bool GetResetPosition(T& /*u*/, float& /*x*/, float& /*y*/, float& /*z*/) { return false; }
 };
 
-struct SelectableMovement : public FactoryHolder<MovementGenerator,MovementGeneratorType>
+struct SelectableMovement : FactoryHolder<MovementGenerator,MovementGeneratorType>
 {
-    SelectableMovement(MovementGeneratorType mgt) : FactoryHolder<MovementGenerator,MovementGeneratorType>(mgt) {}
+    explicit SelectableMovement(MovementGeneratorType mgt) : FactoryHolder<MovementGenerator,MovementGeneratorType>(mgt) {}
 };
 
 template<class REAL_MOVEMENT>
-struct MovementGeneratorFactory : public SelectableMovement
+struct MovementGeneratorFactory : SelectableMovement
 {
-    MovementGeneratorFactory(MovementGeneratorType mgt) : SelectableMovement(mgt) {}
+    explicit MovementGeneratorFactory(MovementGeneratorType mgt) : SelectableMovement(mgt) {}
 
     MovementGenerator* Create(void *) const;
 };

@@ -78,7 +78,7 @@ void WorldRunnable::run()
             {
                 anticrashRearmTimer = 0;
                 Master::ArmAnticrash();
-                sLog.nostalrius("Anticrash rearmed");
+                sLog.outInfo("Anticrash rearmed");
             }
             else
                 anticrashRearmTimer -= diff;

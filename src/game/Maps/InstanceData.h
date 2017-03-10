@@ -35,7 +35,7 @@ class MANGOS_DLL_SPEC InstanceData : public ZoneScript
 {
     public:
 
-        explicit InstanceData(Map *map) : instance(map) { ZoneScript::SetMap(map);}
+        explicit InstanceData(Map *map) : instance(map) { SetMap(map); }
         virtual ~InstanceData() {}
 
         Map *instance;
@@ -53,40 +53,14 @@ class MANGOS_DLL_SPEC InstanceData : public ZoneScript
         void SaveToDB();
 
         //Called every map update
-        virtual void Update(uint32 /*diff*/) {}
+        void Update(uint32 /*diff*/) override {}
 
         //Used by the map's CanEnter function.
         //This is to prevent players from entering during boss encounters.
-        virtual bool IsEncounterInProgress() const { return false; };
+        virtual bool IsEncounterInProgress() const { return false; }
 
-        // NOSTALRIUS : Les fonctions suivantes sont dans ZoneScript
-        //Called when a player successfully enters the instance (after really added to map)
-        //virtual void OnPlayerEnter(Player *) {}
-
-        //Called when a player dies inside instance
-        //virtual void OnPlayerDeath(Player *) {}
-
-        //Called when a player leaves the instance (before really removed from map (or possibly world))
-        //virtual void OnPlayerLeave(Player *) {}
-
-        //Called when a gameobject is created
-        //virtual void OnObjectCreate(GameObject *) {}
-
-        //called on creature creation
-        //virtual void OnCreatureCreate(Creature * /*creature*/) {}
-
-        //called on creature enter combat
-        //virtual void OnCreatureEnterCombat(Creature * /*creature*/) {}
-
-        //called on creature evade
-        //virtual void OnCreatureEvade(Creature * /*creature*/) {}
-
-        //called on creature death
-        //virtual void OnCreatureDeath(Creature * /*creature*/) {}
-
-		// Nostalrius
         // Spells
-        virtual void CustomSpellCasted      (uint32 /*spellId*/, Unit* caster = NULL, Unit* target = NULL) {}
+        virtual void CustomSpellCasted (uint32 /*spellId*/, Unit* /*caster*/ = nullptr, Unit* /*target*/ = nullptr) {}
 
         //All-purpose data storage 64 bit
         virtual uint64 GetData64(uint32 /*Data*/) { return 0; }

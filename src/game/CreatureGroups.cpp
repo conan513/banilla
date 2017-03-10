@@ -48,8 +48,7 @@ void CreatureGroup::OnMemberAttackStart(Creature* member, Unit *target)
             MemberAssist(member->GetMap()->GetCreature(itr->first), target);
 
     if (member->GetObjectGuid() != GetLeaderGuid())
-        if (member->GetObjectGuid() != GetLeaderGuid())
-            MemberAssist(member->GetMap()->GetCreature(GetLeaderGuid()), target);
+        MemberAssist(member->GetMap()->GetCreature(GetLeaderGuid()), target);
 }
 
 void CreatureGroup::OnLeaveCombat(Creature* member)

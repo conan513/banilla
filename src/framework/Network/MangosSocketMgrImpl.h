@@ -33,7 +33,8 @@ public:
     ReactorRunnable() :
         m_Reactor(0),
         m_Connections(0),
-        m_ThreadId(-1)
+        m_ThreadId(-1),
+        m_Interval(0)
     {
         ACE_Reactor_Impl* imp = 0;
 

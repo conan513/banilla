@@ -8,7 +8,7 @@ MovementBroadcaster::MovementBroadcaster(std::size_t threads, std::chrono::milli
     : m_sleep_timer(frequency), m_num_threads(threads)
 {
     if (threads)
-        sLog.nostalrius("[NETWORK] Movement broadcaster configured to run every %ums "
+        sLog.outInfo("[NETWORK] Movement broadcaster configured to run every %ums "
                         "with %u threads", frequency.count(), threads);
     StartThreads();
 }
@@ -119,7 +119,7 @@ void MovementBroadcaster::BroadcastPackets(std::size_t index, uint32& num_packet
 
 void MovementBroadcaster::Stop()
 {
-    sLog.nostalrius("[NETWORK] Stopping movement broadcaster...");
+    sLog.outInfo("[NETWORK] Stopping movement broadcaster...");
 
     m_stop = true;
 

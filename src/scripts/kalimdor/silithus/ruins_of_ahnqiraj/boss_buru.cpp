@@ -43,11 +43,10 @@ enum
 
     NPC_HIVEZARA_HATCHLING      =   15521,
 
-    MODEL_INVISIBLE             =   11686,
-
-    //Valeur de menace pour verouiller sa cible
-    THREAT_LOCK                 =    5000000000, // ???????????????
+    MODEL_INVISIBLE             =   11686
 };
+
+const float THREAT_LOCK = FLT_MAX;
 
 struct SpawnLocations
 {

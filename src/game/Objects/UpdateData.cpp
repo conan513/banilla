@@ -154,7 +154,7 @@ bool UpdateData::BuildPacket(WorldPacket *packet, UpdatePacket const* updPacket,
     if (pSize > 100)                                       // compress large packets
     {
         if (pSize >= 900000)
-            sLog.nostalrius("[CRASH-CLIENT] Too large packet: %u", pSize);
+            sLog.outInfo("[CRASH-CLIENT] Too large packet: %u", pSize);
 
         uint32 destsize = compressBound(pSize);
         packet->resize(destsize + sizeof(uint32));
@@ -236,7 +236,7 @@ bool MovementData::BuildPacket(WorldPacket& packet)
     size_t pSize = _buffer.wpos();                              // use real used data size
 
     if (pSize >= 900000)
-        sLog.nostalrius("[CRASH-CLIENT] Too large packet size %u (SMSG_COMPRESSED_MOVES)", pSize);
+        sLog.outInfo("[CRASH-CLIENT] Too large packet size %u (SMSG_COMPRESSED_MOVES)", pSize);
 
     uint32 destsize = compressBound(pSize);
     packet.resize(destsize + sizeof(uint32));

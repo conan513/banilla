@@ -48,7 +48,7 @@ bool Config::GetValueHelper(const char* name, ACE_TString &result)
 }
 
 Config::Config()
-: mConf(NULL)
+: mConf(nullptr)
 {
 }
 
@@ -77,7 +77,7 @@ bool Config::Reload()
     }
 
     delete mConf;
-    mConf = NULL;
+    mConf = nullptr;
     return false;
 }
 

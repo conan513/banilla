@@ -75,7 +75,7 @@ void Roll::targetObjectBuildLink()
 
 Group::Group() : m_Id(0), m_groupType(GROUPTYPE_NORMAL),
     m_bgGroup(NULL), m_lootMethod(FREE_FOR_ALL), m_lootThreshold(ITEM_QUALITY_UNCOMMON),
-    m_subGroupsCounts(NULL), m_groupTeam(TEAM_NONE)
+    m_subGroupsCounts(NULL), m_groupTeam(TEAM_NONE), m_leaderLastOnline(0)
 {
 }
 
@@ -642,7 +642,7 @@ void Group::MasterLoot(Creature *creature, Loot* loot)
         if (!looter->IsInWorld())
             continue;
 
-        if (looter->IsWithinDist(creature, sWorld.getConfig(CONFIG_FLOAT_GROUP_XP_DISTANCE), false))
+        if (looter->IsWithinDistInMap(creature, sWorld.getConfig(CONFIG_FLOAT_GROUP_XP_DISTANCE), false))
         {
             data << looter->GetObjectGuid();
             ++real_count;
@@ -656,7 +656,7 @@ void Group::MasterLoot(Creature *creature, Loot* loot)
         Player *looter = itr->getSource();
         if (!looter->IsInWorld())
             continue;
-        if (looter->IsWithinDist(creature, sWorld.getConfig(CONFIG_FLOAT_GROUP_XP_DISTANCE), false))
+        if (looter->IsWithinDistInMap(creature, sWorld.getConfig(CONFIG_FLOAT_GROUP_XP_DISTANCE), false))
             looter->GetSession()->SendPacket(&data);
     }
 }
@@ -744,7 +744,7 @@ void Group::StartLootRoll(Creature* lootTarget, LootMethod method, Loot* loot, u
 
         if ((method != NEED_BEFORE_GREED || playerToRoll->CanUseItem(item) == EQUIP_ERR_OK) && lootItem.AllowedForPlayer(playerToRoll, lootTarget))
         {
-            if (playerToRoll->IsWithinDist(lootTarget, sWorld.getConfig(CONFIG_FLOAT_GROUP_XP_DISTANCE), false))
+            if (playerToRoll->IsWithinDistInMap(lootTarget, sWorld.getConfig(CONFIG_FLOAT_GROUP_XP_DISTANCE), false))
             {
                 r->playerVote[playerToRoll->GetObjectGuid()] = ROLL_NOT_EMITED_YET;
                 ++r->totalPlayersRolling;
@@ -924,6 +924,14 @@ void Group::SetTargetIcon(uint8 id, ObjectGuid targetGuid)
     data << uint8(id);
     data << targetGuid;
     BroadcastPacket(&data, true);
+}
+
+void Group::ClearTargetIcon(ObjectGuid targetGuid)
+// Find target icon of target. Clear if found
+{
+    for (int i = 0; i < TARGET_ICON_COUNT; ++i)
+        if (m_targetIcons[i] == targetGuid)
+            return SetTargetIcon(i, ObjectGuid());
 }
 
 static void GetDataForXPAtKill_helper(Player* player, Unit const* victim, uint32& sum_level, Player* & member_with_max_level, Player* & not_gray_member_with_max_level)
@@ -1634,10 +1642,10 @@ InstanceGroupBind* Group::GetBoundInstance(uint32 mapid)
 
 InstanceGroupBind* Group::BindToInstance(DungeonPersistentState *state, bool permanent, bool load)
 {
-    ASSERT(state->GetMapId() > 1);
-
     if (state && !isBGGroup())
     {
+        ASSERT(state->GetMapId() > 1);
+
         InstanceGroupBind& bind = m_boundInstances[state->GetMapId()];
         if (bind.state)
         {

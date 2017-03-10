@@ -16,7 +16,83 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 # Glob only and not recurse, there are other libs for that
-file(GLOB_RECURSE shared_SRCS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.cpp *.h)
+set (shared_SRCS 
+	ByteBuffer.h
+	Common.h
+	DelayExecutor.h
+	Errors.h
+	LockedQueue.h
+	Log.h
+	migrations_list.h
+	PosixDaemon.h
+	ProgressBar.h
+	revision.h
+	ServiceWin32.h
+	SystemConfig.h
+	Threading.h
+	Timer.h
+	Util.h
+	WheatyExceptionReport.h
+	WorldPacket.h
+	Auth/AuthCrypt.h
+	Auth/base32.h
+	Auth/BigNumber.h
+	Auth/Hmac.h
+	Auth/HMACSHA1.h
+	Auth/md5.h
+	Auth/SARC4.h
+	Auth/Sha1.h
+	Config/Config.h
+	Config/ConfigEnv.h
+	Database/Database.h
+	Database/DatabaseEnv.h
+	Database/DatabaseImpl.h
+	Database/DatabaseMysql.h
+	Database/DatabasePostgre.h
+	Database/DBCFileLoader.h
+	Database/DBCStore.h
+	Database/Field.h
+	Database/MySQLDelayThread.h
+	Database/PGSQLDelayThread.h
+	Database/QueryResult.h
+	Database/QueryResultMysql.h
+	Database/QueryResultPostgre.h
+	Database/SqlDelayThread.h
+	Database/SqlOperations.h
+	Database/SqlPreparedStatement.h
+	Database/SQLStorage.h
+	Database/SQLStorageImpl.h
+	Common.cpp
+	DelayExecutor.cpp
+	Log.cpp
+	PosixDaemon.cpp
+	ProgressBar.cpp
+	ServiceWin32.cpp
+	Threading.cpp
+	Util.cpp
+	WheatyExceptionReport.cpp
+	Auth/AuthCrypt.cpp
+	Auth/base32.cpp
+	Auth/BigNumber.cpp
+	Auth/Hmac.cpp
+	Auth/HMACSHA1.cpp
+	Auth/SARC4.cpp
+	Auth/Sha1.cpp
+	Config/Config.cpp
+	Database/Database.cpp
+	Database/DatabaseMysql.cpp
+	Database/DatabasePostgre.cpp
+	Database/DBCFileLoader.cpp
+	Database/Field.cpp
+	Database/QueryResultMysql.cpp
+	Database/QueryResultPostgre.cpp
+	Database/SqlDelayThread.cpp
+	Database/SqlOperations.cpp
+	Database/SqlPreparedStatement.cpp
+	Database/SQLStorage.cpp
+
+)
+
 
 # Exclude Win32 files
 if(WIN32)

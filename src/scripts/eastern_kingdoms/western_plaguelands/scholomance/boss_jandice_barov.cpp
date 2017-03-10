@@ -23,10 +23,16 @@ EndScriptData */
 
 #include "scriptPCH.h"
 
-#define SPELL_CURSEOFBLOOD          16098
-//#define SPELL_ILLUSION              17773
+enum
+{
+    SPELL_CURSEOFBLOOD = 16098,
+    SPELL_BANISH = 8994,
+    SPELL_ILLUSION = 17773,
+    SPELL_DROP_JOURNAL = 26096,
+    SPELL_PHASING = 16122
+};
 
-//Spells of Illusion of Jandice Barov
+#define SPELL_CURSEOFBLOOD          16098
 #define SPELL_CLEAVE                15584
 
 struct boss_jandicebarovAI : public ScriptedAI
@@ -85,6 +91,11 @@ struct boss_jandicebarovAI : public ScriptedAI
         UnsummonIllusions();
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         m_creature->SetVisibility(VISIBILITY_ON);
+
+        if (sWorld.GetWowPatch() > WOW_PATCH_108)
+        {
+            DoCastSpellIfCan(m_creature, SPELL_DROP_JOURNAL, CAST_TRIGGERED);
+        }
     }
 
     void DamageTaken(Unit* /*pDealer*/, uint32& uiDamage)

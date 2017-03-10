@@ -105,6 +105,7 @@ AccountOpResult AccountMgr::DeleteAccount(uint32 accid)
     return AOR_OK;
 }
 
+//#DEPRECATED: Not used anywhere, should we delete?
 AccountOpResult AccountMgr::ChangeUsername(uint32 accid, std::string new_uname, std::string new_passwd)
 {
     QueryResult *result = LoginDatabase.PQuery("SELECT 1 FROM account WHERE id='%u'", accid);
@@ -305,7 +306,7 @@ void AccountMgr::Update(uint32 diff)
     {
         _banlistUpdateTimer = sWorld.getConfig(CONFIG_BANLIST_RELOAD_TIMER) * 1000;
         LoadIPBanList(true);
-        LoadAccountBanList(true);
+        //LoadAccountBanList(true);
     }
     else
         _banlistUpdateTimer -= diff;

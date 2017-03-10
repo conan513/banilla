@@ -312,4 +312,5 @@ bool ChatHandler::HandleWhisperRestrictionCommand(char* args)
 
     GetSession()->GetPlayer()->setWhisperRestriction(value);
     PSendSysMessage("Whisper restriction is %s", value ? "ON" : "OFF");
+    return false;
 }

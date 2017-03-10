@@ -69,8 +69,6 @@ inline ByteBuffer& operator>>(ByteBuffer& buf, PlayerTaxi& taxi)
     return buf;
 }
 
-#define SERIALIZE_VALUE(v) buf(m_uint32Values[v])
-
 template <typename OP>
 void Player::Serialize(OP& buf)
 {

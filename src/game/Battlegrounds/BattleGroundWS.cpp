@@ -28,6 +28,7 @@
 #include "WorldPacket.h"
 #include "Language.h"
 #include "MapManager.h"
+#include "World.h"
 
 BattleGroundWS::BattleGroundWS()
 {
@@ -543,9 +544,13 @@ void BattleGroundWS::Reset()
         m_TeamScores[i]      = 0;
     }
     bool isBGWeekend = BattleGroundMgr::IsBGWeekend(GetTypeID());
-    // [-PROGRESSIVE]
-    //m_ReputationCapture = (isBGWeekend) ? 45 : 35; // 1.10+
-    m_ReputationCapture = (isBGWeekend) ? 30 : 20; // 1.9-
+
+    m_ReputationCapture = (isBGWeekend) ? 45 : 35;
+
+    // [-PROGRESSIVE] < 1.10
+    if (sWorld.GetWowPatch() < WOW_PATCH_110)
+        m_ReputationCapture = (isBGWeekend) ? 30 : 20;
+
     m_HonorWinKills = (isBGWeekend) ? 3 : 1;
     m_HonorEndKills = (isBGWeekend) ? 4 : 2;
 }

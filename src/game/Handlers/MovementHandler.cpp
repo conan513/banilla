@@ -640,7 +640,7 @@ void WorldSession::HandleMoverRelocation(MovementInfo& movementInfo)
 
             if (undermap)
                 if (plMover->UndermapRecall())
-                    sLog.nostalrius("[UNDERMAP] %s [GUID %u]. MapId:%u %f %f %f", plMover->GetName(), plMover->GetGUIDLow(), plMover->GetMapId(), plMover->GetPositionX(), plMover->GetPositionY(), plMover->GetPositionZ());
+                    sLog.outInfo("[UNDERMAP] %s [GUID %u]. MapId:%u %f %f %f", plMover->GetName(), plMover->GetGUIDLow(), plMover->GetMapId(), plMover->GetPositionX(), plMover->GetPositionY(), plMover->GetPositionZ());
         }
         else if (plMover->CanFreeMove())
             plMover->SaveNoUndermapPosition(movementInfo.GetPos()->x, movementInfo.GetPos()->y, movementInfo.GetPos()->z + 3.0f);
@@ -668,7 +668,7 @@ void WorldSession::HandleMoverRelocation(MovementInfo& movementInfo)
             }
 
             // cancel the death timer here if started
-            sLog.nostalrius("[UNDERMAP/Teleport] Player %s teleported.", plMover->GetName(), plMover->GetGUIDLow(), plMover->GetMapId(), plMover->GetPositionX(), plMover->GetPositionY(), plMover->GetPositionZ());
+            sLog.outInfo("[UNDERMAP/Teleport] Player %s teleported.", plMover->GetName(), plMover->GetGUIDLow(), plMover->GetMapId(), plMover->GetPositionX(), plMover->GetPositionY(), plMover->GetPositionZ());
             plMover->RepopAtGraveyard();
         }
     }

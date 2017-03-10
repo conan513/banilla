@@ -123,47 +123,50 @@ class Log : public MaNGOS::Singleton<Log, MaNGOS::ClassLevelLockable<Log, ACE_Th
 
     ~Log()
     {
-        if( logfile != NULL )
+        if( logfile != nullptr )
             fclose(logfile);
-        logfile = NULL;
+        logfile = nullptr;
 
-        if( gmLogfile != NULL )
+        if( gmLogfile != nullptr )
             fclose(gmLogfile);
-        gmLogfile = NULL;
+        gmLogfile = nullptr;
 
-        if( dberLogfile != NULL )
+        if( dberLogfile != nullptr )
             fclose(dberLogfile);
-        dberLogfile = NULL;
+        dberLogfile = nullptr;
 
-        if (worldLogfile != NULL)
+        if (worldLogfile != nullptr)
             fclose(worldLogfile);
-        worldLogfile = NULL;
+        worldLogfile = nullptr;
 
-        if (nostalriusLogFile != NULL)
+        if (nostalriusLogFile != nullptr)
             fclose(nostalriusLogFile);
-        nostalriusLogFile = NULL;
+        nostalriusLogFile = nullptr;
 
         if (honorLogfile != nullptr)
             fclose(honorLogfile);
         honorLogfile = nullptr;
 
         for (int i = 0; i < LOG_MAX_FILES; ++i)
-            if (logFiles[i] != NULL)
+            if (logFiles[i] != nullptr)
             {
                 fclose(logFiles[i]);
-                logFiles[i] = NULL;
+                logFiles[i] = nullptr;
             }
     }
     public:
         void Initialize();
         void InitColors(const std::string& init_str);
 
+        void InitSmartlogEntries(const std::string& str);
+        void InitSmartlogGuids(const std::string& str);
+
         void out(LogFile t, const char* format, ...) ATTR_PRINTF(3,4);
         void outCommand( uint32 account, const char * str, ...) ATTR_PRINTF(3,4);
         void outString();                                   // any log level
                                                             // any log level
         void outString( const char * str, ... )      ATTR_PRINTF(2,3);
-        void nostalrius( const char * str, ...)      ATTR_PRINTF(2,3);
+        void outInfo( const char * str, ...)      ATTR_PRINTF(2,3);
         void outHonor(const char* str, ...)       ATTR_PRINTF(2, 3);
                                                             // any log level
         void outError( const char * err, ... )       ATTR_PRINTF(2,3);
@@ -179,7 +182,7 @@ class Log : public MaNGOS::Singleton<Log, MaNGOS::ClassLevelLockable<Log, ACE_Th
                                                             // any log level
         void outErrorDb( const char * str, ... )     ATTR_PRINTF(2,3);
                                                             // any log level
-        void outWorldPacketDump( uint32 socket, uint32 opcode, char const* opcodeName, ByteBuffer const* packet, bool incoming );
+        void outWorldPacketDump( uint64 socket, uint32 opcode, char const* opcodeName, ByteBuffer const* packet, bool incoming );
         // any log level
         uint32 GetLogLevel() const { return m_logLevel; }
         void SetLogLevel(char * Level);
@@ -195,6 +198,10 @@ class Log : public MaNGOS::Singleton<Log, MaNGOS::ClassLevelLockable<Log, ACE_Th
         bool IsIncludeTime() const { return m_includeTime; }
 
         static void WaitBeforeContinueIfNeed();
+
+        std::list<uint32> m_smartlogExtraEntries;
+        std::list<uint32> m_smartlogExtraGuids;
+
     private:
         FILE* openLogFile(char const* configFileName,char const* configTimeStampFlag, char const* mode);
         FILE* openGmlogPerAccount(uint32 account);

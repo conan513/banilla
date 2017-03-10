@@ -428,7 +428,7 @@ struct ossirian_crystalAI : public GameObjectAI
 
         if (!m_pInstance)
         {
-            sLog.nostalrius("[OSSIRIAN/Crystal][Inst %03u] ERROR: No instance", user->GetInstanceId());
+            sLog.outInfo("[OSSIRIAN/Crystal][Inst %03u] ERROR: No instance", user->GetInstanceId());
             return false;
         }
 
@@ -436,19 +436,19 @@ struct ossirian_crystalAI : public GameObjectAI
 
         if (!ossirian)
         {
-            sLog.nostalrius("[OSSIRIAN/Crystal][Inst %03u] ERROR: No Ossirian found (guid %u)", user->GetInstanceId(), m_pInstance->GetData64(DATA_OSSIRIAN));
+            sLog.outInfo("[OSSIRIAN/Crystal][Inst %03u] ERROR: No Ossirian found (guid %u)", user->GetInstanceId(), m_pInstance->GetData64(DATA_OSSIRIAN));
             return false;
         }
 
         if (!ossirian->SelectHostileTarget() || !ossirian->getVictim())
         {
-            sLog.nostalrius("[OSSIRIAN/Crystal][Inst %03u] ERROR: Ossirian not in combat", user->GetInstanceId(), m_pInstance->GetData64(DATA_OSSIRIAN));
+            sLog.outInfo("[OSSIRIAN/Crystal][Inst %03u] ERROR: Ossirian not in combat", user->GetInstanceId(), m_pInstance->GetData64(DATA_OSSIRIAN));
             return true;
         }
 
         if (me->FindNearCreature(CRYSTAL_TRIGGER, 10.0f))
         {
-            sLog.nostalrius("[OSSIRIAN/Crystal][Inst %03u] ERROR: Crystal already activated. Race condition attempt.", user->GetInstanceId());
+            sLog.outInfo("[OSSIRIAN/Crystal][Inst %03u] ERROR: Crystal already activated. Race condition attempt.", user->GetInstanceId());
             return true;
         }
 

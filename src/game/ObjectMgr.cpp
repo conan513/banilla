@@ -4858,7 +4858,7 @@ void ObjectMgr::LoadBattlegroundEntranceTriggers()
             continue;
         }
 
-        if (bget.exit_X == 0 && bget.exit_Y == 0 && bget.exit_Y == 0)
+        if (bget.exit_X == 0 && bget.exit_Y == 0 && bget.exit_Z == 0)
         {
             sLog.outErrorDb("Table `areatrigger_bg_entrance` has area trigger (ID:%u) without battleground exit coordinates.", Trigger_ID);
             continue;
@@ -5644,7 +5644,7 @@ void ObjectMgr::LoadGameobjectInfo()
 void ObjectMgr::CheckGameObjectInfos()
 {
     // some checks
-    for (auto itr = sGOStorage.begin<GameObjectInfo>(); itr < sGOStorage.end<GameObjectInfo>(); ++itr)
+    for (auto itr = sGOStorage.begin<GameObjectInfo>(); itr != sGOStorage.end<GameObjectInfo>(); ++itr)
     {
         if (itr->size <= 0.0f)                           // prevent use too small scales
         {
@@ -9378,7 +9378,7 @@ void ObjectMgr::LoadAreaTemplate()
 {
     sAreaStorage.Load();
 
-    for (auto itr = sAreaStorage.begin<AreaEntry>(); itr < sAreaStorage.end<AreaEntry>() ; ++itr)
+    for (auto itr = sAreaStorage.begin<AreaEntry>(); itr != sAreaStorage.end<AreaEntry>() ; ++itr)
         if (itr->IsZone() && itr->MapId != 0 && itr->MapId != 1)
             sAreaFlagByMapId.insert(AreaFlagByMapId::value_type(itr->MapId, itr->ExploreFlag));
 }

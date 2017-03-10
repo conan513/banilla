@@ -16,7 +16,27 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 set(EXECUTABLE_NAME mangosd)
-file(GLOB_RECURSE EXECUTABLE_SRCS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.cpp *.h)
+set (EXECUTABLE_SRCS 
+	ChatSocket.h
+	CliRunnable.h
+	MaNGOSsoap.h
+	Master.h
+	RASocket.h
+	soapH.h
+	soapStub.h
+	WorldRunnable.h
+	ChatSocket.cpp
+	CliRunnable.cpp
+	Main.cpp
+	MaNGOSsoap.cpp
+	Master.cpp
+	RASocket.cpp
+	soapC.cpp
+	soapServer.cpp
+	WorldRunnable.cpp
+
+)
+
 
 if(WIN32)
   list(APPEND EXECUTABLE_SRCS

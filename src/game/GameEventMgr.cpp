@@ -79,6 +79,17 @@ void GameEventMgr::StartEvent(uint16 event_id, bool overwrite /*=false*/, bool r
         return;
     }
     ApplyNewEvent(event_id, resume);
+    
+    //invoke enable on hardcoded events
+    if (mGameEvent[event_id].hardcoded && !mGameEvent[event_id].disabled)
+    {
+        auto it = std::find_if(mGameEventHardcodedList.begin(), mGameEventHardcodedList.end(), [&](const WorldEvent* w) { return event_id == w->m_eventId; });
+        if (mGameEventHardcodedList.end() != it)
+        {
+            (*it)->Enable();
+        }
+    }
+
     if (overwrite)
     {
         mGameEvent[event_id].start = time(nullptr);
@@ -133,6 +144,8 @@ void GameEventMgr::EnableEvent(uint16 event_id, bool enable)
     {
         if (!enable)
             (*it)->Disable();
+        else
+            (*it)->Enable();
     }
     else
     {

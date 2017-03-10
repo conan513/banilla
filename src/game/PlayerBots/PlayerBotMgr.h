@@ -49,6 +49,10 @@ struct PlayerBotStats
     uint32 confMinOnline;
     uint32 confBotsRefresh;
     uint32 confUpdateDiff;
+
+    PlayerBotStats() 
+    : onlineCount(0), loadingCount(0), totalBots(0), onlineChat(0),
+    confMaxOnline(0), confMinOnline(0), confBotsRefresh(0), confUpdateDiff(0) {}
 };
 
 

@@ -36,12 +36,12 @@ struct sSpawnLocation
     float m_fO;
 };
 
-struct instance_molten_core : public ScriptedInstance
+struct instance_molten_core : ScriptedInstance
 {
-    instance_molten_core(Map* pMap) : ScriptedInstance(pMap)
+    explicit instance_molten_core(Map* pMap) : ScriptedInstance(pMap)
     {
-        Initialize();
-    };
+        instance_molten_core::Initialize();
+    }
 
     uint32 m_auiEncounter[INSTANCE_MC_MAX_ENCOUNTER];
 
@@ -53,7 +53,7 @@ struct instance_molten_core : public ScriptedInstance
 
     uint64 GOUseGuidList[7];
 
-    void Initialize()
+    void Initialize() override
     {
         memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
@@ -90,12 +90,12 @@ struct instance_molten_core : public ScriptedInstance
         DomoSpawn = NOT_STARTED;
     }
 
-    bool IsEncounterInProgress() const
+    bool IsEncounterInProgress() const override
     {
         return false;
     }
 
-    void OnObjectCreate(GameObject* pGo)
+    void OnObjectCreate(GameObject* pGo) override
     {
         switch (pGo->GetEntry())
         {
@@ -140,7 +140,7 @@ struct instance_molten_core : public ScriptedInstance
         }
     }
 
-    void OnCreatureRespawn(Creature* pCreature)
+    void OnCreatureRespawn(Creature* pCreature) override
     {
         switch (pCreature->GetEntry())
         {
@@ -198,7 +198,7 @@ struct instance_molten_core : public ScriptedInstance
         }
     }
 
-    void OnCreatureEnterCombat(Creature* pCreature)
+    void OnCreatureEnterCombat(Creature* pCreature) override
     {
         Unit* victim = pCreature->getVictim();
         if (!victim)
@@ -224,7 +224,7 @@ struct instance_molten_core : public ScriptedInstance
         }
     }
 
-    void OnCreatureCreate(Creature* pCreature)
+    void OnCreatureCreate(Creature* pCreature) override
     {
         switch (pCreature->GetEntry())
         {
@@ -295,6 +295,7 @@ struct instance_molten_core : public ScriptedInstance
                 break;
             case NPC_GARR:
                 m_uiGarrGUID = pCreature->GetGUID();
+                m_mNpcEntryGuidStore[pCreature->GetEntry()] = pCreature->GetObjectGuid();
                 break;
             case NPC_FIRESWORN:
             case NPC_LAVA_SURGER:
@@ -311,7 +312,7 @@ struct instance_molten_core : public ScriptedInstance
         }
     }
 
-    void SetData(uint32 uiType, uint32 uiData)
+    void SetData(uint32 uiType, uint32 uiData) override
     {
         switch (uiType)
         {
@@ -367,7 +368,7 @@ struct instance_molten_core : public ScriptedInstance
         }
     }
 
-    const char* Save()
+    const char* Save() override
     {
         std::ostringstream saveStream;
         saveStream << m_auiEncounter[0] << " " << m_auiEncounter[1] << " " << m_auiEncounter[2] << " "
@@ -382,7 +383,7 @@ struct instance_molten_core : public ScriptedInstance
         return strInstData->c_str();
     }
 
-    uint32 GetData(uint32 uiType)
+    uint32 GetData(uint32 uiType) override
     {
         switch (uiType)
         {
@@ -417,7 +418,7 @@ struct instance_molten_core : public ScriptedInstance
         return 0;
     }
 
-    uint64 GetData64(uint32 uiData)
+    uint64 GetData64(uint32 uiData) override
     {
         switch (uiData)
         {
@@ -434,7 +435,7 @@ struct instance_molten_core : public ScriptedInstance
         return 0;
     }
 
-    void Update(uint32 uiDiff)
+    void Update(uint32 uiDiff) override
     {
         if (RemoveTimer < uiDiff)
         {
@@ -444,7 +445,7 @@ struct instance_molten_core : public ScriptedInstance
         else RemoveTimer -= uiDiff;
 
         Map::PlayerList const &liste = instance->GetPlayers();
-        if (liste.getFirst() != NULL)
+        if (liste.getFirst() != nullptr)
         {
             for (int i = 0; i < 7; i++)
             {
@@ -516,7 +517,7 @@ struct instance_molten_core : public ScriptedInstance
         }
     }
 
-    void Load(const char* chrIn)
+    void Load(const char* chrIn) override
     {
         if (!chrIn)
         {

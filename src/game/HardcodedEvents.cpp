@@ -3,6 +3,11 @@
  */
 
 #include "HardcodedEvents.h"
+#include "PlayerBotMgr.h"
+#include "World.h"
+#include "PlayerBotAI.h"
+#include "CinematicStuff.h"
+#include "MapManager.h"
 
 /*
  * Elemental Invasion
@@ -523,9 +528,148 @@ bool LunarFestivalFirework::IsHourBeginning(uint8 minutes) const
     return false;
 }
 
+SilithusWarEffortBattle::SilithusWarEffortBattle() : WorldEvent (EVENT_SILITHUS_WE_START)
+{
+#if 0
+    AvaliableCombos = { RaceClassCombo(1, 1), RaceClassCombo(1, 2), RaceClassCombo(1, 4), RaceClassCombo(1, 5), RaceClassCombo(1, 8), RaceClassCombo(1, 9),
+                        RaceClassCombo(2, 1), RaceClassCombo(2, 4), RaceClassCombo(2, 3), RaceClassCombo(2, 7), RaceClassCombo(2, 9),
+                        RaceClassCombo(3, 1), RaceClassCombo(3, 4), RaceClassCombo(3, 5), RaceClassCombo(3, 8), RaceClassCombo(3, 3), RaceClassCombo(3, 2),
+                        RaceClassCombo(4, 1), RaceClassCombo(4, 4), RaceClassCombo(4, 5), RaceClassCombo(4, 11), RaceClassCombo(4, 3),
+                        RaceClassCombo(5, 1), RaceClassCombo(5, 4), RaceClassCombo(5, 4), RaceClassCombo(5, 8), RaceClassCombo(5, 9),
+                        RaceClassCombo(6, 1), RaceClassCombo(6, 11), RaceClassCombo(6, 3), RaceClassCombo(6, 7),
+                        RaceClassCombo(7, 1), RaceClassCombo(7, 4),    RaceClassCombo(7, 8), RaceClassCombo(7, 9),
+                        RaceClassCombo(8, 1), RaceClassCombo(8, 4), RaceClassCombo(8, 5), RaceClassCombo(8, 8), RaceClassCombo(8, 3), RaceClassCombo(8, 7) };
+
+
+    //leave only alliance
+    AvaliableCombos =
+    {
+        RaceClassCombo(1, 1), RaceClassCombo(1, 2), RaceClassCombo(1, 4), RaceClassCombo(1, 5), RaceClassCombo(1, 8), RaceClassCombo(1, 9),
+        RaceClassCombo(3, 1), RaceClassCombo(3, 4), RaceClassCombo(3, 5), RaceClassCombo(3, 8), RaceClassCombo(3, 3), RaceClassCombo(3, 2),
+        RaceClassCombo(4, 1), RaceClassCombo(4, 4), RaceClassCombo(4, 5), RaceClassCombo(4, 11), RaceClassCombo(4, 3),
+        RaceClassCombo(7, 1), RaceClassCombo(7, 4),    RaceClassCombo(7, 8), RaceClassCombo(7, 9)
+    };
+
+#endif
+
+    //leave only warriors, mage, warlocks
+    AvaliableCombos =
+    {
+        RaceClassCombo(1, 1),RaceClassCombo(1, 8), RaceClassCombo(1, 9),
+        RaceClassCombo(3, 1), RaceClassCombo(3, 8),
+        RaceClassCombo(4, 1), 
+        RaceClassCombo(7, 1), RaceClassCombo(7, 8), RaceClassCombo(7, 9)
+    };
+
+}
+
+void SilithusWarEffortBattle::Update()
+{
+    for (BotEventInfo& BotInfo : Bots)
+    {
+
+    }
+}
+
+void SilithusWarEffortBattle::Enable()
+{
+    MapID KalimdorID(1, 14);
+    Map* KalimdorMap = nullptr;
+    MapManager::MapMapType& Maps = const_cast <MapManager::MapMapType&> (sMapMgr.Maps());
+    KalimdorMap = Maps[KalimdorID];
+
+    float CenterX = EventPos.coord_x;
+    float CenterY = EventPos.coord_y;
+    
+    const float Radius = 45.0f;
+
+    //spawn several hostile mob near
+    for (int mobID = 0; mobID < 15; ++mobID)
+    {
+        float FinalX = CenterX + frand(-Radius, Radius);
+        float FinalY = CenterY + frand(-Radius, Radius);
+        float FinalZ = KalimdorMap->GetHeight(FinalX, FinalY, 0.0f, true, 100.0f);
+        float FinalO = frand(0, M_PI_F * 2);
+
+        Creature* c = NULL;
+        if (c = KalimdorMap->SummonCreature(14471, FinalX, FinalY, FinalZ, FinalO, TEMPSUMMON_CORPSE_DESPAWN, 0))
+        {
+            SummonedMobs.push_back(c);
+            c->SetActiveObjectState(true);
+        }
+    }
+
+    for (int botID = 0; botID < 300; ++botID)
+    {
+        //rand race
+        int32 ComboID = urand(0, AvaliableCombos.size() - 1);
+
+        float FinalX = CenterX + frand(-Radius, Radius);
+        float FinalY = CenterY + frand(-Radius, Radius);
+        float FinalZ = KalimdorMap->GetHeight(FinalX, FinalY, 0.0f, true, 100.0f);
+        float FinalO = frand(0, M_PI_F * 2);
+
+        RaceClassCombo RaceClass = AvaliableCombos[ComboID];
+
+        BattlePlayerAI* PlayerAi = new BattlePlayerAI(nullptr, RaceClass.Race, RaceClass.Class, EventPos.mapid, 14, FinalX, FinalY, FinalZ, FinalO);
+        if (sPlayerBotMgr.addBot(PlayerAi))
+        {
+            BotEventInfo EventInfo(PlayerAi);
+
+            Bots.push_back(EventInfo);
+        }
+    }
+
+
+}
+
+void SilithusWarEffortBattle::Disable()
+{
+    sPlayerBotMgr.deleteAll();
+
+    std::vector <Creature*> DeadCreatures;
+
+    for (Creature* cr : SummonedMobs)
+    {
+        if (cr->isDead())
+        {
+            DeadCreatures.push_back(cr);
+        }
+        else
+        {
+            cr->ForcedDespawn();
+        }
+    }
+
+//     for (Creature* DeadCr : DeadCreatures)
+//     {
+//         SummonedMobs.erase(DeadCr);
+//     }
+    DeadCreatures.clear();
+
+    SummonedMobs.clear();
+}
+
+
+void BattlePlayerAI::OnPlayerLogin()
+{
+    //YOU ARE NOT PREPARED!
+    me->GiveLevel(60);
+
+    CinematicStuff::AddSpells(me);
+    CinematicStuff::StuffLevel60(me);
+
+    //YOU ARE PREPARED!
+    //CinematicStuff::SearchAndDestroy(me);
+
+    //if we dead... well, ressurect
+    me->ResurrectPlayer(1.0f);
+}
+
+
 /*
- *
- */
+*
+*/
 
 void GameEventMgr::LoadHardcodedEvents(HardcodedEventList& eventList)
 {
@@ -535,6 +679,7 @@ void GameEventMgr::LoadHardcodedEvents(HardcodedEventList& eventList)
     auto nightmare = new DragonsOfNightmare();
     auto darkmoon = new DarkmoonFaire();
     auto lunarfw = new LunarFestivalFirework();
+    auto silithusWarEffortBattle = new SilithusWarEffortBattle();
 
-    eventList = { invasion, leprithus, moonbrook, nightmare, darkmoon, lunarfw };
+    eventList = { invasion, leprithus, moonbrook, nightmare, darkmoon, lunarfw, silithusWarEffortBattle };
 }

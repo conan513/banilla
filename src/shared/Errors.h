@@ -36,9 +36,9 @@
 if (!(CONDITION)) \
 { \
     ACE_Stack_Trace st; \
-    sLog.nostalrius("%s:%i: Error: Assertion in %s failed: %s", \
+    sLog.outInfo("%s:%i: Error: Assertion in %s failed: %s", \
         __FILE__, __LINE__, __FUNCTION__, STRINGIZE(CONDITION)); \
-    sLog.nostalrius("%s", st.c_str()); \
+    sLog.outInfo("%s", st.c_str()); \
     throw std::runtime_error(STRINGIZE(CONDITION)); \
     assert(STRINGIZE(CONDITION) && 0); \
 }

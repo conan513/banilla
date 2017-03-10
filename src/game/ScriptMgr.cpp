@@ -1099,6 +1099,8 @@ bool ScriptMgr::OnGameObjectUse(Player* pPlayer, GameObject* pGameObject)
     if (!pTempScript || !pTempScript->pGOHello)
         return false;
 
+    pPlayer->PlayerTalkClass->ClearMenus();
+
     return pTempScript->pGOHello(pPlayer, pGameObject);
 }
 

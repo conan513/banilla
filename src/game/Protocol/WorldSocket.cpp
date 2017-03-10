@@ -54,7 +54,7 @@ int WorldSocket::ProcessIncoming(WorldPacket* new_pct)
     new_pct->FillPacketTime(WorldTimer::getMSTime());
 
     // Dump received packet.
-    sLog.outWorldPacketDump(uint32(get_handle()), new_pct->GetOpcode(), LookupOpcodeName(new_pct->GetOpcode()), new_pct, true);
+    sLog.outWorldPacketDump(reinterpret_cast <uint64> (get_handle()), new_pct->GetOpcode(), LookupOpcodeName(new_pct->GetOpcode()), new_pct, true);
 
     try
     {
@@ -158,23 +158,10 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     std::string safe_account = account; // Duplicate, else will screw the SHA hash verification below
     LoginDatabase.escape_string(safe_account);
     // No SQL injection, username escaped.
-
-    QueryResult *result =
-        LoginDatabase.PQuery("SELECT "
-                             "id, "                      //0
-                             "gmlevel, "                 //1
-                             "sessionkey, "              //2
-                             "last_ip, "                 //3
-                             "locked, "                  //4
-                             "v, "                       //5
-                             "s, "                       //6
-                             "mutetime, "                //7
-                             "locale, "                  //8
-                             "os, "                      //9
-                             "flags "                    //10
-                             "FROM account "
-                             "WHERE username = '%s'",
-                             safe_account.c_str());
+                             
+    QueryResult *result = LoginDatabase.PQuery("SELECT a.id, aa.gmLevel, a.sessionkey, a.last_ip, a.locked, a.v, a.s, a.mutetime, a.locale, a.os, a.flags, "
+        "ab.unbandate > UNIX_TIMESTAMP() OR ab.unbandate = ab.bandate FROM account a LEFT JOIN account_access aa ON a.id = aa.id AND aa.RealmID IN (-1, %u) "
+        "LEFT JOIN account_banned ab ON a.id = ab.id AND ab.active = 1 WHERE a.username = '%s' ORDER BY aa.RealmID DESC LIMIT 1", realmID, safe_account.c_str());
 
     // Stop if the account is not found
     if (!result)
@@ -238,8 +225,8 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
 
     delete result;
 
-    // Re-check account ban
-    if (sAccountMgr.IsAccountBanned(id) || sAccountMgr.IsIPBanned(GetRemoteAddress())) // if account banned
+    bool isBanned = fields[11].GetBool();
+    if (isBanned || sAccountMgr.IsIPBanned(GetRemoteAddress()))
     {
         packet.Initialize(SMSG_AUTH_RESPONSE, 1);
         packet << uint8(AUTH_BANNED);

@@ -69,7 +69,8 @@ SqlPreparedStatement * SqlConnection::GetStmt( int nIndex )
         //prepare statement
         if(!pStmt->prepare())
         {
-            MANGOS_ASSERT(false && "Unable to prepare SQL statement");
+            //MANGOS_ASSERT(false && "Unable to prepare SQL statement");
+            sLog.outError("Can't prepare %s, statement not executed!", fmt.c_str());
             return NULL;
         }
 
@@ -121,11 +122,14 @@ bool SqlConnection::ExecuteStmt(int nIndex, const SqlStmtParameters& id )
         return false;
 
     //get prepared statement object
-    SqlPreparedStatement * pStmt = GetStmt(nIndex);
-    //bind parameters
-    pStmt->bind(id);
-    //execute statement
-    return pStmt->execute();
+    if (SqlPreparedStatement * pStmt = GetStmt(nIndex))
+    {
+        //bind parameters
+        pStmt->bind(id);
+        //execute statement
+        return pStmt->execute();
+    }
+    return false;
 }
 
 //////////////////////////////////////////////////////////////////////////

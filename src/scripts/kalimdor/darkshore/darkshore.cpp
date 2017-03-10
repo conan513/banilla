@@ -724,7 +724,7 @@ struct npc_rabid_thistle_bearAI : public FollowerAI
         Reset();
         Captured_Timer = -1;
     }
-    uint32 Rage_Timer;
+    int32 Rage_Timer;
     int32 Captured_Timer;
     void Reset() override
     {
@@ -732,27 +732,28 @@ struct npc_rabid_thistle_bearAI : public FollowerAI
     }
     void UpdateFollowerAI(const uint32 diff) override
     {
+        int32 SignedDiff = diff;
         if (Captured_Timer >= 0)
         {
-            if (Captured_Timer < diff)
+            if (Captured_Timer < SignedDiff)
             {
                 Captured_Timer = -1;
                 m_creature->DisappearAndDie();
             }
             else
-                Captured_Timer -= diff;
+                Captured_Timer -= SignedDiff;
         }
 
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
 
-        if (Rage_Timer < diff)
+        if (Rage_Timer < SignedDiff)
         {
             if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_RAGE) == CAST_OK)
                 Rage_Timer = 60000;
         }
         else
-            Rage_Timer -= diff;
+            Rage_Timer -= SignedDiff;
         DoMeleeAttackIfReady();
     }
     void StartFollowing(Player* pPlayer)

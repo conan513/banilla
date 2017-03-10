@@ -140,7 +140,7 @@ void WorldSession::SendPacket(WorldPacket const* packet)
     if (packet->size() > 0x8000)
     {
         // Packet will be rejected by client
-        sLog.nostalrius("[NETWORK] Packet %s size %u is too large. Not sent [Account %u Player %s]", LookupOpcodeName(packet->GetOpcode()), packet->size(), GetAccountId(), GetPlayerName());
+        sLog.outInfo("[NETWORK] Packet %s size %u is too large. Not sent [Account %u Player %s]", LookupOpcodeName(packet->GetOpcode()), packet->size(), GetAccountId(), GetPlayerName());
         return;
     }
     if (!m_Socket && !m_masterSession)
@@ -329,6 +329,12 @@ bool WorldSession::Update(PacketFilter& updater)
     //logout procedure should happen only in World::UpdateSessions() method!!!
     if (updater.ProcessLogout())
     {
+        if (m_bot != nullptr && m_bot->state == PB_STATE_OFFLINE)
+        {
+            LogoutPlayer(true);
+            return false;
+        }
+
         if (_clientHashComputeStep == HASH_COMPUTED && GetPlayer())
         {
             _clientHashComputeStep = HASH_NOTIFIED;
@@ -349,10 +355,10 @@ bool WorldSession::Update(PacketFilter& updater)
         bool forceConnection = sPlayerBotMgr.ForceAccountConnection(this);
         if (sWorld.IsStopped())
             forceConnection = false;
-        if ((!m_Socket || (ShouldLogOut(currTime) && !m_playerLoading)) && !forceConnection)
+        if ((!m_Socket || (ShouldLogOut(currTime) && !m_playerLoading)) && !forceConnection && m_bot == nullptr)
             LogoutPlayer(true);
 
-        if (!m_Socket && !forceConnection)
+        if (!m_Socket && !forceConnection && this->m_bot == nullptr)
             return false;                                       //Will remove this session from the world session map
     }
     else // Async map based update
@@ -578,13 +584,13 @@ void WorldSession::ProcessPackets(PacketFilter& updater)
         }
         catch (std::runtime_error &e)
         {
-            sLog.nostalrius("CATCH Exception 'ASSERT' for account %u / IP %s", GetAccountId(), GetRemoteAddress().c_str());
-            sLog.nostalrius(e.what());
+            sLog.outInfo("CATCH Exception 'ASSERT' for account %u / IP %s", GetAccountId(), GetRemoteAddress().c_str());
+            sLog.outInfo(e.what());
             ProcessAnticheatAction("Anticrash", "ASSERT failed", CHEAT_ACTION_KICK);
         }
         catch (...)
         {
-            sLog.nostalrius("CATCH Unknown exception. Account %u / IP %s", GetAccountId(), GetRemoteAddress().c_str());
+            sLog.outInfo("CATCH Unknown exception. Account %u / IP %s", GetAccountId(), GetRemoteAddress().c_str());
             ProcessAnticheatAction("Anticrash", "Exception raised", CHEAT_ACTION_KICK);
         }
 
@@ -682,7 +688,7 @@ void WorldSession::LogoutPlayer(bool Save)
         if (!inWorld)
         {
             Save = false;
-            sLog.nostalrius("[CRASH] Joueur %s pas dans le monde a la deco.", _player->GetName());
+            sLog.outInfo("[CRASH] Joueur %s pas dans le monde a la deco.", _player->GetName());
         }
         else if (ShouldBeBanned(_player->getLevel()))
             doBanPlayer = true;
@@ -1011,7 +1017,7 @@ void WorldSession::ExecuteOpcode(OpcodeHandler const& opHandle, WorldPacket* pac
         }
         if (!skipPacketAnalysis)
         {
-            fprintf(_pcktRecvDump, "%u:%s:%u|", WorldTimer::getMSTime(), LookupOpcodeName(packet->GetOpcode()), packet->size());
+            fprintf(_pcktRecvDump, "%u:%s:%zu|", WorldTimer::getMSTime(), LookupOpcodeName(packet->GetOpcode()), packet->size());
             for (size_t i = 0; i < packet->size(); ++i)
                 fprintf(_pcktRecvDump, "%u ", uint32(packet->read<uint8>(i)));
             fprintf(_pcktRecvDump, "256\n");
@@ -1118,8 +1124,8 @@ void WorldSession::ProcessAnticheatAction(const char* detector, const char* reas
         action = "Account+IP banned.";
         if (GetSecurity() == SEC_PLAYER)
         {
-            sWorld.BanAccount(BAN_ACCOUNT, GetUsername(), banSeconds, "Cheat", detector);
-            sWorld.WarnAccount(GetAccountId(), detector, reason, "CHEAT");
+            std::string _reason = std::string("CHEAT") + ": " + reason;
+            sWorld.BanAccount(BAN_ACCOUNT, GetUsername(), banSeconds, _reason, detector);
             std::stringstream banIpReason;
             banIpReason << "Cf account " << GetUsername();
             sWorld.BanAccount(BAN_IP, GetRemoteAddress(), banSeconds, banIpReason.str().c_str(), detector);
@@ -1128,11 +1134,9 @@ void WorldSession::ProcessAnticheatAction(const char* detector, const char* reas
     else if (cheatAction & CHEAT_ACTION_BAN_ACCOUNT)
     {
         action = "Banned.";
+        std::string _reason = std::string("CHEAT") + ": " + reason;
         if (GetSecurity() == SEC_PLAYER)
-        {
-            sWorld.BanAccount(BAN_ACCOUNT, GetUsername(), banSeconds, "Cheat", detector);
-            sWorld.WarnAccount(GetAccountId(), detector, reason, "CHEAT");
-        }
+            sWorld.BanAccount(BAN_ACCOUNT, GetUsername(), banSeconds, _reason, detector);
     }
     else if (cheatAction & CHEAT_ACTION_KICK)
     {

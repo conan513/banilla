@@ -1324,10 +1324,30 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     }
                     return;
                 }
-                case 8897:                                 // Chakor <Nostalrius> : Destroy Rocket Boots
+                case 8897:                                 // Destroy Rocket Boots
                 {
                     m_caster->CastSpell(unitTarget, 8893, true);
                     m_caster->CastSpell(unitTarget, 13158, true);
+
+                    return;
+                }
+                case 23185:                                 // Aura of Frost
+                case 25044:                                 // Aura of Nature
+                {
+                    if (!unitTarget)
+                        return;
+
+                    if (unitTarget->HasAura(25040))         // Mark of Nature
+                        unitTarget->CastSpell(unitTarget, 25043, true);
+
+                    if (unitTarget->HasAura(23182))         // Mark of Frost
+                        unitTarget->CastSpell(unitTarget, 23186, true);
+
+                    unitTarget->RemoveAurasAtMechanicImmunity(1 << (MECHANIC_BANDAGE - 1), 0);
+                    unitTarget->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
+
+                    if (!unitTarget->IsStandState())
+                        unitTarget->SetStandState(UNIT_STAND_STATE_STAND);
 
                     return;
                 }
@@ -3234,10 +3254,14 @@ void Spell::EffectTeleUnitsFaceCaster(SpellEffectIndex eff_idx)
     if (unitTarget->IsTaxiFlying())
         return;
 
-    float dis = GetSpellRadius(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[eff_idx]));
-
     float fx, fy, fz;
-    m_caster->GetClosePoint(fx, fy, fz, unitTarget->GetObjectBoundingRadius(), dis);
+    if (m_targets.m_targetMask & TARGET_FLAG_DEST_LOCATION)
+        m_targets.getDestination(fx, fy, fz);
+    else
+    {
+        float dis = GetSpellRadius(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[eff_idx]));
+        m_caster->GetClosePoint(fx, fy, fz, unitTarget->GetObjectBoundingRadius(), dis);
+    }
 
     unitTarget->NearTeleportTo(fx, fy, fz, -m_caster->GetOrientation(), TELE_TO_NOT_LEAVE_COMBAT | TELE_TO_NOT_UNSUMMON_PET | (unitTarget == m_caster ? TELE_TO_SPELL : 0));
 }
@@ -4643,7 +4667,7 @@ void Spell::EffectStuck(SpellEffectIndex /*eff_idx*/)
     Player* pTarget = (Player*)unitTarget;
 
     DEBUG_LOG("Spell Effect: Stuck");
-    sLog.nostalrius("Player %s (guid %u) used auto-unstuck future at map %u (%f, %f, %f)", pTarget->GetName(), pTarget->GetGUIDLow(), m_caster->GetMapId(), m_caster->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ());
+    sLog.outInfo("Player %s (guid %u) used auto-unstuck future at map %u (%f, %f, %f)", pTarget->GetName(), pTarget->GetGUIDLow(), m_caster->GetMapId(), m_caster->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ());
 
     if (pTarget->IsTaxiFlying())
         return;
@@ -5272,6 +5296,10 @@ void Spell::EffectKnockBack(SpellEffectIndex eff_idx)
 {
     if (!unitTarget)
         return;
+
+    // remove Dream Fog Sleep aura to let target be launched
+    // ugly and barely working solution untill proper pending states handling implemented
+    unitTarget->RemoveAurasDueToSpell(24778);
 
     unitTarget->KnockBackFrom(m_caster, float(m_spellInfo->EffectMiscValue[eff_idx]) / 10, float(damage) / 10);
 }

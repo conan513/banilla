@@ -44,7 +44,7 @@ npc_escortAI::npc_escortAI(Creature* pCreature) : ScriptedAI(pCreature),
 void npc_escortAI::setCurrentWP (uint32 idx)
 {
     if (idx >= WaypointList.size())
-        sLog.nostalrius("[npc_escortAI] Attempt to set current waypoint to %u, but NPC entry=%u only has %u waypoints !", idx, m_creature->GetEntry(), WaypointList.size());
+        sLog.outInfo("[npc_escortAI] Attempt to set current waypoint to %u, but NPC entry=%u only has %u waypoints !", idx, m_creature->GetEntry(), WaypointList.size());
     else
     m_currentWaypointIdx = idx;
 }
@@ -237,9 +237,8 @@ bool npc_escortAI::IsPlayerOrGroupInRange() const
                 Player* pMember = pRef->getSource();
 
                 if (pMember && m_creature->IsWithinDistInMap(pMember, m_MaxPlayerDistance))
-                {
                     return true;
-                }
+
             }
         }
         else

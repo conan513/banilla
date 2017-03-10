@@ -639,9 +639,9 @@ void Master::_OnSignal(int s)
             sWorld.SetAnticrashRearmTimer(sWorld.getConfig(CONFIG_UINT32_ANTICRASH_REARM_TIMER));
             uint32 anticrashOptions = sWorld.getConfig(CONFIG_UINT32_ANTICRASH_OPTIONS);
             // Log crash stack
-            sLog.nostalrius("Received SIGSEGV");
+            sLog.outInfo("Received SIGSEGV");
             ACE_Stack_Trace st;
-            sLog.nostalrius("%s", st.c_str());
+            sLog.outInfo("%s", st.c_str());
             if (anticrashOptions & ANTICRASH_GENERATE_COREDUMP)
                 createdump();
             if (anticrashOptions & ANTICRASH_OPTION_ANNOUNCE_PLAYERS)

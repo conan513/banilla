@@ -86,7 +86,7 @@ void AuctionHouseBotMgr::load()
     auctionHouseEntry = sAuctionMgr.GetAuctionHouseEntry(config->ahfid);
     if (!auctionHouseEntry)
     {
-        sLog.nostalrius("AuctionHouseBotMgr::load() : Faction de l'AH incorrect : %u", config->ahfid);
+        sLog.outInfo("AuctionHouseBotMgr::load() : Faction de l'AH incorrect : %u", config->ahfid);
         return;
     }
     m_loaded = true;
@@ -136,18 +136,18 @@ void AuctionHouseBotMgr::additem(AuctionHouseBotEntry e, AuctionHouseObject *auc
     ItemPrototype const* prototype = sObjectMgr.GetItemPrototype(e.item);
     if (prototype == NULL)
     {
-        sLog.nostalrius("AuctionHouseBotMgr::additem() : Item %u inexistant. Abandon.", e.item);
+        sLog.outInfo("AuctionHouseBotMgr::additem() : Item %u inexistant. Abandon.", e.item);
         return;
     }
 
     Item* item = Item::CreateItem(e.item, 1, NULL);
     if (!item)
     {
-        sLog.nostalrius("AuctionHouseBotMgr::additem() : Item::CreateItem a echoue.");
+        sLog.outInfo("AuctionHouseBotMgr::additem() : Item::CreateItem a echoue.");
         return;
     }
 
-    sLog.nostalrius("AuctionHouseBotMgr::additem() : Ajout de l'item %u", e.item);
+    sLog.outInfo("AuctionHouseBotMgr::additem() : Ajout de l'item %u", e.item);
 
     uint32 randomPropertyId = Item::GenerateItemRandomPropertyId(e.item);
     if (randomPropertyId != 0)

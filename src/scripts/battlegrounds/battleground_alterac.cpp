@@ -32,8 +32,8 @@ Vanndar: Thunderclap (about 200-300 nature damage per player in range not been u
 #define SPELL_AVATAR        19135
 #define SPELL_STORMBOLT     19136
 #define SPELL_THUNDERCLAP   15588
-#define DKT_CENTER_X        722.4f
-#define DKT_CENTER_Y        -11
+#define VANNDAR_CENTER_X        722.4f
+#define VANNDAR_CENTER_Y        -11.0f
 #define    VANNDAR_AGGRO       -50020
 #define    VANNDAR_RESET       -50021
 #define    VANNDAR_BUFF1       -50022
@@ -148,7 +148,7 @@ struct npc_VanndarAI : public ScriptedAI, public npc_alterac_bossHelper
     void UpdateAI(const uint32 diff)
     {
         if (m_creature->GetMapId() == 30)
-            if (m_creature->GetDistance2d(DKT_CENTER_X, DKT_CENTER_Y) > 35.0f)
+            if (m_creature->GetDistance2d(VANNDAR_CENTER_X, VANNDAR_CENTER_Y) > 35.0f)
             {
                 m_creature->CombatStop();
                 m_creature->SetHealth(m_creature->GetMaxHealth());
@@ -1902,8 +1902,8 @@ struct AV_NpcEventAI : public npc_escortAI
                         {
                             if (i == 5)
                             {
-                                m_uiX = -474.8;
-                                m_uiY = -48.7;
+                                m_uiX = -474.8f;
+                                m_uiY = -48.7f;
                                 m_uiCoeff = 0;
                             }
                             m_creature->SummonCreature(m_uiTroopsType,
@@ -2856,7 +2856,7 @@ bool QuestComplete_npc_AVBlood_collector(Player* pPlayer, Creature* pQuestGiver,
                         break;
 
                     default:
-                        sLog.nostalrius("[Alterac] QuestComplete_npc_AVBlood_collector called with quest %u reqItem=%u unknown !", pQuest->GetQuestId(), pQuest->ReqItemId[0]);
+                        sLog.outInfo("[Alterac] QuestComplete_npc_AVBlood_collector called with quest %u reqItem=%u unknown !", pQuest->GetQuestId(), pQuest->ReqItemId[0]);
                         return false;
                 }
             }

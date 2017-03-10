@@ -149,6 +149,7 @@ struct MANGOS_DLL_DECL ScriptedAI : CreatureAI
     bool IsCombatMovement() const { return m_bCombatMovement; }
 
     bool EnterEvadeIfOutOfCombatArea(const uint32 uiDiff);
+    void EnterEvadeIfOutOfHomeArea();
 
     void DoGoHome();
 
@@ -158,9 +159,13 @@ struct MANGOS_DLL_DECL ScriptedAI : CreatureAI
     void DoTeleportTo(const float fPos[4]);
     void DoTeleportAll(float fX, float fY, float fZ, float fO);
     Creature* me;
+
     private:
         bool   m_bCombatMovement;
         uint32 m_uiEvadeCheckCooldown;
+
+        bool m_bEvadeOutOfHomeArea;
+        uint32 m_uiHomeArea;
 };
 
 struct MANGOS_DLL_DECL Scripted_NoMovementAI : ScriptedAI

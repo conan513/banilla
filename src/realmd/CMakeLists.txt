@@ -16,7 +16,20 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 set(EXECUTABLE_NAME realmd)
-file(GLOB_RECURSE EXECUTABLE_SRCS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.cpp *.h)
+set (EXECUTABLE_SRCS 
+	AuthCodes.h
+	AuthSocket.h
+	BufferedSocket.h
+	PatchHandler.h
+	RealmList.h
+	AuthSocket.cpp
+	BufferedSocket.cpp
+	Main.cpp
+	PatchHandler.cpp
+	RealmList.cpp
+
+)
+
 
 if(WIN32)
   list(APPEND EXECUTABLE_SRCS

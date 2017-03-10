@@ -106,8 +106,33 @@ bool GOHello_go_northern_crystal_pylon(Player* pPlayer, GameObject* pGo)
 
 bool GOHello_go_barov_journal(Player* pPlayer, GameObject* pGo)
 {
-    if (pPlayer->HasSkill(SKILL_TAILORING) && pPlayer->GetBaseSkillValue(SKILL_TAILORING) >= 280 && !pPlayer->HasSpell(26086))
+    if (sWorld.GetWowPatch() > WOW_PATCH_108)
+    {
+        if (pPlayer->HasSkill(SKILL_TAILORING) && pPlayer->GetBaseSkillValue(SKILL_TAILORING) >= 285)
+        {
+            if (!pPlayer->HasSpell(26086))
+            {
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Learn recipe Felcloth Bag", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+                pPlayer->SEND_GOSSIP_MENU(8121, pGo->GetObjectGuid());
+            }
+            else
+                pPlayer->SEND_GOSSIP_MENU(8122, pGo->GetObjectGuid());
+        }
+        else
+            pPlayer->SEND_GOSSIP_MENU(8120, pGo->GetObjectGuid());
+        return true;
+    }
+
+    return false;
+}
+
+bool GossipSelect_go_barov_journal(Player* pPlayer, GameObject* pGo, uint32 uiSender, uint32 uiAction)
+{
+    if (uiAction == GOSSIP_ACTION_INFO_DEF)
+    {
         pPlayer->CastSpell(pPlayer, 26095, false);
+        pPlayer->CLOSE_GOSSIP_MENU();
+    }
     return true;
 }
 
@@ -396,6 +421,7 @@ void AddSC_go_scripts()
     newscript = new Script;
     newscript->Name = "go_barov_journal";
     newscript->pGOHello =           &GOHello_go_barov_journal;
+    newscript->pGOGossipSelect =    &GossipSelect_go_barov_journal;
     newscript->RegisterSelf();
 
     newscript = new Script;

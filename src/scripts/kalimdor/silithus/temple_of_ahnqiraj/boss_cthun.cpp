@@ -356,18 +356,19 @@ struct cthunAI : public ScriptedAI
 
     void StomachEjector(uint32 diff)
     {
-        if (EjectorTimer < diff)
+        int SignedDiff = static_cast <int> (diff);
+        if (EjectorTimer < SignedDiff)
         {
             BeginEjectorAnimation();
             EjectorTimer = 999999; // Don't start this until the punt happens
         }
         else
-            EjectorTimer -= diff;
+            EjectorTimer -= SignedDiff;
 
-        if (EjectorCast > diff)
+        if (EjectorCast > SignedDiff)
         {
-            EjectorCast -= diff;
-            if (EjectorCast <= diff)
+            EjectorCast -= SignedDiff;
+            if (EjectorCast <= SignedDiff)
             {
                 TriggerStomachEjector();
                 EjectorTimer = 3000; // Started
@@ -540,11 +541,12 @@ struct cthunAI : public ScriptedAI
 
     bool TransitionLogic(uint32 diff)
     {
-        if (AnimTimer > diff)
+        int32 SignedDiff = diff;
+        if (AnimTimer > SignedDiff)
         {
-            AnimTimer -= diff;
+            AnimTimer -= SignedDiff;
 
-            if (AnimTimer <= diff)
+            if (AnimTimer <= SignedDiff)
                 PhaseTimer = 10000;
 
             if (AnimTimer < 1000)
@@ -556,10 +558,10 @@ struct cthunAI : public ScriptedAI
             return true;
         }
 
-        if (PhaseTimer > diff)
+        if (PhaseTimer > SignedDiff)
         {
-            PhaseTimer -= diff;
-            if (PhaseTimer <= diff)
+            PhaseTimer -= SignedDiff;
+            if (PhaseTimer <= SignedDiff)
                 Emerge();
 
             return true;

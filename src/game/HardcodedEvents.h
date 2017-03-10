@@ -2,11 +2,12 @@
  *
  */
 
-#ifndef HARDCODED_EVENTS_H
-#define HARDCODED_EVENTS_H
+#pragma once
 
 #include "GameEventMgr.h"
 #include "ObjectMgr.h"
+#include "PlayerBotAI.h"
+#include "AdvancedPlayerBotAI.h"
 
 /*
  * Elemental Invasion
@@ -194,4 +195,64 @@ private:
     bool IsHourBeginning(uint8 minutes = FIREWORKS_DURATION) const;
 };
 
-#endif
+enum EventSilithusWarEffortState
+{
+    EVENT_SILITHUS_WE_START = 98
+};
+
+
+struct RaceClassCombo
+{
+    int Race;
+    int Class;
+
+    RaceClassCombo(int InRace, int InClass)
+        : Race(InRace), Class(InClass)
+    {}
+};
+
+class BattlePlayerAI : public AdvancedPlayerBotAI
+{
+public:
+    explicit BattlePlayerAI(Player* pPlayer, uint8 _race_, uint8 _class_, uint32 mapId, uint32 instanceId, float x, float y, float z, float o) :
+        AdvancedPlayerBotAI(pPlayer, _race_, _class_, mapId, instanceId, x, y, z, o)
+    {
+    }
+
+    virtual ~BattlePlayerAI ()
+    {
+    }
+
+    virtual void OnPlayerLogin();
+
+};
+
+struct BotEventInfo
+{
+    BattlePlayerAI* pBot;
+
+    BotEventInfo()
+        : BotEventInfo(nullptr)
+    {}
+
+    BotEventInfo(BattlePlayerAI* InBot)
+        : pBot(InBot)
+    {}
+};
+
+struct SilithusWarEffortBattle : WorldEvent
+{
+    SilithusWarEffortBattle();
+
+    void Update() override;
+    void Enable() override;
+    void Disable() override;
+
+private:
+
+    std::vector <RaceClassCombo> AvaliableCombos;
+    std::vector <BotEventInfo> Bots;
+
+    std::vector <Creature*> SummonedMobs;
+    const WorldLocation EventPos = WorldLocation(1, -8065.42f, 1527.93f, 2.61001f);
+};

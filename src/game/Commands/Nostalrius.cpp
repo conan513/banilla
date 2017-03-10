@@ -843,7 +843,7 @@ bool ChatHandler::HandleDebugLoSAllowCommand(char* args)
         SendSysMessage("* Pas de collision trouvee ...");
     else if (((spawn->flags & VMAP::MOD_NO_BREAK_LOS) > 0) != value)
     {
-        sLog.nostalrius("[VMAPS] Collision for model '%s' %s by %s (guid %u)", spawn->name.c_str(), value ? "disabled" : "enabled", m_session->GetPlayer()->GetName(), m_session->GetPlayer()->GetGUIDLow());
+        sLog.outInfo("[VMAPS] Collision for model '%s' %s by %s (guid %u)", spawn->name.c_str(), value ? "disabled" : "enabled", m_session->GetPlayer()->GetName(), m_session->GetPlayer()->GetGUIDLow());
         if (value)
         {
             spawn->flags |= VMAP::MOD_NO_BREAK_LOS;

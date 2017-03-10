@@ -13,8 +13,17 @@
 ScriptedAI::ScriptedAI(Creature* pCreature) : CreatureAI(pCreature),
     me(pCreature),
     m_bCombatMovement(true),
-    m_uiEvadeCheckCooldown(2500)
-{}
+    m_uiEvadeCheckCooldown(2500),
+    m_uiHomeArea(m_creature->GetAreaId())
+{
+    m_bEvadeOutOfHomeArea = false;
+
+    if (auto cData = m_creature->GetCreatureData())
+    {
+        if (cData->spawnFlags & SPAWN_FLAG_EVADE_OUT_HOME_AREA)
+            m_bEvadeOutOfHomeArea = true;
+    }
+}
 
 void ScriptedAI::MoveInLineOfSight(Unit* pWho)
 {
@@ -419,6 +428,21 @@ bool ScriptedAI::EnterEvadeIfOutOfCombatArea(const uint32 uiDiff)
 
     EnterEvadeMode();
     return true;
+}
+
+void ScriptedAI::EnterEvadeIfOutOfHomeArea()
+{
+    if (!m_bEvadeOutOfHomeArea)
+        return;
+
+    if (m_creature->GetAreaId() != m_uiHomeArea)
+    {
+        std::ostringstream log;
+        log << "Home area left, evading.";
+        m_creature->LogScriptInfo(log);
+
+        EnterEvadeMode();
+    }
 }
 
 void Scripted_NoMovementAI::AttackStart(Unit* pWho)

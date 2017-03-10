@@ -307,14 +307,14 @@ public:
         me->SetVisible(true);
         _animationTimer = 1000;
         _checkPylonsTimer = 5000; // On laisse 5sec pour que les pylones spawn
-        sLog.nostalrius("[NAXX] Necropolis %u zone %u enabled", me->GetGUIDLow(), _zone);
+        sLog.outInfo("[NAXX] Necropolis %u zone %u enabled", me->GetGUIDLow(), _zone);
     }
 
     void Disable()
     {
         me->SetVisible(false);
         UpdateVisibility(false);
-        sLog.nostalrius("[NAXX] Necropolis %u zone %u disabled", me->GetGUIDLow(), _zone);
+        sLog.outInfo("[NAXX] Necropolis %u zone %u disabled", me->GetGUIDLow(), _zone);
     }
 
     bool OnUse(Unit* pylon)
@@ -436,7 +436,7 @@ struct NecropolisPylonAI : public ScriptedAI, public NecropolisRelatedObject
         JustDied(NULL);
         if (sObjectMgr.GetSavedVariable(VARIABLE_NAXX_ELITE_PYLON) == m_creature->GetGUIDLow())
         {
-            sLog.nostalrius("[NAXX] Elite despawned by pylon disable");
+            sLog.outInfo("[NAXX] Elite despawned by pylon disable");
             sObjectMgr.SetSavedVariable(VARIABLE_NAXX_ELITE_PYLON, 0, true);
         }
     }
