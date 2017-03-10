@@ -32,7 +32,7 @@
 #include "SQLStorages.h"
 
 char const* MAP_MAGIC         = "MAPS";
-char const* MAP_VERSION_MAGIC = "s1.3";
+char const* MAP_VERSION_MAGIC = "z1.3";
 char const* MAP_AREA_MAGIC    = "AREA";
 char const* MAP_HEIGHT_MAGIC  = "MHGT";
 char const* MAP_LIQUID_MAGIC  = "MLIQ";
@@ -94,6 +94,14 @@ bool GridMap::loadData(char* filename)
             fclose(in);
             return false;
         }
+
+		// loadup holes data
+		if (header.holesOffset && !loadHolesData(in, header.holesOffset, header.holesSize))
+		{
+			sLog.outError("Error loading map holes data\n");
+			fclose(in);
+			return false;
+		}
 
         // loadup height data
         if (header.heightMapOffset && !loadHeightData(in, header.heightMapOffset, header.heightMapSize))
@@ -198,6 +206,16 @@ bool GridMap::loadHeightData(FILE* in, uint32 offset, uint32 /*size*/)
         m_gridGetHeight = &GridMap::getHeightFromFlat;
 
     return true;
+}
+
+bool GridMap::loadHolesData(FILE* in, uint32 offset, uint32 size)
+{
+	if (fseek(in, offset, SEEK_SET) != 0)
+		return false;
+
+	if (fread(&m_holes, sizeof(m_holes), 1, in) != 1)
+		return false;
+	return true;
 }
 
 bool GridMap::loadGridMapLiquidData(FILE* in, uint32 offset, uint32 /*size*/)
