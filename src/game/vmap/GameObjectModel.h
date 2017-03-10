@@ -45,7 +45,7 @@ class GameObjectModel
         float iScale;
         VMAP::WorldModel* iModel;
 
-        GameObjectModel() : collision_enabled(false), iModel(NULL), iInvScale(0), iScale(0) {}
+        GameObjectModel() : collision_enabled(false), iInvScale(0), iScale(0), iModel(nullptr) {}
         bool initialize(const GameObject* const pGo, const GameObjectDisplayInfoEntry* info);
 
     public:
@@ -64,7 +64,6 @@ class GameObjectModel
         bool intersectRay(const G3D::Ray& Ray, float& MaxDist, bool StopAtFirstHit) const;
 
         static GameObjectModel* construct(const GameObject* const pGo);
-
-        bool Relocate(GameObject const& go);
+		bool Relocate(GameObject const& pGo);
 };
 #endif

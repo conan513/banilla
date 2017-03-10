@@ -193,9 +193,9 @@ public:
 	///  @param[in]		options				Query options. (see: #dtStraightPathOptions)
 	/// @returns The status flags for the query.
 	dtStatus findStraightPath(const float* startPos, const float* endPos,
-							  const dtPolyRef* path, const int pathSize,
-							  float* straightPath, unsigned char* straightPathFlags, dtPolyRef* straightPathRefs,
-							  int* straightPathCount, const int maxStraightPath, const int options = 0) const;
+		const dtPolyRef* path, const int pathSize,
+		float* straightPath, unsigned char* straightPathFlags, dtPolyRef* straightPathRefs,
+		int* straightPathCount, const int maxStraightPath, const int options = 0) const;
 
 	///@}
 	/// @name Sliced Pathfinding Functions

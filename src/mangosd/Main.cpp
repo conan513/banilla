@@ -210,7 +210,7 @@ extern int main(int argc, char **argv)
 
     ///- Set progress bars show mode
     BarGoLink::SetOutputState(sConfig.GetBoolDefault("ShowProgressBars", true));
-
+	system("pause");
     ///- and run the 'Master'
     /// \todo Why do we need this 'Master'? Can't all of this be in the Main as for Realmd?
     return sMaster.Run();

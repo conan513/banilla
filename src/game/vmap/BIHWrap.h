@@ -31,23 +31,25 @@ class BIHWrap
         {
             const T* const* objects;
             RayCallback& cb;
-            uint32 objects_size;
+            uint32 objectsSize;
 
-            MDLCallback(RayCallback& callback, const T* const* objects_array, uint32 s) : cb(callback), objects(objects_array), objects_size(s) {}
+            MDLCallback(RayCallback& callback, const T* const* objects_array, uint32 objSize) : objects(objects_array), cb(callback), objectsSize(objSize) {}
 
-            bool operator()(const Ray& r, uint32 Idx, float& MaxDist, bool /*stopAtFirst*/)
+            bool operator()(const Ray& r, uint32 Idx, float& MaxDist, bool /*stopAtFirst*/, bool /*checkLOS*/)
             {
-                if (Idx >= objects_size)
+                if (Idx >= objectsSize)
                     return false;
+
                 if (const T* obj = objects[Idx])
-                    return cb(r, *obj, MaxDist/*, stopAtFirst*/);
+                    return cb(r, *obj, MaxDist/*, stopAtFirst, checkLOS*/);
                 return false;
             }
 
             void operator()(const Vector3& p, uint32 Idx)
             {
-                if (Idx >= objects_size)
+                if (Idx >= objectsSize)
                     return;
+
                 if (const T* obj = objects[Idx])
                     cb(p, *obj);
             }
@@ -77,7 +79,7 @@ class BIHWrap
             uint32 Idx = 0;
             const T* temp;
             if (m_obj2Idx.getRemove(&obj, temp, Idx))
-                m_objects[Idx] = NULL;
+                m_objects[Idx] = nullptr;
             else
                 m_objects_to_push.remove(&obj);
         }

@@ -20,13 +20,13 @@
 #ifndef _OBJECT_H
 #define _OBJECT_H
 
-#include "..\..\shared\Common.h"
-#include "..\..\shared\ByteBuffer.h"
+#include "Common.h"
+#include "ByteBuffer.h"
 #include "UpdateFields.h"
 #include "UpdateData.h"
-#include "..\ObjectGuid.h"
-#include "..\Camera.h"
-#include "..\Spells\SpellEntry.h"
+#include "ObjectGuid.h"
+#include "Camera.h"
+#include "SpellEntry.h"
 
 #include <set>
 #include <string>
