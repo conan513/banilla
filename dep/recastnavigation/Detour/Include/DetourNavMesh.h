@@ -375,7 +375,7 @@ public:
 	///  @param[in]	y		The tile's y-location. (x, y, layer)
 	///  @param[in]	layer	The tile's layer. (x, y, layer)
 	/// @return The tile, or null if the tile does not exist.
-	const dtMeshTile* getTileAt(const int x, const int y, const int layer) const;
+	const dtMeshTile* getTileAt(const int x, const int y, const int layer = 0) const;
 
 	/// Gets all tiles at the specified grid location. (All layers.)
 	///  @param[in]		x			The tile's x-location. (x, y)

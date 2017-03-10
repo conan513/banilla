@@ -348,7 +348,7 @@ void dtRandomPointInConvexPoly(const float* pts, const int npts, float* areas,
 	const float thr = s*areasum;
 	float acc = 0.0f;
 	float u = 0.0f;
-	int tri = 0;
+	int tri = 2; // Nostalrius: fixed crash here. Do not rely on float comparaisons !
 	for (int i = 2; i < npts; i++) {
 		const float dacc = areas[i];
 		if (thr >= acc && thr < (acc+dacc))

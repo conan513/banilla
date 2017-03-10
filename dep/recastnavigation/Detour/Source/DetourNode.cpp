@@ -21,6 +21,7 @@
 #include "DetourAssert.h"
 #include "DetourCommon.h"
 #include <string.h>
+#include <stdexcept>
 
 #ifdef DT_POLYREF64
 // From Thomas Wang, https://gist.github.com/badboy/6267743
@@ -169,6 +170,9 @@ dtNodeQueue::~dtNodeQueue()
 
 void dtNodeQueue::bubbleUp(int i, dtNode* node)
 {
+	if (!node)
+		throw std::runtime_error("bubbleUp with nil node");
+
 	int parent = (i-1)/2;
 	// note: (index > 0) means there is a parent
 	while ((i > 0) && (m_heap[parent]->total > node->total))
@@ -182,6 +186,9 @@ void dtNodeQueue::bubbleUp(int i, dtNode* node)
 
 void dtNodeQueue::trickleDown(int i, dtNode* node)
 {
+	if (!node)
+		throw std::runtime_error("trickleDown with nil node");
+
 	int child = (i*2)+1;
 	while (child < m_size)
 	{
@@ -194,5 +201,8 @@ void dtNodeQueue::trickleDown(int i, dtNode* node)
 		i = child;
 		child = (i*2)+1;
 	}
+	if (!node)
+		throw std::runtime_error("trickleDown finished with nil node");
+
 	bubbleUp(i, node);
 }

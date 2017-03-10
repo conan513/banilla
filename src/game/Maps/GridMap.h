@@ -120,6 +120,7 @@ class GridMap
 {
     private:
 
+		uint16 m_holes[16][16];
         uint32 m_flags;
 
         // Area data
@@ -164,6 +165,7 @@ class GridMap
         float getHeightFromUint16(float x, float y) const;
         float getHeightFromUint8(float x, float y) const;
         float getHeightFromFlat(float x, float y) const;
+		bool isHole(int row, int col) const;
 
     public:
 
@@ -224,6 +226,7 @@ class MANGOS_DLL_SPEC TerrainInfo : public Referencable<AtomicLong>
         float GetWaterLevel(float x, float y, float z, float* pGround = NULL) const;
         float GetWaterOrGroundLevel(float x, float y, float z, float* pGround = NULL, bool swim = false) const;
         bool IsInWater(float x, float y, float z, GridMapLiquidData* data = 0) const;
+		bool IsSwimmable(float x, float y, float pZ, float radius = 1.5f, GridMapLiquidData* data = nullptr) const;
         bool IsUnderWater(float x, float y, float z) const;
 
         GridMapLiquidStatus getLiquidStatus(float x, float y, float z, uint8 ReqLiquidType, GridMapLiquidData* data = 0) const;

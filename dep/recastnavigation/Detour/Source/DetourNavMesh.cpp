@@ -617,7 +617,7 @@ void dtNavMesh::baseOffMeshLinks(dtMeshTile* tile)
 	}
 }
 
-void dtNavMesh::closestPointOnPoly(dtPolyRef ref, const float* pos, float* closest, bool* posOverPoly) const
+void dtNavMesh::closestPointOnPoly(dtPolyRef ref, const float* pos, float* closest, bool* posOverPoly = NULL) const
 {
 	const dtMeshTile* tile = 0;
 	const dtPoly* poly = 0;

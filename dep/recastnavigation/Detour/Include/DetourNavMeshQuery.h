@@ -160,7 +160,7 @@ public:
 	///  @param[in]		nav			Pointer to the dtNavMesh object to use for all queries.
 	///  @param[in]		maxNodes	Maximum number of search nodes. [Limits: 0 < value <= 65536]
 	/// @returns The status flags for the query.
-	dtStatus init(const dtNavMesh* nav, const int maxNodes);
+	dtStatus init(const dtNavMesh* nav, const int maxNodes, unsigned int threadId);
 	
 	/// @name Standard Pathfinding Functions
 	// /@{
@@ -430,7 +430,7 @@ public:
 	///  @param[out]	closest		The closest point on the polygon. [(x, y, z)]
 	///  @param[out]	posOverPoly	True of the position is over the polygon.
 	/// @returns The status flags for the query.
-	dtStatus closestPointOnPoly(dtPolyRef ref, const float* pos, float* closest, bool* posOverPoly) const;
+	dtStatus closestPointOnPoly(dtPolyRef ref, const float* pos, float* closest, bool* posOverPoly = NULL) const;
 	
 	/// Returns a point on the boundary closest to the source point if the source point is outside the 
 	/// polygon's xz-bounds.
@@ -521,6 +521,8 @@ private:
 	class dtNodePool* m_tinyNodePool;	///< Pointer to small node pool.
 	class dtNodePool* m_nodePool;		///< Pointer to node pool.
 	class dtNodeQueue* m_openList;		///< Pointer to open list queue.
+	public:
+		unsigned int m_owningThread;
 };
 
 /// Allocates a query object using the Detour allocator.

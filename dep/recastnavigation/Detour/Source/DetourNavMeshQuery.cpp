@@ -163,9 +163,10 @@ dtNavMeshQuery::~dtNavMeshQuery()
 /// functions are used.
 ///
 /// This function can be used multiple times.
-dtStatus dtNavMeshQuery::init(const dtNavMesh* nav, const int maxNodes)
+dtStatus dtNavMeshQuery::init(const dtNavMesh* nav, const int maxNodes, unsigned int threadId)
 {
 	m_nav = nav;
+	m_owningThread = threadId;
 	
 	if (!m_nodePool || m_nodePool->getMaxNodes() < maxNodes)
 	{
@@ -2419,6 +2420,10 @@ dtStatus dtNavMeshQuery::raycast(dtPolyRef startRef, const float* startPos, cons
 			hit->pathCount = n;
 			return status;
 		}
+		
+		if (tmax - tmin < 0.00001f)
+			return DT_FAILURE;
+
 		// Keep track of furthest t so far.
 		if (tmax > hit->t)
 			hit->t = tmax;
