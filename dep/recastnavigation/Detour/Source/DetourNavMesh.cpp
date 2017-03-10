@@ -113,10 +113,10 @@ static void calcSlabEndPoints(const float* va, const float* vb, float* bmin, flo
 
 inline int computeTileHash(int x, int y, const int mask)
 {
-    const int h1 = 0x8da6b343; // Large multiplicative constants;
-    const int h2 = 0xd8163841; // here arbitrarily chosen primes
-    uint64_t n = h1 * x + h2 * y;
-    return (int)(n & mask);
+	const unsigned int h1 = 0x8da6b343; // Large multiplicative constants;
+	const unsigned int h2 = 0xd8163841; // here arbitrarily chosen primes
+	unsigned int n = h1 * x + h2 * y;
+	return (int)(n & mask);
 }
 
 inline unsigned int allocLink(dtMeshTile* tile)

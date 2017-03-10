@@ -155,7 +155,6 @@ bool rcMeshLoaderObj::load(const char* filename)
 
 	if (readLen != 1)
 	{
-        delete[] buf;
 		return false;
 	}
 

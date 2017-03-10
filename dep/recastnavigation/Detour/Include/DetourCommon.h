@@ -419,8 +419,6 @@ bool dtOverlapPolyPoly2D(const float* polya, const int npolya,
 
 inline unsigned int dtNextPow2(unsigned int v)
 {
-    if (!v)
-        return 1;
 	v--;
 	v |= v >> 1;
 	v |= v >> 2;

@@ -178,7 +178,6 @@ bool InputGeom::load(rcContext* ctx, const char* filePath)
 	fclose(fp);
 	if (readLen != 1)
 	{
-        delete[] buf;
 		return false;
 	}
 	
