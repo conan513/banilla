@@ -23,6 +23,7 @@
 #include <G3D/Ray.h>
 #include <G3D/AABox.h>
 #include <G3D/Table.h>
+#include <G3D/BoundsTrait.h>
 #include <G3D/PositionTrait.h>
 
 #include "Errors.h"
@@ -39,11 +40,11 @@ struct NodeCreator
 };
 
 template < class T,
-           class Node,
-           class NodeCreatorFunc = NodeCreator<Node>,
-           /*class BoundsFunc = BoundsTrait<T>,*/
-           class PositionFunc = PositionTrait<T>
-           >
+         class Node,
+         class NodeCreatorFunc = NodeCreator<Node>,
+         /*class BoundsFunc = BoundsTrait<T>,*/
+         class PositionFunc = PositionTrait<T>
+         >
 class RegularGrid2D
 {
     public:
@@ -107,7 +108,7 @@ class RegularGrid2D
 
             static Cell ComputeCell(float fx, float fy)
             {
-                Cell c = { static_cast<int>(fx* (1.f / CELL_SIZE) + (CELL_NUMBER / 2)), static_cast<int>(fy* (1.f / CELL_SIZE) + (CELL_NUMBER / 2)) };
+                Cell c = {int(fx * (1.f / CELL_SIZE) + (CELL_NUMBER / 2)), int(fy* (1.f / CELL_SIZE) + (CELL_NUMBER / 2))};
                 return c;
             }
 

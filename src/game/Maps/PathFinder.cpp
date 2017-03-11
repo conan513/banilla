@@ -395,7 +395,7 @@ void PathInfo::BuildPointPath(const float *startPoint, const float *endPoint, fl
                        NULL,               // [out] flags
                        NULL,               // [out] shortened path
                        (int*)&pointCount,
-                       m_pointPathLimit,0);   // maximum number of points/polygons to use
+                       m_pointPathLimit);   // maximum number of points/polygons to use
     }
     else
     {
@@ -671,7 +671,7 @@ bool PathInfo::getSteerTarget(const float* startPos, const float* endPos,
     dtPolyRef steerPathPolys[MAX_STEER_POINTS];
     uint32 nsteerPath = 0;
     dtStatus dtResult = m_navMeshQuery->findStraightPath(startPos, endPos, path, pathSize,
-                        steerPath, steerPathFlags, steerPathPolys, (int*)&nsteerPath, MAX_STEER_POINTS,0);
+                        steerPath, steerPathFlags, steerPathPolys, (int*)&nsteerPath, MAX_STEER_POINTS);
     if (!nsteerPath || dtStatusFailed(dtResult))
         return false;
 

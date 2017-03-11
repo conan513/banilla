@@ -22,9 +22,10 @@
 #include "WorldModel.h"
 
 #include "GameObject.h"
-#include "../World.h"
+#include "World.h"
 #include "GameObjectModel.h"
 #include "DBCStores.h"
+#include "Creature.h"
 
 struct GameobjectModelData
 {
@@ -35,7 +36,7 @@ struct GameobjectModelData
     G3D::AABox bound;
 };
 
-typedef std::unordered_map<uint32, GameobjectModelData> ModelList;
+typedef UNORDERED_MAP<uint32, GameobjectModelData> ModelList;
 ModelList model_list;
 
 void LoadGameObjectModelList()
@@ -53,7 +54,7 @@ void LoadGameObjectModelList()
 
         if (name_length >= sizeof(buff))
         {
-            sLog.outDebug("File %s seems to be corrupted", VMAP::GAMEOBJECT_MODELS);
+            DEBUG_LOG("File %s seems to be corrupted", VMAP::GAMEOBJECT_MODELS);
             break;
         }
 
@@ -83,7 +84,7 @@ bool GameObjectModel::initialize(const GameObject* const pGo, const GameObjectDi
     // ignore models with no bounds
     if (mdl_box == G3D::AABox::zero())
     {
-        sLog.outDebug("Model %s has zero bounds, loading skipped", it->second.name.c_str());
+        DEBUG_LOG("Model %s has zero bounds, loading skipped", it->second.name.c_str());
         return false;
     }
 
@@ -106,7 +107,7 @@ bool GameObjectModel::initialize(const GameObject* const pGo, const GameObjectDi
     for (int i = 0; i < 8; ++i)
         rotated_bounds.merge(iRotation * mdl_box.corner(i));
 
-    this->iBound = rotated_bounds + iPos;
+    iBound = rotated_bounds + iPos;
 
 #ifdef SPAWN_CORNERS
     // test:
@@ -124,26 +125,25 @@ bool GameObjectModel::initialize(const GameObject* const pGo, const GameObjectDi
     return true;
 }
 
-GameObjectModel* GameObjectModel::construct(const GameObject* const pGo)
+GameObjectModel* GameObjectModel::construct(const GameObject* const object)
 {
-	if (GameObjectInfo const* gobjInfo = pGo->GetGOInfo())
-	{
-	 // TODO: What kind of gobj should block LoS or not ?
-		if (gobjInfo->type == GAMEOBJECT_TYPE_BUTTON && gobjInfo->button.losOK)
-			return NULL;
-		if (gobjInfo->type == GAMEOBJECT_TYPE_GOOBER && gobjInfo->goober.losOK)
-			return NULL;
-		}
-
-    const GameObjectDisplayInfoEntry* info = sGameObjectDisplayInfoStore.LookupEntry(pGo->GetDisplayId());
+    if (GameObjectInfo const* gobjInfo = object->GetGOInfo())
+    {
+        // TODO: What kind of gobj should block LoS or not ?
+        if (gobjInfo->type == GAMEOBJECT_TYPE_BUTTON && gobjInfo->button.losOK)
+            return NULL;
+        if (gobjInfo->type == GAMEOBJECT_TYPE_GOOBER && gobjInfo->goober.losOK)
+            return NULL;
+    }
+    const GameObjectDisplayInfoEntry* info = sGameObjectDisplayInfoStore.LookupEntry(object->GetDisplayId());
     if (!info)
-        return nullptr;
+        return NULL;
 
     GameObjectModel* mdl = new GameObjectModel();
-    if (!mdl->initialize(pGo, info))
+    if (!mdl->initialize(object, info))
     {
         delete mdl;
-        return nullptr;
+        return NULL;
     }
 
     return mdl;
@@ -171,44 +171,43 @@ bool GameObjectModel::intersectRay(const G3D::Ray& ray, float& MaxDist, bool Sto
     return hit;
 }
 
-
-bool GameObjectModel::Relocate(const GameObject& pGo)
+bool GameObjectModel::Relocate(const GameObject& go)
 {
-	if (!iModel)
-		return false;
-	
-		ModelList::const_iterator it = model_list.find(pGo.GetDisplayId());
-	if (it == model_list.end())
-		return false;
-	
-		G3D::AABox mdl_box(it->second.bound);
-	// ignore models with no bounds
-	if (mdl_box == G3D::AABox::zero())
-	{
-		DEBUG_LOG("GameObject model %s has zero bounds, loading skipped", it->second.name.c_str());
-		return false;
-		}
-	
-		iPos = Vector3(pGo.GetPositionX(), pGo.GetPositionY(), pGo.GetPositionZ());
-	
-	G3D::Matrix3 iRotation = G3D::Matrix3::fromEulerAnglesZYX(pGo.GetOrientation(), 0, 0);
-	iInvRot = iRotation.inverse();
-	    // transform bounding box:
-	mdl_box = AABox(mdl_box.low() * iScale, mdl_box.high() * iScale);
-	AABox rotated_bounds;
-	for (int i = 0; i < 8; ++i)
-		rotated_bounds.merge(iRotation * mdl_box.corner(i));
-	
-		iBound = rotated_bounds + iPos;
-	#ifdef SPAWN_CORNERS
-		// test:
-		for (int i = 0; i < 8; ++i)
-		 {
-		     Vector3 pos(iBound.corner(i));
-		     Creature* c = ((GameObject*)&pGo)->SummonCreature(1, pos.x, pos.y, pos.z, 0, TEMPSUMMON_TIMED_DESPAWN, 4000);
-		     c->SetFly(true);
-		     c->SendHeartBeat();
-		}
-	#endif
-return true;
+    if (!iModel)
+        return false;
+
+    ModelList::const_iterator it = model_list.find(go.GetDisplayId());
+    if (it == model_list.end())
+        return false;
+
+    G3D::AABox mdl_box(it->second.bound);
+    // ignore models with no bounds
+    if (mdl_box == G3D::AABox::zero())
+    {
+        DEBUG_LOG("GameObject model %s has zero bounds, loading skipped", it->second.name.c_str());
+        return false;
+    }
+
+    iPos = Vector3(go.GetPositionX(), go.GetPositionY(), go.GetPositionZ());
+
+    G3D::Matrix3 iRotation = G3D::Matrix3::fromEulerAnglesZYX(go.GetOrientation(), 0, 0);
+    iInvRot = iRotation.inverse();
+    // transform bounding box:
+    mdl_box = AABox(mdl_box.low() * iScale, mdl_box.high() * iScale);
+    AABox rotated_bounds;
+    for (int i = 0; i < 8; ++i)
+        rotated_bounds.merge(iRotation * mdl_box.corner(i));
+
+    iBound = rotated_bounds + iPos;
+#ifdef SPAWN_CORNERS
+    // test:
+    for (int i = 0; i < 8; ++i)
+    {
+        Vector3 pos(iBound.corner(i));
+        Creature* c = ((GameObject*)&go)->SummonCreature(1, pos.x, pos.y, pos.z, 0, TEMPSUMMON_TIMED_DESPAWN, 4000);
+        c->SetFly(true);
+        c->SendHeartBeat();
+    }
+#endif
+    return true;
 }

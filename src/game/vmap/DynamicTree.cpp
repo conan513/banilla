@@ -25,18 +25,30 @@
 
 template<> struct HashTrait< GameObjectModel>
 {
-    static size_t hashCode(const GameObjectModel& g) { return (size_t)(void*)&g; }
+    static size_t hashCode(const GameObjectModel& g)
+    {
+        return (size_t)(void*)&g;
+    }
 };
 
 template<> struct PositionTrait< GameObjectModel>
 {
-    static void getPosition(const GameObjectModel& g, Vector3& p) { p = g.getPosition(); }
+    static void getPosition(const GameObjectModel& g, Vector3& p)
+    {
+        p = g.getPosition();
+    }
 };
 
 template<> struct BoundsTrait< GameObjectModel>
 {
-    static void getBounds(const GameObjectModel& g, G3D::AABox& out) { out = g.getBounds();}
-    static void getBounds2(const GameObjectModel* g, G3D::AABox& out) { out = g->getBounds();}
+    static void getBounds(const GameObjectModel& g, G3D::AABox& out)
+    {
+        out = g.getBounds();
+    }
+    static void getBounds2(const GameObjectModel* g, G3D::AABox& out)
+    {
+        out = g->getBounds();
+    }
 };
 
 /*
@@ -147,7 +159,10 @@ struct DynamicTreeIntersectionCallback
         did_hit = obj.intersectRay(r, distance, true);
         return did_hit;
     }
-    bool didHit() const { return did_hit;}
+    bool didHit() const
+    {
+        return did_hit;
+    }
 };
 
 struct DynamicTreeIntersectionCallback_WithLogger
@@ -168,7 +183,10 @@ struct DynamicTreeIntersectionCallback_WithLogger
         }
         return hit;
     }
-    bool didHit() const { return did_hit;}
+    bool didHit() const
+    {
+        return did_hit;
+    }
 };
 
 //=========================================================
@@ -226,18 +244,12 @@ bool DynamicMapTree::getObjectHitPos(const Vector3& pPos1, const Vector3& pPos2,
         if (pModifyDist < 0)
         {
             if ((pResultHitPos - pPos1).magnitude() > -pModifyDist)
-            {
                 pResultHitPos = pResultHitPos + dir * pModifyDist;
-            }
             else
-            {
                 pResultHitPos = pPos1;
-            }
         }
         else
-        {
             pResultHitPos = pResultHitPos + dir * pModifyDist;
-        }
         result = true;
     }
     else
@@ -253,6 +265,7 @@ bool DynamicMapTree::isInLineOfSight(float x1, float y1, float z1, float x2, flo
     Vector3 v1(x1, y1, z1), v2(x2, y2, z2);
 
     float maxDist = (v2 - v1).magnitude();
+    MANGOS_ASSERT(maxDist < std::numeric_limits<float>::max());
 
     if (!G3D::fuzzyGt(maxDist, 0))
         return true;

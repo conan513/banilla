@@ -19,7 +19,7 @@
 #ifndef _IVMAPMANAGER_H
 #define _IVMAPMANAGER_H
 
-#include <string>
+#include<string>
 #include <Platform/Define.h>
 
 //===========================================================
@@ -30,7 +30,7 @@ This is the minimum interface to the VMapMamager.
 
 namespace VMAP
 {
-	class ModelInstance;
+    class ModelInstance;
 
     enum VMAPLoadResult
     {
@@ -68,7 +68,7 @@ namespace VMAP
             return a position, that is pReduceDist closer to the origin
             */
             virtual bool getObjectHitPos(unsigned int pMapId, float x1, float y1, float z1, float x2, float y2, float z2, float& rx, float& ry, float& rz, float pModifyDist) = 0;
-			virtual ModelInstance* FindCollisionModel(unsigned int map, float, float, float, float, float, float) = 0;
+            virtual ModelInstance* FindCollisionModel(unsigned int map, float, float, float, float, float, float) = 0;
             /**
             send debug commands
             */
@@ -95,7 +95,7 @@ namespace VMAP
             \param z gets adjusted to the ground height for which this are info is valid
             */
             virtual bool getAreaInfo(unsigned int pMapId, float x, float y, float& z, uint32& flags, int32& adtId, int32& rootId, int32& groupId) const = 0;
-			virtual bool isUnderModel(unsigned int pMapId, float x, float y, float z, float* outDist = NULL, float* inDist = NULL) const = 0;
+            virtual bool isUnderModel(unsigned int pMapId, float x, float y, float z, float* outDist = NULL, float* inDist = NULL) const = 0;
             virtual bool GetLiquidLevel(uint32 pMapId, float x, float y, float z, uint8 ReqLiquidType, float& level, float& floor, uint32& type) const = 0;
     };
 }
