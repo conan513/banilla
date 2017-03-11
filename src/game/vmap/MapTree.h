@@ -19,9 +19,9 @@
 #ifndef _MAPTREE_H
 #define _MAPTREE_H
 
-#include "Platform/Define.h"
-#include "Utilities/UnorderedMapSet.h"
 #include "BIH.h"
+
+#include <unordered_map>
 
 namespace VMAP
 {
@@ -31,7 +31,7 @@ namespace VMAP
 
     struct LocationInfo
     {
-        LocationInfo(): hitInstance(0), hitModel(0), ground_Z(-G3D::inf()) {};
+        LocationInfo(): hitInstance(nullptr), hitModel(nullptr), ground_Z(-G3D::inf()) {};
         const ModelInstance* hitInstance;
         const GroupModel* hitModel;
         float ground_Z;
@@ -39,8 +39,8 @@ namespace VMAP
 
     class StaticMapTree
     {
-            typedef UNORDERED_MAP<uint32, bool> loadedTileMap;
-            typedef UNORDERED_MAP<uint32, uint32> loadedSpawnMap;
+            typedef std::unordered_map<uint32, bool> loadedTileMap;
+            typedef std::unordered_map<uint32, uint32> loadedSpawnMap;
         private:
             uint32 iMapID;
             bool iIsTiled;
@@ -57,7 +57,7 @@ namespace VMAP
             std::string iBasePath;
 
         private:
-            bool getIntersectionTime(const G3D::Ray& pRay, float& pMaxDist, bool pStopAtFirstHit, bool isLosCheck) const;
+            bool getIntersectionTime(const G3D::Ray& pRay, float& pMaxDist, bool pStopAtFirstHit = false, bool pCheckLOS = false) const;
             // bool containsLoadedMapTile(unsigned int pTileIdent) const { return(iLoadedMapTiles.containsKey(pTileIdent)); }
         public:
             static std::string getTileFileName(uint32 mapID, uint32 tileX, uint32 tileY);
@@ -69,11 +69,11 @@ namespace VMAP
             ~StaticMapTree();
 
             bool isInLineOfSight(const G3D::Vector3& pos1, const G3D::Vector3& pos2) const;
-            ModelInstance* FindCollisionModel(const G3D::Vector3& pos1, const G3D::Vector3& pos2);
+			ModelInstance* FindCollisionModel(const G3D::Vector3& pos1, const G3D::Vector3& pos2);
             bool getObjectHitPos(const G3D::Vector3& pos1, const G3D::Vector3& pos2, G3D::Vector3& pResultHitPos, float pModifyDist) const;
             float getHeight(const G3D::Vector3& pPos, float maxSearchDist) const;
             bool getAreaInfo(G3D::Vector3& pos, uint32& flags, int32& adtId, int32& rootId, int32& groupId) const;
-            bool isUnderModel(G3D::Vector3& pos, float* outDist = NULL, float* inDist = NULL) const;
+			bool isUnderModel(G3D::Vector3& pos, float* outDist = NULL, float* inDist = NULL) const;
             bool GetLocationInfo(const Vector3& pos, LocationInfo& info) const;
 
             bool InitMap(const std::string& fname, VMapManager2* vm);
@@ -91,7 +91,8 @@ namespace VMAP
 
     struct AreaInfo
     {
-        AreaInfo(): result(false), ground_Z(-G3D::inf()) {};
+        AreaInfo(): result(false), ground_Z(-G3D::inf()), flags(0), adtId(0), rootId(0), groupId(0)
+        {};
         bool result;
         float ground_Z;
         uint32 flags;

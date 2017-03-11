@@ -34,10 +34,10 @@ namespace VMAP
 
     enum ModelFlags
     {
-        MOD_M2           = 1,
-        MOD_WORLDSPAWN   = 1 << 1,
-        MOD_HAS_BOUND    = 1 << 2,
-        MOD_NO_BREAK_LOS = 1 << 3 | MOD_M2
+        MOD_M2 = 1,
+        MOD_WORLDSPAWN = 1 << 1,
+        MOD_HAS_BOUND = 1 << 2,
+		MOD_NO_BREAK_LOS = 1 << 3 | MOD_M2
     };
 
     class ModelSpawn
@@ -65,12 +65,12 @@ namespace VMAP
     class ModelInstance: public ModelSpawn
     {
         public:
-            ModelInstance(): iInvScale(0), iModel(0) {}
+            ModelInstance(): iInvScale(0), iModel(nullptr) {}
             ModelInstance(const ModelSpawn& spawn, WorldModel* model);
-            void setUnloaded() { iModel = 0; }
-            bool intersectRay(const G3D::Ray& pRay, float& pMaxDist, bool pStopAtFirstHit) const;
+            void setUnloaded() { iModel = nullptr; }
+            bool intersectRay(const G3D::Ray& pRay, float& pMaxDist, bool pStopAtFirstHit, bool pCheckLOS = false) const;
             void intersectPoint(const G3D::Vector3& p, AreaInfo& info) const;
-            bool isUnderModel(const G3D::Vector3& p, float* outDist = NULL, float* inDist = NULL) const;
+			bool isUnderModel(const G3D::Vector3& p, float* outDist = NULL, float* inDist = NULL) const;
             bool GetLocationInfo(const G3D::Vector3& p, LocationInfo& info) const;
             bool GetLiquidLevel(const G3D::Vector3& p, LocationInfo& info, float& liqHeight) const;
         protected:
@@ -78,10 +78,10 @@ namespace VMAP
             float iInvScale;
             WorldModel* iModel;
 
+#ifdef MMAP_GENERATOR
         public:
-            WorldModel* const getWorldModel()  { return iModel; }
-            float getScale() const             { return iInvScale; }
-            G3D::Matrix3 const& getRot() const { return iInvRot; }
+            WorldModel* const getWorldModel();
+#endif
     };
 } // namespace VMAP
 

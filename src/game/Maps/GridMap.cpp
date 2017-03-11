@@ -32,10 +32,13 @@
 #include "SQLStorages.h"
 
 char const* MAP_MAGIC         = "MAPS";
-char const* MAP_VERSION_MAGIC = "z1.3";
+char const* MAP_VERSION_MAGIC = "s1.3";
 char const* MAP_AREA_MAGIC    = "AREA";
 char const* MAP_HEIGHT_MAGIC  = "MHGT";
 char const* MAP_LIQUID_MAGIC  = "MLIQ";
+
+static uint16 holetab_h[4] = { 0x1111, 0x2222, 0x4444, 0x8888 };
+static uint16 holetab_v[4] = { 0x000F, 0x00F0, 0x0F00, 0xF000 };
 
 GridMap::GridMap()
 {
@@ -91,6 +94,14 @@ bool GridMap::loadData(char* filename)
             fclose(in);
             return false;
         }
+
+		// loadup holes data
+		if (header.holesOffset && !loadHolesData(in, header.holesOffset, header.holesSize))
+		{
+			sLog.outError("Error loading map holes data\n");
+			fclose(in);
+			return false;
+		}		
 
         // loadup height data
         if (header.heightMapOffset && !loadHeightData(in, header.heightMapOffset, header.heightMapSize))
@@ -197,6 +208,16 @@ bool GridMap::loadHeightData(FILE* in, uint32 offset, uint32 /*size*/)
     return true;
 }
 
+bool GridMap::loadHolesData(FILE* in, uint32 offset, uint32 size)
+{
+	if (fseek(in, offset, SEEK_SET) != 0)
+		return false;
+
+	if (fread(&m_holes, sizeof(m_holes), 1, in) != 1)
+		return false;
+	return true;
+}
+
 bool GridMap::loadGridMapLiquidData(FILE* in, uint32 offset, uint32 /*size*/)
 {
     GridMapLiquidHeader header;
@@ -247,6 +268,18 @@ float GridMap::getHeightFromFlat(float /*x*/, float /*y*/) const
     return m_gridHeight;
 }
 
+bool GridMap::isHole(int row, int col) const
+{
+	int cellRow = row / 8;     // 8 squares per cell
+	int cellCol = col / 8;
+	int holeRow = row % 8 / 2;
+	int holeCol = (col - (cellCol * 8)) / 2;
+
+	uint16 hole = m_holes[cellRow][cellCol];
+
+	return (hole & holetab_h[holeCol] & holetab_v[holeRow]) != 0;
+}
+
 float GridMap::getHeightFromFloat(float x, float y) const
 {
     if (!m_V8 || !m_V9)
@@ -261,6 +294,9 @@ float GridMap::getHeightFromFloat(float x, float y) const
     y -= y_int;
     x_int &= (MAP_RESOLUTION - 1);
     y_int &= (MAP_RESOLUTION - 1);
+
+	if (isHole(x_int, y_int))
+		return m_gridHeight;
 
     // Height stored as: h5 - its v8 grid, h1-h4 - its v9 grid
     // +--------------> X
@@ -1055,6 +1091,23 @@ bool TerrainInfo::IsInWater(float x, float y, float pZ, GridMapLiquidData* data)
             return true;
     }
     return false;
+}
+
+// check if creature is in water and have enough space to swim
+bool TerrainInfo::IsSwimmable(float x, float y, float pZ, float radius /*= 1.5f*/, GridMapLiquidData* data /*= 0*/) const
+{
+	// Check surface in x, y point for liquid
+	if (const_cast<TerrainInfo*>(this)->GetGrid(x, y))
+	{
+		GridMapLiquidData liquid_status;
+		GridMapLiquidData* liquid_ptr = data ? data : &liquid_status;
+		if (getLiquidStatus(x, y, pZ, MAP_ALL_LIQUIDS, liquid_ptr))
+		{
+			if (liquid_ptr->level - liquid_ptr->depth_level > radius) // is unit have enough space to swim
+				return true;
+		}
+	}
+	return false;
 }
 
 bool TerrainInfo::IsUnderWater(float x, float y, float z) const
