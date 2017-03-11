@@ -19,15 +19,13 @@
 #ifndef DETOURNAVMESH_H
 #define DETOURNAVMESH_H
 
-#include <cstddef>
-
 #include "DetourAlloc.h"
 #include "DetourStatus.h"
 
 // Undefine (or define in a build cofnig) the following line to use 64bit polyref.
 // Generally not needed, useful for very large worlds.
 // Note: tiles build using 32bit refs are not compatible with 64bit refs!
-#define DT_POLYREF64 1
+//#define DT_POLYREF64 1
 
 #ifdef DT_POLYREF64
 // TODO: figure out a multiplatform version of uint64_t
@@ -634,7 +632,7 @@ private:
 	dtPolyRef findNearestPolyInTile(const dtMeshTile* tile, const float* center,
 									const float* extents, float* nearestPt) const;
 	/// Returns closest point on polygon.
-	void closestPointOnPoly(dtPolyRef ref, const float* pos, float* closest, bool* posOverPoly = NULL) const;
+	void closestPointOnPoly(dtPolyRef ref, const float* pos, float* closest, bool* posOverPoly) const;
 	
 	dtNavMeshParams m_params;			///< Current initialization params. TODO: do not store this info twice.
 	float m_orig[3];					///< Origin of the tile (0,0)

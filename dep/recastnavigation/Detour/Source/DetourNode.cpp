@@ -170,8 +170,8 @@ dtNodeQueue::~dtNodeQueue()
 
 void dtNodeQueue::bubbleUp(int i, dtNode* node)
 {
-    if (!node)
-        throw std::runtime_error("bubbleUp with nil node");
+	if (!node)
+		throw std::runtime_error("bubbleUp with nil node");
 
 	int parent = (i-1)/2;
 	// note: (index > 0) means there is a parent
@@ -186,8 +186,8 @@ void dtNodeQueue::bubbleUp(int i, dtNode* node)
 
 void dtNodeQueue::trickleDown(int i, dtNode* node)
 {
-    if (!node)
-        throw std::runtime_error("trickleDown with nil node");
+	if (!node)
+		throw std::runtime_error("trickleDown with nil node");
 
 	int child = (i*2)+1;
 	while (child < m_size)
@@ -201,9 +201,8 @@ void dtNodeQueue::trickleDown(int i, dtNode* node)
 		i = child;
 		child = (i*2)+1;
 	}
-
-    if (!node)
-        throw std::runtime_error("trickleDown finished with nil node");
+	if (!node)
+		throw std::runtime_error("trickleDown finished with nil node");
 
 	bubbleUp(i, node);
 }
