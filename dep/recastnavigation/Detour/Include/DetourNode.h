@@ -20,9 +20,7 @@
 #define DETOURNODE_H
 
 #include "DetourNavMesh.h"
-
 #include <stdexcept>
-
 enum dtNodeFlags
 {
 	DT_NODE_OPEN = 0x01,
@@ -127,9 +125,8 @@ public:
 	{
 		dtNode* result = m_heap[0];
 		m_size--;
-		if (!m_heap[m_size])
-			throw std::runtime_error("m_heap[m_size] nil in pop");
-
+        if (!m_heap[m_size])
+            throw std::runtime_error("m_heap[m_size] nil in pop");
 		trickleDown(0, m_heap[m_size]);
 		return result;
 	}
@@ -137,9 +134,8 @@ public:
 	inline void push(dtNode* node)
 	{
 		m_size++;
-		if (m_size > m_capacity)
-			throw std::runtime_error("m_size has exceeded m_capacity");
-
+        if (m_size > m_capacity)
+            throw std::runtime_error("m_size has exceeded m_capacity");
 		bubbleUp(m_size-1, node);
 	}
 	

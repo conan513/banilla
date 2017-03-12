@@ -166,8 +166,8 @@ dtNavMeshQuery::~dtNavMeshQuery()
 dtStatus dtNavMeshQuery::init(const dtNavMesh* nav, const int maxNodes, unsigned int threadId)
 {
 	m_nav = nav;
-	m_owningThread = threadId;
-	
+    m_owningThread = threadId;
+
 	if (!m_nodePool || m_nodePool->getMaxNodes() < maxNodes)
 	{
 		if (m_nodePool)
@@ -2420,9 +2420,9 @@ dtStatus dtNavMeshQuery::raycast(dtPolyRef startRef, const float* startPos, cons
 			hit->pathCount = n;
 			return status;
 		}
-		
-		if (tmax - tmin < 0.00001f)
-			return DT_FAILURE;
+        // Nostalrius: may be a bugged triangle (3 aligned points)
+        if (tmax - tmin < 0.00001f)
+            return DT_FAILURE;
 
 		// Keep track of furthest t so far.
 		if (tmax > hit->t)

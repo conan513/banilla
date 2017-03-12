@@ -64,6 +64,9 @@ enum EventAI_Type
     EVENT_T_SUMMONED_JUST_DESPAWN   = 26,                   // CreatureId, RepeatMin, RepeatMax
     EVENT_T_MISSING_AURA            = 27,                   // Param1 = SpellID, Param2 = Number of time stacked expected, Param3/4 Repeat Min/Max
     EVENT_T_TARGET_MISSING_AURA     = 28,                   // Param1 = SpellID, Param2 = Number of time stacked expected, Param3/4 Repeat Min/Max
+	EVENT_T_TIMER_GENERIC = 29,                   // InitialMin, InitialMax, RepeatMin, RepeatMax
+	EVENT_T_RECEIVE_AI_EVENT = 30,                   // AIEventType, Sender-Entry, unused, unused
+	EVENT_T_ENERGY = 31,                   // EnergyMax%, EnergyMin%, RepeatMin, RepeatMax
 
     EVENT_T_END,
 };
@@ -117,7 +120,9 @@ enum EventAI_ActionType
     ACTION_T_SET_GAME_EVENT             = 44,               // EventID, Start/stop [NOSTALRIUS]
     ACTION_T_SET_STAND_STATE            = 47,               // StandState, unused, unused
     ACTION_T_CHANGE_MOVEMENT            = 48,               // MovementType, WanderDistance, unused
-    ACTION_T_SET_VARIABLE               = 49,               // VariableEntry, Value, unused
+	ACTION_T_DYNAMIC_MOVEMENT = 49,               // EnableDynamicMovement (1 = on; 0 = off)
+	ACTION_T_SET_REACT_STATE = 50,               // React state, unused, unused
+    ACTION_T_SET_VARIABLE               = 51,               // VariableEntry, Value, unused
     ACTION_T_END,
 };
 
@@ -144,6 +149,16 @@ enum Target
     TARGET_T_HOSTILE_WPET_RANDOM_NOT_TOP,                   //Any random target except top threat
 
     TARGET_T_ACTION_INVOKER_WPET,
+
+	TARGET_T_ACTION_INVOKER_OWNER,            // was 7: Unit who is responsible for Event to occur (only works for EVENT_T_AGGRO, EVENT_T_KILL, EVENT_T_DEATH, EVENT_T_SPELLHIT, EVENT_T_OOC_LOS, EVENT_T_FRIENDLY_HP, EVENT_T_FRIENDLY_IS_CC, EVENT_T_FRIENDLY_MISSING_BUFF, EVENT_T_RECEIVE_EMOTE, EVENT_T_RECEIVE_AI_EVENT)
+	TARGET_T_EVENT_SENDER,           // was 10U nit who sent an AIEvent that was received with EVENT_T_RECEIVE_AI_EVENT
+
+// Hostile players
+	TARGET_T_HOSTILE_RANDOM_PLAYER,            // was 8 Just any random player on our threat list
+	TARGET_T_HOSTILE_RANDOM_NOT_TOP_PLAYER,            // was 9 Any random player from threat list except top threat
+
+// Summon targeting
+	TARGET_T_SUMMONER,           // was 11 Owner of unit if exists
 
     TARGET_T_END
 };
@@ -405,7 +420,21 @@ struct CreatureEventAI_Action
             uint32 wanderDistance;
             uint32 unused1;
         } changeMovement;
-        // ACTION_T_SET_VARIABLE                            = 49
+		// ACTION_T_DYNAMIC_MOVEMENT                        = 49
+		struct
+		{
+			uint32 state;                                   // bool: 1 = on; 0 = off
+			uint32 unused1;
+			uint32 unused2;
+		} dynamicMovement;
+		// ACTION_T_SET_REACT_STATE                         = 50
+		struct
+		{
+			uint32 reactState;
+			uint32 unused1;
+			uint32 unused2;
+		} setReactState;
+        // ACTION_T_SET_VARIABLE                            = 51
         struct
         {
             uint32 variableEntry;
@@ -556,6 +585,14 @@ struct CreatureEventAI_Event
             uint32 repeatMin;
             uint32 repeatMax;
         } buffed;
+		// EVENT_T_RECEIVE_AI_EVENT                         = 30
+		struct
+		{
+			uint32 eventType;                               // See CreatureAI.h enum AIEventType - Receive only events of this type
+			uint32 senderEntry;                             // Optional npc from only whom this event can be received
+			uint32 unused1;
+			uint32 unused2;
+		} receiveAIEvent;
         // RAW
         struct
         {
@@ -568,6 +605,9 @@ struct CreatureEventAI_Event
 
     CreatureEventAI_Action action[MAX_ACTIONS];
 };
+
+#define AIEVENT_DEFAULT_THROW_RADIUS    30.0f
+
 //Event_Map
 typedef std::vector<CreatureEventAI_Event> CreatureEventAI_Event_Vec;
 typedef UNORDERED_MAP<uint32, CreatureEventAI_Event_Vec > CreatureEventAI_Event_Map;
@@ -621,18 +661,20 @@ class MANGOS_DLL_SPEC CreatureEventAI : public CreatureAI
         void MoveInLineOfSight(Unit *who) override;
         void SpellHit(Unit* pUnit, const SpellEntry* pSpell) override;
         void DamageTaken(Unit* done_by, uint32& damage) override;
+		void HealBy(Unit* healer, uint32 healedAmount) override;
         void UpdateAI(const uint32 diff) override;
         void ReceiveEmote(Player* pPlayer, uint32 text_emote) override;
         void SummonedCreatureJustDied(Creature* unit) override;
         void SummonedCreatureDespawn(Creature* unit) override;
+		void ReceiveAIEvent(AIEventType eventType, Creature* pSender, Unit* pInvoker, uint32 miscValue) override;
 
         static int Permissible(const Creature *);
 
-        bool ProcessEvent(CreatureEventAIHolder& pHolder, Unit* pActionInvoker = nullptr);
-        void ProcessAction(CreatureEventAI_Action const& action, uint32 rnd, uint32 EventId, Unit* pActionInvoker);
+        bool ProcessEvent(CreatureEventAIHolder& pHolder, Unit* pActionInvoker = nullptr, Creature* pAIEventSender = nullptr);
+        void ProcessAction(CreatureEventAI_Action const& action, uint32 rnd, uint32 EventId, Unit* pActionInvoker, Creature* pAIEventSender = nullptr);
         inline uint32 GetRandActionParam(uint32 rnd, uint32 param1, uint32 param2, uint32 param3);
         inline int32 GetRandActionParam(uint32 rnd, int32 param1, int32 param2, int32 param3);
-        inline Unit* GetTargetByType(uint32 Target, Unit* pActionInvoker) const;
+		inline Unit* GetTargetByType(uint32 Target, Unit* pActionInvoker, Creature* pAIEventSender, bool& isError, uint32 forSpellId = 0, uint32 selectFlags = 0) const;
 
         void DoScriptText(int32 textEntry, WorldObject* pSource, Unit* target);
         bool CanCast(Unit* Target, SpellEntry const *Spell, bool Triggered);
@@ -658,6 +700,16 @@ class MANGOS_DLL_SPEC CreatureEventAI : public CreatureAI
         float  m_AttackDistance;                            // Distance to attack from
         float  m_AttackAngle;                               // Angle of attack
         uint32 m_InvinceabilityHpLevel;                     // Minimal health level allowed at damage apply
+
+		uint32 m_throwAIEventMask;                          // Automatically throw AIEvents that are encoded into this mask
+															// Note that Step 100 means that AI_EVENT_GOT_FULL_HEALTH was sent
+															// Steps 0..2 correspond to AI_EVENT_LOST_SOME_HEALTH(90%), AI_EVENT_LOST_HEALTH(50%), AI_EVENT_CRITICAL_HEALTH(10%)
+		uint32 m_throwAIEventStep;                          // Used for damage taken/ received heal
+
+		bool   m_DynamicMovement;                           // Core will control creatures movement if this is enabled
+		float m_LastSpellMaxRange;
+
+		ReactStates m_reactState;                           // Define if creature is passive or aggressive
 };
 
 #endif

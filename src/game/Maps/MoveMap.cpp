@@ -75,7 +75,8 @@ bool MMapManager::loadMapData(uint32 mapId)
     FILE* file = fopen(fileName, "rb");
     if (!file)
     {
-        DEBUG_LOG("MMAP:loadMapData: Error: Could not open mmap file '%s'", fileName);
+        //DEBUG_LOG("MMAP:loadMapData: Error: Could not open mmap file '%s'", fileName);
+		sLog.outError("MMAP:loadMapData: Error: Could not open mmap file '%s'", fileName);
         delete [] fileName;
         return false;
     }

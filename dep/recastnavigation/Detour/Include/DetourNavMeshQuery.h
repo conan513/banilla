@@ -193,9 +193,9 @@ public:
 	///  @param[in]		options				Query options. (see: #dtStraightPathOptions)
 	/// @returns The status flags for the query.
 	dtStatus findStraightPath(const float* startPos, const float* endPos,
-		const dtPolyRef* path, const int pathSize,
-		float* straightPath, unsigned char* straightPathFlags, dtPolyRef* straightPathRefs,
-		int* straightPathCount, const int maxStraightPath, const int options = 0) const;
+							  const dtPolyRef* path, const int pathSize,
+							  float* straightPath, unsigned char* straightPathFlags, dtPolyRef* straightPathRefs,
+							  int* straightPathCount, const int maxStraightPath, const int options = 0) const;
 
 	///@}
 	/// @name Sliced Pathfinding Functions
@@ -521,8 +521,9 @@ private:
 	class dtNodePool* m_tinyNodePool;	///< Pointer to small node pool.
 	class dtNodePool* m_nodePool;		///< Pointer to node pool.
 	class dtNodeQueue* m_openList;		///< Pointer to open list queue.
-	public:
-		unsigned int m_owningThread;
+
+public:
+    unsigned int m_owningThread;
 };
 
 /// Allocates a query object using the Detour allocator.
