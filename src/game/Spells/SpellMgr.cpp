@@ -4258,8 +4258,11 @@ void SpellMgr::LoadSpells()
         if (DBCSpellEntry const* spellEntry = sSpellStore.LookupEntry(i))
         {
             SpellEntry* newSpell = new SpellEntry();
-            if (!newSpell->Load(spellEntry))
-                continue;
+			if (!newSpell->Load(spellEntry))
+			{
+				delete newSpell;
+				continue;
+			}
             mSpellEntryMap[i] = newSpell;
         }
     }
