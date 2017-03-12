@@ -9729,8 +9729,171 @@ Item* Player::StoreNewItem(ItemPosCountVec const& dest, uint32 item, bool update
     if (pItem)
     {
         ItemAddedQuestCheck(item, count);
+
+		if (sWorld.getConfig(CONFIG_BOOL_CUSTOM_ADVENTURE_MODE) && sWorld.getConfig(CONFIG_BOOL_CUSTOM_RANDOMIZE_ITEM) && randomize)
+		{
+			uint32 adventure_level;
+			if (((Player*)player)->GetGroup())
+				adventure_level = ((Player*)player)->GetAdventureLevelGroup();
+			else
+				adventure_level = ((Player*)player)->GetAdventureLevel();
+
+			if (roll_chance_f(sWorld.getConfig(CONFIG_FLOAT_CUSTOM_RANDOMIZE_ITEM_CHANCE)*adventure_level))
+			{
+				ItemPrototype const* itemProto = pItem->GetProto();
+
+				uint32 itemLevel = itemProto->ItemLevel;
+				uint32 itemClass = itemProto->Class;
+				uint32 ItemSubClass = itemProto->SubClass;
+				uint32 ItemQuality = itemProto->Quality;
+				uint32 inventoryType = itemProto->InventoryType;
+
+				uint32 reforgeLevel = 0;
+				uint32 reforgePropertyId = 0;
+
+				uint32 minQuality = sWorld.getConfig(CONFIG_UINT32_CUSTOM_RANDOMIZE_ITEM_MIN_QUALITY);
+				uint32 minLevel = sWorld.getConfig(CONFIG_UINT32_CUSTOM_RANDOMIZE_ITEM_MIN_LEVEL);
+				bool canApply;
+
+				if (itemClass == 2 || itemClass == 4)
+					canApply = true;
+				else canApply = false;
+
+				//Change Class
+				// 1 : Two Handed Weapons - Shields 
+				// 2 : 1 Handed Weapons - Off Hands
+				// 3: Head - Chest
+				// 4: Other (including Ranged Weapons, Wands, Librams, Relics, Totems)
+
+				if (itemClass = 2)
+				{
+					switch (ItemSubClass)
+					{
+					case ITEM_SUBCLASS_WEAPON_AXE2:
+					case ITEM_SUBCLASS_WEAPON_MACE2:
+					case ITEM_SUBCLASS_WEAPON_POLEARM:
+					case ITEM_SUBCLASS_WEAPON_SWORD2:
+					case ITEM_SUBCLASS_WEAPON_STAFF:
+					case ITEM_SUBCLASS_WEAPON_SPEAR:
+						itemClass = 1;
+					case ITEM_SUBCLASS_WEAPON_BOW:
+					case ITEM_SUBCLASS_WEAPON_GUN:
+					case ITEM_SUBCLASS_WEAPON_CROSSBOW:
+					case ITEM_SUBCLASS_WEAPON_WAND:
+						itemClass = 4;
+					case ITEM_SUBCLASS_WEAPON_MISC:
+					case ITEM_SUBCLASS_WEAPON_EXOTIC:
+					case ITEM_SUBCLASS_WEAPON_EXOTIC2:
+					case ITEM_SUBCLASS_WEAPON_FISHING_POLE:
+						canApply = false;
+					}
+				}
+
+				if (canApply)
+				{
+					switch (inventoryType)
+					{
+					case INVTYPE_HEAD:
+					case INVTYPE_CHEST:
+						itemClass = 3;
+					case INVTYPE_SHIELD:
+						itemClass = 1;
+					case INVTYPE_HOLDABLE:
+						itemClass = 2;
+					case INVTYPE_THROWN:
+					case INVTYPE_RELIC:
+					case INVTYPE_RANGEDRIGHT:
+						itemClass = 4;
+					case INVTYPE_BAG:
+					case INVTYPE_TABARD:
+					case INVTYPE_AMMO:
+					case INVTYPE_QUIVER:
+						canApply = false;
+					}
+				}
+
+				if (itemProto && canApply && (ItemQuality > minQuality) && (itemLevel>minLevel))
+				{
+					if (!randomPropertyId)
+						randomPropertyId = GetItemEnchantMod(itemProto->RandomProperty);
+
+					if (randomPropertyId)
+					{
+						QueryResult* result;
+						//result = WorldDatabase.PQuery("SELECT itemlevel FROM item_random_enhancement WHERE randomproperty = '%u' and class = '%u'and subclass = '%u' order by rand() LIMIT 1", randomPropertyId, itemClass, ItemSubClass);
+						result = WorldDatabase.PQuery("SELECT minlevel FROM item_random_enhancements WHERE ench = '%u' and class = '%u' order by rand() LIMIT 1", randomPropertyId, itemClass);
+						if (result)
+						{
+							Field* fields = result->Fetch();
+							reforgeLevel = fields[0].GetUInt32();
+
+							delete result;
+						}
+					}
+
+					if (!reforgeLevel)
+					{
+						uint32 base = floor(sWorld.getConfig(CONFIG_FLOAT_CUSTOM_RANDOMIZE_ITEM_SCALING)*itemProto->ItemLevel*ItemQuality);
+						reforgeLevel = urand(base, base + adventure_level*ItemQuality);
+					}
+
+					//reforgeLevel = urand(10 + ItemQuality + adventure_level, floor(itemProto->ItemLevel / (6 - ItemQuality)) + sWorld.getConfig(CONFIG_UINT32_CUSTOM_RANDOMIZE_ITEM_DIFF)*adventure_level);
+					else
+					{
+						//reforgeLevel = urand(reforgeLevel + ItemQuality, reforgeLevel + ItemQuality + floor(sWorld.getConfig(CONFIG_UINT32_CUSTOM_RANDOMIZE_ITEM_DIFF)*adventure_level / 2));
+						uint32 base = floor((sWorld.getConfig(CONFIG_FLOAT_CUSTOM_RANDOMIZE_ITEM_SCALING)*itemProto->ItemLevel*ItemQuality) + reforgeLevel / 5);
+						reforgeLevel = urand(base, base + adventure_level*ItemQuality);
+					}
+
+					if (reforgeLevel > 75)
+						reforgeLevel = 75;
+					else if (reforgeLevel < 10)
+						return pItem;
+
+					int i = 0;
+					QueryResult* result;
+
+					do
+					{
+						//result = WorldDatabase.PQuery("SELECT randomproperty FROM item_random_enhancement WHERE itemlevel = '%u' and class = '%u'and subclass = '%u' order by rand() LIMIT 1", reforgeLevel, itemClass, ItemSubClass);
+						result = WorldDatabase.PQuery("SELECT ench FROM item_random_enhancements WHERE minlevel <= '%u' and maxlevel >= '%u' and class = '%u' order by rand() LIMIT 1", reforgeLevel, itemClass);
+						--reforgeLevel;
+
+						if (reforgeLevel < minLevel)
+							break;
+
+						++i;
+					} while (!result || i < 10);
+
+					if (result)
+					{
+						Field* fields = result->Fetch();
+						reforgePropertyId = fields[0].GetUInt32();
+
+						delete result;
+					}
+
+					sLog.outString("Adding enchantment %u to item %u", randomPropertyId, item);
+				}
+
+				if (sWorld.getConfig(CONFIG_FLOAT_CUSTOM_ADVENTURE_ITEMXP))
+				{
+					if (reforgePropertyId && ((Player*)player)->SubstractAdventureXP(sWorld.getConfig(CONFIG_FLOAT_CUSTOM_ADVENTURE_ITEMXP)*itemLevel*ItemQuality*ItemQuality))
+					{
+						randomPropertyId = reforgePropertyId;
+					}
+					else
+						sLog.outString("Not enough adventure xp to apply random property to item %u", item);
+				}
+				else if (reforgePropertyId)
+					randomPropertyId = reforgePropertyId;
+
+			}
+		}
+
         if (randomPropertyId)
             pItem->SetItemRandomProperties(randomPropertyId);
+
         pItem = StoreItem(dest, pItem, update);
     }
     return pItem;
@@ -20055,4 +20218,54 @@ void Player::CreatePacketBroadcaster()
     // Register player packet queue with the packet broadcaster
     m_broadcaster = std::make_shared<PlayerBroadcaster>(m_session->GetSocket(), GetObjectGuid());
     sWorld.GetBroadcaster()->RegisterPlayer(m_broadcaster);
+}
+
+
+bool Player::AttackStop(bool targetSwitch, bool includingCast, bool includingCombo)
+{
+	if (includingCombo)
+		ClearComboPoints();
+	if (includingCast)
+		Unit::CastStop;
+
+	return Unit::AttackStop(targetSwitch);
+}
+
+Player* Player::GetNextRaidMemberWithLowestLifePercentage(float radius, AuraType noAuraType)
+{
+	Group* pGroup = GetGroup();
+	if (!pGroup)
+		return nullptr;
+	
+	Player* lowestPercentagePlayer = nullptr;
+	uint32 lowestPercentage = 100;
+	
+		for (GroupReference* itr = pGroup->GetFirstMember(); itr != nullptr; itr = itr->next())
+		{
+		Player* target = itr->getSource();
+		
+			if (target && target != this)
+			{
+						// First not picked
+				if (!lowestPercentagePlayer)
+				{
+					lowestPercentagePlayer = target;
+					lowestPercentage = target->GetHealthPercent();
+					continue;
+				}
+			
+							// IsHostileTo check duel and controlled by enemy
+				if (IsWithinDistInMap(target, radius) &&
+					+!target->HasInvisibilityAura() && !IsHostileTo(target) && !target->HasAuraType(noAuraType))
+				{
+				if (target->GetHealthPercent() < lowestPercentage)
+				{
+					lowestPercentagePlayer = target;
+					lowestPercentage = target->GetHealthPercent();
+					}
+				}
+			}
+		}
+
+	return lowestPercentagePlayer;
 }

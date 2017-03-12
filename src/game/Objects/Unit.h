@@ -403,6 +403,8 @@ enum UnitState
     UNIT_STAT_FOLLOW_MOVE     = 0x00010000,
     UNIT_STAT_FLEEING         = 0x00020000,                     // FleeMovementGenerator/TimedFleeingMovementGenerator active/onstack
     UNIT_STAT_FLEEING_MOVE    = 0x00040000,
+	UNIT_STAT_SEEKING_ASSISTANCE = 0x00080000,
+	UNIT_STAT_DONT_TURN = 0x00100000,                 // Creature will not turn and acquire new target
     // MMAPS
     UNIT_STAT_IGNORE_PATHFINDING    = 0x00080000,               // do not use pathfinding in any MovementGenerator
 
@@ -1267,6 +1269,8 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         }
 
         bool HasAuraType(AuraType auraType) const;
+		bool HasAuraWithMechanic(uint32 mechanic) const;
+		bool HasAuraWithMiscValue(AuraType auraType, uint32 value) const;
         bool HasAffectedAura(AuraType auraType, SpellEntry const* spellProto) const;
         bool HasAura(uint32 spellId, SpellEffectIndex effIndex) const;
         bool HasAura(uint32 spellId) const
@@ -1281,9 +1285,25 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         bool isFeared()  const { return HasAuraType(SPELL_AURA_MOD_FEAR); }
         bool isInRoots() const { return HasAuraType(SPELL_AURA_MOD_ROOT); }
         bool IsPolymorphed() const;
+		bool isPossessed() const { return hasUnitState(UNIT_STAT_CONTROLLED); }
+		bool isConfused() { return hasUnitState(UNIT_STAT_CONFUSED); }
+		bool isBleeding() { return HasAuraWithMechanic(MECHANIC_BLEED); }
+		bool hasReducedArmor() { return (GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_RESISTANCE, 1) < 0); }
+
         bool IsImmuneToSchoolMask(uint32 schoolMask) const;
 
         bool isFrozen() const;
+		bool IsFleeing() const { return HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_FLEEING); }
+		bool IsConfused() const { return HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CONFUSED); }
+		bool IsStunned() const { return HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED); }
+		bool IsIncapacitated() const { return (IsFleeing() || IsConfused() || IsStunned()); }
+		bool IsCharmed() const { return !(GetCharmer() == nullptr); }
+		bool isSnared() const { return HasAuraType(SPELL_AURA_MOD_DECREASE_SPEED); }
+
+		bool isAsleep() const { return HasAuraWithMechanic(MECHANIC_SLEEP); }
+		bool isSilenced()  const { return HasAuraWithMechanic(MECHANIC_SILENCE); }
+
+		bool UnderCc() { return isConfused() || IsIncapacitated() || IsPolymorphed() || isPossessed() || isFeared() || isInRoots(); }
 
         void RemoveSpellbyDamageTaken(AuraType auraType, uint32 damage);
         void RemoveFearEffectsByDamageTaken(uint32 damage, uint32 exceptSpellId, DamageEffectType damagetype);
@@ -1343,6 +1363,8 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         bool isDead() const { return m_deathState == DEAD || m_deathState == CORPSE; }
         DeathState getDeathState() const { return m_deathState; }
         virtual void SetDeathState(DeathState s);           // overwritten in Creature/Player/Pet
+
+		void SetTurningOff(bool apply);
 
         ObjectGuid const& GetOwnerGuid() const { return  GetGuidValue(UNIT_FIELD_SUMMONEDBY); }
         void SetOwnerGuid(ObjectGuid owner) { SetGuidValue(UNIT_FIELD_SUMMONEDBY, owner); ForceValuesUpdateAtIndex(UNIT_FIELD_HEALTH); ForceValuesUpdateAtIndex(UNIT_FIELD_MAXHEALTH); }
@@ -1601,6 +1623,10 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
 
         Aura* GetAura(uint32 spellId, SpellEffectIndex effindex);
         Aura* GetAura(AuraType type, SpellFamily family, uint64 familyFlag, ObjectGuid casterGuid = ObjectGuid());
+		Aura* GetBestAuraTypeByMechanic(AuraType auraType, uint32 mechanic, bool positiveValue = true);
+		Aura* GetBestAuraType(AuraType auraType, bool positiveValue = true);
+		Aura* GetBestAuraTypeBySchool(AuraType auraType, SpellSchoolMask schoolMask, bool positiveValue);
+		Aura* GetAuraWithMiscValue(AuraType auraType, uint32 value);
         SpellAuraHolder* GetSpellAuraHolder (uint32 spellid) const;
         SpellAuraHolder* GetSpellAuraHolder (uint32 spellid, ObjectGuid casterGUID) const;
 
@@ -1965,6 +1991,9 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
     private:
         void CleanupDeletedAuras();
         void UpdateSplineMovement(uint32 t_diff);
+
+		float GetCombatRatingReduction(CombatRating cr) const;
+		uint32 GetCombatRatingDamageReduction(CombatRating cr, float rate, float cap, uint32 damage) const;
 
         Unit* _GetTotem(TotemSlot slot) const;              // for templated function without include need
         Pet* _GetPet(ObjectGuid guid) const;                // for templated function without include need

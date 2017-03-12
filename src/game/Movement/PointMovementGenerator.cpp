@@ -150,6 +150,7 @@ void AssistanceMovementGenerator::Initialize(Creature& unit)
         unit.StopMoving();
 
     unit.addUnitState(UNIT_STAT_ROAMING | UNIT_STAT_ROAMING_MOVE);
+	unit.addUnitState(UNIT_STAT_SEEKING_ASSISTANCE);
     Movement::MoveSplineInit init(unit, "AssistanceMovementGenerator::Initialize");
     init.MoveTo(i_x, i_y, i_z, (_options & (MOVE_PATHFINDING | MOVE_FORCE_DESTINATION)));
     init.SetWalk(true);
@@ -159,7 +160,7 @@ void AssistanceMovementGenerator::Initialize(Creature& unit)
 
 void AssistanceMovementGenerator::Finalize(Creature &unit)
 {
-    unit.clearUnitState(UNIT_STAT_ROAMING | UNIT_STAT_ROAMING_MOVE);
+    unit.clearUnitState(UNIT_STAT_ROAMING | UNIT_STAT_ROAMING_MOVE | UNIT_STAT_SEEKING_ASSISTANCE);
 
     unit.SetNoCallAssistance(false);
     unit.CallAssistance();

@@ -340,7 +340,10 @@ enum ConditionSource                                        // From where was th
     CONDITION_FROM_VENDOR           = 6,                    // Used to check a condition from a vendor
     CONDITION_FROM_SPELL_AREA       = 7,                    // Used to check a condition from spell_area table
     CONDITION_FROM_RESERVED_1       = 8,                    // reserved for 3.x and later
-    CONDITION_FROM_DBSCRIPTS        = 9,                    // Used to check a condition from DB Scripts Engine
+    CONDITION_FROM_DBSCRIPTS        = 9,                    // Used to check a condition from DB Scripts Engine    
+	CONDITION_FROM_TRAINER              = 10,                   // Used to check a condition from npc_trainer and npc_trainer_template
+	CONDITION_FROM_AREATRIGGER_TELEPORT = 11,                   // Used to check a condition from areatrigger_teleport
+	CONDITION_FROM_QUEST = 12,                   // Used to check a condition from quest_template
 };
 
 class PlayerCondition
@@ -1338,5 +1341,6 @@ class ObjectMgr
 MANGOS_DLL_SPEC bool LoadMangosStrings(DatabaseType& db, char const* table,int32 start_value = MAX_CREATURE_AI_TEXT_STRING_ID, int32 end_value = std::numeric_limits<int32>::min());
 MANGOS_DLL_SPEC CreatureInfo const* GetCreatureTemplateStore(uint32 entry);
 MANGOS_DLL_SPEC Quest const* GetQuestTemplateStore(uint32 entry);
+MANGOS_DLL_SPEC float GetAdventureCooldownMultiplier(ObjectGuid entry);
 
 #endif

@@ -2879,6 +2879,9 @@ void Aura::HandleModCharm(bool apply, bool Real)
         else if (Player* pPlayer = target->ToPlayer())
             pPlayer->RemoveAI();
     }
+
+	if (GetId() == 30019)
+		target->SetTurningOff(apply);
 }
 
 void Aura::HandleModConfuse(bool apply, bool Real)
@@ -3626,6 +3629,9 @@ void Aura::HandlePeriodicTriggerSpell(bool apply, bool /*Real*/)
                 break;
         }
     }
+
+	if (GetId() == 30616) // Magtheridon - Blast Nova
+		target->SetTurningOff(apply);
 }
 
 void Aura::HandlePeriodicTriggerSpellWithValue(bool apply, bool /*Real*/)

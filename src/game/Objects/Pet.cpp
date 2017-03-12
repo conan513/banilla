@@ -356,7 +356,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
     else
     {
         LearnPetPassives();
-        CastPetAuras(current);
+        CastPetAuras(current);		
     }
 
     if (getPetType() == SUMMON_PET && !current)             //all (?) summon pets come with full health when called, but not when they are current
@@ -437,6 +437,10 @@ void Pet::SavePetToDB(PetSaveMode mode)
     Player* pOwner = (Player*)GetOwner();
     if (!pOwner)
         return;
+
+	// dont save shadowfiend
+	if (pOwner->getClass() == CLASS_PRIEST)
+		return;
 
     // current/stable/not_in_slot
     if (mode >= PET_SAVE_AS_CURRENT)
@@ -1407,15 +1411,16 @@ bool Pet::HaveInDiet(ItemPrototype const* item) const
 
 uint32 Pet::GetCurrentFoodBenefitLevel(uint32 itemlevel) const
 {
+	float rate = sWorld.getConfig(CONFIG_FLOAT_RATE_PET_HAPPINESS_GAIN);
     // -5 or greater food level
     if (getLevel() <= itemlevel + 5)                        //possible to feed level 60 pet with level 55 level food for full effect
-        return 35000;
+        return 35000 * rate;;
     // -10..-6
     if (getLevel() <= itemlevel + 10)                  //pure guess, but sounds good
-        return 17000;
+        return 17000 * rate;;
     // -14..-11
     if (getLevel() <= itemlevel + 14)                  //level 55 food gets green on 70, makes sense to me
-        return 8000;
+        return 8000 * rate;;
     // -15 or less
     return 0;
     //food too low level
@@ -2206,8 +2211,39 @@ void Pet::CastPetAuras(bool current)
         else
             CastPetAura(pa);
     }
+
+	CastOwnerTalentAuras();
 }
 
+void Pet::CastOwnerTalentAuras()
+{
+	if (!GetOwner() || GetOwner()->GetTypeId() != TYPEID_PLAYER)
+		return;
+
+	Player* pOwner = static_cast<Player*>(GetOwner());
+
+	// Handle Ferocious Inspiration Talent
+	if (pOwner && pOwner->getClass() == CLASS_HUNTER)
+	{
+		// clear any existing Ferocious Inspiration auras
+		RemoveAurasDueToSpell(34455);
+		RemoveAurasDueToSpell(34459);
+		RemoveAurasDueToSpell(34460);
+
+		if (isAlive())
+		{
+			if (pOwner->HasSpell(34455)) // Ferocious Inspiration Rank 1
+				CastSpell(this, 34457, true); // Ferocious Inspiration 1%
+
+			if (pOwner->HasSpell(34459)) // Ferocious Inspiration Rank 2
+				CastSpell(this, 34457, true); // Ferocious Inspiration 2%
+
+			if (pOwner->HasSpell(34460)) // Ferocious Inspiration Rank 3
+				CastSpell(this, 34457, true); // Ferocious Inspiration 3%
+		}
+	} // End Ferocious Inspiration Talent
+	  // Add below code handling spells cast by pet when owner/player has aura from talent
+}
 void Pet::CastPetAura(PetAura const* aura)
 {
     uint32 auraId = aura->GetAura(GetEntry());
@@ -2260,3 +2296,4 @@ void Pet::SetEnabled(bool on)
     data << uint8(m_enabled ? 0x0 : 0x8);
     ((Player*)owner)->GetSession()->SendPacket(&data);
 }
+

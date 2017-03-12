@@ -196,6 +196,14 @@ class MANGOS_DLL_SPEC ChatHandler
         bool HandleReplayStopCommand(char*);
         bool HandleReplaySpeedCommand(char*);
         bool HandleDebugRecvPacketDumpWrite(char *);
+
+		//Creature Groups
+		bool HandleLinkAddCommand(char * args);
+		bool HandleLinkRemoveCommand(char * args);
+		bool HandleLinkEditCommand(char * args);
+		bool HandleLinkToggleCommand(char * args);
+		bool HandleLinkCheckCommand(char * args);
+		
         // Mmaps
         bool HandleMmap(char* args);
         bool HandleMmapConnection(char* args);

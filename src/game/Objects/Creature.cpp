@@ -999,6 +999,12 @@ bool Creature::IsTrainerOf(Player* pPlayer, bool msg) const
                             break;
                         case RACE_UNDEAD:
                             pPlayer->PlayerTalkClass->SendGossipMenu(624, GetObjectGuid());
+						case RACE_BLOODELF:     
+							pPlayer->PlayerTalkClass->SendGossipMenu(5862, GetObjectGuid()); 
+							break;
+						case RACE_DRAENEI:      
+							pPlayer->PlayerTalkClass->SendGossipMenu(5864, GetObjectGuid()); 
+							break;
                             break;
                     }
                 }
@@ -3427,4 +3433,17 @@ void Creature::JoinCreatureGroup(Creature* leader, float dist, float angle, uint
     SetCreatureGroup(group);
     if (group->IsFormation())
         GetMotionMaster()->Initialize();
+}
+
+uint32 Creature::RandomizeCooldown(uint32 cooldown)
+{
+	if (!sWorld.getConfig(CONFIG_FLOAT_CUSTOM_ADVENTURE_ENEMY_COOLDOWN))
+		return cooldown;
+
+	Player* player = sObjectMgr.GetPlayer(GetTargetGuid());
+
+	if (player)
+		return (uint32)((1.f - (player->GetAdventureLevel()*0.1f))*cooldown);
+	else
+		return cooldown;
 }

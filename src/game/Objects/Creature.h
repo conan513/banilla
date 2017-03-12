@@ -59,6 +59,13 @@ enum CreatureFlagsExtra
     CREATURE_FLAG_EXTRA_GUARD                        = 0x00000400,       // creature is a guard
     CREATURE_FLAG_EXTRA_NO_THREAT_LIST               = 0x00000800,
     CREATURE_FLAG_EXTRA_KEEP_POSITIVE_AURAS_ON_EVADE = 0x00001000,       // creature keeps positive auras at reset
+	CREATURE_EXTRA_FLAG_MMAP_FORCE_ENABLE = 0x00002000,       // creature is forced to use MMaps
+	CREATURE_EXTRA_FLAG_MMAP_FORCE_DISABLE = 0x00004000,       // creature is forced to NOT use MMaps
+	CREATURE_EXTRA_FLAG_WALK_IN_WATER = 0x00008000,       // creature is forced to walk in water even it can swim
+	CREATURE_EXTRA_FLAG_HAVE_NO_SWIM_ANIMATION = 0x00010000,       // we have to not set "swim" animation or creature will have "no animation"
+	CREATURE_EXTRA_FLAG_NO_MELEE = 0x00020000,       // creature can't melee
+	CREATURE_EXTRA_FLAG_RESERVED = 0x00040000,       // future feature
+	CREATURE_EXTRA_FLAG_DONT_DISMOUNT_ON_AGGRO = 0x00080000,       // creature is mounted and should fight mounted
 };
 
 // GCC have alternative #pragma pack(N) syntax and old gcc version not support pack(push,N), also any gcc version not support it at some platform
@@ -499,6 +506,9 @@ class MANGOS_DLL_SPEC Creature : public Unit
         bool IsPet() const { return m_subtype == CREATURE_SUBTYPE_PET; }
         bool IsTotem() const { return m_subtype == CREATURE_SUBTYPE_TOTEM; }
         bool IsTemporarySummon() const { return m_subtype == CREATURE_SUBTYPE_TEMPORARY_SUMMON; }
+
+		//Adventure mode
+		uint32 RandomizeCooldown(uint32 cooldown);
 
         bool IsCorpse() const { return getDeathState() ==  CORPSE; }
         bool IsDespawned() const { return getDeathState() ==  DEAD; }

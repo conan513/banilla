@@ -2036,7 +2036,7 @@ void ObjectMgr::LoadItemPrototypes()
         for (int j = 0; j < MAX_ITEM_PROTO_STATS; ++j)
         {
             // for ItemStatValue != 0
-            if (proto->ItemStat[j].ItemStatValue && proto->ItemStat[j].ItemStatType >= MAX_ITEM_MOD)
+            if (proto->ItemStat[j].ItemStatValue && proto->ItemStat[j].ItemStatType >= MAX_ITEM_MOD_EX)
             {
                 sLog.outErrorDb("Item (Entry: %u) has wrong stat_type%d (%u)", i, j + 1, proto->ItemStat[j].ItemStatType);
                 const_cast<ItemPrototype*>(proto)->ItemStat[j].ItemStatType = 0;
@@ -8027,6 +8027,19 @@ Quest const* GetQuestTemplateStore(uint32 entry)
     return sObjectMgr.GetQuestTemplate(entry);
 }
 
+float GetAdventureCooldownMultiplier(ObjectGuid entry)
+{
+	if (!sWorld.getConfig(CONFIG_FLOAT_CUSTOM_ADVENTURE_ENEMY_COOLDOWN))
+		return 1.f;
+	
+	Player* player = sObjectMgr.GetPlayer(entry);
+	
+	if (player)
+		return 1.f - (player->GetAdventureLevel()*0.1f);
+	else
+		return 1.f;
+}
+
 bool FindCreatureData::operator()(CreatureDataPair const& dataPair)
 {
     // skip wrong entry ids
@@ -8634,7 +8647,10 @@ char const* conditionSourceToStr[] =
     "hardcoded",
     "vendor's item check",
     "spell_area check",
-    "DBScript engine"
+    "DBScript engine",
+	"trainer's spell check",         // CONDITION_FROM_TRAINER             
+	"areatrigger teleport check",    // CONDITION_FROM_AREATRIGGER_TELEPORT
+	"quest template",                // CONDITION_FROM_QUEST
 };
 
 // Checks if player meets the condition

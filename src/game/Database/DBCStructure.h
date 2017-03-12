@@ -349,6 +349,11 @@ struct GameObjectDisplayInfoEntry
 // All Gt* DBC store data for 100 levels, some by 100 per class/race
 #define GT_MAX_LEVEL    100
 
+struct CombatRatingsEntry
+{
+	float    ratio;
+	};
+
 struct ItemBagFamilyEntry
 {
     uint32   ID;                                            // 0        m_ID

@@ -1374,6 +1374,8 @@ class MANGOS_DLL_SPEC Player final: public Unit
         void ClearComboPoints();
         void SetComboPoints();
 
+		bool AttackStop(bool targetSwitch = false, bool includingCast = false, bool includingCombo = false) override;
+
         void PetSpellInitialize();
         void CharmSpellInitialize();
         void PossessSpellInitialize();
@@ -2073,6 +2075,7 @@ class MANGOS_DLL_SPEC Player final: public Unit
         void SetAuraUpdateSlot(uint8 slot) { m_auraUpdateMask |= (uint64(1) << slot); }
         void SetAuraUpdateMask(uint64 mask) { m_auraUpdateMask = mask; }
         Player* GetNextRandomRaidMember(float radius);
+		Player* GetNextRaidMemberWithLowestLifePercentage(float radius, AuraType noAuraType);
         PartyResult CanUninviteFromGroup(ObjectGuid uninvitedGuid) const;
         void UpdateGroupLeaderFlag(const bool remove = false);
         // BattleGround Group System

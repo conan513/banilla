@@ -123,7 +123,8 @@ CanCastResult CreatureAI::DoCastSpellIfCan(Unit* pTarget, uint32 uiSpell, uint32
 
 			// Creature should always stop before it will cast a new spell
 			if (pCaster->isInCombat())
-				pCaster->StopMoving();
+				if (GetSpellCastTime(pSpell) || (IsChanneledSpell(pSpell) && pSpell->ChannelInterruptFlags & CHANNEL_FLAG_MOVEMENT))
+					pCaster->StopMoving();
 
             pCaster->CastSpell(pTarget, pSpell, uiCastFlags & CAST_TRIGGERED, nullptr, nullptr, uiOriginalCasterGUID);
             return CAST_OK;

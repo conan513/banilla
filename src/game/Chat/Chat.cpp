@@ -369,10 +369,21 @@ ChatCommand * ChatHandler::getCommandTable()
         { MSTR, nullptr,       0,                  false, nullptr,                                           "", nullptr }
     };
 
+	static ChatCommand linkCommandTable[] =
+	{
+		{ NODE,"add", SEC_ADMINISTRATOR, false, &ChatHandler::HandleLinkAddCommand, "", nullptr },
+		{ NODE,"remove", SEC_ADMINISTRATOR, false, &ChatHandler::HandleLinkRemoveCommand, "", nullptr },
+		{ NODE, "edit", SEC_ADMINISTRATOR, false, &ChatHandler::HandleLinkEditCommand, "", nullptr },
+		{ NODE,"toggle", SEC_ADMINISTRATOR, false, &ChatHandler::HandleLinkToggleCommand, "", nullptr },
+		{ NODE,"check", SEC_ADMINISTRATOR, false, &ChatHandler::HandleLinkCheckCommand, "", nullptr },
+		{ NODE,nullptr, 0, false, nullptr, "", nullptr }
+	};
+
     static ChatCommand listCommandTable[] =
     {
         { NODE, "auras",          SEC_ADMINISTRATOR,  false, &ChatHandler::HandleListAurasCommand,           "", nullptr },
         { NODE, "creature",       SEC_ADMINISTRATOR,  true,  &ChatHandler::HandleListCreatureCommand,        "", nullptr },
+		{ NODE, "link",           SEC_ADMINISTRATOR,  false, nullptr,                                           "", linkCommandTable },
         { NODE, "item",           SEC_ADMINISTRATOR,  true,  &ChatHandler::HandleListItemCommand,            "", nullptr },
         { NODE, "object",         SEC_ADMINISTRATOR,  true,  &ChatHandler::HandleListObjectCommand,          "", nullptr },
         { NODE, "talents",        SEC_ADMINISTRATOR,  false, &ChatHandler::HandleListTalentsCommand,         "", nullptr },
@@ -3559,6 +3570,8 @@ static RaceMaskName const raceMaskNames[] =
     { "tauren", (1 << (RACE_TAUREN - 1))  },
     { "gnome", (1 << (RACE_GNOME - 1))   },
     { "troll", (1 << (RACE_TROLL - 1))   },
+	{ "bloodelf", (1 << (RACE_BLOODELF - 1)) },
+	{ "draenei", (1 << (RACE_DRAENEI - 1)) },
 
     // masks
     { "alliance", RACEMASK_ALLIANCE },

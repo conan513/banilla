@@ -5521,7 +5521,8 @@ bool Unit::Attack(Unit *victim, bool meleeAttack)
     }
 
     // Set our target
-    SetTargetGuid(victim->GetObjectGuid());
+	if (!hasUnitState(UNIT_STAT_DONT_TURN))
+		SetTargetGuid(victim->GetObjectGuid());
 
     if (meleeAttack)
         addUnitState(UNIT_STAT_MELEE_ATTACKING);
@@ -8002,7 +8003,7 @@ bool Unit::SelectHostileTarget()
     if (target)
     {
         // Nostalrius : Correction bug sheep/fear
-        if (!hasUnitState(UNIT_STAT_STUNNED | UNIT_STAT_PENDING_STUNNED | UNIT_STAT_DIED | UNIT_STAT_CONFUSED | UNIT_STAT_FLEEING) && !HasAuraType(SPELL_AURA_MOD_FEAR) && !HasAuraType(SPELL_AURA_MOD_CONFUSE))
+        if (!hasUnitState(UNIT_STAT_STUNNED | UNIT_STAT_PENDING_STUNNED | UNIT_STAT_DIED | UNIT_STAT_CONFUSED | UNIT_STAT_DONT_TURN | UNIT_STAT_SEEKING_ASSISTANCE | UNIT_STAT_FLEEING) && !HasAuraType(SPELL_AURA_MOD_FEAR) && !HasAuraType(SPELL_AURA_MOD_CONFUSE))
         {
             SetInFront(target);
             ((Creature*)this)->AI()->AttackStart(target);
@@ -11352,4 +11353,165 @@ void Unit::InitPlayerDisplayIds()
         default:
             return;
     }
+}
+
+void Unit::SetTurningOff(bool apply)
+{
+	if (apply)
+	{
+		addUnitState(UNIT_STAT_DONT_TURN);
+		SetTargetGuid(ObjectGuid());
+	}
+	else
+		clearUnitState(UNIT_STAT_DONT_TURN);
+}
+
+bool Unit::HasAuraWithMechanic(uint32 mechanic) const
+{
+	for (SpellAuraHolderMap::const_iterator itr = GetSpellAuraHolderMap().begin(); itr != GetSpellAuraHolderMap().end(); ++itr)
+	{
+		SpellAuraHolder* holder = itr->second;
+		SpellEntry const* spellEntry = holder->GetSpellProto();
+
+		if (spellEntry->Mechanic == mechanic)
+			return true;
+
+		for (int32 i = 0; i < MAX_EFFECT_INDEX; ++i)
+		{
+			if (spellEntry->EffectMechanic[i] == mechanic)
+				return true;
+		}
+	}
+
+	return false;
+}
+
+bool Unit::HasAuraWithMiscValue(AuraType auraType, uint32 value) const
+{
+	AuraList const& auras = GetAurasByType(auraType);
+	for (AuraList::const_iterator i = auras.begin(); i != auras.end(); ++i)
+	{
+		for (int32 j = 0; j < MAX_EFFECT_INDEX; ++j)
+		{
+			if ((*i)->GetSpellProto()->EffectMiscValue[j] == value)
+				return true;
+		}
+	}
+
+	return false;
+}
+
+Aura* Unit::GetBestAuraTypeByMechanic(AuraType auraType, uint32 mechanic, bool positiveValue)
+{
+	int32 value = 0;
+	Aura* aura = nullptr;
+	AuraList const& auras = GetAurasByType(auraType);
+	for (AuraList::const_iterator i = auras.begin(); i != auras.end(); ++i)
+	{
+
+		for (int32 j = 0; j < MAX_EFFECT_INDEX; ++j)
+		{
+			if ((*i)->GetSpellProto()->EffectMechanic[j] == mechanic)
+			{
+				if (positiveValue && (*i)->GetSpellProto()->EffectBasePoints[j] > value)
+				{
+					value = (*i)->GetSpellProto()->EffectBasePoints[j];
+					aura = (*i);
+				}
+				else if ((*i)->GetSpellProto()->EffectBasePoints[j] < value)
+				{
+					value = (*i)->GetSpellProto()->EffectBasePoints[j];
+					aura = (*i);
+				}
+			}
+		}
+	}
+
+	return aura;
+}
+
+Aura* Unit::GetBestAuraType(AuraType auraType, bool positiveValue)
+{
+	int32 value = 0;
+	Aura* aura = nullptr;
+	AuraList const& auras = GetAurasByType(auraType);
+	for (AuraList::const_iterator i = auras.begin(); i != auras.end(); ++i)
+	{
+
+		for (int32 j = 0; j < MAX_EFFECT_INDEX; ++j)
+		{
+
+			if (positiveValue && (*i)->GetSpellProto()->EffectBasePoints[j] > value)
+			{
+				value = (*i)->GetSpellProto()->EffectBasePoints[j];
+				aura = (*i);
+			}
+			else if ((*i)->GetSpellProto()->EffectBasePoints[j] < value)
+			{
+				value = (*i)->GetSpellProto()->EffectBasePoints[j];
+				aura = (*i);
+			}
+		}
+	}
+
+	return aura;
+}
+
+Aura* Unit::GetBestAuraTypeBySchool(AuraType auraType, SpellSchoolMask schoolMask, bool positiveValue)
+{
+	int32 value = 0;
+	Aura* aura = nullptr;
+	AuraList const& auras = GetAurasByType(auraType);
+	for (AuraList::const_iterator i = auras.begin(); i != auras.end(); ++i)
+	{
+		for (int32 j = 0; j < MAX_EFFECT_INDEX; ++j)
+		{
+			if ((*i)->GetSpellProto()->EffectMiscValue[j] & SPELL_SCHOOL_MASK_MAGIC)
+			{
+				if (positiveValue && (*i)->GetSpellProto()->EffectBasePoints[j] > value)
+				{
+					value = (*i)->GetSpellProto()->EffectBasePoints[j];
+					aura = (*i);
+				}
+				else if ((*i)->GetSpellProto()->EffectBasePoints[j] < value)
+				{
+					value = (*i)->GetSpellProto()->EffectBasePoints[j];
+					aura = (*i);
+				}
+			}
+		}
+	}
+
+	return aura;
+}
+
+Aura* Unit::GetAuraWithMiscValue(AuraType auraType, uint32 value)
+{
+	AuraList const& auras = GetAurasByType(auraType);
+	for (AuraList::const_iterator i = auras.begin(); i != auras.end(); ++i)
+	{
+		for (int32 j = 0; j < MAX_EFFECT_INDEX; ++j)
+		{
+			if ((*i)->GetSpellProto()->EffectMiscValue[j] == value)
+				return (*i);
+		}
+	}
+
+	return nullptr;
+}
+
+float Unit::GetCombatRatingReduction(CombatRating cr) const
+{
+	if (GetTypeId() == TYPEID_PLAYER)
+		return ((Player const*)this)->GetRatingBonusValue(cr);
+
+	return 0.0f;
+}
+
+uint32 Unit::GetCombatRatingDamageReduction(CombatRating cr, float rate, float cap, uint32 damage) const
+{
+	float percent = GetCombatRatingReduction(cr) * rate;
+	if (percent > cap)
+		percent = cap;
+	return uint32(percent * damage / 100.0f);
 }
