@@ -4473,6 +4473,46 @@ void Unit::RemoveAurasWithAttribute(uint32 flags)
     }
 }
 
+void Unit::RemoveAurasOnCast(SpellEntry const* castedSpellEntry)
+{
+	for (SpellAuraHolderMap::iterator iter = m_spellAuraHolders.begin(); iter != m_spellAuraHolders.end();)
+	{
+		SpellAuraHolder* holder = iter->second;
+		SpellEntry const* spellEntry = holder->GetSpellProto();
+		bool removeThisHolder = false;
+
+		if (spellEntry->AuraInterruptFlags & AURA_INTERRUPT_FLAG_UNK2)
+		{
+			if (castedSpellEntry->HasAttribute(SPELL_ATTR_EX_NOT_BREAK_STEALTH))
+			{
+				bool foundStealth = false;
+				for (int32 i = 0; i < MAX_EFFECT_INDEX; ++i)
+				{
+					if (Aura* aura = holder->m_auras[i])
+					{
+						if (aura->GetModifier()->m_auraname == SPELL_AURA_MOD_STEALTH)
+						{
+							foundStealth = true;
+							break;
+						}
+					}
+				}
+				removeThisHolder = !foundStealth;
+			}
+			else
+				removeThisHolder = true;
+		}
+
+		if (removeThisHolder)
+		{
+			RemoveSpellAuraHolder(iter->second);
+			iter = m_spellAuraHolders.begin();
+		}
+		else
+			++iter;
+	}
+}
+
 void Unit::RemoveNotOwnSingleTargetAuras()
 {
     // single target auras from other casters

@@ -223,9 +223,79 @@ pAuraProcHandler AuraProcHandler[TOTAL_AURAS] =
     &Unit::HandleNULLProc,                                  //186 SPELL_AURA_MOD_ATTACKER_SPELL_HIT_CHANCE
     &Unit::HandleNULLProc,                                  //187 SPELL_AURA_MOD_ATTACKER_MELEE_CRIT_CHANCE
     &Unit::HandleNULLProc,                                  //188 SPELL_AURA_MOD_ATTACKER_RANGED_CRIT_CHANCE
-    &Unit::HandleNULLProc,                                  //189 SPELL_AURA_MOD_RATING
+	&Unit::HandleNULLProc,                                   //189 SPELL_AURA_MOD_RATING
     &Unit::HandleNULLProc,                                  //190 SPELL_AURA_MOD_FACTION_REPUTATION_GAIN
     &Unit::HandleNULLProc,                                  //191 SPELL_AURA_USE_NORMAL_MOVEMENT_SPEED
+		&Unit::HandleNULLProc,                                  //192 SPELL_AURA_HASTE_MELEE
+		&Unit::HandleNULLProc,                                  //193 SPELL_AURA_HASTE_ALL (in fact combat (any type attack) speed pct)
+		&Unit::HandleNULLProc,                                  //194 SPELL_AURA_MOD_DEPRICATED_1 not used now (old SPELL_AURA_MOD_SPELL_DAMAGE_OF_INTELLECT)
+		&Unit::HandleNULLProc,                                  //195 SPELL_AURA_MOD_DEPRICATED_2 not used now (old SPELL_AURA_MOD_SPELL_HEALING_OF_INTELLECT)
+		&Unit::HandleNULLProc,                                  //196 SPELL_AURA_MOD_COOLDOWN
+		&Unit::HandleNULLProc,                                  //197 SPELL_AURA_MOD_ATTACKER_SPELL_AND_WEAPON_CRIT_CHANCE
+		&Unit::HandleNULLProc,                                  //198 SPELL_AURA_MOD_ALL_WEAPON_SKILLS
+		&Unit::HandleNULLProc,                                  //199 SPELL_AURA_MOD_INCREASES_SPELL_PCT_TO_HIT
+		&Unit::HandleNULLProc,                                  //200 SPELL_AURA_MOD_XP_PCT
+		&Unit::HandleNULLProc,                                  //201 SPELL_AURA_FLY                             this aura enable flight mode...
+		&Unit::HandleNULLProc,                                  //202 SPELL_AURA_IGNORE_COMBAT_RESULT
+		&Unit::HandleNULLProc,                                  //203 SPELL_AURA_MOD_ATTACKER_MELEE_CRIT_DAMAGE
+		&Unit::HandleNULLProc,                                  //204 SPELL_AURA_MOD_ATTACKER_RANGED_CRIT_DAMAGE
+		&Unit::HandleNULLProc,                                  //205 SPELL_AURA_MOD_ATTACKER_SPELL_CRIT_DAMAGE
+		&Unit::HandleNULLProc,                                  //206 SPELL_AURA_MOD_FLIGHT_SPEED
+		&Unit::HandleNULLProc,                                  //207 SPELL_AURA_MOD_FLIGHT_SPEED_MOUNTED
+		&Unit::HandleNULLProc,                                  //208 SPELL_AURA_MOD_FLIGHT_SPEED_STACKING
+		&Unit::HandleNULLProc,                                  //209 SPELL_AURA_MOD_FLIGHT_SPEED_MOUNTED_STACKING
+		&Unit::HandleNULLProc,                                  //210 SPELL_AURA_MOD_FLIGHT_SPEED_NOT_STACKING
+		&Unit::HandleNULLProc,                                  //211 SPELL_AURA_MOD_FLIGHT_SPEED_MOUNTED_NOT_STACKING
+		&Unit::HandleNULLProc,                                  //212 SPELL_AURA_MOD_RANGED_ATTACK_POWER_OF_STAT_PERCENT
+		&Unit::HandleNULLProc,                                  //213 SPELL_AURA_MOD_RAGE_FROM_DAMAGE_DEALT implemented in Player::RewardRage
+		&Unit::HandleNULLProc,                                  //214 Tamed Pet Passive
+		&Unit::HandleNULLProc,                                  //215 SPELL_AURA_ARENA_PREPARATION
+		&Unit::HandleNULLProc,                                  //216 SPELL_AURA_HASTE_SPELLS
+		&Unit::HandleNULLProc,                                  //217                                   unused
+		&Unit::HandleNULLProc,                                  //218 SPELL_AURA_HASTE_RANGED
+		&Unit::HandleNULLProc,                                  //219 SPELL_AURA_MOD_MANA_REGEN_FROM_STAT
+		&Unit::HandleNULLProc,                                  //220 SPELL_AURA_MOD_RATING_FROM_STAT
+		&Unit::HandleNULLProc,                                  //221 ignored
+		&Unit::HandleNULLProc,                                  //222 unused
+		&Unit::HandleNULLProc,                                  //223 Cold Stare
+		&Unit::HandleNULLProc,                                  //224 unused
+		&Unit::HandleMendingAuraProc,                           //225 SPELL_AURA_PRAYER_OF_MENDING
+		&Unit::HandleNULLProc,                                  //226 SPELL_AURA_PERIODIC_DUMMY
+		&Unit::HandleNULLProc,                                  //227 SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE
+		&Unit::HandleNULLProc,                                  //228 SPELL_AURA_DETECT_STEALTH
+		&Unit::HandleNULLProc,                                  //229 SPELL_AURA_MOD_AOE_DAMAGE_AVOIDANCE
+		&Unit::HandleNULLProc,                                  //230 Commanding Shout
+		&Unit::HandleProcTriggerSpellAuraProc,                  //231 SPELL_AURA_PROC_TRIGGER_SPELL_WITH_VALUE
+		&Unit::HandleNULLProc,                                  //232 SPELL_AURA_MECHANIC_DURATION_MOD
+		&Unit::HandleNULLProc,                                  //233 set model id to the one of the creature with id m_modifier.m_miscvalue
+		&Unit::HandleNULLProc,                                  //234 SPELL_AURA_MECHANIC_DURATION_MOD_NOT_STACK
+		&Unit::HandleNULLProc,                                  //235 SPELL_AURA_MOD_DISPEL_RESIST
+		&Unit::HandleNULLProc,                                  //236 unused
+		&Unit::HandleNULLProc,                                  //237 SPELL_AURA_MOD_SPELL_DAMAGE_OF_ATTACK_POWER
+		&Unit::HandleNULLProc,                                  //238 SPELL_AURA_MOD_SPELL_HEALING_OF_ATTACK_POWER
+		&Unit::HandleNULLProc,                                  //239 SPELL_AURA_MOD_SCALE_2 only in Noggenfogger Elixir (16595) before 2.3.0 aura 61
+		&Unit::HandleNULLProc,                                  //240 SPELL_AURA_MOD_EXPERTISE
+		&Unit::HandleNULLProc,                                  //241 Forces the player to move forward
+		&Unit::HandleNULLProc,                                  //242 SPELL_AURA_MOD_SPELL_DAMAGE_FROM_HEALING
+		&Unit::HandleNULLProc,                                  //243 used by two test spells
+		&Unit::HandleNULLProc,                                  //244 Comprehend language
+		&Unit::HandleNULLProc,                                  //245 SPELL_AURA_MOD_DURATION_OF_MAGIC_EFFECTS
+		&Unit::HandleNULLProc,                                  //246 unused
+		&Unit::HandleNULLProc,                                  //247 unused
+		&Unit::HandleNULLProc,                                  //248 SPELL_AURA_MOD_COMBAT_RESULT_CHANCE
+		&Unit::HandleNULLProc,                                  //249
+		&Unit::HandleNULLProc,                                  //250 SPELL_AURA_MOD_INCREASE_HEALTH_2
+		&Unit::HandleNULLProc,                                  //251 SPELL_AURA_MOD_ENEMY_DODGE
+		&Unit::HandleNULLProc,                                  //252 unused
+		&Unit::HandleNULLProc,                                  //253 unused
+		&Unit::HandleNULLProc,                                  //254 unused
+		&Unit::HandleNULLProc,                                  //255 unused
+		&Unit::HandleNULLProc,                                  //256 unused
+		&Unit::HandleNULLProc,                                  //257 unused
+		&Unit::HandleNULLProc,                                  //258 unused
+		&Unit::HandleNULLProc,                                  //259 unused
+		&Unit::HandleNULLProc,                                  //260 unused
+		&Unit::HandleNULLProc,                                  //261 SPELL_AURA_261 some phased state (44856 spell)
 };
 
 // Fonctions Nostalrius

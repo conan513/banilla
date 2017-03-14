@@ -536,6 +536,9 @@ Player::Player(WorldSession *session) : Unit(),
         m_auraBaseMod[i][PCT_MOD] = 1.0f;
     }
 
+	for (int i = 0; i < MAX_COMBAT_RATING; ++i)
+		m_baseRatingValue[i] = 0;
+
     // Player summoning
     m_summon_expire = 0;
     m_summon_mapid = 0;
@@ -814,7 +817,16 @@ bool Player::Create(uint32 guidlow, const std::string& name, uint8 race, uint8 c
         }
     }
     // all item positions resolved
-
+	//Custom
+	
+	if (sWorld.getConfig(CONFIG_BOOL_CUSTOM_ADVENTURE_MODE))
+	{
+		adventure_level = 1;
+		adventure_xp = 0;
+		}
+	
+	ResetAccumChance();
+	
     // Phasing
     SetWorldMask(WORLD_DEFAULT_CHAR);
     SetCustomFlags(CUSTOM_FLAG_IN_PEX | CUSTOM_FLAG_FROM_NOSTALRIUS_3);
@@ -1265,8 +1277,104 @@ void Player::Update(uint32 update_diff, uint32 p_time)
     if (m_cannotBeDetectedTimer > 0)
         m_cannotBeDetectedTimer -= update_diff;
 
-    if (isAlive())
-        RegenerateAll();
+	if (isAlive())
+	{
+		//custom
+
+		if (sWorld.getConfig(CONFIG_BOOL_CUSTOM_ADVENTURE_MODE))
+			SetAdventureLevel(adventure_level);
+
+		if (sWorld.getConfig(CONFIG_BOOL_CUSTOM_RULES))
+		{
+			uint8 health = GetHealthPercent();
+
+			if (health >= 90)
+			{
+				//Remove Wounded Auras
+				if (HasAura(54601))
+					RemoveAurasDueToSpell(54601);
+				if (HasAura(54602))
+					RemoveAurasDueToSpell(54602);
+				if (HasAura(54603))
+					RemoveAurasDueToSpell(54603);
+				//Add Heartened Aura
+				if (!HasAura(54600))
+					_CreateCustomAura(54600);
+			}
+			else if (health >= 60 && getClass() != CLASS_WARLOCK)
+			{
+				//Remove Wounded Auras
+				if (HasAura(54602))
+					RemoveAurasDueToSpell(54602);
+				if (HasAura(54603))
+					RemoveAurasDueToSpell(54603);
+				//Remove Heartened Aura
+				if (HasAura(54600))
+					RemoveAurasDueToSpell(54600);
+				//Add injured Aura
+				if (!HasAura(54601))
+					_CreateCustomAura(54601);
+			}
+			else if (health >= 40 && getClass() == CLASS_WARLOCK)
+			{
+				//Remove Wounded Auras
+				if (HasAura(54602))
+					RemoveAurasDueToSpell(54602);
+				if (HasAura(54603))
+					RemoveAurasDueToSpell(54603);
+				//Remove Heartened Aura
+				if (HasAura(54600))
+					RemoveAurasDueToSpell(54600);
+				//Add injured Aura
+				if (!HasAura(54601))
+					_CreateCustomAura(54601);
+			}
+			else if (health >= 20)
+			{
+				//Remove Wounded Auras
+				if (HasAura(54601))
+					RemoveAurasDueToSpell(54601);
+				if (HasAura(54603))
+					RemoveAurasDueToSpell(54603);
+				//Remove Heartened Aura
+				if (HasAura(54600))
+					RemoveAurasDueToSpell(54600);
+				//Add wounded Aura
+				if (!HasAura(54602))
+					_CreateCustomAura(54602);
+			}
+			else if (health < 20)
+			{
+				//Remove Wounded Auras
+				if (HasAura(54601))
+					RemoveAurasDueToSpell(54601);
+				if (HasAura(54602))
+					RemoveAurasDueToSpell(54602);
+				//Remove Heartened Aura
+				if (HasAura(54600))
+					RemoveAurasDueToSpell(54600);
+				//Add Grevious wounded Aura
+				if (!HasAura(54603))
+					_CreateCustomAura(54603);
+			}
+
+			//Dizzyness effect
+			if (health < 15)
+			{
+				if (!HasAura(55007))
+					_CreateCustomAura(55007);
+			}
+			else if (HasAura(55007))
+			{
+				RemoveAurasDueToSpell(55007);
+				if (health > 25)
+					SetDrunkValue(0);
+			}
+		}
+		//Custom
+
+		RegenerateAll();
+	}
 
     if (m_deathState == JUST_DIED)
         KillPlayer();
@@ -1513,6 +1621,9 @@ void Player::SetDeathState(DeathState s)
         // remove uncontrolled pets
         RemoveMiniPet();
 
+		if (sWorld.getConfig(CONFIG_BOOL_CUSTOM_ADVENTURE_MODE))
+			SubstractAdventureXP(sWorld.getConfig(CONFIG_FLOAT_CUSTOM_ADVENTURE_DEATHXP) * GetAdventureLevel());
+		
         // save value before aura remove in Unit::SetDeathState
         ressSpellId = GetUInt32Value(PLAYER_SELF_RES_SPELL);
 
@@ -2158,6 +2269,9 @@ void Player::RewardRage(uint32 damage, bool attacker)
             addRage *= 1.3f;
     }
 
+	// talent who gave more rage on attack
+	addRage *= 1.0f + GetTotalAuraModifier(SPELL_AURA_MOD_RAGE_FROM_DAMAGE_DEALT) / 100.0f;
+
     addRage *= sWorld.getConfig(CONFIG_FLOAT_RATE_POWER_RAGE_INCOME);
 
     ModifyPower(POWER_RAGE, uint32(addRage * 10));
@@ -2231,7 +2345,8 @@ void Player::Regenerate(Powers power)
         AuraList const& ModPowerRegenPCTAuras = GetAurasByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
         for (AuraList::const_iterator i = ModPowerRegenPCTAuras.begin(); i != ModPowerRegenPCTAuras.end(); ++i)
             if ((*i)->GetModifier()->m_miscvalue == int32(power))
-                addvalue *= ((*i)->GetModifier()->m_amount + 100) / 100.0f;
+                //addvalue *= ((*i)->GetModifier()->m_amount + 100) / 100.0f; 
+				addvalue *= ((*i)->GetModifierAmount(getLevel()) + 100) / 100.0f;
     }
 
     if (power != POWER_RAGE)
@@ -2611,6 +2726,11 @@ void Player::GiveXP(uint32 xp, Unit* victim)
     // XP to money conversion processed in Player::RewardQuest
     if (level >= sWorld.getConfig(CONFIG_UINT32_MAX_PLAYER_LEVEL))
         return;
+
+	// handle SPELL_AURA_MOD_XP_PCT auras
+	Unit::AuraList const& ModXPPctAuras = GetAurasByType(SPELL_AURA_MOD_XP_PCT);
+	for (Unit::AuraList::const_iterator i = ModXPPctAuras.begin(); i != ModXPPctAuras.end(); ++i)
+		xp = uint32(xp * (1.0f + (*i)->GetModifierAmount(getLevel()) / 100.0f));
 
     // XP resting bonus for kill
     uint32 rested_bonus_xp = victim ? GetXPRestBonus(xp) : 0;
@@ -4641,8 +4761,30 @@ uint32 Player::DurabilityRepair(uint16 pos, bool cost, float discountMod)
         }
     }
 
-    item->SetUInt32Value(ITEM_FIELD_DURABILITY, maxDurability);
-    item->SetState(ITEM_CHANGED, this);
+	//Custom
+	float chanceRepair = sWorld.getConfig(CONFIG_UINT32_CUSTOM_REPAIR_FAILURE_CHANCE);
+	
+	if (!chanceRepair)
+	{
+		item->SetUInt32Value(ITEM_FIELD_DURABILITY, maxDurability);
+		item->SetState(ITEM_CHANGED, this);
+		}
+	else
+	{
+		uint32 chanceCriticalRepair = sWorld.getConfig(CONFIG_UINT32_CUSTOM_REPAIR_CRITICAL_FAILURE_CHANCE);
+		
+		float chance = urand(0, 99);
+		
+		if (chance <  chanceRepair)
+		{
+			if (chance <  chanceCriticalRepair)
+			{
+				DestroyItem(item->GetBagSlot(), item->GetSlot(), true);
+				WorldSession* rPlayerSession = GetSession();
+				ChatHandler(this).SendSysMessage(LANG_REMOVEITEM);
+			}
+		}
+	}
 
     // reapply mods for total broken and repaired item if equipped
     if (IsEquipmentPos(pos) && !curDurability)
@@ -6464,6 +6606,91 @@ void Player::_ApplyItemBonuses(ItemPrototype const *proto, uint8 slot, bool appl
                 HandleStatModifier(UNIT_MOD_STAT_STAMINA, BASE_VALUE, float(val), apply);
                 ApplyStatBuffMod(STAT_STAMINA, float(val), apply);
                 break;
+
+			case ITEM_MOD_DEFENSE_SKILL_RATING:
+				ApplyRatingMod(CR_DEFENSE_SKILL, int32(val), apply);
+				break;
+			case ITEM_MOD_DODGE_RATING:
+				ApplyRatingMod(CR_DODGE, int32(val), apply);
+				break;
+			case ITEM_MOD_PARRY_RATING:
+				ApplyRatingMod(CR_PARRY, int32(val), apply);
+				break;
+			case ITEM_MOD_BLOCK_RATING:
+				ApplyRatingMod(CR_BLOCK, int32(val), apply);
+				break;
+			case ITEM_MOD_HIT_MELEE_RATING:
+				ApplyRatingMod(CR_HIT_MELEE, int32(val), apply);
+				break;
+			case ITEM_MOD_HIT_RANGED_RATING:
+				ApplyRatingMod(CR_HIT_RANGED, int32(val), apply);
+				break;
+			case ITEM_MOD_HIT_SPELL_RATING:
+				ApplyRatingMod(CR_HIT_SPELL, int32(val), apply);
+				break;
+			case ITEM_MOD_CRIT_MELEE_RATING:
+				ApplyRatingMod(CR_CRIT_MELEE, int32(val), apply);
+				break;
+			case ITEM_MOD_CRIT_RANGED_RATING:
+				ApplyRatingMod(CR_CRIT_RANGED, int32(val), apply);
+				break;
+			case ITEM_MOD_CRIT_SPELL_RATING:
+				ApplyRatingMod(CR_CRIT_SPELL, int32(val), apply);
+				break;
+			case ITEM_MOD_HIT_TAKEN_MELEE_RATING:
+				ApplyRatingMod(CR_HIT_TAKEN_MELEE, int32(val), apply);
+				break;
+			case ITEM_MOD_HIT_TAKEN_RANGED_RATING:
+				ApplyRatingMod(CR_HIT_TAKEN_RANGED, int32(val), apply);
+				break;
+			case ITEM_MOD_HIT_TAKEN_SPELL_RATING:
+				ApplyRatingMod(CR_HIT_TAKEN_SPELL, int32(val), apply);
+				break;
+			case ITEM_MOD_CRIT_TAKEN_MELEE_RATING:
+				ApplyRatingMod(CR_CRIT_TAKEN_MELEE, int32(val), apply);
+				break;
+			case ITEM_MOD_CRIT_TAKEN_RANGED_RATING:
+				ApplyRatingMod(CR_CRIT_TAKEN_RANGED, int32(val), apply);
+				break;
+			case ITEM_MOD_CRIT_TAKEN_SPELL_RATING:
+				ApplyRatingMod(CR_CRIT_TAKEN_SPELL, int32(val), apply);
+				break;
+			case ITEM_MOD_HASTE_MELEE_RATING:
+				ApplyRatingMod(CR_HASTE_MELEE, int32(val), apply);
+				break;
+			case ITEM_MOD_HASTE_RANGED_RATING:
+				ApplyRatingMod(CR_HASTE_RANGED, int32(val), apply);
+				break;
+			case ITEM_MOD_HASTE_SPELL_RATING:
+				ApplyRatingMod(CR_HASTE_SPELL, int32(val), apply);
+				break;
+			case ITEM_MOD_HIT_RATING:
+				ApplyRatingMod(CR_HIT_MELEE, int32(val), apply);
+				ApplyRatingMod(CR_HIT_RANGED, int32(val), apply);
+				break;
+			case ITEM_MOD_CRIT_RATING:
+				ApplyRatingMod(CR_CRIT_MELEE, int32(val), apply);
+				ApplyRatingMod(CR_CRIT_RANGED, int32(val), apply);
+				break;
+			case ITEM_MOD_HIT_TAKEN_RATING:
+				ApplyRatingMod(CR_HIT_TAKEN_MELEE, int32(val), apply);
+				ApplyRatingMod(CR_HIT_TAKEN_RANGED, int32(val), apply);
+				ApplyRatingMod(CR_HIT_TAKEN_SPELL, int32(val), apply);
+				break;
+			case ITEM_MOD_CRIT_TAKEN_RATING:
+				ApplyRatingMod(CR_CRIT_TAKEN_MELEE, int32(val), apply);
+				ApplyRatingMod(CR_CRIT_TAKEN_RANGED, int32(val), apply);
+				ApplyRatingMod(CR_CRIT_TAKEN_SPELL, int32(val), apply);
+				break;
+			case ITEM_MOD_RESILIENCE_RATING:
+				ApplyRatingMod(CR_CRIT_TAKEN_MELEE, int32(val), apply);
+				ApplyRatingMod(CR_CRIT_TAKEN_RANGED, int32(val), apply);
+				ApplyRatingMod(CR_CRIT_TAKEN_SPELL, int32(val), apply);
+				break;
+			case ITEM_MOD_HASTE_RATING:
+				ApplyRatingMod(CR_HASTE_MELEE, int32(val), apply);
+				ApplyRatingMod(CR_HASTE_RANGED, int32(val), apply);
+				break;
         }
     }
 
@@ -6599,7 +6826,7 @@ void Player::_ApplyWeaponDependentAuraCritMod(Item *item, WeaponAttackType attac
     }
 
     if (item->IsFitToSpellRequirements(aura->GetSpellProto()))
-        HandleBaseModValue(mod, FLAT_MOD, float(aura->GetModifier()->m_amount), apply);
+		HandleBaseModValue(mod, FLAT_MOD, float(aura->GetModifierAmount(getLevel())), apply);
 }
 
 void Player::_ApplyWeaponDependentAuraDamageMod(Item *item, WeaponAttackType attackType, Aura* aura, bool apply)
@@ -6643,7 +6870,7 @@ void Player::_ApplyWeaponDependentAuraDamageMod(Item *item, WeaponAttackType att
     }
 
     if (item->IsFitToSpellRequirements(aura->GetSpellProto()))
-        HandleStatModifier(unitMod, unitModType, float(modifier->m_amount), apply);
+		HandleStatModifier(unitMod, unitModType, float(aura->GetModifierAmount(getLevel())), apply);
 }
 
 void Player::ApplyItemEquipSpell(Item *item, bool apply, bool form_change)
@@ -8063,6 +8290,21 @@ uint32 Player::GetItemCount(uint32 item, bool inBankAlso, Item* skipItem) const
     }
 
     return count;
+}
+
+Item* Player::GetItemByEntry(uint32 item) const
+{
+	for (int i = EQUIPMENT_SLOT_START; i < INVENTORY_SLOT_ITEM_END; ++i)
+		 if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+			if (pItem->GetEntry() == item)
+				return pItem;
+	
+	for (int i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; ++i)
+		if (Bag* pBag = (Bag*)GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+			if (Item* itemPtr = pBag->GetItemByEntry(item))
+				return itemPtr;
+	
+	return NULL;
 }
 
 Item* Player::GetItemByGuid(ObjectGuid guid) const
@@ -11426,6 +11668,108 @@ void Player::ApplyEnchantment(Item *item, EnchantmentSlot slot, bool apply, bool
                             HandleStatModifier(UNIT_MOD_STAT_STAMINA, TOTAL_VALUE, float(enchant_amount), apply);
                             ApplyStatBuffMod(STAT_STAMINA, float(enchant_amount), apply);
                             break;
+
+						case ITEM_MOD_DEFENSE_SKILL_RATING:
+							ApplyRatingMod(CR_DEFENSE_SKILL, enchant_amount, apply);
+							DEBUG_LOG("+ %u DEFENCE", enchant_amount);
+							break;
+						case  ITEM_MOD_DODGE_RATING:
+							ApplyRatingMod(CR_DODGE, enchant_amount, apply);
+							DEBUG_LOG("+ %u DODGE", enchant_amount);
+							break;
+						case ITEM_MOD_PARRY_RATING:
+							ApplyRatingMod(CR_PARRY, enchant_amount, apply);
+							DEBUG_LOG("+ %u PARRY", enchant_amount);
+							break;
+						case ITEM_MOD_BLOCK_RATING:
+							ApplyRatingMod(CR_BLOCK, enchant_amount, apply);
+							DEBUG_LOG("+ %u SHIELD_BLOCK", enchant_amount);
+							break;
+						case ITEM_MOD_HIT_MELEE_RATING:
+							ApplyRatingMod(CR_HIT_MELEE, enchant_amount, apply);
+							DEBUG_LOG("+ %u MELEE_HIT", enchant_amount);
+							break;
+						case ITEM_MOD_HIT_RANGED_RATING:
+							ApplyRatingMod(CR_HIT_RANGED, enchant_amount, apply);
+							DEBUG_LOG("+ %u RANGED_HIT", enchant_amount);
+							break;
+						case ITEM_MOD_HIT_SPELL_RATING:
+							ApplyRatingMod(CR_HIT_SPELL, enchant_amount, apply);
+							DEBUG_LOG("+ %u SPELL_HIT", enchant_amount);
+							break;
+						case ITEM_MOD_CRIT_MELEE_RATING:
+							ApplyRatingMod(CR_CRIT_MELEE, enchant_amount, apply);
+							DEBUG_LOG("+ %u MELEE_CRIT", enchant_amount);
+							break;
+						case ITEM_MOD_CRIT_RANGED_RATING:
+							ApplyRatingMod(CR_CRIT_RANGED, enchant_amount, apply);
+							DEBUG_LOG("+ %u RANGED_CRIT", enchant_amount);
+							break;
+						case ITEM_MOD_CRIT_SPELL_RATING:
+							ApplyRatingMod(CR_CRIT_SPELL, enchant_amount, apply);
+							DEBUG_LOG("+ %u SPELL_CRIT", enchant_amount);
+							break;
+							//                        Values from ITEM_STAT_MELEE_HA_RATING to ITEM_MOD_HASTE_RANGED_RATING are never used
+							//                        in Enchantments
+							//                        case ITEM_MOD_HIT_TAKEN_MELEE_RATING:
+							//                            ApplyRatingMod(CR_HIT_TAKEN_MELEE, enchant_amount, apply);
+							//                            break;
+							//                        case ITEM_MOD_HIT_TAKEN_RANGED_RATING:
+							//                            ApplyRatingMod(CR_HIT_TAKEN_RANGED, enchant_amount, apply);
+							//                            break;
+							//                        case ITEM_MOD_HIT_TAKEN_SPELL_RATING:
+							//                            ApplyRatingMod(CR_HIT_TAKEN_SPELL, enchant_amount, apply);
+							//                            break;
+							//                        case ITEM_MOD_CRIT_TAKEN_MELEE_RATING:
+							//                            ApplyRatingMod(CR_CRIT_TAKEN_MELEE, enchant_amount, apply);
+							//                            break;
+							//                        case ITEM_MOD_CRIT_TAKEN_RANGED_RATING:
+							//                            ApplyRatingMod(CR_CRIT_TAKEN_RANGED, enchant_amount, apply);
+							//                            break;
+							//                        case ITEM_MOD_CRIT_TAKEN_SPELL_RATING:
+							//                            ApplyRatingMod(CR_CRIT_TAKEN_SPELL, enchant_amount, apply);
+							//                            break;
+							//                        case ITEM_MOD_HASTE_MELEE_RATING:
+							//                            ApplyRatingMod(CR_HASTE_MELEE, enchant_amount, apply);
+							//                            break;
+							//                        case ITEM_MOD_HASTE_RANGED_RATING:
+							//                            ApplyRatingMod(CR_HASTE_RANGED, enchant_amount, apply);
+							//                            break;
+						case ITEM_MOD_HASTE_SPELL_RATING:
+							ApplyRatingMod(CR_HASTE_SPELL, enchant_amount, apply);
+							break;
+						case ITEM_MOD_HIT_RATING:
+							ApplyRatingMod(CR_HIT_MELEE, enchant_amount, apply);
+							ApplyRatingMod(CR_HIT_RANGED, enchant_amount, apply);
+							DEBUG_LOG("+ %u HIT", enchant_amount);
+							break;
+						case ITEM_MOD_CRIT_RATING:
+							ApplyRatingMod(CR_CRIT_MELEE, enchant_amount, apply);
+							ApplyRatingMod(CR_CRIT_RANGED, enchant_amount, apply);
+							DEBUG_LOG("+ %u CRITICAL", enchant_amount);
+							break;
+							//                        Values ITEM_MOD_HIT_TAKEN_RATING and ITEM_MOD_CRIT_TAKEN_RATING are never used in Enchantment
+							//                        case ITEM_MOD_HIT_TAKEN_RATING:
+							//                            ApplyRatingMod(CR_HIT_TAKEN_MELEE, enchant_amount, apply);
+							//                            ApplyRatingMod(CR_HIT_TAKEN_RANGED, enchant_amount, apply);
+							//                            ApplyRatingMod(CR_HIT_TAKEN_SPELL, enchant_amount, apply);
+							//                            break;
+							//                        case ITEM_MOD_CRIT_TAKEN_RATING:
+							//                            ApplyRatingMod(CR_CRIT_TAKEN_MELEE, enchant_amount, apply);
+							//                            ApplyRatingMod(CR_CRIT_TAKEN_RANGED, enchant_amount, apply);
+							//                            ApplyRatingMod(CR_CRIT_TAKEN_SPELL, enchant_amount, apply);
+							//                            break;
+						case ITEM_MOD_RESILIENCE_RATING:
+							ApplyRatingMod(CR_CRIT_TAKEN_MELEE, enchant_amount, apply);
+							ApplyRatingMod(CR_CRIT_TAKEN_RANGED, enchant_amount, apply);
+							ApplyRatingMod(CR_CRIT_TAKEN_SPELL, enchant_amount, apply);
+							DEBUG_LOG("+ %u RESILIENCE", enchant_amount);
+							break;
+						case ITEM_MOD_HASTE_RATING:
+							ApplyRatingMod(CR_HASTE_MELEE, enchant_amount, apply);
+							ApplyRatingMod(CR_HASTE_RANGED, enchant_amount, apply);
+							DEBUG_LOG("+ %u HASTE", enchant_amount);
+							break;
                         default:
                             break;
                     }
@@ -14373,6 +14717,12 @@ bool Player::LoadFromDB(ObjectGuid guid, SqlQueryHolder *holder)
     // has to be called after last Relocate() in Player::LoadFromDB
     SetFallInformation(0, GetPositionZ());
 
+	ResetAccumChance();
+	if (sWorld.getConfig(CONFIG_BOOL_CUSTOM_ADVENTURE_MODE))
+	{
+		LoadAdventureLevel(holder->GetResult(PLAYER_LOGIN_QUERY_CUSTOM_ADVENTURE_MODE));
+	}
+
     _LoadSpellCooldowns(holder->GetResult(PLAYER_LOGIN_QUERY_LOADSPELLCOOLDOWNS));
 
     // Spell code allow apply any auras to dead character in load time in aura/spell/item loading
@@ -14627,7 +14977,7 @@ void Player::LoadAura(AuraSaveStruct& s, uint32 timediff)
 
         Aura* aura = CreateAura(spellproto, SpellEffectIndex(i), NULL, holder, this);
         if (!s.damage[i])
-            s.damage[i] = aura->GetModifier()->m_amount;
+            s.damage[i] = aura->GetModifierAmount(getLevel());
 
         aura->SetLoadedState(s.damage[i], s.periodicTime[i]);
         holder->AddAura(aura, SpellEffectIndex(i));
@@ -15031,6 +15381,25 @@ void Player::_LoadGroup(QueryResult *result)
         }
     }
     UpdateGroupLeaderFlag();
+}
+
+void Player::_LoadAdventureLevel(QueryResult* result)
+{
+	// QueryResult *result = CharacterDatabase.PQuery("SELECT adventurelevel,adventurexp FROM character_custom_data WHERE guid = '%u'", m_guid.GetCounter());
+	if (result)
+	{
+		adventure_level = (*result)[0].GetUInt32();
+		adventure_xp = (*result)[1].GetUInt32();
+
+		delete result;
+	}
+	else
+	{
+		adventure_level = 1;
+		adventure_xp = 0;
+	}
+
+	SetAdventureLevel(adventure_level);
 }
 
 void Player::_LoadBoundInstances(QueryResult *result)
@@ -18340,7 +18709,39 @@ void Player::RewardSinglePlayerAtKill(Unit* pVictim)
         // normal creature (not pet/etc) can be only in !PvP case
         if (pVictim->GetTypeId() == TYPEID_UNIT)
             KilledMonster(((Creature*)pVictim)->GetCreatureInfo(), pVictim->GetObjectGuid());
-    }
+			
+		if (sWorld.getConfig(CONFIG_BOOL_CUSTOM_ADVENTURE_MODE) && sWorld.getConfig(CONFIG_FLOAT_CUSTOM_ADVENTURE_KILLXP))
+		{
+			uint32 victim_level = pVictim->getLevel();
+			uint32 attacker_level = getLevel();
+			float multiplier = 1;
+
+			Creature * pCreature = (Creature*)(pVictim);
+
+			if (pCreature->IsElite())
+				multiplier = 5;
+
+			if (pCreature->IsWorldBoss())
+				multiplier = 40;
+
+			if (sWorld.getConfig(CONFIG_UINT32_CUSTOM_ADVENTURE_BOSSONLYXP) < adventure_level && !pCreature->IsWorldBoss())
+				multiplier = 0;
+
+			if ((victim_level + 3 - attacker_level) > 0)
+				multiplier = victim_level * multiplier;
+			else
+				multiplier = (-0.5f)*victim_level * multiplier;
+
+			int newxp = (int)(sWorld.getConfig(CONFIG_FLOAT_CUSTOM_ADVENTURE_KILLXP)*multiplier);
+			AddAdventureXP(newxp);
+		}
+	}
+	else if (sWorld.getConfig(CONFIG_BOOL_CUSTOM_ADVENTURE_MODE) && sWorld.getConfig(CONFIG_FLOAT_CUSTOM_ADVENTURE_PVPXP))
+	{
+		uint32 victim_level = pVictim->getLevel();
+
+		AddAdventureXP(sWorld.getConfig(CONFIG_FLOAT_CUSTOM_ADVENTURE_PVPXP)*victim_level*(victim_level + 2 - getLevel()));
+	}
 }
 
 void Player::RewardPlayerAndGroupAtEvent(uint32 creature_id, WorldObject* pRewardSource)
@@ -20268,4 +20669,446 @@ Player* Player::GetNextRaidMemberWithLowestLifePercentage(float radius, AuraType
 		}
 
 	return lowestPercentagePlayer;
+}
+
+void Player::KnockBackFrom(Unit* target, float horizontalSpeed, float verticalSpeed)
+{
+	float angle = this == target ? GetOrientation() + M_PI_F : target->GetAngle(this);
+	GetSession()->SendKnockBack(angle, horizontalSpeed, verticalSpeed);
+}
+
+//Custom
+void Player::ApplyRatingMod(CombatRating cr, int32 value, bool apply)
+{
+	m_baseRatingValue[cr] += (apply ? value : -value);
+	bool affectStats = CanModifyStats();
+	// explicit affected values
+	switch (cr)
+	{
+	case CR_HASTE_MELEE:
+	{
+		float RatingChange = value * GetRatingMultiplier(cr);
+		ApplyAttackTimePercentMod(BASE_ATTACK, RatingChange, apply);
+		ApplyAttackTimePercentMod(OFF_ATTACK, RatingChange, apply);
+		break;
+	}
+	case CR_HASTE_RANGED:
+	{
+		float RatingChange = value * GetRatingMultiplier(cr);
+		ApplyAttackTimePercentMod(RANGED_ATTACK, RatingChange, apply);
+		break;
+	}
+	case CR_HASTE_SPELL:
+	{
+		float RatingChange = value * GetRatingMultiplier(cr);
+		ApplyCastTimePercentMod(RatingChange, apply);
+		break;
+	}
+	case CR_WEAPON_SKILL:                               // Implemented in Unit::RollMeleeOutcomeAgainst
+	case CR_DEFENSE_SKILL:
+		UpdateDefenseBonusesMod();
+		break;
+	case CR_DODGE:
+		UpdateDodgePercentage();
+		break;
+	case CR_PARRY:
+		UpdateParryPercentage();
+		break;
+	case CR_BLOCK:
+		UpdateBlockPercentage();
+		break;
+	case CR_HIT_MELEE:
+		UpdateMeleeHitChances();
+		break;
+	case CR_HIT_RANGED:
+		UpdateRangedHitChances();
+		break;
+	case CR_HIT_SPELL:
+		UpdateSpellHitChances();
+		break;
+	case CR_CRIT_MELEE:
+		if (affectStats)
+		{
+			UpdateCritPercentage(BASE_ATTACK);
+			UpdateCritPercentage(OFF_ATTACK);
+		}
+		break;
+	case CR_CRIT_RANGED:
+		if (affectStats)
+			UpdateCritPercentage(RANGED_ATTACK);
+		break;
+	case CR_CRIT_SPELL:
+		if (affectStats)
+			UpdateAllSpellCritChances();
+		break;
+	case CR_HIT_TAKEN_MELEE:                            // Implemented in Unit::MeleeMissChanceCalc
+	case CR_HIT_TAKEN_RANGED:
+		break;
+	case CR_HIT_TAKEN_SPELL:                            // Implemented in Unit::MagicSpellHitResult
+		break;
+	case CR_CRIT_TAKEN_MELEE:                           // Implemented in Unit::CalculateEffectiveCritChance (only for chance to crit)
+	case CR_CRIT_TAKEN_RANGED:
+		break;
+	case CR_CRIT_TAKEN_SPELL:                           // Implemented in Unit::SpellCriticalBonus (only for chance to crit)
+		break;
+	case CR_WEAPON_SKILL_MAINHAND:                      // Implemented in Unit::RollMeleeOutcomeAgainst
+	case CR_WEAPON_SKILL_OFFHAND:
+	case CR_WEAPON_SKILL_RANGED:
+		break;
+		/*
+		case CR_EXPERTISE:
+		if (affectStats)
+		{
+		UpdateExpertise(BASE_ATTACK);
+		UpdateExpertise(OFF_ATTACK);
+		}
+		break;
+		}
+		*/
+	default:
+		break;
+	}
+}
+
+void Player::UpdateRating(CombatRating cr)
+{
+	int32 amount = m_baseRatingValue[cr];
+	if (amount < 0)
+		amount = 0;
+
+	bool affectStats = CanModifyStats();
+
+	switch (cr)
+	{
+	case CR_WEAPON_SKILL:                               // Implemented in Unit::RollMeleeOutcomeAgainst
+	case CR_DEFENSE_SKILL:
+		UpdateDefenseBonusesMod();
+		break;
+	case CR_DODGE:
+		UpdateDodgePercentage();
+		break;
+	case CR_PARRY:
+		UpdateParryPercentage();
+		break;
+	case CR_BLOCK:
+		UpdateBlockPercentage();
+		break;
+	case CR_HIT_MELEE:
+		UpdateMeleeHitChances();
+		break;
+	case CR_HIT_RANGED:
+		UpdateRangedHitChances();
+		break;
+	case CR_HIT_SPELL:
+		UpdateSpellHitChances();
+		break;
+	case CR_CRIT_MELEE:
+		if (affectStats)
+		{
+			UpdateCritPercentage(BASE_ATTACK);
+			UpdateCritPercentage(OFF_ATTACK);
+		}
+		break;
+	case CR_CRIT_RANGED:
+		if (affectStats)
+			UpdateCritPercentage(RANGED_ATTACK);
+		break;
+	case CR_CRIT_SPELL:
+		if (affectStats)
+			UpdateAllSpellCritChances();
+		break;
+	case CR_HIT_TAKEN_MELEE:                            // Implemented in Unit::MeleeMissChanceCalc
+	case CR_HIT_TAKEN_RANGED:
+		break;
+	case CR_HIT_TAKEN_SPELL:                            // Implemented in Unit::MagicSpellHitResult
+		break;
+	case CR_CRIT_TAKEN_MELEE:                           // Implemented in Unit::CalculateEffectiveCritChance (only for chance to crit)
+	case CR_CRIT_TAKEN_RANGED:
+		break;
+	case CR_CRIT_TAKEN_SPELL:                           // Implemented in Unit::SpellCriticalBonus (only for chance to crit)
+		break;
+	case CR_HASTE_MELEE:                                // Implemented in Player::ApplyRatingMod
+	case CR_HASTE_RANGED:
+	case CR_HASTE_SPELL:
+		break;
+	case CR_WEAPON_SKILL_MAINHAND:                      // Implemented in Unit::RollMeleeOutcomeAgainst
+	case CR_WEAPON_SKILL_OFFHAND:
+	case CR_WEAPON_SKILL_RANGED:
+		break;
+	}
+}
+void Player::UpdateAllRatings()
+{
+	for (int cr = 0; cr < MAX_COMBAT_RATING; ++cr)
+		UpdateRating(CombatRating(cr));
+}
+
+float Player::GetRatingBonusValue(CombatRating cr) const
+{
+	return float(m_baseRatingValue[cr]) * GetRatingMultiplier(cr);
+}
+
+uint32 Player::GetAdventureLevelGroup()
+{
+	uint32 level = 0;
+
+	level = GetAdventureLevel();
+
+	if (Group* pGroup = m_group.getTarget())
+	{
+		for (GroupReference* itr = pGroup->GetFirstMember(); itr != nullptr; itr = itr->next())
+		{
+			Player* pGroupGuy = itr->getSource();
+
+			if (pGroupGuy && pGroupGuy->isAlive())
+			{
+				if (pGroupGuy->GetAdventureLevel() < level)
+					level = pGroupGuy->GetAdventureLevel();
+			}
+
+		}
+	}
+
+	return level;
+}
+
+float Player::GetRatingMultiplier(CombatRating cr) const
+{
+	uint32 level = getLevel();
+
+	if (level > GT_MAX_LEVEL) level = GT_MAX_LEVEL;
+
+	CombatRatingsEntry const* Rating = sCombatRatingsStore.LookupEntry(cr * GT_MAX_LEVEL + level - 1);
+	if (!Rating)
+		return 1.0f;                                        // By default use minimum coefficient (not must be called)
+
+	return 1.0f / Rating->ratio;
+}
+
+uint32 Player::GetAdventureLevel()
+{
+	uint32 level = 0;
+
+	for (Unit::SpellAuraHolderMap::const_iterator iter = GetSpellAuraHolderMap().begin(); iter != GetSpellAuraHolderMap().end(); ++iter)
+	{
+		if (iter->second->GetId() == ADVENTURE_AURA)
+			level = iter->second->GetStackAmount();
+	}
+
+	if (level > sWorld.getConfig(CONFIG_UINT32_CUSTOM_ADVENTURE_MAX_LEVEL))
+		level = sWorld.getConfig(CONFIG_UINT32_CUSTOM_ADVENTURE_MAX_LEVEL);
+
+	return level;
+}
+
+
+void Player::SetAdventureLevel(uint32 level)
+{
+	//Apply Aura
+
+	//if (GetCurrentSpell(CURRENT_GENERIC_SPELL) || GetCurrentSpell(CURRENT_CHANNELED_SPELL))
+	//	return;
+
+	if (level > sWorld.getConfig(CONFIG_UINT32_CUSTOM_ADVENTURE_MAX_LEVEL))
+		level = sWorld.getConfig(CONFIG_UINT32_CUSTOM_ADVENTURE_MAX_LEVEL);
+
+	if (GetAdventureLevel() == level && !GetGroup())
+		return;
+	else if (GetGroup() && adventure_group_level == GetAdventureLevelGroup())
+		return;
+
+	//Apply Aura
+	_CreateCustomAura(ADVENTURE_AURA, level);
+
+	if (GetGroup())
+	{
+		adventure_group_level = GetAdventureLevelGroup();
+		_CreateCustomAura(GROUP_ADVENTURE_AURA, GetAdventureLevelGroup());
+	}
+	else if (HasAura(GROUP_ADVENTURE_AURA))
+		RemoveAurasDueToSpell(GROUP_ADVENTURE_AURA);
+}
+
+
+void Player::AddAdventureXP(int32 xp)
+{
+	if (xp > 0)
+	{
+		uint32 max_xp = sWorld.getConfig(CONFIG_FLOAT_CUSTOM_ADVENTURE_LEVELXP) * adventure_level;
+		adventure_xp += xp;
+
+		sLog.outString("Granting %d xp to player %s. Lvl:%u. Current xp: %u Max xp: %u", xp, GetName(), adventure_level, adventure_xp, max_xp);			//custom-debug
+		if (adventure_xp > max_xp)
+		{
+			adventure_xp -= max_xp;
+			adventure_level++;
+
+			RemoveAurasDueToSpell(ADVENTURE_AURA);
+			SetAdventureLevel(adventure_level);
+		}
+	}
+	else if (adventure_xp > abs(xp))
+		SubstractAdventureXP(abs(xp));
+}
+
+bool Player::SubstractAdventureXP(int32 xp)
+{
+	int _adventure_xp = adventure_xp;
+	_adventure_xp -= xp;
+	uint32 currentLevel = adventure_level;
+	uint32 max_xp = sWorld.getConfig(CONFIG_FLOAT_CUSTOM_ADVENTURE_LEVELXP) * adventure_level;
+
+	sLog.outString("Granting %d xp to player %s. Lvl:%u. Current xp: %u Max xp: %u", xp, GetName(), adventure_level, adventure_xp, max_xp);			//custom-debug
+	while (_adventure_xp < 0 && currentLevel > 1)
+	{
+		currentLevel--;
+		_adventure_xp += max_xp;
+		SetAdventureLevel(currentLevel);
+		adventure_xp = _adventure_xp;
+		return true;
+	}
+
+	SetAdventureLevel(currentLevel);
+	return false;
+}
+
+void Player::ResetAdventureLevel()
+{
+	adventure_level = 1;
+	adventure_xp = 0;
+}
+
+void Player::StoreAdventureLevel()
+{
+
+	static SqlStatementID delAdventureData;
+	static SqlStatementID insAdventureData;
+
+	SqlStatement stmt = CharacterDatabase.CreateStatement(delAdventureData, "DELETE FROM character_custom_data WHERE guid = ?");
+
+	stmt.PExecute(GetGUIDLow());
+
+	sLog.outString("Save Adventure Level for char:%u -Lvl:%u, xp:%u", GetGUIDLow(), adventure_level, adventure_xp);
+
+	stmt = CharacterDatabase.CreateStatement(insAdventureData, "INSERT INTO character_custom_data VALUES (?, ?, ?)");
+	/* guid, adventurelevel,xplevel */
+
+	stmt.PExecute(GetGUIDLow(), adventure_level, adventure_xp);
+}
+
+void Player::_CreateCustomAura(uint32 spellid, uint32 stackcount, int32 remaincharges)
+{
+	SpellEntry const* spellproto = GetSpellTemplate(spellid);
+	if (!spellproto)
+	{
+		sLog.outError("Unknown spell (spellid %u), ignore.", spellid);
+		return;
+	}
+
+	ObjectGuid object;
+
+	if (spellproto->StackAmount < stackcount)
+		stackcount = spellproto->StackAmount;
+
+	for (Unit::SpellAuraHolderMap::const_iterator iter = GetSpellAuraHolderMap().begin(); iter != GetSpellAuraHolderMap().end(); ++iter)
+	{
+		if (iter->second->GetId() == spellid)
+		{
+			if (iter->second->GetStackAmount() == stackcount)
+				return;
+			else
+			{
+				iter->second->SetStackAmount(stackcount);
+				return;
+			}
+		}
+
+		uint32 remaintime;
+		uint32 maxduration;
+
+		SpellDurationEntry const* du = sSpellDurationStore.LookupEntry(spellproto->DurationIndex);
+
+		if (du)
+		{
+			remaintime = (du->Duration[0] == -1) ? -1 : abs(du->Duration[0]);
+			maxduration = (du->Duration[2] == -1) ? -1 : abs(du->Duration[2]);
+		}
+		else
+		{
+			remaintime = -1;
+			maxduration = -1;
+		}
+
+
+		if (remaincharges)
+			remaincharges = spellproto->procCharges;
+
+		SpellAuraHolder* holder = CreateSpellAuraHolder(spellproto, this, this);
+		holder->SetLoadedState(GetObjectGuid(), object, stackcount, remaincharges, maxduration, remaintime);
+
+		for (int32 i = 0; i < MAX_EFFECT_INDEX; ++i)
+		{
+			uint8 eff = spellproto->Effect[i];
+
+			if (eff >= TOTAL_SPELL_EFFECTS)
+				continue;
+
+			if (IsAreaAuraEffect(eff) ||
+				eff == SPELL_EFFECT_APPLY_AURA ||
+				eff == SPELL_EFFECT_PERSISTENT_AREA_AURA)
+			{
+				Aura* aura = CreateAura(spellproto, SpellEffectIndex(i), nullptr, holder, this);
+				holder->AddAura(aura, SpellEffectIndex(i));
+			}
+		}
+		AddSpellAuraHolder(holder);
+
+	}
+}
+
+bool Player::CanReforgeItem(Item* itemTarget)
+{
+	if (!sWorld.getConfig(CONFIG_BOOL_CUSTOM_RANDOMIZE_ITEM) || !sWorld.getConfig(CONFIG_BOOL_CUSTOM_ADVENTURE_MODE))
+		return false;
+
+	if (!itemTarget)
+		return false;
+
+	Player* p_caster = this;
+
+	Player* item_owner = itemTarget->GetOwner();
+	if (!item_owner || (item_owner != p_caster))
+		return false;
+
+	if (ItemPrototype const* itemProto = itemTarget->GetProto())
+	{
+
+		uint32 minQuality = sWorld.getConfig(CONFIG_UINT32_CUSTOM_RANDOMIZE_ITEM_MIN_QUALITY);
+		uint32 minLevel = sWorld.getConfig(CONFIG_UINT32_CUSTOM_RANDOMIZE_ITEM_MIN_LEVEL);
+		if (roll_chance_f(sWorld.getConfig(CONFIG_FLOAT_CUSTOM_RANDOMIZE_ITEM_CHANCE)))
+		{
+
+			uint32 itemLevel = itemProto->ItemLevel;
+			uint32 itemClass = itemProto->Class;
+			uint32 ItemSubClass = itemProto->SubClass;
+			uint32 ItemQuality = itemProto->Quality;
+			uint32 protoRandom = GetItemEnchantMod(itemProto->RandomProperty);
+
+			if (!itemProto || !(itemClass == 2 || itemClass == 4) || !(ItemQuality > minQuality) || !(itemLevel > minLevel))
+				return false;
+
+			uint32 adventure_level = ((Player*)p_caster)->GetAdventureLevel();
+
+			if (sWorld.getConfig(CONFIG_FLOAT_CUSTOM_ADVENTURE_ITEMXP))
+				if (!((Player*)p_caster)->SubstractAdventureXP(sWorld.getConfig(CONFIG_FLOAT_CUSTOM_ADVENTURE_ITEMXP)*itemLevel*ItemQuality*ItemQuality))
+				{
+					DEBUG_LOG("Not enough adventure xp to apply random property to item %u", itemTarget->GetGUIDLow());
+					return false;
+				}
+		}
+
+		return true;
+	}
+
+	return false;
 }

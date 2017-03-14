@@ -618,6 +618,7 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOADMAILS,
     PLAYER_LOGIN_QUERY_LOADMAILEDITEMS,
     PLAYER_LOGIN_QUERY_BATTLEGROUND_DATA,
+	PLAYER_LOGIN_QUERY_CUSTOM_ADVENTURE_MODE,
 
     MAX_PLAYER_LOGIN_QUERY
 };
@@ -641,6 +642,9 @@ enum ReputationSource
 // Player summoning auto-decline time (in secs)
 #define MAX_PLAYER_SUMMON_DELAY                   (2*MINUTE)
 #define MAX_MONEY_AMOUNT                       (0x7FFFFFFF-1)
+
+#define ADVENTURE_AURA           55000
+#define GROUP_ADVENTURE_AURA     55001
 
 struct InstancePlayerBind
 {
@@ -1023,6 +1027,7 @@ class MANGOS_DLL_SPEC Player final: public Unit
         uint8 FindEquipSlot(ItemPrototype const* proto, uint32 slot, bool swap) const;
         uint32 GetItemCount(uint32 item, bool inBankAlso = false, Item* skipItem = NULL) const;
         Item* GetItemByGuid(ObjectGuid guid) const;
+		Item* GetItemByEntry(uint32 item) const;            // only for special cases
         Item* GetItemByPos( uint16 pos ) const;
         Item* GetItemByPos( uint8 bag, uint8 slot ) const;
         Item* GetWeaponForAttack(WeaponAttackType attackType) const { return GetWeaponForAttack(attackType,false,false); }
@@ -1374,7 +1379,8 @@ class MANGOS_DLL_SPEC Player final: public Unit
         void ClearComboPoints();
         void SetComboPoints();
 
-		bool AttackStop(bool targetSwitch = false, bool includingCast = false, bool includingCombo = false) override;
+		bool AttackStop(bool targetSwitch = false, bool includingCast = false, bool includingCombo = false);
+		void KnockBackFrom(Unit* target, float horizontalSpeed, float verticalSpeed);
 
         void PetSpellInitialize();
         void CharmSpellInitialize();
@@ -1734,6 +1740,12 @@ class MANGOS_DLL_SPEC Player final: public Unit
         void _ApplyAllItemMods();
         void _ApplyItemBonuses(ItemPrototype const *proto,uint8 slot,bool apply);
         void _ApplyAmmoBonuses();
+		void ApplyRatingMod(CombatRating cr, int32 value, bool apply);
+		void UpdateRating(CombatRating cr);
+		void UpdateAllRatings();
+		float GetRatingMultiplier(CombatRating cr) const;
+		float GetRatingBonusValue(CombatRating cr) const;
+
         void InitDataForForm(bool reapplyMods = false);
 
         void ApplyItemEquipSpell(Item *item, bool apply, bool form_change = false);
@@ -2188,6 +2200,7 @@ class MANGOS_DLL_SPEC Player final: public Unit
         void _LoadBGData(QueryResult* result);
         void _LoadIntoDataField(const char* data, uint32 startOffset, uint32 count);
 
+		void _LoadAdventureLevel(QueryResult* result);
         /*********************************************************/
         /***                   SAVE SYSTEM                     ***/
         /*********************************************************/
@@ -2291,6 +2304,43 @@ class MANGOS_DLL_SPEC Player final: public Unit
         float m_rest_bonus;
         RestType rest_type;
         ////////////////////Rest System/////////////////////
+
+		//////////////////// Adventure Mode/////////////////////
+
+		uint32 adventure_level;
+		uint32 adventure_group_level;
+		uint32 adventure_xp;
+		//custom 
+		uint8 m_AccumChance;
+		int16 m_baseRatingValue[MAX_COMBAT_RATING];
+
+		public:
+			void AddAdventureXP(int32 xp);
+			bool SubstractAdventureXP(int32 xp);
+			uint32 GetAdventureLevelGroup();
+			uint32 GetAdventureLevel();
+
+			bool CanReforgeItem(Item* itemTarget);
+
+			void AddAccumChance(uint8 chance) { m_AccumChance += chance; }
+			void ResetAccumChance() { m_AccumChance = 0; }
+			bool RollAccumChance()
+			{
+				if (urand(0, 100) < m_AccumChance)
+				{
+					ResetAccumChance();
+					return true;
+				}
+				else return false;
+			}
+
+
+		protected:
+			void ResetAdventureLevel();
+			void StoreAdventureLevel();
+			void SetAdventureLevel(uint32 level);
+			void _CreateCustomAura(uint32 spellid, uint32 stackcount = 0, int32 remaincharges = 0);
+
 
         uint32 m_resetTalentsCost;
         time_t m_resetTalentsTime;

@@ -289,6 +289,7 @@ class Spell
         void EffectParry(SpellEffectIndex eff_idx);
         void EffectBlock(SpellEffectIndex eff_idx);
         void EffectLeapForward(SpellEffectIndex eff_idx);
+		void EffectLeapBack(SpellEffectIndex eff_idx);
         void EffectTransmitted(SpellEffectIndex eff_idx);
         void EffectDisEnchant(SpellEffectIndex eff_idx);
         void EffectInebriate(SpellEffectIndex eff_idx);
@@ -298,6 +299,9 @@ class Spell
         void EffectSelfResurrect(SpellEffectIndex eff_idx);
         void EffectSkinning(SpellEffectIndex eff_idx);
         void EffectCharge(SpellEffectIndex eff_idx);
+		void EffectCharge2(SpellEffectIndex eff_idx);
+		void EffectProspecting(SpellEffectIndex eff_idx);
+		void EffectRedirectThreat(SpellEffectIndex eff_idx);
         void EffectSendTaxi(SpellEffectIndex eff_idx);
         void EffectSummonCritter(SpellEffectIndex eff_idx);
         void EffectKnockBack(SpellEffectIndex eff_idx);
@@ -319,6 +323,20 @@ class Spell
         void EffectDespawnObject(SpellEffectIndex eff_idx);
         void EffectNostalrius(SpellEffectIndex eff_idx);
         void HandleAddTargetTriggerAuras();
+		// Custom
+		void EffectReforgeItem(SpellEffectIndex eff_idx);
+		void EffectStealBeneficialBuff(SpellEffectIndex eff_idx);
+		void EffectUnlearnSpecialization(SpellEffectIndex eff_idx);
+		void EffectHealPct(SpellEffectIndex eff_idx);
+		void EffectEnergisePct(SpellEffectIndex eff_idx);
+		void EffectForceCast(SpellEffectIndex eff_idx);
+		void EffectTriggerSpellWithValue(SpellEffectIndex eff_idx);
+		void EffectTriggerRitualOfSummoning(SpellEffectIndex eff_idx);
+		void EffectKillCreditGroup(SpellEffectIndex eff_idx);
+		void EffectQuestFail(SpellEffectIndex eff_idx);
+		void EffectPlaySound(SpellEffectIndex eff_idx);
+		void EffectPlayMusic(SpellEffectIndex eff_idx);
+		void EffectKnockBackFromPosition(SpellEffectIndex eff_idx);
 
         Spell(Unit* caster, SpellEntry const *info, bool triggered, ObjectGuid originalCasterGUID = ObjectGuid(), SpellEntry const* triggeredBy = NULL);
         ~Spell();
