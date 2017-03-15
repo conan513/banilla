@@ -3231,17 +3231,75 @@ float Unit::GetUnitCriticalChance(WeaponAttackType attackType, const Unit *pVict
     }
 
     // flat aura mods
-    if (attackType == RANGED_ATTACK)
-        crit += pVictim->GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_RANGED_CRIT_CHANCE);
-    else
-        crit += pVictim->GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_MELEE_CRIT_CHANCE);
+	if (attackType == RANGED_ATTACK)
+	{
+		if (pVictim)
+			crit += pVictim->GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_RANGED_CRIT_CHANCE);
+	}
+    else if (pVictim)
+		 crit += pVictim->GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_MELEE_CRIT_CHANCE);
 
     // Apply crit chance from defence skill
-    crit += (int32(GetMaxSkillValueForLevel(pVictim)) - int32(pVictim->GetDefenseSkillValue(this))) * 0.04f;
+	if (pVictim)
+		crit += (int32(GetMaxSkillValueForLevel(pVictim)) - int32(pVictim->GetDefenseSkillValue(this))) * 0.04f;
 
     if (crit < 0.0f)
         crit = 0.0f;
     return crit;
+}
+
+float Unit::GetUnitCriticalChance(SpellSchoolMask schoolMask) const
+{
+	float chance = 0.0f;
+
+	uint32 mask = uint32(schoolMask);
+	if (!mask)
+		return 0.0f;
+
+	if (GetTypeId() == TYPEID_UNIT)
+	{
+		// Base crit chance (needed for units only, already included for players)
+		chance += 5.0f;
+	}
+	else if (GetTypeId() == TYPEID_PLAYER)
+	{
+		// Pick highest spell crit available for given school mask
+		for (uint8 school = 0; mask; ++school)
+		{
+			if (mask & 1)
+			{
+				const float crit = ((Player*)this)->m_SpellCritPercentage[school];
+				if (crit > chance)
+					chance = crit;
+			}
+			mask >>= 1;
+		}
+	}
+	return chance;
+}
+
+float Unit::GetUnitCriticalChance(const SpellEntry *entry, SpellSchoolMask schoolMask) const
+{
+	float chance = 0.0f;
+
+	if (!entry)
+		return 0.0f;
+
+	// Add own hit chance
+	switch (entry->DmgClass)
+	{
+	case SPELL_DAMAGE_CLASS_MAGIC:
+		chance += GetUnitCriticalChance(schoolMask);
+		break;
+	case SPELL_DAMAGE_CLASS_MELEE:
+	case SPELL_DAMAGE_CLASS_RANGED:
+		chance += GetUnitCriticalChance(GetWeaponAttackType(entry));
+		break;
+	}
+	// Add mod
+	if (Player* modOwner = GetSpellModOwner())
+		modOwner->ApplySpellMod(entry->Id, SPELLMOD_CRITICAL_CHANCE, chance);
+	return chance;
 }
 
 uint32 Unit::GetWeaponSkillValue(WeaponAttackType attType, Unit const* target) const
@@ -6286,19 +6344,36 @@ int32 Unit::SpellBaseDamageBonusDone(SpellSchoolMask schoolMask)
             DoneAdvertisedBenefit += (*i)->GetModifier()->m_amount;
     }
 
-    if (GetTypeId() == TYPEID_PLAYER)
-    {
-        // Damage bonus from stats
-        AuraList const& mDamageDoneOfStatPercent = GetAurasByType(SPELL_AURA_MOD_SPELL_DAMAGE_OF_STAT_PERCENT);
-        for (AuraList::const_iterator i = mDamageDoneOfStatPercent.begin(); i != mDamageDoneOfStatPercent.end(); ++i)
-        {
-            if ((*i)->GetModifier()->m_miscvalue & schoolMask)
-            {
-                // stat used stored in miscValueB for this aura
-                Stats usedStat = STAT_SPIRIT;
-                DoneAdvertisedBenefit += int32(GetStat(usedStat) * (*i)->GetModifier()->m_amount / 100.0f);
-            }
-        }
+	if (GetTypeId() == TYPEID_PLAYER)
+	{
+		// Damage bonus from stats
+		AuraList const& mDamageDoneOfStatPercent = GetAurasByType(SPELL_AURA_MOD_SPELL_DAMAGE_OF_STAT_PERCENT);
+		for (AuraList::const_iterator i = mDamageDoneOfStatPercent.begin(); i != mDamageDoneOfStatPercent.end(); ++i)
+		{
+			if ((*i)->GetModifier()->m_miscvalue & schoolMask)
+			{
+				Stats usedStat;
+				if ((*i)->GetModifier()->m_miscvalue & uint64(0x00000100))
+					usedStat = STAT_STRENGTH;
+				else if ((*i)->GetModifier()->m_miscvalue & uint64(0x00000200))
+					usedStat = STAT_AGILITY;
+				else if ((*i)->GetModifier()->m_miscvalue & uint64(0x00000400))
+					usedStat = STAT_STAMINA;
+				else if ((*i)->GetModifier()->m_miscvalue & uint64(0x00000800))
+					usedStat = STAT_INTELLECT;
+				else usedStat = STAT_SPIRIT;
+
+
+				DoneAdvertisedBenefit += int32(GetStat(usedStat) * (*i)->GetModifierAmount(getLevel()) / 100.0f);
+			}
+		}
+		// ... and attack power
+		AuraList const& mDamageDonebyAP = GetAurasByType(SPELL_AURA_MOD_SPELL_DAMAGE_OF_ATTACK_POWER);
+		for (AuraList::const_iterator i = mDamageDonebyAP.begin(); i != mDamageDonebyAP.end(); ++i)
+		{
+			if ((*i)->GetModifier()->m_miscvalue & schoolMask)
+				DoneAdvertisedBenefit += int32(GetTotalAttackPowerValue(BASE_ATTACK) * (*i)->GetModifierAmount(getLevel()) / 100.0f);
+		}
     }
     return DoneAdvertisedBenefit;
 }

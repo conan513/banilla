@@ -30,6 +30,8 @@ struct Modifier
     int32 m_amount;
     int32 m_miscvalue;
     uint32 periodictime;
+	//custom
+	float m_scale;
 };
 
 struct HeartBeatData
@@ -382,13 +384,45 @@ class MANGOS_DLL_SPEC Aura
         void HandleAuraAuraSpell(bool apply, bool real);
         void HandleInterruptRegen(bool apply, bool real);
 
+		void HandleAuraPeriodicDummy(bool apply, bool Real);
+		void HandleAuraModIncreaseMaxHealth(bool apply, bool Real);
+		void HandleModManaRegen(bool apply, bool Real);
+		void HandleAuraModRangedAttackPowerOfStatPercent(bool apply, bool Real);
+		void HandleModMeleeRangedSpeedPct(bool Apply, bool Real);
+		void HandleModCombatSpeedPct(bool Apply, bool Real);
+
+		void HandleAuraModDispelResist(bool apply, bool Real);
+		void HandleModSpellDamagePercentFromAttackPower(bool apply, bool Real);
+		void HandleModSpellHealingPercentFromAttackPower(bool apply, bool Real);
+		void HandleFactionOverride(bool apply, bool Real);
+		void HandlePrayerOfMending(bool apply, bool Real);
+		void HandleModRating(bool apply, bool Real);
+
         virtual ~Aura();
 
-        void SetModifier(AuraType t, int32 a, uint32 pt, int32 miscValue);
+        void SetModifier(AuraType t, int32 a, uint32 pt, int32 miscValue, float scale = 0);
         Modifier*       GetModifier()       { return &m_modifier; }
         Modifier const* GetModifier() const { return &m_modifier; }
         int32 GetMiscValue() const { return m_spellAuraHolder->GetSpellProto()->EffectMiscValue[m_effIndex]; }
+		int32 GetModifierAmount(uint32 level = 0)
+		{
+			if (GetHolder()->GetSpellProto()->HasAttribute(SPELL_ATTR_LEVEL_DAMAGE_CALCULATION))
+				return m_modifier.m_amount; //calculated elsewhere
+			else
+			{
+				if (level == 0)
+					return m_modifier.m_amount;
 
+				int32 _level = (int32)level;
+				if (_level >  m_spellAuraHolder->GetSpellProto()->maxLevel &&  m_spellAuraHolder->GetSpellProto()->maxLevel > 0)
+					_level = (int32)m_spellAuraHolder->GetSpellProto()->maxLevel;
+				else if (_level < (int32)m_spellAuraHolder->GetSpellProto()->baseLevel)
+					_level = (int32)m_spellAuraHolder->GetSpellProto()->baseLevel;
+				_level -= (int32)m_spellAuraHolder->GetSpellProto()->spellLevel;
+
+				return m_modifier.m_amount + int32(_level *  m_modifier.m_scale);
+			}
+		}
         SpellEntry const* GetSpellProto() const { return GetHolder()->GetSpellProto(); }
         uint32 GetId() const{ return GetHolder()->GetSpellProto()->Id; }
         ObjectGuid const& GetCastItemGuid() const { return GetHolder()->GetCastItemGuid(); }
@@ -398,6 +432,7 @@ class MANGOS_DLL_SPEC Aura
 
         SpellEffectIndex GetEffIndex() const{ return m_effIndex; }
         int32 GetBasePoints() const { return m_currentBasePoints; }
+		void SetBasePoints(int32 value) { m_currentBasePoints = value; }
 
         int32 GetAuraMaxDuration() const { return GetHolder()->GetAuraMaxDuration(); }
         int32 GetAuraDuration() const { return GetHolder()->GetAuraDuration(); }
@@ -467,6 +502,7 @@ class MANGOS_DLL_SPEC Aura
         void HandleShapeshiftBoosts(bool apply);
 
         void TriggerSpell();
+		void TriggerSpellWithValue();
 
         // more limited that used in future versions (spell_affect table based only), so need be careful with backporting uses
         bool isAffectedOnSpell(SpellEntry const *spell) const;

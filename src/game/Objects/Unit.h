@@ -1210,7 +1210,10 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         float GetUnitDodgeChance()    const;
         float GetUnitParryChance()    const;
         float GetUnitBlockChance()    const;
-        float GetUnitCriticalChance(WeaponAttackType attackType, const Unit *pVictim) const;
+        float GetUnitCriticalChance(WeaponAttackType attackType, const Unit *pVictim = nullptr) const;		
+		float GetUnitCriticalChance(SpellSchoolMask schoolMask) const;
+		float GetUnitCriticalChance(const SpellEntry* entry, SpellSchoolMask schoolMask) const;
+
 
         virtual uint32 GetShieldBlockValue() const =0;
         uint32 GetUnitMeleeSkill(Unit const* target = nullptr) const { return (target ? GetLevelForTarget(target) : getLevel()) * 5; }
