@@ -20998,7 +20998,7 @@ void Player::StoreAdventureLevel()
 
 void Player::_CreateCustomAura(uint32 spellid, uint32 stackcount, int32 remaincharges)
 {
-	SpellEntry const* spellproto = GetSpellTemplate(spellid);
+	SpellEntry const* spellproto = sSpellMgr.GetSpellEntry(spellid);
 	if (!spellproto)
 	{
 		sLog.outError("Unknown spell (spellid %u), ignore.", spellid);
