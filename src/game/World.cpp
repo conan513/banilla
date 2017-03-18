@@ -494,7 +494,9 @@ void World::LoadConfigSettings(bool reload)
     setConfigPos(CONFIG_FLOAT_RATE_POWER_RAGE_LOSS, "Rate.Rage.Loss", 1.0f);
     setConfig(CONFIG_FLOAT_RATE_POWER_FOCUS,             "Rate.Focus", 1.0f);
     setConfigPos(CONFIG_FLOAT_RATE_LOYALTY,              "Rate.Loyalty", 1.0f);
+    setConfigPos(CONFIG_FLOAT_RATE_PET_HAPPINESS_GAIN,        Rate.Happiness",            1.0f);
     setConfig(CONFIG_FLOAT_RATE_POWER_ENERGY,            "Rate.Energy", 1.0f);
+    setConfigPos(CONFIG_FLOAT_RATE_PLAYER_MISS_CHANCE,"Rate.Player.Miss",5.0f);
     setConfigPos(CONFIG_FLOAT_RATE_SKILL_DISCOVERY,      "Rate.Skill.Discovery",      1.0f);
     setConfigPos(CONFIG_FLOAT_RATE_DROP_ITEM_POOR,       "Rate.Drop.Item.Poor",       1.0f);
     setConfigPos(CONFIG_FLOAT_RATE_DROP_ITEM_NORMAL,     "Rate.Drop.Item.Normal",     1.0f);
@@ -538,6 +540,7 @@ void World::LoadConfigSettings(bool reload)
     setConfig(CONFIG_FLOAT_RATE_HONOR, "Rate.Honor", 1.0f);
     setConfigPos(CONFIG_FLOAT_RATE_MINING_AMOUNT, "Rate.Mining.Amount", 1.0f);
     setConfigPos(CONFIG_FLOAT_RATE_MINING_NEXT,   "Rate.Mining.Next", 1.0f);
+    setConfig(CONFIG_BOOL_SKILL_PROSPECTING, "SkillChance.Prospecting", false);
     setConfigPos(CONFIG_FLOAT_RATE_INSTANCE_RESET_TIME, "Rate.InstanceResetTime", 1.0f);
     setConfigPos(CONFIG_FLOAT_RATE_TALENT, "Rate.Talent", 1.0f);
     setConfigPos(CONFIG_FLOAT_RATE_CORPSE_DECAY_LOOTED, "Rate.Corpse.Decay.Looted", 0.0f);
@@ -559,6 +562,30 @@ void World::LoadConfigSettings(bool reload)
 
     setConfigPos(CONFIG_FLOAT_CREATURE_FAMILY_ASSISTANCE_RADIUS,      "CreatureFamilyAssistanceRadius",     10.0f);
     setConfigPos(CONFIG_FLOAT_CREATURE_FAMILY_FLEE_ASSISTANCE_RADIUS, "CreatureFamilyFleeAssistanceRadius", 30.0f);
+
+     setConfig(CONFIG_BOOL_PATH_FIND_OPTIMIZE, "PathFinder.OptimizePath", true);
+     setConfig(CONFIG_BOOL_PATH_FIND_NORMALIZE_Z, "PathFinder.NormalizeZ", false);
+	setConfig(CONFIG_BOOL_CUSTOM_ADVENTURE_MODE, "Custom.AdventureMode", false);
+	setConfig(CONFIG_UINT32_CUSTOM_ADVENTURE_MAX_LEVEL, "Custom.AdventureMaxLevel", 0);
+	setConfig(CONFIG_FLOAT_CUSTOM_ADVENTURE_KILLXP, "Custom.AdventureKillXP", 1);
+	setConfig(CONFIG_FLOAT_CUSTOM_ADVENTURE_PVPXP, "Custom.AdventurePVPXP", 100);
+	setConfig(CONFIG_FLOAT_CUSTOM_ADVENTURE_DEATHXP, "Custom.AdventureDeathXP", 1000);
+	setConfig(CONFIG_FLOAT_CUSTOM_ADVENTURE_ITEMXP, "Custom.AdventureItemXP", 10);
+	setConfig(CONFIG_FLOAT_CUSTOM_ADVENTURE_LEVELXP, "Custom.AdventureLevelXP", 25);
+	setConfig(CONFIG_UINT32_CUSTOM_ADVENTURE_BOSSONLYXP, "Custom.AdventureBossOnlyXP", 5);
+
+	setConfig(CONFIG_BOOL_CUSTOM_RULES, "Custom.CustomRules", false);
+	setConfig(CONFIG_BOOL_CUSTOM_RANDOMIZE_ITEM, "Custom.RandomizeItem", false);
+	setConfig(CONFIG_BOOL_CUSTOM_FRIENDLY_FIRE, "Custom.FriendlyFire", false);
+	setConfig(CONFIG_UINT32_CUSTOM_RANDOMIZE_ITEM_MIN_LEVEL, "Custom.RandomizeItemMinLevel", 15);
+	setConfig(CONFIG_UINT32_CUSTOM_RANDOMIZE_ITEM_MIN_QUALITY, "Custom.RandomizeItemMinQuality", 2);
+	setConfig(CONFIG_FLOAT_CUSTOM_RANDOMIZE_ITEM_SCALING, "Custom.RandomizeItemLevelScaling", 0.2f);
+	setConfig(CONFIG_FLOAT_CUSTOM_RANDOMIZE_ITEM_CHANCE, "Custom.RandomizeItemChance", 10.f);
+	setConfig(CONFIG_FLOAT_CUSTOM_ADVENTURE_ENEMY_COOLDOWN, "AdventureEnemyCooldown", 0.1f);
+	setConfig(CONFIG_UINT32_CUSTOM_REPAIR_FAILURE_CHANCE, "RepairFailureChance", 0);
+	setConfig(CONFIG_UINT32_CUSTOM_REPAIR_CRITICAL_FAILURE_CHANCE, "RepairCriticalFailureChance", 0);
+	//Resistance Penaty
+	setConfig(CONFIG_BOOL_RESISTANCE_PENALTY, "Custom.ResistancePenalty", false);
 
     ///- Read other configuration items from the config file
     setConfigMinMax(CONFIG_UINT32_COMPRESSION, "Compression", 1, 1, 9);
@@ -1081,7 +1108,9 @@ void World::SetInitialWorldSettings()
             !MapManager::ExistMapAndVMap(1, -618.518f, -4251.67f) ||
             !MapManager::ExistMapAndVMap(0, 1676.35f, 1677.45f) ||
             !MapManager::ExistMapAndVMap(1, 10311.3f, 832.463f) ||
-            !MapManager::ExistMapAndVMap(1, -2917.58f, -257.98f))
+            !MapManager::ExistMapAndVMap(1, -2917.58f, -257.98f)) ||
+            !MapManager::ExistMapAndVMap(530, 10349.6f, -6357.29f) ||                    //Blood Elf - Draenei
+            !MapManager::ExistMapAndVMap(530, -3961.64f, -13931.2f))
     {
         sLog.outError("Correct *.map files not found in path '%smaps' or *.vmtree/*.vmtile files in '%svmaps'. Please place *.map and vmap files in appropriate directories or correct the DataDir value in the mangosd.conf file.", m_dataPath.c_str(), m_dataPath.c_str());
         Log::WaitBeforeContinueIfNeed();

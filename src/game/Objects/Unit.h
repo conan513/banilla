@@ -134,7 +134,8 @@ enum SpellModOp
     //SPELLMOD_FREQUENCY_OF_SUCCESS   = 26,                 // not used in 2.4.3
     SPELLMOD_MULTIPLE_VALUE         = 27,
     SPELLMOD_RESIST_DISPEL_CHANCE   = 28,
-    MAX_SPELLMOD                    = 29,
+    SPELLMOD_SPELL_COST_REFUND_ON_FAIL = 29
+    MAX_SPELLMOD                    = 30,
 };
 
 enum SpellFacingFlags
@@ -461,6 +462,62 @@ enum UnitMoveType
 };
 
 #define MAX_MOVE_TYPE 6
+
+enum CombatRating
+{
+	CR_WEAPON_SKILL = 0,
+	CR_DEFENSE_SKILL = 1,
+	CR_DODGE = 2,
+	CR_PARRY = 3,
+	CR_BLOCK = 4,
+	CR_HIT_MELEE = 5,
+	CR_HIT_RANGED = 6,
+	CR_HIT_SPELL = 7,
+	CR_CRIT_MELEE = 8,
+	CR_CRIT_RANGED = 9,
+	CR_CRIT_SPELL = 10,
+	CR_HIT_TAKEN_MELEE = 11,
+	CR_HIT_TAKEN_RANGED = 12,
+	CR_HIT_TAKEN_SPELL = 13,
+	CR_CRIT_TAKEN_MELEE = 14,
+	CR_CRIT_TAKEN_RANGED = 15,
+	CR_CRIT_TAKEN_SPELL = 16,
+	CR_HASTE_MELEE = 17,
+	CR_HASTE_RANGED = 18,
+	CR_HASTE_SPELL = 19,
+	CR_WEAPON_SKILL_MAINHAND = 20,
+	CR_WEAPON_SKILL_OFFHAND = 21,
+	CR_WEAPON_SKILL_RANGED = 22,
+	CR_EXPERTISE = 23
+};
+
+#define MAX_COMBAT_RATING         24
+
+enum RatingMask
+{
+	RATING_MASK_NONE = 0x00,
+	RATING_MASK_WEAPON_SKILL = (1 << CR_WEAPON_SKILL),
+	RATING_MASK_DEFENSE_SKILL = (1 << CR_DEFENSE_SKILL),
+	RATING_MASK_DODGE_RATING = (1 << CR_DODGE),
+	RATING_MASK_PARRY_RATING = (1 << CR_PARRY),
+	RATING_MASK_BLOCK_RATING = (1 << CR_BLOCK),
+	RATING_MASK_HIT_MELEE_RATING = (1 << CR_HIT_MELEE),
+	RATING_MASK_HIT_RANGED_RATING = (1 << CR_HIT_RANGED),
+	RATING_MASK_HIT_SPELL_RATING = (1 << CR_HIT_SPELL),
+	RATING_MASK_CRIT_MELEE_RATING = (1 << CR_CRIT_MELEE),
+	RATING_MASK_CRIT_RANGED_RATING = (1 << CR_CRIT_RANGED),
+	RATING_MASK_CRIT_SPELL_RATING = (1 << CR_CRIT_SPELL),
+	RATING_MASK_HIT_TAKEN_MELEE_RATING = (1 << CR_HIT_TAKEN_MELEE),
+	RATING_MASK_HIT_TAKEN_RANGED_RATING = (1 << CR_HIT_TAKEN_RANGED),
+	RATING_MASK_HIT_TAKEN_SPELL_RATING = (1 << CR_HIT_TAKEN_SPELL),
+	RATING_MASK_CRIT_TAKEN_MELEE_RATING = (1 << CR_CRIT_TAKEN_MELEE),
+	RATING_MASK_CRIT_TAKEN_RANGED_RATING = (1 << CR_CRIT_TAKEN_RANGED),
+	RATING_MASK_CRIT_TAKEN_SPELL_RATING = (1 << CR_CRIT_TAKEN_SPELL),
+	RATING_MASK_HASTE_MELEE_RATING = (1 << CR_HASTE_MELEE),
+	RATING_MASK_HASTE_RANGED_RATING = (1 << CR_HASTE_RANGED),
+	RATING_MASK_HASTE_SPELL_RATING = (1 << CR_HASTE_SPELL),
+};
+
 
 extern float baseMoveSpeed[MAX_MOVE_TYPE];
 
@@ -1096,6 +1153,15 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         uint32 GetHealth()    const { return GetUInt32Value(UNIT_FIELD_HEALTH); }
         uint32 GetMaxHealth() const { return GetUInt32Value(UNIT_FIELD_MAXHEALTH); }
         float GetHealthPercent() const { return (GetHealth()*100.0f) / GetMaxHealth(); }
+        bool IsFullHealth() const { return GetHealth() == GetMaxHealth(); }
+        bool HealthBelowPct(int32 pct) const { return GetHealth() < CountPctFromMaxHealth(pct); }
+        bool HealthBelowPctDamaged(int32 pct, uint32 damage) const { return int64(GetHealth()) - int64(damage) < int64(CountPctFromMaxHealth(pct)); }
+        bool HealthAbovePct(int32 pct) const { return GetHealth() > CountPctFromMaxHealth(pct); }
+        bool HealthAbovePctHealed(int32 pct, uint32 heal) const { return uint64(GetHealth()) + uint64(heal) > CountPctFromMaxHealth(pct); }
+        float GetHealthPercent() const { return (GetHealth() * 100.0f) / GetMaxHealth(); }
+        uint32 CountPctFromMaxHealth(int32 pct) const { return (GetMaxHealth() * static_cast<float>(pct) / 100.0f); }
+        uint32 CountPctFromCurHealth(int32 pct) const { return (GetHealth() * static_cast<float>(pct) / 100.0f); }
+
         void SetHealth(   uint32 val);
         void SetMaxHealth(uint32 val);
         void SetHealthPercent(float percent);
@@ -1140,6 +1206,7 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
 
         ReputationRank GetReactionTo(Unit const* target) const;
         ReputationRank static GetFactionReactionTo(FactionTemplateEntry const* factionTemplateEntry, Unit const* target);
+        void RestoreOriginalFaction();
 
         bool IsHostileTo(Unit const* unit) const override;
         bool IsHostileToPlayers() const;
@@ -1761,6 +1828,7 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
 
         void KnockBackFrom(WorldObject* target, float horizontalSpeed, float verticalSpeed);
         void KnockBack(float angle, float horizontalSpeed, float verticalSpeed);
+        void KnockBackWithAngle(float angle, float horizontalSpeed, float verticalSpeed);
 
         void _RemoveAllAuraMods();
         void _ApplyAllAuraMods();
