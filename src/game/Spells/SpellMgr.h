@@ -81,8 +81,8 @@ enum SpellSpecific
     SPELL_BATTLE_ELIXIR     = 14,
     SPELL_GUARDIAN_ELIXIR   = 15,
     SPELL_FLASK_ELIXIR      = 16,
-    //SPELL_PRESENCE          = 17,                         // used in 3.x
-    //SPELL_HAND              = 18,                         // used in 3.x
+    SPELL_SOUL_CAPTURE      = 17,
+    SPELL_CORRUPTION		= 18,
     SPELL_WELL_FED          = 19,
     SPELL_FOOD              = 20,
     SPELL_DRINK             = 21,
@@ -192,7 +192,7 @@ inline bool IsSealSpell(SpellEntry const *spellInfo)
 inline bool IsElementalShield(SpellEntry const *spellInfo)
 {
     // family flags 10 (Lightning), 42 (Earth), 37 (Water), proc shield from T2 8 pieces bonus
-    return spellInfo->IsFitToFamilyMask<CF_SHAMAN_LIGHTNING_SHIELD>() || spellInfo->Id == 23552;
+    return spellInfo->IsFitToFamilyMask<CF_SHAMAN_LIGHTNING_SHIELD>() || (spellInfo->IsFitToFamilyMask(uint64(0x42000000400)) || spellInfo->Id == 23552);
 }
 
 int32 CompareAuraRanks(uint32 spellId_1, uint32 spellId_2);
@@ -264,6 +264,7 @@ inline bool IsCasterSourceTarget(uint32 target)
         case TARGET_TOTEM_AIR:
         case TARGET_TOTEM_FIRE:
         case TARGET_AREAEFFECT_GO_AROUND_DEST:
+		case TARGET_PARTY_IN_FRONT_OF_CASTER:
             return true;
         default:
             break;
@@ -333,11 +334,13 @@ inline bool IsAreaEffectTarget( Targets target )
         case TARGET_AREAEFFECT_CUSTOM:
         case TARGET_ALL_ENEMY_IN_AREA:
         case TARGET_ALL_ENEMY_IN_AREA_INSTANT:
+		case TARGET_ALL_FRIEND_IN_AREA_INSTANT:
         case TARGET_ALL_PARTY_AROUND_CASTER:
         case TARGET_IN_FRONT_OF_CASTER:
         case TARGET_ALL_ENEMY_IN_AREA_CHANNELED:
         case TARGET_ALL_FRIENDLY_UNITS_AROUND_CASTER:
         case TARGET_ALL_FRIENDLY_UNITS_IN_AREA:
+		case TARGET_ALL_FRIEND_IN_AREA_CHANNELED:
         case TARGET_ALL_PARTY:
         case TARGET_ALL_PARTY_AROUND_CASTER_2:
         case TARGET_AREAEFFECT_PARTY:
@@ -369,7 +372,8 @@ inline bool IsAreaAuraEffect(uint32 effect)
     // Post-vanilla mais bien utile desfois.
         effect == SPELL_EFFECT_APPLY_AREA_AURA_RAID     ||
         effect == SPELL_EFFECT_APPLY_AREA_AURA_ENEMY    ||
-        effect == SPELL_EFFECT_APPLY_AREA_AURA_FRIEND)
+        effect == SPELL_EFFECT_APPLY_AREA_AURA_FRIEND ||
+		effect == SPELL_EFFECT_APPLY_AREA_AURA_OWNER)
         return true;
     return false;
 }
@@ -391,6 +395,8 @@ inline bool HasAuraWithTriggerEffect(SpellEntry const *spellInfo)
             case SPELL_AURA_PERIODIC_TRIGGER_SPELL:
             case SPELL_AURA_PROC_TRIGGER_SPELL:
             case SPELL_AURA_PROC_TRIGGER_DAMAGE:
+			case SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE:
+			case SPELL_AURA_PROC_TRIGGER_SPELL_WITH_VALUE:
                 return true;
         }
     }
@@ -463,6 +469,17 @@ inline uint32 GetSpellMechanicMask(SpellEntry const* spellInfo, uint32 effectMas
     }
 
     return mask;
+}
+
+inline uint32 GetAllSpellMechanicMask(SpellEntry const* spellInfo)
+{
+	uint32 mask = 0;
+	if (spellInfo->Mechanic)
+		mask |= 1 << (spellInfo->Mechanic - 1);
+	for (int i = 0; i < MAX_EFFECT_INDEX; ++i)
+		if (spellInfo->EffectMechanic[i])
+			mask |= 1 << (spellInfo->EffectMechanic[i] - 1);
+	return mask;
 }
 
 inline Mechanics GetEffectMechanic(SpellEntry const* spellInfo, SpellEffectIndex effect)

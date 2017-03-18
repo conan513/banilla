@@ -431,6 +431,9 @@ SpellSpecific GetSpellSpecific(uint32 spellId)
             // Aspect of the Beast
             if (spellInfo->Id == 13161)
                 return SPELL_ASPECT;
+			//Aspect of the Viper
+			else if (spellInfo->Id == 30074)
+				return SPELL_ASPECT;
 
             // Food / Drinks (mostly)
             if (spellInfo->AuraInterruptFlags & AURA_INTERRUPT_FLAG_NOT_SEATED)
@@ -496,6 +499,14 @@ SpellSpecific GetSpellSpecific(uint32 spellId)
             if (spellInfo->Dispel == DISPEL_CURSE)
                 return SPELL_CURSE;
             break;
+
+			// Drain Soul and Shadowburn
+			if (IsSpellHaveAura(spellInfo, SPELL_AURA_CHANNEL_DEATH_ITEM))
+				return SPELL_SOUL_CAPTURE;
+
+			// Corruption and Seed of Corruption
+			if (spellInfo->IsFitToFamilyMask(uint64(0x1000000002)))
+				return SPELL_CORRUPTION;
         }
         case SPELLFAMILY_PRIEST:
         {
@@ -552,6 +563,9 @@ SpellSpecific GetSpellSpecific(uint32 spellId)
     // only warlock armor/skin have this (in additional to family cases)
     if (spellInfo->SpellVisual == 130 && spellInfo->SpellIconID == 89)
         return SPELL_WARLOCK_ARMOR;
+
+	if (spellInfo->IsFitToFamilyMask(uint64(0x0000002000000000)))
+		return SPELL_WARLOCK_ARMOR;
 
     // Tracking spells (exclude Well Fed, some other always allowed cases)
     if ((IsSpellHaveAura(spellInfo, SPELL_AURA_TRACK_CREATURES) ||
@@ -2184,6 +2198,9 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                     if (spellInfo_1->SpellIconID == 312 && spellInfo_1->SpellVisual == 216 && spellInfo_2->Id == 24932)
                         return false;
                     break;
+
+					if (spellInfo_1->SpellFamilyFlags & uint64(0x44000000000) && spellInfo_2->SpellFamilyFlags & uint64(0x44000000000))
+						return false; // Mangle (Cat) & Mangle (Bear)
                 }
                 case SPELLFAMILY_ROGUE:
                 {
@@ -4148,9 +4165,10 @@ void SpellMgr::LoadSpellAffects()
                     spellInfo->EffectApplyAuraName[effectId] != SPELL_AURA_ADD_FLAT_MODIFIER &&
                     spellInfo->EffectApplyAuraName[effectId] != SPELL_AURA_ADD_PCT_MODIFIER  &&
                     spellInfo->EffectApplyAuraName[effectId] != SPELL_AURA_ADD_TARGET_TRIGGER &&
+			        spellInfo->EffectApplyAuraName[effectId] != SPELL_AURA_IGNORE_COMBAT_RESULT &&
                     spellInfo->EffectApplyAuraName[effectId] != SPELL_AURA_OVERRIDE_CLASS_SCRIPTS))
         {
-            sLog.outErrorDb("Spell %u listed in `spell_affect` have not SPELL_AURA_ADD_FLAT_MODIFIER (%u) or SPELL_AURA_ADD_PCT_MODIFIER (%u) or SPELL_AURA_ADD_TARGET_TRIGGER (%u) or SPELL_AURA_OVERRIDE_CLASS_SCRIPTS (%u) for effect index (%u)", entry, SPELL_AURA_ADD_FLAT_MODIFIER, SPELL_AURA_ADD_PCT_MODIFIER, SPELL_AURA_ADD_TARGET_TRIGGER, SPELL_AURA_OVERRIDE_CLASS_SCRIPTS, effectId);
+            sLog.outErrorDb("Spell %u listed in `spell_affect` have not SPELL_AURA_ADD_FLAT_MODIFIER (%u) or SPELL_AURA_ADD_PCT_MODIFIER (%u) or SPELL_AURA_ADD_TARGET_TRIGGER (%u) or SPELL_AURA_OVERRIDE_CLASS_SCRIPTS (%u) for effect index (%u)", entry, SPELL_AURA_ADD_FLAT_MODIFIER, SPELL_AURA_ADD_PCT_MODIFIER, SPELL_AURA_ADD_TARGET_TRIGGER, SPELL_AURA_IGNORE_COMBAT_RESULT,  SPELL_AURA_OVERRIDE_CLASS_SCRIPTS, effectId);
             continue;
         }
 
@@ -4188,6 +4206,7 @@ void SpellMgr::LoadSpellAffects()
             if (spellInfo->Effect[effectId] != SPELL_EFFECT_APPLY_AURA || (
                         spellInfo->EffectApplyAuraName[effectId] != SPELL_AURA_ADD_FLAT_MODIFIER &&
                         spellInfo->EffectApplyAuraName[effectId] != SPELL_AURA_ADD_PCT_MODIFIER  &&
+			 	        spellInfo->EffectApplyAuraName[effectId] != SPELL_AURA_IGNORE_COMBAT_RESULT &&
                         spellInfo->EffectApplyAuraName[effectId] != SPELL_AURA_ADD_TARGET_TRIGGER))
                 continue;
 

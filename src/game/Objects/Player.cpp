@@ -20718,13 +20718,13 @@ void Player::ApplyRatingMod(CombatRating cr, int32 value, bool apply)
 		UpdateBlockPercentage();
 		break;
 	case CR_HIT_MELEE:
-		UpdateMeleeHitChances();
+		//UpdateMeleeHitChances();
 		break;
 	case CR_HIT_RANGED:
-		UpdateRangedHitChances();
+		//UpdateRangedHitChances();
 		break;
 	case CR_HIT_SPELL:
-		UpdateSpellHitChances();
+		//UpdateSpellHitChances();
 		break;
 	case CR_CRIT_MELEE:
 		if (affectStats)

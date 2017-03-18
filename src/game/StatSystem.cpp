@@ -101,6 +101,7 @@ bool Player::UpdateAllStats()
     for (int i = POWER_MANA; i < MAX_POWERS; ++i)
         UpdateMaxPower(Powers(i));
 
+	UpdateAllRatings();
     UpdateAllCritPercentages();
     UpdateAllSpellCritChances();
     UpdateDefenseBonusesMod();
@@ -133,14 +134,25 @@ void Player::UpdateArmor()
     value += GetStat(STAT_AGILITY) * 2.0f;                  // armor bonus from stats
     value += GetModifierValue(unitMod, TOTAL_VALUE);
 
-    //add dynamic flat mods
-    AuraList const& mResbyIntellect = GetAurasByType(SPELL_AURA_MOD_RESISTANCE_OF_STAT_PERCENT);
-    for (AuraList::const_iterator i = mResbyIntellect.begin(); i != mResbyIntellect.end(); ++i)
-    {
-        Modifier* mod = (*i)->GetModifier();
-        if (mod->m_miscvalue & SPELL_SCHOOL_MASK_NORMAL)
-            value += int32(GetStat(STAT_INTELLECT) * mod->m_amount / 100.0f);
-    }
+	// add dynamic flat mods
+	AuraList const& mResbyIntellect = GetAurasByType(SPELL_AURA_MOD_RESISTANCE_OF_STAT_PERCENT);
+	for (AuraList::const_iterator i = mResbyIntellect.begin(); i != mResbyIntellect.end(); ++i)
+	{
+		Stats usedStat;
+		Modifier* mod = (*i)->GetModifier();
+		if (mod->m_miscvalue & SPELL_SCHOOL_MASK_NORMAL)
+			if (mod->m_miscvalue & uint64(0x00000100))
+				usedStat = STAT_STRENGTH;
+			else if (mod->m_miscvalue & uint64(0x00000200))
+				usedStat = STAT_AGILITY;
+			else if (mod->m_miscvalue & uint64(0x00000400))
+				usedStat = STAT_STAMINA;
+			else if (mod->m_miscvalue & uint64(0x00000800))
+				usedStat = STAT_SPIRIT;
+			else usedStat = STAT_INTELLECT;
+
+			value += int32(GetStat(usedStat) * mod->m_amount / 100.0f);
+	}
 
     // add dummy effects from spells (check class and other conditions first for optimization)
     if (getClass() == CLASS_DRUID)
@@ -346,6 +358,17 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
     float base_attPower  = GetModifierValue(unitMod, BASE_VALUE) * GetModifierValue(unitMod, BASE_PCT);
     float attPowerMod = GetModifierValue(unitMod, TOTAL_VALUE);
 
+	// add dynamic flat mods
+	if (ranged)
+	{
+		if ((getClassMask() & CLASSMASK_WAND_USERS) == 0)
+		{
+			AuraList const& mRAPbyStat = GetAurasByType(SPELL_AURA_MOD_RANGED_ATTACK_POWER_OF_STAT_PERCENT);
+			for (AuraList::const_iterator i = mRAPbyStat.begin(); i != mRAPbyStat.end(); ++i)
+				attPowerMod += int32(GetStat(Stats((*i)->GetModifier()->m_miscvalue)) * (*i)->GetModifier()->m_amount / 100.0f);
+		}
+	}
+
     float attPowerMultiplier = GetModifierValue(unitMod, TOTAL_PCT) - 1.0f;
 
     SetInt32Value(index, (uint32)base_attPower);            //UNIT_FIELD_(RANGED)_ATTACK_POWER field
@@ -465,6 +488,11 @@ void Player::UpdateBlockPercentage()
         value += (int32(GetDefenseSkillValue()) - int32(GetMaxSkillValueForLevel())) * 0.04f;
         // Increase from SPELL_AURA_MOD_BLOCK_PERCENT aura
         value += GetTotalAuraModifier(SPELL_AURA_MOD_BLOCK_PERCENT);
+		// Increase from rating
+		value += GetRatingBonusValue(CR_BLOCK);
+		// Set UI display value: modify value from defense skill against same level target
+		value += (int32(GetDefenseSkillValue()) - int32(GetMaxSkillValueForLevel())) * 0.04f;
+
         value = value < 0.0f ? 0.0f : value;
     }
     SetStatFloatValue(PLAYER_BLOCK_PERCENTAGE, value);
@@ -473,6 +501,7 @@ void Player::UpdateBlockPercentage()
 void Player::UpdateCritPercentage(WeaponAttackType attType)
 {
     BaseModGroup modGroup;
+	CombatRating cr;
     uint16 index;
 
     switch (attType)
@@ -480,10 +509,12 @@ void Player::UpdateCritPercentage(WeaponAttackType attType)
         case RANGED_ATTACK:
             modGroup = RANGED_CRIT_PERCENTAGE;
             index = PLAYER_RANGED_CRIT_PERCENTAGE;
+			cr = CR_CRIT_RANGED;
             break;
         case BASE_ATTACK:
             modGroup = CRIT_PERCENTAGE;
             index = PLAYER_CRIT_PERCENTAGE;
+			cr = CR_CRIT_MELEE;
             break;
         case OFF_ATTACK:                                    // client have only main hand crit
         default:
@@ -512,6 +543,8 @@ void Player::UpdateCritPercentage(WeaponAttackType attType)
             value += 2.0f;
             break;
     }
+	value += GetRatingBonusValue(cr);
+
     // Modify crit from weapon skill and maximized defense skill of same level victim difference
     value += (int32(GetWeaponSkillValue(attType)) - int32(GetMaxSkillValueForLevel())) * 0.04f;
     value = value < 0.0f ? 0.0f : value;
@@ -543,7 +576,11 @@ void Player::UpdateParryPercentage()
         value += (int32(GetDefenseSkillValue()) - int32(GetMaxSkillValueForLevel())) * 0.04f;
         // Parry from SPELL_AURA_MOD_PARRY_PERCENT aura
         value += GetTotalAuraModifier(SPELL_AURA_MOD_PARRY_PERCENT);
+		// Parry from rating
+		value += GetRatingBonusValue(CR_PARRY);
         value = value < 0.0f ? 0.0f : value;
+		// Set UI display value: modify value from defense skill against same level target
+		value += (int32(GetDefenseSkillValue()) - int32(GetMaxSkillValueForLevel())) * 0.04f;
     }
     SetStatFloatValue(PLAYER_PARRY_PERCENTAGE, value);
 }
@@ -579,7 +616,11 @@ void Player::UpdateDodgePercentage()
     value += (int32(GetDefenseSkillValue()) - int32(GetMaxSkillValueForLevel())) * 0.04f;
     // Dodge from SPELL_AURA_MOD_DODGE_PERCENT aura
     value += GetTotalAuraModifier(SPELL_AURA_MOD_DODGE_PERCENT);
+	// Dodge from rating
+	value += GetRatingBonusValue(CR_DODGE);
     value = value < 0.0f ? 0.0f : value;
+	// Set UI display value: modify value from defense skill against same level target
+	value += (int32(GetDefenseSkillValue()) - int32(GetMaxSkillValueForLevel())) * 0.04f;
     SetStatFloatValue(PLAYER_DODGE_PERCENTAGE, value);
 }
 
@@ -599,7 +640,8 @@ void Player::UpdateSpellCritChance(uint32 school)
     crit += GetTotalAuraModifier(SPELL_AURA_MOD_SPELL_CRIT_CHANCE);
     // Increase crit by school from SPELL_AURA_MOD_SPELL_CRIT_CHANCE_SCHOOL
     crit += GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_SPELL_CRIT_CHANCE_SCHOOL, 1 << school);
-
+	// Increase crit from spell crit ratings
+	crit += GetRatingBonusValue(CR_CRIT_SPELL);
     // Store crit value
     m_SpellCritPercentage[school] = crit;
 }
@@ -612,6 +654,8 @@ void Player::UpdateAllSpellCritChances()
 
 void Player::UpdateManaRegen()
 {
+	float Intellect = GetStat(STAT_INTELLECT);
+
     // Mana regen from spirit
     // Nostalrius - Fix mana regen (diviser par 2)
     float power_regen = OCTRegenMPPerSpirit() / 2.0f;
@@ -620,6 +664,24 @@ void Player::UpdateManaRegen()
 
     // Mana regen from SPELL_AURA_MOD_POWER_REGEN aura
     float power_regen_mp5 = GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA) / 5.0f;
+
+	// Get bonus from SPELL_AURA_MOD_MANA_REGEN_FROM_STAT aura
+	AuraList const& regenAura = GetAurasByType(SPELL_AURA_MOD_MANA_REGEN_FROM_STAT);
+	for (AuraList::const_iterator i = regenAura.begin(); i != regenAura.end(); ++i)
+	{
+		Modifier* mod = (*i)->GetModifier();
+		power_regen_mp5 += GetStat(Stats(mod->m_miscvalue)) * mod->m_amount / 500.0f;
+	}
+
+	// Bonus from some dummy auras
+	AuraList const& mDummyAuras = GetAurasByType(SPELL_AURA_PERIODIC_DUMMY);
+	for (AuraList::const_iterator i = mDummyAuras.begin(); i != mDummyAuras.end(); ++i)
+		if ((*i)->GetId() == 34074)                         // Aspect of the Viper
+		{
+			power_regen_mp5 += (*i)->GetModifier()->m_amount * Intellect / 500.0f;
+			// Add regen bonus from level in this dummy
+			power_regen_mp5 += getLevel() * 35 / 100;
+		}
 
     // Set regen rate in cast state apply only on spirit based regen
     int32 modManaRegenInterrupt = GetTotalAuraModifier(SPELL_AURA_MOD_MANA_REGEN_INTERRUPT);
@@ -652,6 +714,7 @@ void Player::_RemoveAllStatBonuses()
 
     SetCanModifyStats(true);
 
+	UpdateAllRatings();
     UpdateAllStats();
 }
 
@@ -887,12 +950,42 @@ void Pet::UpdateAttackPowerAndDamage(bool ranged)
         return;
 
     float val = 0.0f;
+	float bonusAP = 0.0f;
     UnitMods unitMod = UNIT_MOD_ATTACK_POWER;
 
     if (GetEntry() == 416)                                  // imp's attack power
         val = GetStat(STAT_STRENGTH) - 10.0f;
     else
         val = 2 * GetStat(STAT_STRENGTH) - 20.0f;
+
+	Unit* owner = GetOwner();
+	if (owner && owner->GetTypeId() == TYPEID_PLAYER)
+	{
+		if (getPetType() == HUNTER_PET)                     // hunter pets benefit from owner's attack power
+		{
+			bonusAP = owner->GetTotalAttackPowerValue(RANGED_ATTACK) * 0.22f;
+			SetBonusDamage(int32(owner->GetTotalAttackPowerValue(RANGED_ATTACK) * 0.125f));
+		}
+		// demons benefit from warlocks shadow or fire damage
+		else if (getPetType() == SUMMON_PET && owner->getClass() == CLASS_WARLOCK)
+		{
+			int32 fire = int32(owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_FIRE)) - owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + SPELL_SCHOOL_FIRE);
+			int32 shadow = int32(owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_SHADOW)) - owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + SPELL_SCHOOL_SHADOW);
+			int32 maximum = (fire > shadow) ? fire : shadow;
+			if (maximum < 0)
+				maximum = 0;
+			SetBonusDamage(int32(maximum * 0.15f));
+			bonusAP = maximum * 0.57f;
+		}
+		// water elementals benefit from mage's frost damage
+		else if (getPetType() == SUMMON_PET && owner->getClass() == CLASS_MAGE)
+		{
+			int32 frost = int32(owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_FROST)) - owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + SPELL_SCHOOL_FROST);
+			if (frost < 0)
+				frost = 0;
+			SetBonusDamage(int32(frost * 0.4f));
+		}
+	}
 
     SetModifierValue(UNIT_MOD_ATTACK_POWER, BASE_VALUE, val);
 

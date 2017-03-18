@@ -32,6 +32,29 @@ struct Modifier
     uint32 periodictime;
 	//custom
 	float m_scale;
+
+	int32 GetAmount(uint32 level = 0, SpellEntry* spellProto= nullptr)
+	{
+		if (!spellProto)
+			return  m_amount;
+
+		if (spellProto->HasAttribute(SPELL_ATTR_LEVEL_DAMAGE_CALCULATION))
+			return m_amount; //calculated elsewhere
+		else
+		{
+			if (level == 0)
+				return m_amount;
+
+			int32 _level = (int32)level;
+			if (_level >  spellProto->maxLevel &&  spellProto->maxLevel > 0)
+				_level = (int32)spellProto->maxLevel;
+			else if (_level < (int32)spellProto->baseLevel)
+				_level = (int32)spellProto->baseLevel;
+			_level -= (int32)spellProto->spellLevel;
+
+			return m_amount + int32(_level *  m_scale);
+		}
+	}
 };
 
 struct HeartBeatData
