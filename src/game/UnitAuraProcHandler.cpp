@@ -485,6 +485,7 @@ SpellAuraProcResult Unit::HandleHasteAuraProc(Unit *pVictim, uint32 damage, Aura
 SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAura, SpellEntry const * procSpell, uint32 procFlag, uint32 procEx, uint32 cooldown)
 {
     SpellEntry const *dummySpell = triggeredByAura->GetSpellProto();
+	SpellEffectIndex effIndex = triggeredByAura->GetEffIndex();
     int32  triggerAmount = triggeredByAura->GetModifier()->m_amount;
 
     Item* castItem = triggeredByAura->GetCastItemGuid() && GetTypeId() == TYPEID_PLAYER
@@ -891,6 +892,7 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
             break;
         }
         case SPELLFAMILY_WARLOCK:
+		{
         // Seed of Corruption
 			if (dummySpell->SpellFamilyFlags && dummySpell->SpellIconID == 1932)
 			{
@@ -1021,8 +1023,8 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
 				triggered_spell_id = 37378;
 				break;
 			}
+			break;
 		}
-		break;
         case SPELLFAMILY_PRIEST:
         {
             switch (dummySpell->Id)
@@ -1481,7 +1483,7 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
 					if (procEx & PROC_EX_CRITICAL_HIT)
 					{
 					
-						int32 critical_chance = int32(pVictim->GetCritChance(procSpell, GetSchoolMask(SPELL_SCHOOL_NATURE)));
+						int32 critical_chance = int32(pVictim->GetUnitCriticalChance(procSpell, GetSchoolMask(SPELL_SCHOOL_NATURE)));
 
 						pVictim->CastCustomSpell(pVictim, 54911, &critical_chance, nullptr, nullptr, true, castItem, triggeredByAura);
 						
@@ -1671,117 +1673,117 @@ SpellAuraProcResult Unit::HandleProcTriggerSpellAuraProc(Unit *pVictim, uint32 d
 					sLog.outError("Unit::HandleProcTriggerSpellAuraProc: Spell %u not handled in Rampage", auraSpellInfo->Id);
 					return SPELL_AURA_PROC_FAILED;
 				}
-            break;
-        case SPELLFAMILY_WARLOCK:
-        {
-            // Pyroclasm
-            if (auraSpellInfo->SpellIconID == 1137)
-            {
-                if (!pVictim || !pVictim->isAlive() || pVictim == this || procSpell == NULL)
-                    return SPELL_AURA_PROC_FAILED;
-                // Calculate spell tick count for spells
-                uint32 tick = 1; // Default tick = 1
+				break;
+		case SPELLFAMILY_WARLOCK:
+		{
+			// Pyroclasm
+			if (auraSpellInfo->SpellIconID == 1137)
+			{
+				if (!pVictim || !pVictim->isAlive() || pVictim == this || procSpell == NULL)
+					return SPELL_AURA_PROC_FAILED;
+				// Calculate spell tick count for spells
+				uint32 tick = 1; // Default tick = 1
 
-                if (procSpell->SpellIconID == 184 && procSpell->SpellVisual == 2253)
-                    tick = 1; // Feu de l'ame
-                // Hellfire have 15 tick
-                else if (procSpell->IsFitToFamilyMask<CF_WARLOCK_HELLFIRE>())
-                    tick = 15;
-                // Rain of Fire have 4 tick
-                else if (procSpell->IsFitToFamilyMask<CF_WARLOCK_RAIN_OF_FIRE>())
-                    tick = 4;
-                else
-                    return SPELL_AURA_PROC_FAILED;
+				if (procSpell->SpellIconID == 184 && procSpell->SpellVisual == 2253)
+					tick = 1; // Feu de l'ame
+				// Hellfire have 15 tick
+				else if (procSpell->IsFitToFamilyMask<CF_WARLOCK_HELLFIRE>())
+					tick = 15;
+				// Rain of Fire have 4 tick
+				else if (procSpell->IsFitToFamilyMask<CF_WARLOCK_RAIN_OF_FIRE>())
+					tick = 4;
+				else
+					return SPELL_AURA_PROC_FAILED;
 
-                // Calculate chance = baseChance / tick
-                float chance = 0;
-                switch (auraSpellInfo->Id)
-                {
-                    case 18096: // Rank 1
-                        chance = 13.0f / tick;
-                        break;
-                    case 18073: // Rank 2
-                        chance = 26.0f / tick;
-                        break;
-                }
+				// Calculate chance = baseChance / tick
+				float chance = 0;
+				switch (auraSpellInfo->Id)
+				{
+				case 18096: // Rank 1
+					chance = 13.0f / tick;
+					break;
+				case 18073: // Rank 2
+					chance = 26.0f / tick;
+					break;
+				}
 
-                // Roll chance
-                if (!roll_chance_f(chance))
-                    return SPELL_AURA_PROC_FAILED;
+				// Roll chance
+				if (!roll_chance_f(chance))
+					return SPELL_AURA_PROC_FAILED;
 
-                trigger_spell_id = 18093;
-            }
-            // Cheat Death
-            else if (auraSpellInfo->Id == 28845)
-            {
-                // When your health drops below 20% ....
-                int32 health20 = int32(GetMaxHealth()) / 5;
-                if (int32(GetHealth()) - int32(damage) >= health20 || int32(GetHealth()) < health20)
-                    return SPELL_AURA_PROC_FAILED;
-            }
-            // Consequences ne proc pas sur soi-meme (Flammes infernales)
-            else if (auraSpellInfo->SpellIconID == 11)
-            {
-                if (pVictim == this)
-                    return SPELL_AURA_PROC_FAILED;
-            }
-            break;
-        }
-        case SPELLFAMILY_PRIEST:
-        {
-            // Shadowguard
-            if (auraSpellInfo->SpellIconID == 19)
-            {
-                switch (auraSpellInfo->Id)
-                {
-                    case 18137:
-                        trigger_spell_id = 28377;
-                        break;   // Rank 1
-                    case 19308:
-                        trigger_spell_id = 28378;
-                        break;   // Rank 2
-                    case 19309:
-                        trigger_spell_id = 28379;
-                        break;   // Rank 3
-                    case 19310:
-                        trigger_spell_id = 28380;
-                        break;   // Rank 4
-                    case 19311:
-                        trigger_spell_id = 28381;
-                        break;   // Rank 5
-                    case 19312:
-                        trigger_spell_id = 28382;
-                        break;   // Rank 6
-                    default:
-                        sLog.outError("Unit::HandleProcTriggerSpell: Spell %u not handled in SG", auraSpellInfo->Id);
-                        return SPELL_AURA_PROC_FAILED;
-                }
-            }
-            // Blessed Recovery
-            else if (auraSpellInfo->SpellIconID == 1875)
-            {
-                switch (auraSpellInfo->Id)
-                {
-                    case 27811:
-                        trigger_spell_id = 27813;
-                        break;
-                    case 27815:
-                        trigger_spell_id = 27817;
-                        break;
-                    case 27816:
-                        trigger_spell_id = 27818;
-                        break;
-                    default:
-                        sLog.outError("Unit::HandleProcTriggerSpell: Spell %u not handled in BR", auraSpellInfo->Id);
-                        return SPELL_AURA_PROC_FAILED;
-                }
-                basepoints[0] = damage * triggerAmount / 100 / 3;
-                target = this;
-            }
-            break;
-        }
-        case SPELLFAMILY_DRUID:
-            
+				trigger_spell_id = 18093;
+			}
+			// Cheat Death
+			else if (auraSpellInfo->Id == 28845)
+			{
+				// When your health drops below 20% ....
+				int32 health20 = int32(GetMaxHealth()) / 5;
+				if (int32(GetHealth()) - int32(damage) >= health20 || int32(GetHealth()) < health20)
+					return SPELL_AURA_PROC_FAILED;
+			}
+			// Consequences ne proc pas sur soi-meme (Flammes infernales)
+			else if (auraSpellInfo->SpellIconID == 11)
+			{
+				if (pVictim == this)
+					return SPELL_AURA_PROC_FAILED;
+			}
+			break;
+		}
+		case SPELLFAMILY_PRIEST:
+		{
+			// Shadowguard
+			if (auraSpellInfo->SpellIconID == 19)
+			{
+				switch (auraSpellInfo->Id)
+				{
+				case 18137:
+					trigger_spell_id = 28377;
+					break;   // Rank 1
+				case 19308:
+					trigger_spell_id = 28378;
+					break;   // Rank 2
+				case 19309:
+					trigger_spell_id = 28379;
+					break;   // Rank 3
+				case 19310:
+					trigger_spell_id = 28380;
+					break;   // Rank 4
+				case 19311:
+					trigger_spell_id = 28381;
+					break;   // Rank 5
+				case 19312:
+					trigger_spell_id = 28382;
+					break;   // Rank 6
+				default:
+					sLog.outError("Unit::HandleProcTriggerSpell: Spell %u not handled in SG", auraSpellInfo->Id);
+					return SPELL_AURA_PROC_FAILED;
+				}
+			}
+			// Blessed Recovery
+			else if (auraSpellInfo->SpellIconID == 1875)
+			{
+				switch (auraSpellInfo->Id)
+				{
+				case 27811:
+					trigger_spell_id = 27813;
+					break;
+				case 27815:
+					trigger_spell_id = 27817;
+					break;
+				case 27816:
+					trigger_spell_id = 27818;
+					break;
+				default:
+					sLog.outError("Unit::HandleProcTriggerSpell: Spell %u not handled in BR", auraSpellInfo->Id);
+					return SPELL_AURA_PROC_FAILED;
+				}
+				basepoints[0] = damage * triggerAmount / 100 / 3;
+				target = this;
+			}
+			break;
+		}
+		case SPELLFAMILY_DRUID:
+
 			// Druid Forms Trinket
 			if (auraSpellInfo->Id == 37336)
 			{
@@ -1835,197 +1837,197 @@ SpellAuraProcResult Unit::HandleProcTriggerSpellAuraProc(Unit *pVictim, uint32 d
 				break;
 			}
 			break;
-        case SPELLFAMILY_HUNTER:
-            switch (auraSpellInfo->Id)
-            {
-                // Patch 1.9: Aspect of the Pack and Aspect of the Cheetah - Periodic damage will no longer trigger the Dazed effect.
-                case 5118:  // Aspect of the Cheetah
-                case 13159: // Aspect of the Pack
-                    if (procFlags & (PROC_FLAG_ON_DO_PERIODIC | PROC_FLAG_ON_TAKE_PERIODIC))
-                        return SPELL_AURA_PROC_FAILED;
-            }
-            break;
-case SPELLFAMILY_ROGUE:
+		case SPELLFAMILY_HUNTER:
+			switch (auraSpellInfo->Id)
 			{
-				if (auraSpellInfo->SpellIconID == 2260)         // Combat Potency
+				// Patch 1.9: Aspect of the Pack and Aspect of the Cheetah - Periodic damage will no longer trigger the Dazed effect.
+			case 5118:  // Aspect of the Cheetah
+			case 13159: // Aspect of the Pack
+				if (procFlags & (PROC_FLAG_ON_DO_PERIODIC | PROC_FLAG_ON_TAKE_PERIODIC))
+					return SPELL_AURA_PROC_FAILED;
+			}
+			break;
+		case SPELLFAMILY_ROGUE:
+		{
+			if (auraSpellInfo->SpellIconID == 2260)         // Combat Potency
+			{
+				if (!(procFlags & PROC_FLAG_SUCCESSFUL_OFFHAND_HIT))
+					return SPELL_AURA_PROC_FAILED;
+			}
+			else if (auraSpellInfo->SpellIconID == 1477)         // Blade Twisting
+			{
+				// accumulated chance to finish the cooldown of Power Infusion
+				if (GetTypeId() == TYPEID_PLAYER)
+				{
+					const SpellCooldowns& cm = ((Player*)this)->GetSpellCooldownMap();
+					for (SpellCooldowns::const_iterator itr = cm.begin(); itr != cm.end();)
+					{
+						SpellEntry const* spellInfo = sSpellMgr.GetSpellEntry(itr->first);
+
+						if (spellInfo->SpellFamilyName == SPELLFAMILY_ROGUE && (spellInfo->Id == 13877) && GetSpellRecoveryTime(spellInfo) > 0)
+						{
+							if (((Player*)this)->RollAccumChance())
+								((Player*)this)->RemoveSpellCooldown((itr++)->first, true);
+						}
+						else
+						{
+							((Player*)this)->AddAccumChance(4);
+							++itr;
+						}
+					}
+
+					trigger_spell_id = 31125;
+					break;
+				}
+				if (auraSpellInfo->SpellIconID == 1939)         // Shadow Strikes
 				{
 					if (!(procFlags & PROC_FLAG_SUCCESSFUL_OFFHAND_HIT))
 						return SPELL_AURA_PROC_FAILED;
-				}
-				else if (auraSpellInfo->SpellIconID == 1477)         // Blade Twisting
-				{
-					// accumulated chance to finish the cooldown of Power Infusion
-					if (GetTypeId() == TYPEID_PLAYER)
+
+					if (pVictim)
 					{
-						const SpellCooldowns& cm = ((Player*)this)->GetSpellCooldownMap();
-						for (SpellCooldowns::const_iterator itr = cm.begin(); itr != cm.end();)
+
+						bool found = false;
+						// fast check
+						if (pVictim->HasAuraState(AURA_STATE_DEADLY_POISON))
+							found = true;
+						// full aura scan
+						else
 						{
-							SpellEntry const* spellInfo = GetSpellTemplate(itr->first);
-
-							if (spellInfo->SpellFamilyName == SPELLFAMILY_ROGUE && (spellInfo->Id == 13877) && GetSpellRecoveryTime(spellInfo) > 0)
+							Unit::SpellAuraHolderMap const& auras = pVictim->GetSpellAuraHolderMap();
+							for (Unit::SpellAuraHolderMap::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
 							{
-								if (((Player*)this)->RollAccumChance())
-									((Player*)this)->RemoveSpellCooldown((itr++)->first, true);
-							}
-							else
-							{
-								((Player*)this)->AddAccumChance(4);
-								++itr;
-							}
-						}
-
-						trigger_spell_id = 31125;
-						break;
-					}
-					if (auraSpellInfo->SpellIconID == 1939)         // Shadow Strikes
-					{
-						if (!(procFlags & PROC_FLAG_SUCCESSFUL_OFFHAND_HIT))						
-							return SPELL_AURA_PROC_FAILED;
-						
-						if (pVictim)
-						{
-
-							bool found = false;
-							// fast check
-							if (pVictim->HasAuraState(AURA_STATE_DEADLY_POISON))
-								found = true;
-							// full aura scan
-							else
-							{
-								Unit::SpellAuraHolderMap const& auras = pVictim->GetSpellAuraHolderMap();
-								for (Unit::SpellAuraHolderMap::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
+								if (itr->second->GetSpellProto()->Dispel == DISPEL_POISON)
 								{
-									if (itr->second->GetSpellProto()->Dispel == DISPEL_POISON)
+									found = true;
+									break;
+								}
+							}
+
+
+							if (!found)
+							{
+								// check dazed affect
+								Unit::AuraList const& decSpeedList = pVictim->GetAurasByType(SPELL_AURA_MOD_DECREASE_SPEED);
+								for (Unit::AuraList::const_iterator iter = decSpeedList.begin(); iter != decSpeedList.end(); ++iter)
+								{
+									if ((*iter)->GetSpellProto()->SpellIconID == 15 && (*iter)->GetSpellProto()->Dispel == 0)
 									{
 										found = true;
 										break;
 									}
 								}
-
-
-								if (!found)
-								{
-									// check dazed affect
-									Unit::AuraList const& decSpeedList = pVictim->GetAurasByType(SPELL_AURA_MOD_DECREASE_SPEED);
-									for (Unit::AuraList::const_iterator iter = decSpeedList.begin(); iter != decSpeedList.end(); ++iter)
-									{
-										if ((*iter)->GetSpellProto()->SpellIconID == 15 && (*iter)->GetSpellProto()->Dispel == 0)
-										{
-											found = true;
-											break;
-										}
-									}
-								}
-
-								if (!found)
-								{
-									return SPELL_AURA_PROC_FAILED;
-								}
 							}
-							trigger_spell_id = 31139;
-							break;														
-						}
-					}
-					break;
-				}
-				// Cheat Death
-				else if (auraSpellInfo->Id == 28845)
-				{
-					// When your health drops below 20% ....
-					int32 health20 = int32(GetMaxHealth()) / 5;
-					if (int32(GetHealth()) - int32(damage) >= health20 || int32(GetHealth()) < health20)
-						return SPELL_AURA_PROC_FAILED;
-				}
 
+							if (!found)
+							{
+								return SPELL_AURA_PROC_FAILED;
+							}
+						}
+						trigger_spell_id = 31139;
+						break;
+					}
+				}
 				break;
 			}
-        case SPELLFAMILY_PALADIN:
-        {
-            // Judgement of Light and Judgement of Wisdom
-            if (auraSpellInfo->IsFitToFamilyMask<CF_PALADIN_JUDGEMENT_OF_WISDOM_LIGHT>())
-            {
-                switch (auraSpellInfo->Id)
-                {
-                    // Judgement of Light
-                    case 20185:
-                        trigger_spell_id = 20267;
-                        break; // Rank 1
-                    case 20344:
-                        trigger_spell_id = 20341;
-                        break; // Rank 2
-                    case 20345:
-                        trigger_spell_id = 20342;
-                        break; // Rank 3
-                    case 20346:
-                        trigger_spell_id = 20343;
-                        break; // Rank 4
-                    // Judgement of Wisdom
-                    case 20186:
-                        trigger_spell_id = 20268;
-                        break; // Rank 1
-                    case 20354:
-                        trigger_spell_id = 20352;
-                        break; // Rank 2
-                    case 20355:
-                        trigger_spell_id = 20353;
-                        break; // Rank 3
-                    default:
-                        sLog.outError("Unit::HandleProcTriggerSpell: Spell %u miss posibly Judgement of Light/Wisdom", auraSpellInfo->Id);
-                        return SPELL_AURA_PROC_FAILED;
-                }
-                pVictim->CastSpell(pVictim, trigger_spell_id, true, castItem, triggeredByAura);
-                return SPELL_AURA_PROC_OK;                        // no hidden cooldown
-            }
-            // Illumination
-            else if (auraSpellInfo->SpellIconID == 241)
-            {
-                if (!procSpell)
-                    return SPELL_AURA_PROC_FAILED;
+			// Cheat Death
+			else if (auraSpellInfo->Id == 28845)
+			{
+				// When your health drops below 20% ....
+				int32 health20 = int32(GetMaxHealth()) / 5;
+				if (int32(GetHealth()) - int32(damage) >= health20 || int32(GetHealth()) < health20)
+					return SPELL_AURA_PROC_FAILED;
+			}
 
-                // procspell is triggered spell but we need mana cost of original casted spell
+			break;
+		}
+		case SPELLFAMILY_PALADIN:
+		{
+			// Judgement of Light and Judgement of Wisdom
+			if (auraSpellInfo->IsFitToFamilyMask<CF_PALADIN_JUDGEMENT_OF_WISDOM_LIGHT>())
+			{
+				switch (auraSpellInfo->Id)
+				{
+					// Judgement of Light
+				case 20185:
+					trigger_spell_id = 20267;
+					break; // Rank 1
+				case 20344:
+					trigger_spell_id = 20341;
+					break; // Rank 2
+				case 20345:
+					trigger_spell_id = 20342;
+					break; // Rank 3
+				case 20346:
+					trigger_spell_id = 20343;
+					break; // Rank 4
+				// Judgement of Wisdom
+				case 20186:
+					trigger_spell_id = 20268;
+					break; // Rank 1
+				case 20354:
+					trigger_spell_id = 20352;
+					break; // Rank 2
+				case 20355:
+					trigger_spell_id = 20353;
+					break; // Rank 3
+				default:
+					sLog.outError("Unit::HandleProcTriggerSpell: Spell %u miss posibly Judgement of Light/Wisdom", auraSpellInfo->Id);
+					return SPELL_AURA_PROC_FAILED;
+				}
+				pVictim->CastSpell(pVictim, trigger_spell_id, true, castItem, triggeredByAura);
+				return SPELL_AURA_PROC_OK;                        // no hidden cooldown
+			}
+			// Illumination
+			else if (auraSpellInfo->SpellIconID == 241)
+			{
+				if (!procSpell)
+					return SPELL_AURA_PROC_FAILED;
 
-                //[Nostalrius] : Stocke autremenent
-                //Le sort caste est dans une varible : Unit::m_castingSpell. Sinon, impossible de trouver le sort qui a provoque le proc
+				// procspell is triggered spell but we need mana cost of original casted spell
 
-                SpellEntry const *originalSpell = sSpellMgr.GetSpellEntry(m_castingSpell);
-                //SpellEntry const *originalSpell = sSpellMgr.GetSpellEntry(originalSpellId);
-                if (!originalSpell)
-                {
-                    sLog.outError("Unit::HandleProcTriggerSpell: Spell %u unknown but selected as original in Illu", m_castingSpell);
-                    return SPELL_AURA_PROC_FAILED;
-                }
-                // Histoire de pas reproc une autre fois ... :S
-                m_castingSpell = 0;
-                basepoints[0] = originalSpell->manaCost;
-                trigger_spell_id = 20272;
-                target = this;
-                break;
-            }
+				//[Nostalrius] : Stocke autremenent
+				//Le sort caste est dans une varible : Unit::m_castingSpell. Sinon, impossible de trouver le sort qui a provoque le proc
 
-//Purifing Power
+				SpellEntry const *originalSpell = sSpellMgr.GetSpellEntry(m_castingSpell);
+				//SpellEntry const *originalSpell = sSpellMgr.GetSpellEntry(originalSpellId);
+				if (!originalSpell)
+				{
+					sLog.outError("Unit::HandleProcTriggerSpell: Spell %u unknown but selected as original in Illu", m_castingSpell);
+					return SPELL_AURA_PROC_FAILED;
+				}
+				// Histoire de pas reproc une autre fois ... :S
+				m_castingSpell = 0;
+				basepoints[0] = originalSpell->manaCost;
+				trigger_spell_id = 20272;
+				target = this;
+				break;
+			}
+
+			//Purifing Power
 			else if (auraSpellInfo->SpellIconID == 3019)
 			{
 				if (!procSpell)
 					return SPELL_AURA_PROC_FAILED;
 				// procspell is triggered spell but we need damage of original casted spell
 				uint32 originalSpellId = procSpell->Id;
-				
-				SpellEntry const* originalSpell = GetSpellTemplate(originalSpellId);
+
+				SpellEntry const* originalSpell = sSpellMgr.GetSpellEntry(originalSpellId);
 				if (!originalSpell)
 				{
 					sLog.outError("Unit::HandleProcTriggerSpellAuraProc: Spell %u unknown but selected as original in Illu", originalSpellId);
 					return SPELL_AURA_PROC_FAILED;
 				}
-				
+
 				switch (auraSpellInfo->Id)
 				{
-					case 54305: basepoints[0] = int32(originalSpell->EffectBasePoints[0]*0.33f);
-					case 54306: basepoints[0] = int32(originalSpell->EffectBasePoints[0]*0.66f);
-					case 54307: basepoints[0] = int32(originalSpell->EffectBasePoints[0]);
-					default:
-						sLog.outError("Unit::HandleProcTriggerSpellAuraProc: Spell %u not handled correctly", procSpell->Id);
-						return SPELL_AURA_PROC_FAILED;
-				}				
+				case 54305: basepoints[0] = int32(originalSpell->EffectBasePoints[0] * 0.33f);
+				case 54306: basepoints[0] = int32(originalSpell->EffectBasePoints[0] * 0.66f);
+				case 54307: basepoints[0] = int32(originalSpell->EffectBasePoints[0]);
+				default:
+					sLog.outError("Unit::HandleProcTriggerSpellAuraProc: Spell %u not handled correctly", procSpell->Id);
+					return SPELL_AURA_PROC_FAILED;
+				}
 
 				trigger_spell_id = 54877;
 				target = this;
@@ -2038,7 +2040,7 @@ case SPELLFAMILY_ROGUE:
 				// procspell is triggered spell but we need base heal of original casted spell
 				uint32 originalSpellId = procSpell->Id;
 
-				SpellEntry const* originalSpell = GetSpellTemplate(originalSpellId);
+				SpellEntry const* originalSpell = sSpellMgr.GetSpellEntry(originalSpellId);
 				if (!originalSpell)
 				{
 					sLog.outError("Unit::HandleProcTriggerSpellAuraProc: Spell %u unknown but selected as original in Illu", originalSpellId);
@@ -2047,14 +2049,14 @@ case SPELLFAMILY_ROGUE:
 
 				switch (auraSpellInfo->Id)
 				{
-					case 54878: basepoints[0] = int32(originalSpell->EffectBasePoints[0] * 0.05f);
-					case 54879: basepoints[0] = int32(originalSpell->EffectBasePoints[0] * 0.1f);
-					case 54880: basepoints[0] = int32(originalSpell->EffectBasePoints[0] * 0.15f);
-					case 54881: basepoints[0] = int32(originalSpell->EffectBasePoints[0] * 0.2f);
-					case 54882: basepoints[0] = int32(originalSpell->EffectBasePoints[0] * 0.25f);
-					default:
-						sLog.outError("Unit::HandleProcTriggerSpellAuraProc: Spell %u not handled correctly", procSpell->Id);
-						return SPELL_AURA_PROC_FAILED;
+				case 54878: basepoints[0] = int32(originalSpell->EffectBasePoints[0] * 0.05f);
+				case 54879: basepoints[0] = int32(originalSpell->EffectBasePoints[0] * 0.1f);
+				case 54880: basepoints[0] = int32(originalSpell->EffectBasePoints[0] * 0.15f);
+				case 54881: basepoints[0] = int32(originalSpell->EffectBasePoints[0] * 0.2f);
+				case 54882: basepoints[0] = int32(originalSpell->EffectBasePoints[0] * 0.25f);
+				default:
+					sLog.outError("Unit::HandleProcTriggerSpellAuraProc: Spell %u not handled correctly", procSpell->Id);
+					return SPELL_AURA_PROC_FAILED;
 				}
 
 				trigger_spell_id = 54883;
@@ -2083,62 +2085,62 @@ case SPELLFAMILY_ROGUE:
 				// If your target is below $s1% health
 				if (pVictim->GetHealth() > pVictim->GetMaxHealth() * triggerAmount / 100)
 					return SPELL_AURA_PROC_FAILED;
-			}			
+			}
 
-            break;
-        }
-        case SPELLFAMILY_SHAMAN:
-        {
-            // Lightning Shield (overwrite non existing triggered spell call in spell.dbc
-            if (auraSpellInfo->IsFitToFamilyMask<CF_SHAMAN_LIGHTNING_SHIELD>() && auraSpellInfo->SpellVisual == 37)
-            {
-                switch (auraSpellInfo->Id)
-                {
-                    case 324:                               // Rank 1
-                        trigger_spell_id = 26364;
-                        break;
-                    case 325:                               // Rank 2
-                        trigger_spell_id = 26365;
-                        break;
-                    case 905:                               // Rank 3
-                        trigger_spell_id = 26366;
-                        break;
-                    case 945:                               // Rank 4
-                        trigger_spell_id = 26367;
-                        break;
-                    case 8134:                              // Rank 5
-                        trigger_spell_id = 26369;
-                        break;
-                    case 10431:                             // Rank 6
-                        trigger_spell_id = 26370;
-                        break;
-                    case 10432:                             // Rank 7
-                        trigger_spell_id = 26363;
-                        break;
-                    default:
-                        sLog.outError("Unit::HandleProcTriggerSpell: Spell %u not handled in LShield", auraSpellInfo->Id);
-                        return SPELL_AURA_PROC_FAILED;
-                }
-            }
-            // Lightning Shield (The Ten Storms set)
-            else if (auraSpellInfo->Id == 23551)
-            {
-                trigger_spell_id = 23552;
-                target = pVictim;
-            }
-            // Damage from Lightning Shield (The Ten Storms set)
-            else if (auraSpellInfo->Id == 23552)
-                trigger_spell_id = 27635;
-            // Mana Surge (The Earthfury set)
-            else if (auraSpellInfo->Id == 23572)
-            {
-                if (!procSpell)
-                    return SPELL_AURA_PROC_FAILED;
-                basepoints[0] = procSpell->manaCost * 35 / 100;
-                trigger_spell_id = 23571;
-                target = this;
-            }
-else if (auraSpellInfo->SpellIconID == 2013)
+			break;
+		}
+		case SPELLFAMILY_SHAMAN:
+		{
+			// Lightning Shield (overwrite non existing triggered spell call in spell.dbc
+			if (auraSpellInfo->IsFitToFamilyMask<CF_SHAMAN_LIGHTNING_SHIELD>() && auraSpellInfo->SpellVisual == 37)
+			{
+				switch (auraSpellInfo->Id)
+				{
+				case 324:                               // Rank 1
+					trigger_spell_id = 26364;
+					break;
+				case 325:                               // Rank 2
+					trigger_spell_id = 26365;
+					break;
+				case 905:                               // Rank 3
+					trigger_spell_id = 26366;
+					break;
+				case 945:                               // Rank 4
+					trigger_spell_id = 26367;
+					break;
+				case 8134:                              // Rank 5
+					trigger_spell_id = 26369;
+					break;
+				case 10431:                             // Rank 6
+					trigger_spell_id = 26370;
+					break;
+				case 10432:                             // Rank 7
+					trigger_spell_id = 26363;
+					break;
+				default:
+					sLog.outError("Unit::HandleProcTriggerSpell: Spell %u not handled in LShield", auraSpellInfo->Id);
+					return SPELL_AURA_PROC_FAILED;
+				}
+			}
+			// Lightning Shield (The Ten Storms set)
+			else if (auraSpellInfo->Id == 23551)
+			{
+				trigger_spell_id = 23552;
+				target = pVictim;
+			}
+			// Damage from Lightning Shield (The Ten Storms set)
+			else if (auraSpellInfo->Id == 23552)
+				trigger_spell_id = 27635;
+			// Mana Surge (The Earthfury set)
+			else if (auraSpellInfo->Id == 23572)
+			{
+				if (!procSpell)
+					return SPELL_AURA_PROC_FAILED;
+				basepoints[0] = procSpell->manaCost * 35 / 100;
+				trigger_spell_id = 23571;
+				target = this;
+			}
+			else if (auraSpellInfo->SpellIconID == 2013)
 			{
 				// Check health condition - should drop to less 40% (trigger at any attack with result health less 40%, independent original health state)
 				int32 health40 = int32(GetMaxHealth()) * 4 / 10;
@@ -2153,7 +2155,7 @@ else if (auraSpellInfo->SpellIconID == 2013)
 				target = this;
 			}
 			else if (auraSpellInfo->Id == 54943)
-			// Earthquake					
+				// Earthquake					
 			{
 				if (!pVictim || !pVictim->isAlive() || pVictim == this || procSpell == nullptr)
 					return SPELL_AURA_PROC_FAILED;
@@ -2167,10 +2169,11 @@ else if (auraSpellInfo->SpellIconID == 2013)
 				trigger_spell_id = 54944;
 				break;
 			}
-            break;
-        }
-        default:
-            break;
+			break;
+		}
+		default:
+			break;
+		}
     }
 
     // All ok. Check current trigger spell
@@ -2289,12 +2292,7 @@ SpellAuraProcResult Unit::HandleOverrideClassScriptAuraProc(Unit *pVictim, uint3
     uint32 triggered_spell_id = 0;
 
     switch (scriptId)
-    {
-        case 4309: // Crepuscule
-        {
-            triggered_spell_id = 17941;
-            break;
-        }
+    {       
         case 836:                                           // Improved Blizzard (Rank 1)
         {
             if (!procSpell || procSpell->SpellVisual != 259)
@@ -2330,7 +2328,7 @@ SpellAuraProcResult Unit::HandleOverrideClassScriptAuraProc(Unit *pVictim, uint3
 				const SpellCooldowns& cm = ((Player*)this)->GetSpellCooldownMap();
 				for (SpellCooldowns::const_iterator itr = cm.begin(); itr != cm.end();)
 				{
-					SpellEntry const* spellInfo = GetSpellTemplate(itr->first);
+					SpellEntry const* spellInfo = sSpellMgr.GetSpellEntry(itr->first);
 
 					if (spellInfo->SpellFamilyName == SPELLFAMILY_HUNTER && (spellInfo->Id == 19574) && GetSpellRecoveryTime(spellInfo) > 0)
 					{
@@ -2347,7 +2345,7 @@ SpellAuraProcResult Unit::HandleOverrideClassScriptAuraProc(Unit *pVictim, uint3
 
             break;
         }
- case 4309: 
+		 case 4309: 
         {													
 		triggered_spell_id = 17941;                     // Shadow Trance (Warlock Nightfall)
  // accumulated chance to finish the cooldown for Amplify Curse
@@ -2356,7 +2354,7 @@ SpellAuraProcResult Unit::HandleOverrideClassScriptAuraProc(Unit *pVictim, uint3
 			const SpellCooldowns& cm = ((Player*)this)->GetSpellCooldownMap();
 			for (SpellCooldowns::const_iterator itr = cm.begin(); itr != cm.end();)
 			{
-				SpellEntry const* spellInfo = GetSpellTemplate(itr->first);
+				SpellEntry const* spellInfo = sSpellMgr.GetSpellEntry(itr->first);
 
 				if (spellInfo->SpellFamilyName == SPELLFAMILY_WARLOCK && (spellInfo->Id == 18288) && GetSpellRecoveryTime(spellInfo) > 0)
 				{
@@ -2392,7 +2390,7 @@ SpellAuraProcResult Unit::HandleOverrideClassScriptAuraProc(Unit *pVictim, uint3
 				const SpellCooldowns& cm = ((Player*)this)->GetSpellCooldownMap();
 				for (SpellCooldowns::const_iterator itr = cm.begin(); itr != cm.end();)
 				{
-					SpellEntry const* spellInfo = GetSpellTemplate(itr->first);
+					SpellEntry const* spellInfo = sSpellMgr.GetSpellEntry(itr->first);
 
 					if (spellInfo->SpellFamilyName == SPELLFAMILY_SHAMAN && spellInfo->Id == 16166 && GetSpellRecoveryTime(spellInfo) > 0)
 					{
@@ -2447,7 +2445,7 @@ SpellAuraProcResult Unit::HandleOverrideClassScriptAuraProc(Unit *pVictim, uint3
 				const SpellCooldowns& cm = ((Player*)this)->GetSpellCooldownMap();
 				for (SpellCooldowns::const_iterator itr = cm.begin(); itr != cm.end();)
 				{
-					SpellEntry const* spellInfo = GetSpellTemplate(itr->first);
+					SpellEntry const* spellInfo = sSpellMgr.GetSpellEntry(itr->first);
 
 					if (spellInfo->SpellFamilyName == SPELLFAMILY_MAGE && (spellInfo->Id == 11129 || spellInfo->Id == 12472) && GetSpellRecoveryTime(spellInfo) > 0)
 					{
@@ -2472,7 +2470,7 @@ SpellAuraProcResult Unit::HandleOverrideClassScriptAuraProc(Unit *pVictim, uint3
 				const SpellCooldowns& cm = ((Player*)this)->GetSpellCooldownMap();
 				for (SpellCooldowns::const_iterator itr = cm.begin(); itr != cm.end();)
 				{
-					SpellEntry const* spellInfo = GetSpellTemplate(itr->first);
+					SpellEntry const* spellInfo = sSpellMgr.GetSpellEntry(itr->first);
 
 					if (spellInfo->SpellFamilyName == SPELLFAMILY_PRIEST && (spellInfo->Id == 10060) && GetSpellRecoveryTime(spellInfo) > 0)
 					{
@@ -2542,7 +2540,7 @@ SpellAuraProcResult Unit::HandleOverrideClassScriptAuraProc(Unit *pVictim, uint3
             if (!roll_chance_i(50))
                 return SPELL_AURA_PROC_FAILED;
 
-            switch (pVictim->GetPowerType())
+            switch (pVictim->getPowerType())
             {
                 case POWER_MANA:   triggered_spell_id = 28722; break;
                 case POWER_RAGE:   triggered_spell_id = 28723; break;
