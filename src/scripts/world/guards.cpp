@@ -34,9 +34,18 @@ guard_stormwind
 guard_teldrassil
 guard_tirisfal
 guard_undercity
+guard_azuremyst
+guard_eversong
+guard_exodar
+guard_silvermoon
 EndContentData */
 
 #include "scriptPCH.h"
+
+CreatureAI* GetAI_guard_azuremyst(Creature* pCreature)
+{
+	return new guardAI(pCreature);
+}
 
 CreatureAI* GetAI_guard_contested(Creature* pCreature)
 {
@@ -63,6 +72,16 @@ CreatureAI* GetAI_guard_elwynnforest(Creature* pCreature)
     return new guardAI(pCreature);
 }
 
+CreatureAI* GetAI_guard_eversong(Creature* pCreature)
+{
+	return new guardAI(pCreature);
+}
+
+CreatureAI* GetAI_guard_exodar(Creature* pCreature)
+{
+	return new guardAI(pCreature);
+}
+
 CreatureAI* GetAI_guard_ironforge(Creature* pCreature)
 {
     return new guardAI(pCreature);
@@ -76,6 +95,11 @@ CreatureAI* GetAI_guard_mulgore(Creature* pCreature)
 CreatureAI* GetAI_guard_orgrimmar(Creature* pCreature)
 {
     return new guardAI_orgrimmar(pCreature);
+}
+
+CreatureAI* GetAI_guard_silvermoon(Creature* pCreature)
+{
+	return new guardAI(pCreature);
 }
 
 CreatureAI* GetAI_guard_stormwind(Creature* pCreature)
@@ -107,6 +131,11 @@ void AddSC_guards()
 {
     Script *newscript;
 
+	pNewScript = new Script;
+	pNewScript->Name = "guard_azuremyst";
+	pNewScript->GetAI = &GetAI_guard_azuremyst;
+	pNewScript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "guard_contested";
     newscript->GetAI = &GetAI_guard_contested;
@@ -132,6 +161,16 @@ void AddSC_guards()
     newscript->GetAI = &GetAI_guard_elwynnforest;
     newscript->RegisterSelf();
 
+	pNewScript = new Script;
+	pNewScript->Name = "guard_eversong";
+	pNewScript->GetAI = &GetAI_guard_eversong;
+	pNewScript->RegisterSelf();
+
+	pNewScript = new Script;
+	pNewScript->Name = "guard_exodar";
+	pNewScript->GetAI = &GetAI_guard_exodar;
+	pNewScript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "guard_ironforge";
     newscript->GetAI = &GetAI_guard_ironforge;
@@ -146,6 +185,11 @@ void AddSC_guards()
     newscript->Name = "guard_orgrimmar";
     newscript->GetAI = &GetAI_guard_orgrimmar;
     newscript->RegisterSelf();
+
+	pNewScript = new Script;
+	pNewScript->Name = "guard_silvermoon";
+	pNewScript->GetAI = &GetAI_guard_silvermoon;
+	pNewScript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name = "guard_stormwind";
