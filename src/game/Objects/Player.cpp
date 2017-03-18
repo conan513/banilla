@@ -2772,7 +2772,8 @@ void Player::GiveLevel(uint32 level)
     // send levelup info to client
     WorldPacket data(SMSG_LEVELUP_INFO, (4 + 4 + MAX_POWERS * 4 + MAX_STATS * 4));
     data << uint32(level);
-    data << uint32(int32(classInfo.basehealth) - int32(GetCreateHealth()));
+	data << uint32((int32(classInfo.basehealth) - int32(GetCreateHealth()))
+	        ((int32(info.stats[STAT_STAMINA]) - GetCreateStat(STAT_STAMINA)) * 10));
     // for(int i = 0; i < MAX_POWERS; ++i)                  // Powers loop (0-6)
     data << uint32(int32(classInfo.basemana)   - int32(GetCreateMana()));
     data << uint32(0);
@@ -20320,9 +20321,9 @@ void Player::InterruptSpellsWithCastItem(Item* item)
             }
 
     // Interrupt eventually delayed spells
-    EventList::iterator it = m_Events.m_events.begin();
-    for (; it != m_Events.m_events.end(); ++it)
-        if (SpellEvent* event = dynamic_cast<SpellEvent*>(it->second))
+	auto i_Events = m_Events.GetEvents().begin();
+	for (; i_Events != m_Events.GetEvents().end(); ++i_Events)
+		if (SpellEvent* event = dynamic_cast<SpellEvent*>(i_Events->second))
             if (event && event->GetSpell()->m_CastItem == item)
             {
                 event->GetSpell()->ClearCastItem();

@@ -445,6 +445,7 @@ class MANGOS_DLL_SPEC ChatHandler
         bool HandleGoTriggerCommand(char* args);
         bool HandleGoXYCommand(char* args);
         bool HandleGoXYZCommand(char* args);
+		bool HandleGoXYZOCommand(char* args);
         bool HandleGoZoneXYCommand(char* args);
 
         bool HandleGuildCreateCommand(char* args);
@@ -722,6 +723,7 @@ class MANGOS_DLL_SPEC ChatHandler
         bool HandleNamegoCommand(char* args);
         bool HandleGonameCommand(char* args);
         bool HandleGroupgoCommand(char* args);
+		bool HandleGocorpseCommand(char* args);
         bool HandleRecallCommand(char* args);
         bool HandleAnnounceCommand(char* args);
         bool HandleNotifyCommand(char* args);
@@ -734,6 +736,7 @@ class MANGOS_DLL_SPEC ChatHandler
         bool HandleGUIDCommand(char* args);
         bool HandleItemMoveCommand(char* args);
         bool HandleDeMorphCommand(char* args);
+		bool HandleGroupInfoCommand(char* args);
         bool HandlePInfoCommand(char* args);
         bool HandleMuteCommand(char* args);
         bool HandleUnmuteCommand(char* args);

@@ -2073,9 +2073,14 @@ void World::BanAccount(uint32 accountId, uint32 duration, std::string reason, st
     else
         sAccountMgr.BanAccount(accountId, 0xFFFFFFFF);
 
-    if (WorldSession* sess = FindSession(accountId))
-        if (std::string(sess->GetPlayerName()) != author)
-            sess->KickPlayer();
+	if (WorldSession* sess = FindSession(accountId))
+	{
+		if (std::string(sess->GetPlayerName()) != author)
+		{
+			sess->LogoutPlayer(true);
+			sess->KickPlayer();
+		}
+	}
 }
 
 /// Ban an account or ban an IP address, duration_secs if it is positive used, otherwise permban
@@ -2139,9 +2144,14 @@ BanReturn World::BanAccount(BanMode mode, std::string nameOrIP, uint32 duration_
                 sAccountMgr.BanAccount(account, 0xFFFFFFFF);
         }
 
-        if (WorldSession* sess = FindSession(account))
-            if (std::string(sess->GetPlayerName()) != author)
-                sess->KickPlayer();
+		if (WorldSession* sess = FindSession(account))
+		{
+			if (std::string(sess->GetPlayerName()) != author)
+			{
+				sess->LogoutPlayer(true);
+				sess->KickPlayer();
+			}
+		}
     }
     while (resultAccounts->NextRow());
 

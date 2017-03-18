@@ -588,6 +588,30 @@ bool ChatHandler::HandleGonameCommand(char* args)
     return true;
 }
 
+// Teleport to player corpse
+// NOTE: If the corpse is in a dungeon / BG you will teleport to the right place
+// but you will not be able to see the corpse if you are not in the player's group
+bool ChatHandler::HandleGocorpseCommand(char* args)
+{
+	ObjectGuid target_guid;
+	if (!ExtractPlayerTarget(&args, NULL, &target_guid, NULL))
+		return false;
+	
+		Corpse* corpse = sObjectAccessor.GetCorpseForPlayerGUID(target_guid);
+	if (!corpse)
+	{
+		PSendSysMessage(LANG_COMMAND_TELE_NOTFOUND);
+		SetSentErrorMessage(true);
+		return false;
+	}
+	
+	float x = corpse->GetPositionX();
+	float y = corpse->GetPositionY();
+	float z = corpse->GetPositionZ();
+	
+	return HandleGoHelper(m_session->GetPlayer(), corpse->GetMapId(), x, y, &z, NULL);
+}
+
 // Teleport player to last position
 bool ChatHandler::HandleRecallCommand(char* args)
 {
@@ -2012,6 +2036,34 @@ bool ChatHandler::HandleGoXYZCommand(char* args)
         return false;
 
     return HandleGoHelper(_player, mapid, x, y, &z);
+}
+
+//teleport at coordinates, including Z and orientation
+bool ChatHandler::HandleGoXYZOCommand(char* args)
+{
+	Player* _player = m_session->GetPlayer();
+	
+	float x;
+	if (!ExtractFloat(&args, x))
+		return false;
+	
+	float y;
+	if (!ExtractFloat(&args, y))
+		return false;
+	
+	float z;
+	if (!ExtractFloat(&args, z))
+		return false;
+	
+	float ort;
+	if (!ExtractFloat(&args, ort))
+		return false;
+	
+	uint32 mapid;
+	if (!ExtractOptUInt32(&args, mapid, _player->GetMapId()))
+		return false;
+	
+	return HandleGoHelper(_player, mapid, x, y, &z, &ort);
 }
 
 //teleport at coordinates

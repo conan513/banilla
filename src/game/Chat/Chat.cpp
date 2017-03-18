@@ -291,7 +291,8 @@ ChatCommand * ChatHandler::getCommandTable()
         { NODE, "zonexy",         SEC_MODERATOR,      false, &ChatHandler::HandleGoZoneXYCommand,            "", nullptr },
         { NODE, "xy",             SEC_MODERATOR,      false, &ChatHandler::HandleGoXYCommand,                "", nullptr },
         { NODE, "xyz",            SEC_MODERATOR,      false, &ChatHandler::HandleGoXYZCommand,               "", nullptr },
-        // Nostalrius
+		{ NODE, "xyzo",           SEC_MODERATOR,      false, &ChatHandler::HandleGoXYZOCommand,              "", nullptr },
+		// Nostalrius
         { NODE, "forward",         SEC_GAMEMASTER,    false, &ChatHandler::HandleGoForwardCommand,           "", nullptr },
         { NODE, "up",             SEC_GAMEMASTER,     false, &ChatHandler::HandleGoUpCommand,                "", nullptr },
         { NODE, "relative",       SEC_GAMEMASTER,     false, &ChatHandler::HandleGoRelativeCommand,          "", nullptr },
@@ -997,7 +998,8 @@ ChatCommand * ChatHandler::getCommandTable()
         { NODE, "goname",         SEC_MODERATOR,      false, &ChatHandler::HandleGonameCommand,              "", nullptr },
         { NODE, "namego",         SEC_MODERATOR,      false, &ChatHandler::HandleNamegoCommand,              "", nullptr },
         { NODE, "groupgo",        SEC_MODERATOR,      false, &ChatHandler::HandleGroupgoCommand,             "", nullptr },
-        { NODE, "commands",       SEC_PLAYER,         true,  &ChatHandler::HandleCommandsCommand,            "", nullptr },
+		{ NODE, "gocorpse",       SEC_MODERATOR,      false, &ChatHandler::HandleGocorpseCommand,            "", nullptr },
+		{ NODE, "commands",       SEC_PLAYER,         true,  &ChatHandler::HandleCommandsCommand,            "", nullptr },
         { NODE, "demorph",        SEC_GAMEMASTER,     false, &ChatHandler::HandleDeMorphCommand,             "", nullptr },
         { NODE, "die",            SEC_ADMINISTRATOR,  false, &ChatHandler::HandleDieCommand,                 "", nullptr },
         { NODE, "revive",         SEC_ADMINISTRATOR,  true,  &ChatHandler::HandleReviveCommand,              "", nullptr },
@@ -1035,6 +1037,7 @@ ChatCommand * ChatHandler::getCommandTable()
         { NODE, "setskill",       SEC_ADMINISTRATOR,  false, &ChatHandler::HandleSetSkillCommand,            "", nullptr },
         { MSTR, "whispers",       SEC_MODERATOR,      false, &ChatHandler::HandleWhispersCommand,            "", nullptr },
         { MSTR, "wr",             SEC_PLAYER,         false, &ChatHandler::HandleWhisperRestrictionCommand,  "", nullptr },
+		{ MSTR, "groupinfo",      SEC_GAMEMASTER,     true,  &ChatHandler::HandleGroupInfoCommand,           "", nullptr },
         { MSTR, "pinfo",          SEC_GAMEMASTER,     true,  &ChatHandler::HandlePInfoCommand,               "", nullptr },
         { MSTR, "pbcast",         SEC_ADMINISTRATOR,  true,  &ChatHandler::HandlePBCastStatsCommand,         "", pbcastCommandTable },
         { NODE, "addons",         SEC_ADMINISTRATOR,  false, &ChatHandler::HandleListAddonsCommand,          "", nullptr },
