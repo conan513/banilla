@@ -59,6 +59,55 @@ ScriptMgr::~ScriptMgr()
     num_sc_scripts = 0;
 }
 
+// /////////////////////////////////////////////////////////
+//              DB SCRIPTS (loaders of static data)
+// /////////////////////////////////////////////////////////
+// returns priority (0 == cannot start script)
+uint8 GetSpellStartDBScriptPriority(uint32 spellId, SpellEffectIndex effIdx)
+{
+	SpellEntry const* spellinfo = sSpellMgr.GetSpellEntry(spellId);
+
+	if (spellinfo->Effect[effIdx] == SPELL_EFFECT_SCRIPT_EFFECT)
+		return 10;
+
+	if (spellinfo->Effect[effIdx] == SPELL_EFFECT_DUMMY)
+		return 9;
+
+	// NonExisting triggered spells can also start DB-Spell-Scripts
+	if (spellinfo->Effect[effIdx] == SPELL_EFFECT_TRIGGER_SPELL && !sSpellMgr.GetSpellEntry(spellinfo->EffectTriggerSpell[effIdx]))
+		return 5;
+
+	// NonExisting trigger missile spells can also start DB-Spell-Scripts
+	if (spellinfo->Effect[effIdx] == SPELL_EFFECT_TRIGGER_MISSILE && !sSpellMgr.GetSpellEntry(spellinfo->EffectTriggerSpell[effIdx]))
+		return 4;
+
+	// Can not start script
+	return 0;
+}
+
+// Priorize: SCRIPT_EFFECT before DUMMY before Non-Existing triggered spell, for same priority the first effect with the priority triggers
+bool ScriptMgr::CanSpellEffectStartDBScript(uint32 spellId, SpellEffectIndex effIdx)
+{
+	SpellEntry const* spellinfo = sSpellMgr.GetSpellEntry(spellId);
+
+	uint8 priority = GetSpellStartDBScriptPriority(spellId, effIdx);
+	if (!priority)
+		return false;
+
+	for (int i = 0; i < MAX_EFFECT_INDEX; ++i)
+	{
+		uint8 currentPriority = GetSpellStartDBScriptPriority(spellId, SpellEffectIndex(i));
+		if (currentPriority < priority)                     // lower priority, continue checking
+			continue;
+		if (currentPriority > priority)                     // take other index with higher priority
+			return false;
+		if (i < effIdx)                                     // same priority at lower index
+			return false;
+	}
+
+	return true;
+}
+
 void ScriptMgr::LoadScripts(ScriptMapMap& scripts, const char* tablename)
 {
     if (IsScriptScheduled())                                // function don't must be called in time scripts use.

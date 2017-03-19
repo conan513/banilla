@@ -21,7 +21,7 @@ SDComment: Oz, Hood, and RAJ event implemented. Spell timers may need adjustment
 SDCategory: Karazhan
 EndScriptData */
 
-#include "precompiled.h"
+#include "scriptPCH.h"
 #include "karazhan.h"
 
 /***********************************/
@@ -571,8 +571,8 @@ struct boss_croneAI : public ScriptedAI
 
     void JustSummoned(Creature* pSummoned) override
     {
-        pSummoned->CastSpell(pSummoned, SPELL_CYCLONE, TRIGGERED_OLD_TRIGGERED);
-        pSummoned->CastSpell(pSummoned, SPELL_CYCLONE_VISUAL, TRIGGERED_OLD_TRIGGERED);
+        pSummoned->CastSpell(pSummoned, SPELL_CYCLONE, true);
+        pSummoned->CastSpell(pSummoned, SPELL_CYCLONE_VISUAL, true);
         pSummoned->GetMotionMaster()->MoveRandomAroundPoint(m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), 15.0f);
     }
 
@@ -647,7 +647,7 @@ enum
 
 bool GossipHello_npc_grandmother(Player* pPlayer, Creature* pCreature)
 {
-    pPlayer->ADD_GOSSIP_ITEM_ID(GOSSIP_ICON_CHAT, GOSSIP_ITEM_GRANDMA, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_GRANDMA, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
     pPlayer->SEND_GOSSIP_MENU(TEXT_ID_GRANDMA, pCreature->GetObjectGuid());
 
     return true;
@@ -844,7 +844,7 @@ struct boss_julianneAI : public ScriptedAI
         m_creature->ForcedDespawn();
     }
 
-    void DamageTaken(Unit* /*pDoneBy*/, uint32& uiDamage, DamageEffectType /*damagetype*/) override
+    void DamageTaken(Unit* /*pDoneBy*/, uint32& uiDamage) override
     {
         if (uiDamage < m_creature->GetHealth())
             return;
@@ -1030,7 +1030,7 @@ struct boss_julianneAI : public ScriptedAI
     }
 };
 
-bool EffectDummyCreature_spell_drink_poison(Unit* /*pCaster*/, uint32 uiSpellId, SpellEffectIndex uiEffIndex, Creature* pCreatureTarget, ObjectGuid /*originalCasterGuid*/)
+bool EffectDummyCreature_spell_drink_poison(Unit* /*pCaster*/, uint32 uiSpellId, SpellEffectIndex uiEffIndex, Creature* pCreatureTarget)
 {
     // always check spellid and effectindex
     if (uiSpellId == SPELL_DRINK_POISON && uiEffIndex == EFFECT_INDEX_0)
@@ -1091,7 +1091,7 @@ struct boss_romuloAI : public ScriptedAI
         m_creature->ForcedDespawn();
     }
 
-    void DamageTaken(Unit* /*pDoneBy*/, uint32& uiDamage, DamageEffectType /*damagetype*/) override
+    void DamageTaken(Unit* /*pDoneBy*/, uint32& uiDamage) override
     {
         if (uiDamage < m_creature->GetHealth())
             return;
@@ -1323,7 +1323,7 @@ void AddSC_bosses_opera()
     pNewScript = new Script;
     pNewScript->Name = "boss_julianne";
     pNewScript->GetAI = &GetAI_boss_julianne;
-    pNewScript->pEffectDummyNPC = &EffectDummyCreature_spell_drink_poison;
+    pNewScript->pEffectDummyCreature = &EffectDummyCreature_spell_drink_poison;
     pNewScript->RegisterSelf();
 
     pNewScript = new Script;

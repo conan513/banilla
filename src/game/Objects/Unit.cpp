@@ -10821,40 +10821,6 @@ void Unit::RestoreOriginalFaction()
 	}
 }
 
-
-void Unit::StopAttackFaction(uint32 faction_id)
-{
-	if (Unit* victim = getVictim())
-	{
-		if (victim->getFactionTemplateEntry()->faction == faction_id)
-		{
-			AttackStop();
-			if (IsNonMeleeSpellCasted(false))
-				InterruptNonMeleeSpells(false);
-
-			// melee and ranged forced attack cancel
-			if (GetTypeId() == TYPEID_PLAYER)
-				((Player*)this)->SendAttackSwingCancelAttack();
-		}
-	}
-
-	AttackerSet const& attackers = getAttackers();
-	for (AttackerSet::const_iterator itr = attackers.begin(); itr != attackers.end();)
-	{
-		if ((*itr)->getFactionTemplateEntry()->faction == faction_id)
-		{
-			(*itr)->AttackStop();
-			itr = attackers.begin();
-		}
-		else
-			++itr;
-	}
-
-	getHostileRefManager().deleteReferencesForFaction(faction_id);
-
-	CallForAllControlledUnits(StopAttackFactionHelper(faction_id), CONTROLLED_PET | CONTROLLED_GUARDIANS | CONTROLLED_CHARM);
-}
-
 void Unit::KnockBackFrom(WorldObject* target, float horizontalSpeed, float verticalSpeed)
 {
     float angle = this == target ? GetOrientation() + M_PI_F : target->GetAngle(this);
@@ -10914,6 +10880,49 @@ void Unit::KnockBackWithAngle(float angle, float horizontalSpeed, float vertical
 		UpdateAllowedPositionZ(fx, fy, fz);
 		GetMotionMaster()->MoveJump(fx, fy, fz, horizontalSpeed, max_height);
 	}
+}
+
+struct StopAttackFactionHelper
+{
+	explicit StopAttackFactionHelper(uint32 _faction_id) : faction_id(_faction_id) {}
+	void operator()(Unit* unit) const
+	{
+		unit->StopAttackFaction(faction_id);
+	}
+	uint32 faction_id;
+};
+
+void Unit::StopAttackFaction(uint32 faction_id)
+{
+	if (Unit* victim = getVictim())
+	{
+		if (victim->getFactionTemplateEntry()->faction == faction_id)
+		{
+			AttackStop();
+			if (IsNonMeleeSpellCasted(false))
+				InterruptNonMeleeSpells(false);
+
+			// melee and ranged forced attack cancel
+			if (GetTypeId() == TYPEID_PLAYER)
+				((Player*)this)->SendAttackSwingCancelAttack();
+		}
+	}
+
+	AttackerSet const& attackers = getAttackers();
+	for (AttackerSet::const_iterator itr = attackers.begin(); itr != attackers.end();)
+	{
+		if ((*itr)->getFactionTemplateEntry()->faction == faction_id)
+		{
+			(*itr)->AttackStop();
+			itr = attackers.begin();
+		}
+		else
+			++itr;
+	}
+
+	getHostileRefManager().deleteReferencesForFaction(faction_id);
+
+	CallForAllControlledUnits(StopAttackFactionHelper(faction_id), CONTROLLED_PET | CONTROLLED_GUARDIANS | CONTROLLED_CHARM);
 }
 
 void Unit::CleanupDeletedAuras()

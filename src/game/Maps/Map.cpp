@@ -2102,12 +2102,12 @@ void BattleGroundMap::UnloadAll(bool pForce)
 }
 
 /// Put scripts in the execution queue
-void Map::ScriptsStart(ScriptMapMap const& scripts, uint32 id, Object* source, Object* target)
+bool Map::ScriptsStart(ScriptMapMap const& scripts, uint32 id, Object* source, Object* target)
 {
     ///- Find the script map
     ScriptMapMap::const_iterator s = scripts.find(id);
-    if (s == scripts.end())
-        return;
+	if (s == scripts.end())
+		return false;
 
     // prepare static data
     ObjectGuid sourceGuid = source->GetObjectGuid();
@@ -2133,6 +2133,8 @@ void Map::ScriptsStart(ScriptMapMap const& scripts, uint32 id, Object* source, O
         sScriptMgr.IncreaseScheduledScriptsCount();
     }
     m_scriptSchedule_lock.release();
+
+	return true;
 }
 
 void Map::ScriptCommandStart(ScriptInfo const& script, uint32 delay, Object* source, Object* target)

@@ -21,9 +21,8 @@ SDComment: Intro movement is a little choppy because of the lack of waypoint mov
 SDCategory: Karazhan
 EndScriptData */
 
-#include "precompiled.h"
+#include "scriptPCH.h"
 #include "karazhan.h"
-#include "escort_ai.h"
 
 enum
 {

@@ -64,6 +64,48 @@ void RandomMovementGenerator<Creature>::_setRandomLocation(Creature &creature)
         i_nextMoveTime.Reset(urand(3000, 10000));
 }
 
+void RandomMovementGenerator<Creature>::_setRandomLocation(Creature &creature, float x, float y, float z, float radius, float verticalZ)
+{
+	float respX, respY, respZ, respO, wander_distance;
+	float destX = x;
+	float destY = y;
+	float destZ = z;
+	wander_distance = radius;
+
+	creature.GetRespawnCoord(respX, respY, respZ, &respO);
+	
+	if (creature.CanFly())
+	{
+		//typedef std::vector<Vector3> PointsArray;
+		Movement::PointsArray path;
+		uint32 ptsPerCycle = ceil(wander_distance * 2);
+		static const uint32 nbCyclesPerPacket = 1;
+		for (uint32 i = 0; i <= nbCyclesPerPacket * ptsPerCycle; ++i)
+			path.push_back(Vector3(respX + wander_distance * cos(i * 2 * M_PI / ptsPerCycle), respY + wander_distance * sin(i * 2 * M_PI / ptsPerCycle), respZ));
+		Movement::MoveSplineInit init(creature, "RandomMovementGenerator (CanFly)");
+		init.SetFly();
+		init.SetWalk(false);
+		init.MovebyPath(path);
+		init.SetFirstPointId(1);
+		init.Launch();
+		i_nextMoveTime.Reset(0);
+		return;
+	}
+	if (!creature.GetRandomPoint(respX, respY, respZ, wander_distance, destX, destY, destZ))
+		return;
+
+	creature.addUnitState(UNIT_STAT_ROAMING_MOVE);
+
+	Movement::MoveSplineInit init(creature, "RandomMovementGenerator");
+	init.MoveTo(destX, destY, destZ, MOVE_PATHFINDING | MOVE_EXCLUDE_STEEP_SLOPES);
+	init.SetWalk(true);
+	init.Launch();
+
+	if (roll_chance_i(40))
+		i_nextMoveTime.Reset(50);
+	else
+		i_nextMoveTime.Reset(urand(3000, 10000));
+}
 template<>
 void RandomMovementGenerator<Creature>::Initialize(Creature &creature)
 {
@@ -118,7 +160,10 @@ void RandomMovementGenerator<Creature>::UpdateAsync(Creature &creature, uint32 d
     {
         i_nextMoveTime.Update(diff);
         if (i_nextMoveTime.Passed())
-            _setRandomLocation(creature);
+			if (patrol)
+				_setRandomLocation(creature, i_x, i_y, i_z, i_radius, i_verticalZ);
+			else
+				_setRandomLocation(creature);
     }
 }
 

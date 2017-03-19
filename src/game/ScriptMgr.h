@@ -583,6 +583,7 @@ class ScriptMgr
         uint32 DecreaseScheduledScriptCount() { return (uint32)--m_scheduledScripts; }
         uint32 DecreaseScheduledScriptCount(size_t count) { return (uint32)(m_scheduledScripts -= count); }
         bool IsScriptScheduled() const { return m_scheduledScripts > 0; }
+		static bool CanSpellEffectStartDBScript(uint32 spellId, SpellEffectIndex effIdx);
 
         CreatureAI* GetCreatureAI(Creature* pCreature);
         GameObjectAI* GetGameObjectAI(GameObject* pGob);

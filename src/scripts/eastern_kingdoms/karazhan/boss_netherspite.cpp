@@ -21,7 +21,7 @@ SDComment: Nether portals partially implemented. Find spell ID for tail swipe ad
 SDCategory: Karazhan
 EndScriptData */
 
-#include "precompiled.h"
+#include "scriptPCH.h"
 #include "karazhan.h"
 
 enum
@@ -230,16 +230,16 @@ struct boss_netherspiteAI : public ScriptedAI
         switch (pSummoned->GetEntry())
         {
             case NPC_VOID_ZONE:
-                pSummoned->CastSpell(pSummoned, SPELL_CONSUMPTION, TRIGGERED_NONE);
+                pSummoned->CastSpell(pSummoned, SPELL_CONSUMPTION, false);
                 break;
             case NPC_PORTAL_RED:
-                pSummoned->CastSpell(pSummoned, SPELL_RED_PORTAL, TRIGGERED_NONE);
+                pSummoned->CastSpell(pSummoned, SPELL_RED_PORTAL, false);
                 break;
             case NPC_PORTAL_GREEN:
-                pSummoned->CastSpell(pSummoned, SPELL_GREEN_PORTAL, TRIGGERED_NONE);
+                pSummoned->CastSpell(pSummoned, SPELL_GREEN_PORTAL, false);
                 break;
             case NPC_PORTAL_BLUE:
-                pSummoned->CastSpell(pSummoned, SPELL_BLUE_PORTAL, TRIGGERED_NONE);
+                pSummoned->CastSpell(pSummoned, SPELL_BLUE_PORTAL, false);
                 break;
         }
     }
@@ -403,7 +403,7 @@ CreatureAI* GetAI_npc_netherspite_portal(Creature* pCreature)
     return new npc_netherspite_portalAI(pCreature);
 }
 
-bool EffectScriptEffectCreature_spell_portal_attunement(Unit* pCaster, uint32 uiSpellId, SpellEffectIndex uiEffIndex, Creature* pCreatureTarget, ObjectGuid /*originalCasterGuid*/)
+bool EffectScriptEffectCreature_spell_portal_attunement(Unit* pCaster, uint32 uiSpellId, SpellEffectIndex uiEffIndex, Creature* pCreatureTarget)
 {
     if (uiSpellId == SPELL_PORTAL_ATTUNEMENT && uiEffIndex == EFFECT_INDEX_0)
     {
@@ -428,6 +428,6 @@ void AddSC_boss_netherspite()
     pNewScript = new Script;
     pNewScript->Name = "npc_netherspite_portal";
     pNewScript->GetAI = &GetAI_npc_netherspite_portal;
-    pNewScript->pEffectScriptEffectNPC = &EffectScriptEffectCreature_spell_portal_attunement;
+    pNewScript->pEffectDummyCreature = &EffectScriptEffectCreature_spell_portal_attunement;
     pNewScript->RegisterSelf();
 }

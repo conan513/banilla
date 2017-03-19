@@ -21,7 +21,7 @@ SDComment:
 SDCategory: Karazhan
 EndScriptData */
 
-#include "precompiled.h"
+#include "scriptPCH.h"
 #include "karazhan.h"
 
 enum
@@ -160,7 +160,7 @@ struct boss_malchezaarAI : public ScriptedAI
     void JustSummoned(Creature* pSummoned) override
     {
         if (pSummoned->GetEntry() == NPC_NETHERSPITE_INFERNAL)
-            pSummoned->CastSpell(pSummoned, SPELL_HELLFIRE, TRIGGERED_NONE);
+            pSummoned->CastSpell(pSummoned, SPELL_HELLFIRE, false);
         else if (pSummoned->GetEntry() == NPC_MALCHEZARS_AXE)
             pSummoned->SetInCombatWithZone();
     }
@@ -310,8 +310,8 @@ struct boss_malchezaarAI : public ScriptedAI
                         m_uiInfernalTimer = Randomize(m_uiPhase == 3 ? 17000 : 45000);
                     }
                 }
-                else
-                    script_error_log("Instance Karazhan: ERROR Failed to properly load Infernal Relays for creature %u.", m_creature->GetEntry());
+                //else
+                   // script_error_log("Instance Karazhan: ERROR Failed to properly load Infernal Relays for creature %u.", m_creature->GetEntry());
             }
         }
         else

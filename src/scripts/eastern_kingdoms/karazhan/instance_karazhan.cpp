@@ -21,7 +21,7 @@ SDComment: Instance Script for Karazhan to help in various encounters.
 SDCategory: Karazhan
 EndScriptData */
 
-#include "precompiled.h"
+#include "scriptPCH.h"
 #include "karazhan.h"
 
 /*
@@ -267,12 +267,12 @@ void instance_karazhan::SetData(uint32 uiType, uint32 uiData)
                 // cast game end spells
                 if (Creature* pMedivh = GetSingleCreatureFromStorage(NPC_ECHO_MEDIVH))
                 {
-                    pMedivh->CastSpell(pMedivh, SPELL_FORCE_KILL_BUNNY, TRIGGERED_OLD_TRIGGERED);
-                    pMedivh->CastSpell(pMedivh, SPELL_GAME_OVER, TRIGGERED_OLD_TRIGGERED);
-                    pMedivh->CastSpell(pMedivh, SPELL_CLEAR_BOARD, TRIGGERED_OLD_TRIGGERED);
+                    pMedivh->CastSpell(pMedivh, SPELL_FORCE_KILL_BUNNY, true);
+                    pMedivh->CastSpell(pMedivh, SPELL_GAME_OVER, true);
+                    pMedivh->CastSpell(pMedivh, SPELL_CLEAR_BOARD, true);
                 }
                 if (Creature* pController = GetSingleCreatureFromStorage(NPC_CHESS_VICTORY_CONTROLLER))
-                    pController->CastSpell(pController, SPELL_VICTORY_VISUAL, TRIGGERED_OLD_TRIGGERED);
+                    pController->CastSpell(pController, SPELL_VICTORY_VISUAL, true);
 
                 // remove silence debuff
                 Map::PlayerList const& players = instance->GetPlayers();
@@ -290,8 +290,8 @@ void instance_karazhan::SetData(uint32 uiType, uint32 uiData)
                 // clean the board for reset
                 if (Creature* pMedivh = GetSingleCreatureFromStorage(NPC_ECHO_MEDIVH))
                 {
-                    pMedivh->CastSpell(pMedivh, SPELL_GAME_OVER, TRIGGERED_OLD_TRIGGERED);
-                    pMedivh->CastSpell(pMedivh, SPELL_CLEAR_BOARD, TRIGGERED_OLD_TRIGGERED);
+                    pMedivh->CastSpell(pMedivh, SPELL_GAME_OVER, true);
+                    pMedivh->CastSpell(pMedivh, SPELL_CLEAR_BOARD, true);
                 }
 
                 // remove silence debuff
@@ -457,7 +457,7 @@ void instance_karazhan::DoPrepareChessEvent()
                 pSquare = GetClosestCreatureWithEntry(pChessPiece, NPC_SQUARE_WHITE, 2.0f);
             if (!pSquare)
             {
-                script_error_log("Instance Karazhan: ERROR Failed to properly load the Chess square for %s.", pChessPiece->GetGuidStr().c_str());
+                //script_error_log("Instance Karazhan: ERROR Failed to properly load the Chess square for %s.", pChessPiece->GetGuidStr().c_str());
                 return;
             }
 
@@ -475,7 +475,7 @@ void instance_karazhan::DoPrepareChessEvent()
                 pSquare = GetClosestCreatureWithEntry(pChessPiece, NPC_SQUARE_WHITE, 2.0f);
             if (!pSquare)
             {
-                script_error_log("Instance Karazhan: ERROR Failed to properly load the Chess square for %s.", pChessPiece->GetGuidStr().c_str());
+                //script_error_log("Instance Karazhan: ERROR Failed to properly load the Chess square for %s.", pChessPiece->GetGuidStr().c_str());
                 return;
             }
 
@@ -489,7 +489,7 @@ void instance_karazhan::DoPrepareChessEvent()
     for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
     {
         if (Player* pPlayer = itr->getSource())
-            pPlayer->CastSpell(pPlayer, SPELL_GAME_IN_SESSION, TRIGGERED_OLD_TRIGGERED);
+            pPlayer->CastSpell(pPlayer, SPELL_GAME_IN_SESSION, true);
     }
 
     m_uiAllianceStalkerCount = 0;
@@ -507,7 +507,7 @@ void instance_karazhan::DoPrepareChessEvent()
 
     if (lStalkers.empty())
     {
-        script_error_log("Instance Karazhan: ERROR Failed to properly load the horde side stalkers for the Chess Event.");
+       // script_error_log("Instance Karazhan: ERROR Failed to properly load the horde side stalkers for the Chess Event.");
         return;
     }
 
@@ -529,7 +529,7 @@ void instance_karazhan::DoPrepareChessEvent()
 
     if (lStalkers.empty())
     {
-        script_error_log("Instance Karazhan: ERROR Failed to properly load the alliance side stalkers for the Chess Event.");
+        //script_error_log("Instance Karazhan: ERROR Failed to properly load the alliance side stalkers for the Chess Event.");
         return;
     }
 
@@ -561,7 +561,7 @@ void instance_karazhan::DoMoveChessPieceToSides(uint32 uiSpellId, uint32 uiFacti
     if (Creature* pStalker = instance->GetCreature(vStalkers[uiCount]))
     {
         // need to provide specific target, in order to ensure the logic of the event
-        pStatusBar->CastSpell(pStalker, uiSpellId, TRIGGERED_OLD_TRIGGERED);
+        pStatusBar->CastSpell(pStalker, uiSpellId, true);
         uiFaction == FACTION_ID_CHESS_ALLIANCE ? ++m_uiAllianceStalkerCount : ++m_uiHordeStalkerCount;
     }
 
@@ -585,7 +585,7 @@ void instance_karazhan::DoPrepareOperaStage(Creature* pOrganizer)
     if (!pOrganizer)
         return;
 
-    debug_log("SD2: Barnes Opera Event - Introduction complete - preparing encounter %d", GetData(TYPE_OPERA_PERFORMANCE));
+    //debug_log("SD2: Barnes Opera Event - Introduction complete - preparing encounter %d", GetData(TYPE_OPERA_PERFORMANCE));
 
     // summon the bosses and respawn the stage background
     switch (GetData(TYPE_OPERA_PERFORMANCE))

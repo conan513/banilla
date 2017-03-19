@@ -29,9 +29,8 @@ npc_image_arcanagos
 event_spell_medivh_journal
 EndContentData */
 
-#include "precompiled.h"
+#include "scriptPCH.h"
 #include "karazhan.h"
-#include "escort_ai.h"
 
 /*######
 # npc_barnesAI
@@ -189,7 +188,7 @@ bool GossipHello_npc_barnes(Player* pPlayer, Creature* pCreature)
         // Check for death of Moroes
         if (pInstance->GetData(TYPE_MOROES) == DONE)
         {
-            pPlayer->ADD_GOSSIP_ITEM_ID(GOSSIP_ICON_CHAT, GOSSIP_ITEM_OPERA_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_OPERA_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
             // for GMs we add the possibility to change the event
             if (pPlayer->isGameMaster())
@@ -213,7 +212,7 @@ bool GossipSelect_npc_barnes(Player* pPlayer, Creature* pCreature, uint32 /*uiSe
     switch (uiAction)
     {
         case GOSSIP_ACTION_INFO_DEF+1:
-            pPlayer->ADD_GOSSIP_ITEM_ID(GOSSIP_ICON_CHAT, GOSSIP_ITEM_OPERA_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_OPERA_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
             pPlayer->SEND_GOSSIP_MENU(TEXT_ID_OPERA_2, pCreature->GetObjectGuid());
             break;
         case GOSSIP_ACTION_INFO_DEF+2:
@@ -221,7 +220,7 @@ bool GossipSelect_npc_barnes(Player* pPlayer, Creature* pCreature, uint32 /*uiSe
             DoScriptText(SAY_BARNES_EVENT_START, pCreature);
             // start the stage escort
             if (npc_barnesAI* pBarnesAI = dynamic_cast<npc_barnesAI*>(pCreature->AI()))
-                pBarnesAI->Start(false, nullptr, nullptr, true);
+                pBarnesAI->Start(false, pPlayer->GetGUID(),nullptr, nullptr, true);
             break;
             // GM gossip options
         case GOSSIP_ACTION_INFO_DEF+3:
@@ -229,7 +228,7 @@ bool GossipSelect_npc_barnes(Player* pPlayer, Creature* pCreature, uint32 /*uiSe
             if (ScriptedInstance* pInstance = (ScriptedInstance*)pCreature->GetInstanceData())
             {
                 pInstance->SetData(TYPE_OPERA_PERFORMANCE, OPERA_EVENT_WIZARD_OZ);
-                outstring_log("SD2: %s manually set Opera event to EVENT_OZ", pPlayer->GetGuidStr().c_str());
+                //outstring_log("SD2: %s manually set Opera event to EVENT_OZ", pPlayer->GetGuidStr().c_str());
             }
             break;
         case GOSSIP_ACTION_INFO_DEF+4:
@@ -237,7 +236,7 @@ bool GossipSelect_npc_barnes(Player* pPlayer, Creature* pCreature, uint32 /*uiSe
             if (ScriptedInstance* pInstance = (ScriptedInstance*)pCreature->GetInstanceData())
             {
                 pInstance->SetData(TYPE_OPERA_PERFORMANCE, OPERA_EVENT_RED_RIDING_HOOD);
-                outstring_log("SD2: %s manually set Opera event to EVENT_HOOD", pPlayer->GetGuidStr().c_str());
+                //outstring_log("SD2: %s manually set Opera event to EVENT_HOOD", pPlayer->GetGuidStr().c_str());
             }
             break;
         case GOSSIP_ACTION_INFO_DEF+5:
@@ -245,7 +244,7 @@ bool GossipSelect_npc_barnes(Player* pPlayer, Creature* pCreature, uint32 /*uiSe
             if (ScriptedInstance* pInstance = (ScriptedInstance*)pCreature->GetInstanceData())
             {
                 pInstance->SetData(TYPE_OPERA_PERFORMANCE, OPERA_EVENT_ROMULO_AND_JUL);
-                outstring_log("SD2: %s manually set Opera event to EVENT_RAJ", pPlayer->GetGuidStr().c_str());
+               // outstring_log("SD2: %s manually set Opera event to EVENT_RAJ", pPlayer->GetGuidStr().c_str());
             }
             break;
     }
@@ -270,7 +269,7 @@ bool GossipHello_npc_berthold(Player* pPlayer, Creature* pCreature)
     {
         // Check if Shade of Aran event is done
         if (pInstance->GetData(TYPE_ARAN) == DONE)
-            pPlayer->ADD_GOSSIP_ITEM_ID(GOSSIP_ICON_CHAT, GOSSIP_ITEM_TELEPORT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_TELEPORT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
     }
 
     pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetObjectGuid());
@@ -280,7 +279,7 @@ bool GossipHello_npc_berthold(Player* pPlayer, Creature* pCreature)
 bool GossipSelect_npc_berthold(Player* pPlayer, Creature* /*pCreature*/, uint32 /*uiSender*/, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
-        pPlayer->CastSpell(pPlayer, SPELL_TELEPORT, TRIGGERED_OLD_TRIGGERED);
+        pPlayer->CastSpell(pPlayer, SPELL_TELEPORT, true);
 
     pPlayer->CLOSE_GOSSIP_MENU();
     return true;

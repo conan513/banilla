@@ -283,6 +283,20 @@ void MotionMaster::MoveIdle()
         push(&si_idleMovement);
 }
 
+void MotionMaster::MoveRandomAroundPoint(float x, float y, float z, float radius, float verticalZ)
+{
+	if (m_owner->GetTypeId() == TYPEID_PLAYER)
+	{
+		sLog.outError("%s attempt to move random.", m_owner->GetGuidStr().c_str());
+
+	}
+	else
+	{
+		DEBUG_FILTER_LOG(LOG_FILTER_AI_AND_MOVEGENSS, "%s move random.", m_owner->GetGuidStr().c_str());
+		Mutate(new RandomMovementGenerator<Creature>(x, y, z, radius, verticalZ));
+	}
+}
+
 void MotionMaster::MoveRandom()
 {
     if (m_owner->GetTypeId() == TYPEID_PLAYER)

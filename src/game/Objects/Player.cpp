@@ -20628,7 +20628,7 @@ bool Player::AttackStop(bool targetSwitch, bool includingCast, bool includingCom
 	if (includingCombo)
 		ClearComboPoints();
 	if (includingCast)
-		((Unit*)this)->CastStop;
+		((Unit*)this)->CastStop();
 
 	return ((Unit*)this)->AttackStop(targetSwitch);
 }

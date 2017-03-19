@@ -21,7 +21,7 @@ SDComment:
 SDCategory: Karazhan
 EndScriptData */
 
-#include "precompiled.h"
+#include "scriptPCH.h"
 #include "karazhan.h"
 
 enum
@@ -306,7 +306,7 @@ struct boss_attumenAI : public ScriptedAI
         {
             if (Creature* pMidnight = m_pInstance->GetSingleCreatureFromStorage(NPC_MIDNIGHT))
             {
-                pMidnight->CastSpell(m_creature, SPELL_MOUNT, TRIGGERED_OLD_TRIGGERED);
+                pMidnight->CastSpell(m_creature, SPELL_MOUNT, true);
                 m_bHasSummonRider = true;
             }
         }
@@ -320,7 +320,7 @@ CreatureAI* GetAI_boss_attumen(Creature* pCreature)
     return new boss_attumenAI(pCreature);
 }
 
-bool EffectDummyCreature_spell_mount_attumen(Unit* pCaster, uint32 uiSpellId, SpellEffectIndex uiEffIndex, Creature* pCreatureTarget, ObjectGuid /*originalCasterGuid*/)
+bool EffectDummyCreature_spell_mount_attumen(Unit* pCaster, uint32 uiSpellId, SpellEffectIndex uiEffIndex, Creature* pCreatureTarget)
 {
     // always check spellid and effectindex
     if (uiSpellId == SPELL_MOUNT && uiEffIndex == EFFECT_INDEX_0)
@@ -347,7 +347,7 @@ void AddSC_boss_attumen()
     pNewScript = new Script;
     pNewScript->Name = "boss_attumen";
     pNewScript->GetAI = &GetAI_boss_attumen;
-    pNewScript->pEffectDummyNPC = &EffectDummyCreature_spell_mount_attumen;
+    pNewScript->pEffectDummyCreature = &EffectDummyCreature_spell_mount_attumen;
     pNewScript->RegisterSelf();
 
     pNewScript = new Script;

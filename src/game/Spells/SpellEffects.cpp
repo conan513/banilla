@@ -2980,7 +2980,7 @@ void Spell::EffectTriggerSpellWithValue(SpellEffectIndex eff_idx)
 	if (!spellInfo)
 	{
 		// No previous Effect might have started a script
-		bool startDBScript = unitTarget && ScriptMgr::CanSpellEffectStartDBScript(m_spellInfo, eff_idx);
+		bool startDBScript = unitTarget && ScriptMgr::CanSpellEffectStartDBScript(m_spellInfo->Id, eff_idx);
 		if (startDBScript)
 		{
 			DEBUG_FILTER_LOG(LOG_FILTER_SPELL_CAST, "Spell ScriptStart spellid %u in EffectTriggerSpell", m_spellInfo->Id);

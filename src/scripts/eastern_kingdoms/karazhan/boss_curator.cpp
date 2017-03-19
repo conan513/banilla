@@ -21,7 +21,7 @@ SDComment:
 SDCategory: Karazhan
 EndScriptData */
 
-#include "precompiled.h"
+#include "scriptPCH.h"
 #include "karazhan.h"
 
 enum
@@ -105,8 +105,8 @@ struct boss_curatorAI : public ScriptedAI
         if (pSummoned->GetEntry() == NPC_ASTRAL_FLARE)
         {
             // Flare start with aggro on it's target, should be immune to arcane
-            pSummoned->CastSpell(pSummoned, SPELL_ASTRAL_FLARE_PASSIVE, TRIGGERED_OLD_TRIGGERED);
-            pSummoned->CastSpell(pSummoned, SPELL_ASTRAL_FLARE_VISUAL, TRIGGERED_OLD_TRIGGERED);
+            pSummoned->CastSpell(pSummoned, SPELL_ASTRAL_FLARE_PASSIVE, true);
+            pSummoned->CastSpell(pSummoned, SPELL_ASTRAL_FLARE_VISUAL, true);
             pSummoned->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_ARCANE, true);
 
             if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
@@ -153,7 +153,7 @@ struct boss_curatorAI : public ScriptedAI
                 // summon Astral Flare
                 float fX, fY, fZ;
                 m_creature->GetRandomPoint(m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), 10.0f, fX, fY, fZ);
-                m_creature->SummonCreature(NPC_ASTRAL_FLARE, fX, fY, fZ, 0, TEMPSUMMON_TIMED_OOC_DESPAWN, 5000);
+                m_creature->SummonCreature(NPC_ASTRAL_FLARE, fX, fY, fZ, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
 
                 // reduce mana by 10% of maximum
                 if (int32 iMana = m_creature->GetMaxPower(POWER_MANA))

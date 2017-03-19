@@ -21,7 +21,7 @@ SDComment:
 SDCategory: Karazhan
 EndScriptData */
 
-#include "precompiled.h"
+#include "scriptPCH.h"
 #include "karazhan.h"
 
 enum
@@ -129,7 +129,7 @@ struct boss_terestianAI : public ScriptedAI
                 pSummoned->SetInCombatWithZone();
                 break;
             case NPC_DEMONCHAINS:
-                pSummoned->CastSpell(pSummoned, SPELL_DEMON_CHAINS, TRIGGERED_NONE);
+                pSummoned->CastSpell(pSummoned, SPELL_DEMON_CHAINS, false);
                 break;
         }
     }
@@ -139,7 +139,7 @@ struct boss_terestianAI : public ScriptedAI
         switch (pSummoned->GetEntry())
         {
             case NPC_KILREK:
-                pSummoned->CastSpell(m_creature, SPELL_BROKEN_PACT, TRIGGERED_OLD_TRIGGERED);
+                pSummoned->CastSpell(m_creature, SPELL_BROKEN_PACT, true);
                 m_uiSummonKilrekTimer = Randomize(30000);
                 break;
             case NPC_DEMONCHAINS:

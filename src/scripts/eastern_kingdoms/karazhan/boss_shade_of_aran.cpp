@@ -21,7 +21,7 @@ SDComment: When drinking mana, it should remove all negative damage auras and sh
 SDCategory: Karazhan
 EndScriptData */
 
-#include "precompiled.h"
+#include "scriptPCH.h"
 #include "karazhan.h"
 
 enum
@@ -57,7 +57,7 @@ enum
     // low mana spells
     SPELL_MASS_POLYMORPH        = 29963,
     SPELL_CONJURE_WATER         = 29975,
-    SPELL_DRINK                 = 30024,
+    SPELL_DRINK_K                = 30024,
     SPELL_MANA_POTION           = 32453,
     SPELL_PYROBLAST             = 29978,
 
@@ -171,17 +171,17 @@ struct boss_aranAI : public ScriptedAI
         m_creature->RemoveGuardians();
     }
 
-    void DamageTaken(Unit* /*pDoneBy*/, uint32& uiDamage, DamageEffectType damagetype) override
+    void DamageTaken(Unit* /*pDoneBy*/, uint32& uiDamage) override
     {
 		// Must only break drinking on direct damage
-		if (!m_bDrinkInturrupted && m_bIsDrinking && uiDamage > 0 && (damagetype == SPELL_DIRECT_DAMAGE || damagetype == DIRECT_DAMAGE))
+		if (!m_bDrinkInturrupted && m_bIsDrinking && uiDamage > 0)
         {
-            if (!m_creature->HasAura(SPELL_DRINK))
+            if (!m_creature->HasAura(SPELL_DRINK_K))
                 return;
 
             if (DoCastSpellIfCan(m_creature, SPELL_MANA_POTION) == CAST_OK)
             {
-                m_creature->RemoveAurasDueToSpell(SPELL_DRINK);
+                m_creature->RemoveAurasDueToSpell(SPELL_DRINK_K);
                 m_creature->SetStandState(UNIT_STAND_STATE_STAND);
                 m_uiManaRecoveryTimer = 1000;
                 m_uiManaRecoveryStage = 2;
@@ -207,7 +207,7 @@ struct boss_aranAI : public ScriptedAI
             return;
 
         // Start drinking when below 20% mana
-        if (!m_bIsDrinking && m_creature->GetPowerType() == POWER_MANA && (m_creature->GetPower(POWER_MANA) * 100 / m_creature->GetMaxPower(POWER_MANA)) < 20)
+        if (!m_bIsDrinking && m_creature->getPowerType() == POWER_MANA && (m_creature->GetPower(POWER_MANA) * 100 / m_creature->GetMaxPower(POWER_MANA)) < 20)
         {
             if (DoCastSpellIfCan(m_creature, SPELL_MASS_POLYMORPH) == CAST_OK)
             {
@@ -235,7 +235,7 @@ struct boss_aranAI : public ScriptedAI
                             m_uiManaRecoveryTimer = 2000;
                         break;
                     case 1:
-                        if (DoCastSpellIfCan(m_creature, SPELL_DRINK) == CAST_OK)
+                        if (DoCastSpellIfCan(m_creature, SPELL_DRINK_K) == CAST_OK)
                         {
                             m_creature->SetStandState(UNIT_STAND_STATE_SIT);
                             m_uiManaRecoveryTimer = 5000;
@@ -384,7 +384,7 @@ struct boss_aranAI : public ScriptedAI
             if (m_uiBerserkTimer <= uiDiff)
             {
                 for (uint8 i = 0; i < MAX_SHADOWS_OF_ARAN; ++i)
-                    DoSpawnCreature(NPC_SHADOW_OF_ARAN, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OOC_DESPAWN, 5000);
+                    DoSpawnCreature(NPC_SHADOW_OF_ARAN, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
 
                 DoScriptText(SAY_TIMEOVER, m_creature);
                 m_uiBerserkTimer = 0;
