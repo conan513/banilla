@@ -21,7 +21,7 @@ SDComment: Water Globule script is not complete - requires additional research.
 SDCategory: Coilfang Resevoir, Serpent Shrine Cavern
 EndScriptData */
 
-#include "precompiled.h"
+#include "scriptPCH.h"
 #include "serpent_shrine.h"
 
 enum

@@ -26,7 +26,7 @@ mob_omrogg_heads
 boss_warbringer_omrogg
 EndContentData */
 
-#include "precompiled.h"
+#include "scriptPCH.h"
 #include "shattered_halls.h"
 
 enum

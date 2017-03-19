@@ -2302,7 +2302,7 @@ void Unit::CalculateDamageAbsorbAndResist(Unit *pCaster, SpellSchoolMask schoolM
 	// Cast back reflect damage spell
 	if (reflectSpell)
 	{
-		CastCustomSpell(pCaster, reflectSpell, &reflectDamage, nullptr, nullptr, TRIGGERED_OLD_TRIGGERED, nullptr, reflectTriggeredBy);
+		CastCustomSpell(pCaster, reflectSpell, &reflectDamage, nullptr, nullptr, true, nullptr, reflectTriggeredBy);
 		reflectTriggeredBy->SetInUse(false);                // free lock from deletion
 	}
 
@@ -2349,7 +2349,7 @@ void Unit::CalculateDamageAbsorbAndResist(Unit *pCaster, SpellSchoolMask schoolM
 		if (currentAbsorb > int32(GetHealth()*0.25f))
 		{
 			if (HasAuraWithMiscValue(SPELL_AURA_DUMMY, 8501))
-				CastSpell(this, uint32(GetAuraWithMiscValue(SPELL_AURA_DUMMY, 8501)->GetModifierAmount()), TRIGGERED_NONE); //Cast Mana Absorb
+				CastSpell(this, uint32(GetAuraWithMiscValue(SPELL_AURA_DUMMY, 8501)->GetModifierAmount()), false); //Cast Mana Absorb
 			}
 		else
 			RemainingDamage -= currentAbsorb;
@@ -4579,7 +4579,7 @@ void Unit::RemoveAuraHolderDueToSpellByDispel(uint32 spellId, uint32 stackAmount
 			RemoveAuraHolderFromStack(spellId, stackAmount, casterGuid, AURA_REMOVE_BY_DISPEL);
 
 			// backfire damage and silence
-			dispeller->CastCustomSpell(dispeller, 31117, &damage, nullptr, nullptr, TRIGGERED_OLD_TRIGGERED, nullptr, nullptr, casterGuid);
+			dispeller->CastCustomSpell(dispeller, 31117, &damage, nullptr, nullptr, true, nullptr, nullptr, casterGuid);
 			return;
 		}
 	}
@@ -4592,7 +4592,7 @@ void Unit::RemoveAuraHolderDueToSpellByDispel(uint32 spellId, uint32 stackAmount
 			{
 				// Lifebloom dummy store single stack amount always
 				int32 amount = dotAura->GetModifierAmount(getLevel());
-				CastCustomSpell(this, 33778, &amount, nullptr, nullptr, TRIGGERED_OLD_TRIGGERED, nullptr, dotAura, casterGuid);
+				CastCustomSpell(this, 33778, &amount, nullptr, nullptr, true, nullptr, dotAura, casterGuid);
 			}
 		}
 	}

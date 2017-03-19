@@ -24,6 +24,24 @@
 #include "ZoneScript.h"
 #include "ObjectGuid.h"
 
+enum InstanceConditionIDs                                   // Suggested values used with CONDITION_INSTANCE_SCRIPT for some generic uses
+{
+	// for hard-mode loot (0 normal; 1,2... hard,harder... mode)
+	INSTANCE_CONDITION_ID_NORMAL_MODE = 0,
+	INSTANCE_CONDITION_ID_HARD_MODE = 1,
+	INSTANCE_CONDITION_ID_HARD_MODE_2 = 2,
+	INSTANCE_CONDITION_ID_HARD_MODE_3 = 3,
+	INSTANCE_CONDITION_ID_HARD_MODE_4 = 4,
+
+	// to check for which team the instance is doing scripts
+	INSTANCE_CONDITION_ID_TEAM_HORDE = 67,
+	INSTANCE_CONDITION_ID_TEAM_ALLIANCE = 469,
+
+	// to check water event in SSC
+	INSTANCE_CONDITION_ID_LURKER = 21217,
+	INSTANCE_CONDITION_ID_SCALDING_WATER = 37284,
+};
+
 class Map;
 class Unit;
 class Player;

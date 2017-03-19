@@ -26,7 +26,7 @@ boss_hydromancer_thespia
 mob_coilfang_waterelemental
 EndContentData */
 
-#include "precompiled.h"
+#include "scriptPCH.h"
 #include "steam_vault.h"
 
 enum

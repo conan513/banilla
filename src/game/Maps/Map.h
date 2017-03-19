@@ -295,6 +295,7 @@ class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>, public MaNGOS::Obj
         bool IsRaid() const { return i_mapEntry && i_mapEntry->IsRaid(); }
         bool IsBattleGround() const { return i_mapEntry && i_mapEntry->IsBattleGround(); }
         bool IsContinent() const { return i_mapEntry && i_mapEntry->IsContinent(); }
+		bool IsRegularDifficulty() const { return true; }
 
         // can't be NULL for loaded map
         MapPersistentState* GetPersistentState() const { return m_persistentState; }

@@ -33,9 +33,7 @@ npc_magister_aledis
 npc_living_flare
 EndContentData */
 
-#include "precompiled.h"
-#include "escort_ai.h"
-#include "pet_ai.h"
+#include "scriptPCH.h"
 
 /*######
 ## npc_aeranas
@@ -143,9 +141,9 @@ struct npc_ancestral_wolfAI : public npc_escortAI
     npc_ancestral_wolfAI(Creature* pCreature) : npc_escortAI(pCreature)
     {
         if (pCreature->GetOwner() && pCreature->GetOwner()->GetTypeId() == TYPEID_PLAYER)
-            Start(false, (Player*)pCreature->GetOwner());
-        else
-            script_error_log("npc_ancestral_wolf can not obtain owner or owner is not a player.");
+            Start(false, ((Player*)pCreature->GetOwner())->GetGUID());
+        //else
+         //   script_error_log("npc_ancestral_wolf can not obtain owner or owner is not a player.");
 
         Reset();
     }
@@ -259,22 +257,22 @@ struct npc_demoniac_scryerAI : public ScriptedAI
         float fX, fY, fZ;
         m_creature->GetRandomPoint(m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), 20.0f, fX, fY, fZ);
 
-        m_creature->SummonCreature(NPC_HELLFIRE_WARDLING, fX, fY, fZ, 0.0f, TEMPSUMMON_TIMED_OOC_DESPAWN, 5000);
+        m_creature->SummonCreature(NPC_HELLFIRE_WARDLING, fX, fY, fZ, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
     }
 
     void JustSummoned(Creature* pSummoned) override
     {
         if (pSummoned->GetEntry() == NPC_HELLFIRE_WARDLING)
         {
-            pSummoned->CastSpell(pSummoned, SPELL_SUMMONED_DEMON, TRIGGERED_NONE);
+            pSummoned->CastSpell(pSummoned, SPELL_SUMMONED_DEMON, false);
             pSummoned->AI()->AttackStart(m_creature);
         }
         else
         {
             if (pSummoned->GetEntry() == NPC_BUTTRESS)
             {
-                pSummoned->CastSpell(pSummoned, SPELL_BUTTRESS_APPERANCE, TRIGGERED_NONE);
-                pSummoned->CastSpell(m_creature, SPELL_SUCKER_CHANNEL, TRIGGERED_OLD_TRIGGERED);
+                pSummoned->CastSpell(pSummoned, SPELL_BUTTRESS_APPERANCE, false);
+                pSummoned->CastSpell(m_creature, SPELL_SUCKER_CHANNEL, true);
             }
         }
     }
@@ -294,7 +292,7 @@ struct npc_demoniac_scryerAI : public ScriptedAI
         {
             if (m_uiButtressCount >= MAX_BUTTRESS)
             {
-                m_creature->CastSpell(m_creature, SPELL_SUCKER_DESPAWN_MOB, TRIGGERED_NONE);
+                m_creature->CastSpell(m_creature, SPELL_SUCKER_DESPAWN_MOB, false);
 
                 if (m_creature->isInCombat())
                 {
@@ -350,7 +348,7 @@ bool GossipSelect_npc_demoniac_scryer(Player* pPlayer, Creature* pCreature, uint
     if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
     {
         pPlayer->CLOSE_GOSSIP_MENU();
-        pCreature->CastSpell(pPlayer, SPELL_DEMONIAC_VISITATION, TRIGGERED_NONE);
+        pCreature->CastSpell(pPlayer, SPELL_DEMONIAC_VISITATION, false);
     }
 
     return true;
@@ -394,8 +392,8 @@ struct npc_wounded_blood_elfAI : public npc_escortAI
             case 9:
                 DoScriptText(SAY_ELF_SUMMON1, m_creature, pPlayer);
                 // Spawn two Haal'eshi Talonguard
-                DoSpawnCreature(NPC_WINDWALKER, -15, -15, 0, 0, TEMPSUMMON_TIMED_OOC_DESPAWN, 5000);
-                DoSpawnCreature(NPC_WINDWALKER, -17, -17, 0, 0, TEMPSUMMON_TIMED_OOC_DESPAWN, 5000);
+                DoSpawnCreature(NPC_WINDWALKER, -15, -15, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
+                DoSpawnCreature(NPC_WINDWALKER, -17, -17, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
                 break;
             case 13:
                 DoScriptText(SAY_ELF_RESTING, m_creature, pPlayer);
@@ -403,8 +401,8 @@ struct npc_wounded_blood_elfAI : public npc_escortAI
             case 14:
                 DoScriptText(SAY_ELF_SUMMON2, m_creature, pPlayer);
                 // Spawn two Haal'eshi Windwalker
-                DoSpawnCreature(NPC_WINDWALKER, -15, -15, 0, 0, TEMPSUMMON_TIMED_OOC_DESPAWN, 5000);
-                DoSpawnCreature(NPC_WINDWALKER, -17, -17, 0, 0, TEMPSUMMON_TIMED_OOC_DESPAWN, 5000);
+                DoSpawnCreature(NPC_WINDWALKER, -15, -15, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
+                DoSpawnCreature(NPC_WINDWALKER, -17, -17, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
                 break;
             case 27:
                 DoScriptText(SAY_ELF_COMPLETE, m_creature, pPlayer);
@@ -441,7 +439,7 @@ bool QuestAccept_npc_wounded_blood_elf(Player* pPlayer, Creature* pCreature, con
         pCreature->SetFactionTemporary(FACTION_ESCORT_H_PASSIVE, TEMPFACTION_RESTORE_RESPAWN);
 
         if (npc_wounded_blood_elfAI* pEscortAI = dynamic_cast<npc_wounded_blood_elfAI*>(pCreature->AI()))
-            pEscortAI->Start(false, pPlayer, pQuest);
+            pEscortAI->Start(false, pPlayer->GetGUID(), pQuest);
     }
 
     return true;
@@ -713,8 +711,8 @@ struct npc_anchorite_baradaAI : public ScriptedAI, private DialogueHelper
             case SPELL_JULES_THREATENS:
                 if (Creature* pColonel = m_creature->GetMap()->GetCreature(m_colonelGuid))
                 {
-                    pColonel->CastSpell(pColonel, SPELL_JULES_THREATENS, TRIGGERED_OLD_TRIGGERED);
-                    pColonel->CastSpell(pColonel, SPELL_JULES_RELEASE_DARKNESS, TRIGGERED_OLD_TRIGGERED);
+                    pColonel->CastSpell(pColonel, SPELL_JULES_THREATENS, true);
+                    pColonel->CastSpell(pColonel, SPELL_JULES_RELEASE_DARKNESS, true);
                     pColonel->SetFacingTo(0);
                 }
                 break;
@@ -722,13 +720,13 @@ struct npc_anchorite_baradaAI : public ScriptedAI, private DialogueHelper
                 if (Creature* pColonel = m_creature->GetMap()->GetCreature(m_colonelGuid))
                 {
                     pColonel->InterruptNonMeleeSpells(false);
-                    pColonel->CastSpell(pColonel, SPELL_JULES_GOES_UPRIGHT, TRIGGERED_NONE);
+                    pColonel->CastSpell(pColonel, SPELL_JULES_GOES_UPRIGHT, false);
                 }
                 break;
             case SPELL_JULES_VOMITS:
                 if (Creature* pColonel = m_creature->GetMap()->GetCreature(m_colonelGuid))
                 {
-                    pColonel->CastSpell(pColonel, SPELL_JULES_VOMITS, TRIGGERED_OLD_TRIGGERED);
+                    pColonel->CastSpell(pColonel, SPELL_JULES_VOMITS, true);
                     pColonel->GetMotionMaster()->MoveRandomAroundPoint(m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ() + 3.0f, 5.0f);
                 }
                 break;
@@ -1129,7 +1127,7 @@ bool EffectAuraDummy_spell_aura_dummy_living_flare(const Aura* pAura, bool bAppl
     {
         if (Creature* pTarget = (Creature*)pAura->GetTarget())
         {
-            pTarget->CastSpell(pTarget, SPELL_FEL_FLAREUP, TRIGGERED_OLD_TRIGGERED);
+            pTarget->CastSpell(pTarget, SPELL_FEL_FLAREUP, true);
 
             SpellAuraHolder* pHolder = pTarget->GetSpellAuraHolder(SPELL_FEL_FLAREUP);
             if (pHolder)
@@ -1138,7 +1136,7 @@ bool EffectAuraDummy_spell_aura_dummy_living_flare(const Aura* pAura, bool bAppl
                     pTarget->AI()->SendAIEvent(AI_EVENT_CUSTOM_A, pTarget, pTarget);
                 // Note: cosmetic aura is removed, so we need to add it back. This needs to be fixed
                 else
-                    pTarget->CastSpell(pTarget, SPELL_LIVING_COSMETIC, TRIGGERED_OLD_TRIGGERED);
+                    pTarget->CastSpell(pTarget, SPELL_LIVING_COSMETIC, true);
             }
         }
     }

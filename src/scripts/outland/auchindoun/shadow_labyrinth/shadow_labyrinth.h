@@ -42,11 +42,11 @@ class instance_shadow_labyrinth : public ScriptedInstance
         void OnCreatureDeath(Creature* pCreature) override;
 
         void SetData(uint32 uiType, uint32 uiData) override;
-        uint32 GetData(uint32 uiType) const override;
+        uint32 GetData(uint32 uiType) const;
 
         void SetData64(uint32 uiType, uint64 uiGuid) override;
 
-        const char* Save() const override { return m_strInstData.c_str(); }
+        const char* Save() const { return m_strInstData.c_str(); }
         void Load(const char* chrIn) override;
 
         bool IsHellmawUnbanished() { return m_sRitualistsAliveGUIDSet.empty(); }
@@ -55,7 +55,7 @@ class instance_shadow_labyrinth : public ScriptedInstance
         uint32 m_auiEncounter[MAX_ENCOUNTER];
         std::string m_strInstData;
 
-        GuidSet m_sRitualistsAliveGUIDSet;
+        ObjectGuidSet m_sRitualistsAliveGUIDSet;
 };
 
 #endif

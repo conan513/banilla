@@ -21,7 +21,7 @@ SDComment: Sonic Boom and Murmur's Touch require additional research and core su
 SDCategory: Auchindoun, Shadow Labyrinth
 EndScriptData */
 
-#include "precompiled.h"
+#include "scriptPCH.h"
 #include "shadow_labyrinth.h"
 
 enum

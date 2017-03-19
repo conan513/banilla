@@ -27,7 +27,7 @@ mob_fel_orc_convert
 mob_lesser_shadow_fissure
 EndContentData */
 
-#include "precompiled.h"
+#include "scriptPCH.h"
 #include "shattered_halls.h"
 
 struct Say

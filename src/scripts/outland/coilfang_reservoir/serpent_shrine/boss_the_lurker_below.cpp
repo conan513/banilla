@@ -21,7 +21,7 @@ SDComment: Spawn animation NYI; Timers may need adjustments.
 SDCategory: Coilfang Resevoir, Serpent Shrine Cavern
 EndScriptData */
 
-#include "precompiled.h"
+#include "scriptPCH.h"
 #include "serpent_shrine.h"
 
 enum

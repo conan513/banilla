@@ -21,7 +21,7 @@ SDComment: Some cleanup left along with save
 SDCategory: Auchindoun, Shadow Labyrinth
 EndScriptData */
 
-#include "precompiled.h"
+#include "scriptPCH.h"
 #include "shadow_labyrinth.h"
 
 /* Shadow Labyrinth encounters:
@@ -111,6 +111,7 @@ void instance_shadow_labyrinth::SetData(uint32 uiType, uint32 uiData)
         OUT_SAVE_INST_DATA_COMPLETE;
     }
 }
+
 
 uint32 instance_shadow_labyrinth::GetData(uint32 uiType) const
 {

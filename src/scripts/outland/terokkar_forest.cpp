@@ -37,9 +37,7 @@ npc_cenarion_sparrowhawk
 npc_skyguard_prisoner
 EndContentData */
 
-#include "precompiled.h"
-#include "escort_ai.h"
-#include "pet_ai.h"
+#include "scriptPCH.h"
 
 /*######
 ## mob_unkor_the_ruthless
@@ -170,11 +168,11 @@ struct mob_netherweb_victimAI : public ScriptedAI
             {
                 if (!urand(0, 3))
                 {
-                    m_creature->SummonCreature(NPC_FREED_WARRIOR, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OOC_DESPAWN, 60000);
+                    m_creature->SummonCreature(NPC_FREED_WARRIOR, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
                     pPlayer->KilledMonsterCredit(NPC_FREED_WARRIOR, m_creature->GetObjectGuid());
                 }
                 else
-                    m_creature->SummonCreature(netherwebVictims[urand(0, 5)], 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OOC_DESPAWN, 60000);
+                    m_creature->SummonCreature(netherwebVictims[urand(0, 5)], 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
             }
         }
     }
@@ -223,15 +221,15 @@ struct npc_akunoAI : public npc_escortAI
         {
             case 5:
                 DoScriptText(SAY_AKU_AMBUSH_A, m_creature);
-                m_creature->SummonCreature(NPC_CABAL_SKIRMISHER, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OOC_DESPAWN, 25000);
+                m_creature->SummonCreature(NPC_CABAL_SKIRMISHER, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
                 break;
             case 14:
                 DoScriptText(SAY_AKU_AMBUSH_B, m_creature);
 
-                if (Creature* pTemp = m_creature->SummonCreature(NPC_CABAL_SKIRMISHER, m_afAmbushB1[0], m_afAmbushB1[1], m_afAmbushB1[2], 0.0f, TEMPSUMMON_TIMED_OOC_DESPAWN, 25000))
+                if (Creature* pTemp = m_creature->SummonCreature(NPC_CABAL_SKIRMISHER, m_afAmbushB1[0], m_afAmbushB1[1], m_afAmbushB1[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000))
                     DoScriptText(SAY_AKU_AMBUSH_B_REPLY, pTemp);
 
-                m_creature->SummonCreature(NPC_CABAL_SKIRMISHER, m_afAmbushB2[0], m_afAmbushB2[1], m_afAmbushB2[2], 0.0f, TEMPSUMMON_TIMED_OOC_DESPAWN, 25000);
+                m_creature->SummonCreature(NPC_CABAL_SKIRMISHER, m_afAmbushB2[0], m_afAmbushB2[1], m_afAmbushB2[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
                 break;
             case 15:
                 SetRun();
@@ -278,7 +276,7 @@ bool QuestAccept_npc_akuno(Player* pPlayer, Creature* pCreature, const Quest* pQ
             pCreature->SetFactionTemporary(FACTION_ESCORT_N_NEUTRAL_ACTIVE, TEMPFACTION_RESTORE_RESPAWN);
 
             DoScriptText(SAY_AKU_START, pCreature);
-            pEscortAI->Start(false, pPlayer, pQuest);
+            pEscortAI->Start(false, pPlayer->GetGUID(), pQuest);
         }
     }
     return true;
@@ -314,7 +312,7 @@ struct npc_hungry_nether_rayAI : public ScriptedPetAI
             if (m_creature->IsWithinDistInMap(pVictim, 10.0f))
             {
                 DoScriptText(EMOTE_FEED, m_creature);
-                m_creature->CastSpell(m_creature, SPELL_FEED_CREDIT, TRIGGERED_NONE);
+                m_creature->CastSpell(m_creature, SPELL_FEED_CREDIT, false);
             }
         }
     }
@@ -526,7 +524,7 @@ struct npc_letollAI : public npc_escortAI
                             break;
                         case 12:
                             DoScriptText(SAY_LE_IN_YOUR_FACE, m_creature);
-                            m_creature->SummonCreature(NPC_BONE_SIFTER, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OOC_DESPAWN, 30000);
+                            m_creature->SummonCreature(NPC_BONE_SIFTER, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
                             break;
                         case 13:
                             DoScriptText(EMOTE_LE_PICK_UP, m_creature);
@@ -568,7 +566,7 @@ bool QuestAccept_npc_letoll(Player* pPlayer, Creature* pCreature, const Quest* p
             DoScriptText(SAY_LE_START, pCreature);
             pCreature->SetFactionTemporary(FACTION_ESCORT_N_NEUTRAL_PASSIVE, TEMPFACTION_RESTORE_RESPAWN);
 
-            pEscortAI->Start(false, pPlayer, pQuest, true);
+            pEscortAI->Start(false, pPlayer->GetGUID(), pQuest, true);
         }
     }
 
@@ -634,7 +632,7 @@ struct npc_mana_bomb_exp_triggerAI : public ScriptedAI
             m_uiEventTimer = 1000;
 
             if (m_uiEventCounter < 10)
-                m_creature->CastSpell(m_creature, SPELL_MANA_BOMB_LIGHTNING, TRIGGERED_NONE);
+                m_creature->CastSpell(m_creature, SPELL_MANA_BOMB_LIGHTNING, false);
 
             switch (m_uiEventCounter)
             {
@@ -657,7 +655,7 @@ struct npc_mana_bomb_exp_triggerAI : public ScriptedAI
                     DoScriptText(SAY_COUNT_5, m_creature);
                     break;
                 case 10:
-                    m_creature->CastSpell(m_creature, SPELL_MANA_BOMB_EXPL, TRIGGERED_NONE);
+                    m_creature->CastSpell(m_creature, SPELL_MANA_BOMB_EXPL, false);
                     break;
                 case 30:
                     if (pManaBomb)
@@ -891,7 +889,7 @@ bool QuestAccept_npc_isla_starmane(Player* pPlayer, Creature* pCreature, const Q
         if (npc_isla_starmaneAI* pEscortAI = dynamic_cast<npc_isla_starmaneAI*>(pCreature->AI()))
         {
             pCreature->SetFactionTemporary(pPlayer->GetTeam() == ALLIANCE ? FACTION_ESCORT_A_NEUTRAL_ACTIVE : FACTION_ESCORT_H_NEUTRAL_ACTIVE, TEMPFACTION_RESTORE_RESPAWN);
-            pEscortAI->Start(false, pPlayer, pQuest);
+            pEscortAI->Start(false, pPlayer->GetGUID(), pQuest);
         }
     }
     return true;
@@ -960,7 +958,7 @@ struct npc_skywingAI : public npc_escortAI
                 break;
             case 80:
                 DoScriptText(SAY_SKYWING_SUMMON, m_creature);
-                m_creature->SummonCreature(NPC_LUANGA_THE_IMPRISONER, aLuangaSpawnCoords[0], aLuangaSpawnCoords[1], aLuangaSpawnCoords[2], 0, TEMPSUMMON_TIMED_OOC_DESPAWN, 30000);
+                m_creature->SummonCreature(NPC_LUANGA_THE_IMPRISONER, aLuangaSpawnCoords[0], aLuangaSpawnCoords[1], aLuangaSpawnCoords[2], 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
                 break;
             case 81:
                 // Start transformation
@@ -1017,7 +1015,7 @@ bool QuestAccept_npc_skywing(Player* pPlayer, Creature* pCreature, const Quest* 
             pCreature->SetFactionTemporary(FACTION_ESCORT_N_NEUTRAL_PASSIVE, TEMPFACTION_RESTORE_RESPAWN);
             DoScriptText(SAY_SKYWING_START, pCreature);
 
-            pEscortAI->Start(false, pPlayer, pQuest);
+            pEscortAI->Start(false, pPlayer->GetGUID(), pQuest);
         }
     }
     return true;
@@ -1150,7 +1148,7 @@ struct npc_skyguard_prisonerAI : public npc_escortAI
         if (eventType == AI_EVENT_START_ESCORT && pInvoker->GetTypeId() == TYPEID_PLAYER)
         {
             m_creature->SetFactionTemporary(FACTION_ESCORT_N_NEUTRAL_ACTIVE, TEMPFACTION_RESTORE_RESPAWN);
-            Start(false, (Player*)pInvoker, GetQuestTemplateStore(uiMiscValue));
+            Start(false, ((Player*)pInvoker)->GetGUID(), GetQuestTemplateStore(uiMiscValue));
 
             // ToDo: add additional WP when DB will support it
             if (m_creature->GetPositionZ() < 310.0f)
@@ -1158,14 +1156,14 @@ struct npc_skyguard_prisonerAI : public npc_escortAI
                 SetEscortPaused(true);
                 //SetCurrentWaypoint(WP_ID_SPAWN_1);
                 //SetEscortPaused(false);
-                script_error_log("NPC entry %u, location %f, %f, %f does not have waypoints implemented for current spawn location. Please contact customer support!", m_creature->GetEntry(), m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ());
+               // script_error_log("NPC entry %u, location %f, %f, %f does not have waypoints implemented for current spawn location. Please contact customer support!", m_creature->GetEntry(), m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ());
             }
             else if (m_creature->GetPositionZ() < 330.0f)
             {
                 SetEscortPaused(true);
                 //SetCurrentWaypoint(WP_ID_SPAWN_2);
                 //SetEscortPaused(false);
-                script_error_log("NPC entry %u, location %f, %f, %f does not have waypoints implemented for current spawn location. Please contact customer support!", m_creature->GetEntry(), m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ());
+                //script_error_log("NPC entry %u, location %f, %f, %f does not have waypoints implemented for current spawn location. Please contact customer support!", m_creature->GetEntry(), m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ());
             }
             // else just use standard WP
 

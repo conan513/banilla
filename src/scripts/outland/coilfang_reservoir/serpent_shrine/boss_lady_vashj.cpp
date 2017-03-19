@@ -21,7 +21,7 @@ SDComment: Some details are not very clear: the usage of Shoot and Multishot spe
 SDCategory: Coilfang Resevoir, Serpent Shrine Cavern
 EndScriptData */
 
-#include "precompiled.h"
+#include "scriptPCH.h"
 #include "serpent_shrine.h"
 
 enum
@@ -185,7 +185,7 @@ struct boss_lady_vashjAI : public ScriptedAI
                 for (GuidList::const_iterator itr = lShieldGeneratorsGuid.begin(); itr != lShieldGeneratorsGuid.end(); ++itr)
                 {
                     if (Creature* pGenerator = m_creature->GetMap()->GetCreature(*itr))
-                        pGenerator->CastSpell(m_creature, SPELL_MAGIC_BARRIER, TRIGGERED_NONE);
+                        pGenerator->CastSpell(m_creature, SPELL_MAGIC_BARRIER, false);
                 }
             }
 

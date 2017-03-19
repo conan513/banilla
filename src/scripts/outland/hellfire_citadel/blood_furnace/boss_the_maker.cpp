@@ -21,7 +21,7 @@ SDComment: Mind control no support
 SDCategory: Hellfire Citadel, Blood Furnace
 EndScriptData */
 
-#include "precompiled.h"
+#include "scriptPCH.h"
 #include "blood_furnace.h"
 
 enum

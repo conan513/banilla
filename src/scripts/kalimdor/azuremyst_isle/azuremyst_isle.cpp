@@ -26,7 +26,7 @@ npc_draenei_survivor
 npc_magwin
 EndContentData */
 
-#include "precompiled.h"
+#include "scriptPCH.h"
 #include "escort_ai.h"
 
 /*######
@@ -70,7 +70,7 @@ struct npc_draenei_survivorAI : public ScriptedAI
 
         m_bCanSayHelp = true;
 
-        m_creature->CastSpell(m_creature, SPELL_IRRIDATION, TRIGGERED_OLD_TRIGGERED);
+        m_creature->CastSpell(m_creature, SPELL_IRRIDATION, true);
 
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP);
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
@@ -104,7 +104,7 @@ struct npc_draenei_survivorAI : public ScriptedAI
             m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP);
             m_creature->SetStandState(UNIT_STAND_STATE_STAND);
 
-            m_creature->CastSpell(m_creature, SPELL_STUNNED, TRIGGERED_OLD_TRIGGERED);
+            m_creature->CastSpell(m_creature, SPELL_STUNNED, true);
 
             m_casterGuid = pCaster->GetObjectGuid();
 

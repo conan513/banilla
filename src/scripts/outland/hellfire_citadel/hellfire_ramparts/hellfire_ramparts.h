@@ -31,7 +31,7 @@ class instance_ramparts : public ScriptedInstance
         void OnObjectCreate(GameObject* pGo) override;
 
         void SetData(uint32 uiType, uint32 uiData) override;
-        uint32 GetData(uint32 uiType) const override;
+        uint32 GetData(uint32 uiType) const;
 
         // No need to save and load this instance (only one encounter needs special handling, no doors used)
 

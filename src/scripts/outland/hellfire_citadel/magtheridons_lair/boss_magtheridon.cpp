@@ -21,7 +21,7 @@ SDComment: Phase 3 transition requires additional research. The Manticron cubes 
 SDCategory: Hellfire Citadel, Magtheridon's lair
 EndScriptData */
 
-#include "precompiled.h"
+#include "scriptPCH.h"
 #include "magtheridons_lair.h"
 
 enum
@@ -448,7 +448,7 @@ bool GOUse_go_manticron_cube(Player* pPlayer, GameObject* pGo)
 
             // visual is cast by cube
             if (Creature* pTrigger = GetClosestCreatureWithEntry(pGo, NPC_RAID_TRIGGER, 5.0f))
-                pTrigger->CastSpell(pTrigger, SPELL_SHADOW_GRASP_VISUAL, TRIGGERED_NONE);
+                pTrigger->CastSpell(pTrigger, SPELL_SHADOW_GRASP_VISUAL, false);
 
             // the real spell is cast by player
             pPlayer->CastSpell(pPlayer, SPELL_SHADOW_GRASP, false, nullptr, nullptr, pGo->GetObjectGuid());

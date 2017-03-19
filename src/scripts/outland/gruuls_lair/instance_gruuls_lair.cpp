@@ -21,7 +21,7 @@ SDComment:
 SDCategory: Gruul's Lair
 EndScriptData */
 
-#include "precompiled.h"
+#include "scriptPCH.h"
 #include "gruuls_lair.h"
 
 /* Gruuls Lair encounters:

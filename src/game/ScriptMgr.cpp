@@ -1175,6 +1175,16 @@ bool ScriptMgr::OnAuraDummy(Aura const* pAura, bool apply)
     return pTempScript->pEffectAuraDummy(pAura, apply);
 }
 
+bool GOUse(Player* pPlayer, GameObject* pGo)
+{
+	Script* pTempScript = m_scripts[pGo->GetGOInfo()->ScriptId];
+
+	if (!pTempScript || !pTempScript->pGOUse)
+		return false;
+
+	return pTempScript->pGOUse(pPlayer, pGo);
+}
+
 uint32 GetAreaTriggerScriptId(uint32 triggerId)
 {
     return sScriptMgr.GetAreaTriggerScriptId(triggerId);
@@ -1723,3 +1733,58 @@ void ScriptMgr::FillSpellSummary()
     }
 }
 
+
+/**
+* Function that either simulates or does script text for a map
+*
+* @param iTextEntry Entry of the text, stored in SD2-database, only type CHAT_TYPE_ZONE_YELL supported
+* @param uiCreatureEntry Id of the creature of whom saying will be simulated
+* @param pMap Given Map on which the map-wide text is displayed
+* @param pCreatureSource Can be nullptr. If pointer to Creature is given, then the creature does the map-wide text
+* @param pTarget Can be nullptr. Possible target for the text
+*/
+void DoOrSimulateScriptTextForMap(int32 iTextEntry, uint32 uiCreatureEntry, Map* pMap, Creature* pCreatureSource /*=nullptr*/, Unit* pTarget /*=nullptr*/)
+{
+	if (!pMap)
+	{
+		sLog.outError("DoOrSimulateScriptTextForMap entry %i, invalid Map pointer.", iTextEntry);
+		return;
+	}
+
+	if (iTextEntry >= 0)
+	{
+		sLog.outError("DoOrSimulateScriptTextForMap with source entry %u for map %u attempts to process text entry %i, but text entry must be negative.", uiCreatureEntry, pMap->GetId(), iTextEntry);
+		return;
+	}
+
+	CreatureInfo const* pInfo = GetCreatureTemplateStore(uiCreatureEntry);
+	if (!pInfo)
+	{
+		sLog.outError("DoOrSimulateScriptTextForMap has invalid source entry %u for map %u.", uiCreatureEntry, pMap->GetId());
+		return;
+	}
+
+	MangosStringLocale const* pData = sObjectMgr.GetMangosStringLocale(iTextEntry);
+	if (!pData)
+	{
+		sLog.outError("DoOrSimulateScriptTextForMap with source entry %u for map %u could not find text entry %i.", uiCreatureEntry, pMap->GetId(), iTextEntry);
+		return;
+	}
+
+	sLog.outError("SD2: DoOrSimulateScriptTextForMap: text entry=%i, Sound=%u, Type=%u, Language=%u, Emote=%u",
+		iTextEntry, pData->SoundId, pData->Type, pData->LanguageId, pData->Emote);
+
+	if (pData->Type != CHAT_TYPE_ZONE_YELL)
+	{
+		sLog.outError("DoSimulateScriptTextForMap entry %i has not supported chat type %u.", iTextEntry, pData->Type);
+		return;
+	}
+
+	if (pData->SoundId)
+		pMap->PlayDirectSoundToMap(pData->SoundId);
+
+	if (pCreatureSource)                                // If provided pointer for sayer, use direct version
+		pMap->MonsterYellToMap(pCreatureSource->GetObjectGuid(), iTextEntry, pData->LanguageId, pTarget);
+	else                                                // Simulate yell
+		pMap->MonsterYellToMap(pInfo, iTextEntry, pData->LanguageId, pTarget);
+}

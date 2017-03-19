@@ -21,7 +21,7 @@ SDComment: Timers may need some fine adjustments
 SDCategory: Tempest Keep, The Botanica
 EndScriptData */
 
-#include "precompiled.h"
+#include "scriptPCH.h"
 
 enum
 {

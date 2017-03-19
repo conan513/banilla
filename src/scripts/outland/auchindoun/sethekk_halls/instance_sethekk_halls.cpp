@@ -21,7 +21,7 @@ SDComment: Summoning event for Anzu NYI
 SDCategory: Auchindoun, Sethekk Halls
 EndScriptData */
 
-#include "precompiled.h"
+#include "scriptPCH.h"
 #include "sethekk_halls.h"
 
 instance_sethekk_halls::instance_sethekk_halls(Map* pMap) : ScriptedInstance(pMap)
@@ -103,6 +103,7 @@ void instance_sethekk_halls::SetData(uint32 uiType, uint32 uiData)
     }
 }
 
+/**/
 uint32 instance_sethekk_halls::GetData(uint32 uiType) const
 {
     if (uiType < MAX_ENCOUNTER)

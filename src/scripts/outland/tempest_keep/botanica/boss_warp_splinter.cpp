@@ -21,7 +21,7 @@ SDComment: Timers may need adjustments
 SDCategory: Tempest Keep, The Botanica
 EndScriptData */
 
-#include "precompiled.h"
+#include "scriptPCH.h"
 
 /*#####
 # boss_warp_splinter

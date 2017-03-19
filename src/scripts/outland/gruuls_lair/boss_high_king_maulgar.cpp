@@ -21,7 +21,7 @@ SDComment: Verify that the script is working properly
 SDCategory: Gruul's Lair
 EndScriptData */
 
-#include "precompiled.h"
+#include "scriptPCH.h"
 #include "gruuls_lair.h"
 
 enum

@@ -21,7 +21,7 @@ SDComment:
 SDCategory: Hellfire Citadel, Magtheridon's lair
 EndScriptData */
 
-#include "precompiled.h"
+#include "scriptPCH.h"
 #include "magtheridons_lair.h"
 
 instance_magtheridons_lair::instance_magtheridons_lair(Map* pMap) : ScriptedInstance(pMap),

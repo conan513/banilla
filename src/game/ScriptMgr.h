@@ -464,7 +464,7 @@ struct Script
         pNPCDialogStatus(nullptr), pGODialogStatus(nullptr), pQuestRewardedNPC(nullptr), pQuestRewardedGO(nullptr), pItemHello(nullptr), pGOHello(nullptr), pAreaTrigger(nullptr),
         pProcessEventId(nullptr), pItemQuestAccept(nullptr), pGOQuestAccept(nullptr),
         pItemUse(nullptr), pEffectDummyCreature(nullptr), pEffectDummyGameObj(nullptr), pEffectDummyItem(nullptr),
-        pEffectAuraDummy(nullptr), GOOpen(nullptr),
+        pEffectAuraDummy(nullptr), GOOpen(nullptr), pGOUse(nullptr), 
         GOGetAI(nullptr), GetAI(nullptr), GetInstanceData(nullptr)
     {}
 
@@ -491,6 +491,8 @@ struct Script
     bool (*pItemQuestAccept         )(Player*, Item*, const Quest*);
     bool (*pGOQuestAccept           )(Player*, GameObject*, const Quest*);
 //    bool (*pGOChooseReward          )(Player*, GameObject*, const Quest*, uint32);
+	bool (*pGOUse                    )(Player*, GameObject*);
+	//bool (*pEffectDummyNPC)(Unit*, uint32, SpellEffectIndex, Creature*, ObjectGuid);
     bool (*pItemUse                 )(Player*, Item*, SpellCastTargets const&);
     bool (*pEffectDummyCreature     )(Unit*, uint32, SpellEffectIndex, Creature*);
     bool (*pEffectDummyGameObj      )(Unit*, uint32, SpellEffectIndex, GameObject*);
@@ -638,6 +640,7 @@ class ScriptMgr
 
 //Generic scripting text function
 void DoScriptText(int32 textEntry, WorldObject* pSource, Unit* target = nullptr);
+void DoOrSimulateScriptTextForMap(int32 iTextEntry, uint32 uiCreatureEntry, Map* pMap, Creature* pCreatureSource = nullptr, Unit* pTarget = nullptr);
 
 #define sScriptMgr MaNGOS::Singleton<ScriptMgr>::Instance()
 

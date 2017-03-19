@@ -21,7 +21,7 @@ SDComment: Timers may need some fine adjustments
 SDCategory: Coilfang Resevoir, The Steamvault
 EndScriptData */
 
-#include "precompiled.h"
+#include "scriptPCH.h"
 #include "steam_vault.h"
 
 enum
@@ -139,7 +139,7 @@ struct boss_warlord_kalithreshAI : public ScriptedAI
                     // Also make the distiller cast
                     if (Creature* pDistiller = m_creature->GetMap()->GetCreature(m_distillerGuid))
                     {
-                        pDistiller->CastSpell(pDistiller, SPELL_WARLORDS_RAGE_NAGA, TRIGGERED_OLD_TRIGGERED);
+                        pDistiller->CastSpell(pDistiller, SPELL_WARLORDS_RAGE_NAGA, true);
                         pDistiller->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     }
                 }

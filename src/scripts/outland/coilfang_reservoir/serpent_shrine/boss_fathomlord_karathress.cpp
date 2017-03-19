@@ -21,7 +21,7 @@ SDComment: Timers may need adjustments.
 SDCategory: Coilfang Resevoir, Serpent Shrine Cavern
 EndScriptData */
 
-#include "precompiled.h"
+#include "scriptPCH.h"
 #include "serpent_shrine.h"
 
 enum
@@ -191,7 +191,7 @@ struct boss_fathomlord_karathressAI : public ScriptedAI
                     if (pAdvisor->isAlive())
                     {
                         pAdvisor->InterruptNonMeleeSpells(false);
-                        pAdvisor->CastSpell(m_creature, SPELL_BLESSING_OF_THE_TIDES, TRIGGERED_OLD_TRIGGERED);
+                        pAdvisor->CastSpell(m_creature, SPELL_BLESSING_OF_THE_TIDES, true);
                     }
                 }
             }
@@ -421,7 +421,7 @@ struct boss_fathomguard_caribdisAI : public ScriptedAI
     {
         // ToDo: research if this creature should follow the summoner or a random target
         if (pSummoned->GetEntry() == NPC_CYCLONE)
-            pSummoned->CastSpell(pSummoned, SPELL_CYCLONE, TRIGGERED_OLD_TRIGGERED);
+            pSummoned->CastSpell(pSummoned, SPELL_CYCLONE, true);
     }
 
     void UpdateAI(const uint32 uiDiff) override

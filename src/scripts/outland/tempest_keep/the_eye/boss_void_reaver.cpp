@@ -21,7 +21,7 @@ SDComment: Small adjustments may be required
 SDCategory: Tempest Keep, The Eye
 EndScriptData */
 
-#include "precompiled.h"
+#include "scriptPCH.h"
 #include "the_eye.h"
 
 enum

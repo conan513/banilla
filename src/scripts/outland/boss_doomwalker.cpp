@@ -21,7 +21,7 @@ SDComment:
 SDCategory: Shadowmoon Valley
 EndScriptData */
 
-#include "precompiled.h"
+#include "scriptPCH.h"
 
 enum
 {

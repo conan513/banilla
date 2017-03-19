@@ -21,7 +21,7 @@ SDComment: Elevator needs core support
 SDCategory: Mechanar
 EndScriptData */
 
-#include "precompiled.h"
+#include "scriptPCH.h"
 #include "mechanar.h"
 
 instance_mechanar::instance_mechanar(Map* pMap) : ScriptedInstance(pMap),
@@ -207,7 +207,7 @@ void instance_mechanar::DoSpawnBridgeWave()
 
             if (Creature* pTemp = pPlayer->SummonCreature(aBridgeEventLocs[m_uiBridgeEventPhase][i].m_uiSpawnEntry, aBridgeEventLocs[m_uiBridgeEventPhase][i].m_fX, aBridgeEventLocs[m_uiBridgeEventPhase][i].m_fY, aBridgeEventLocs[m_uiBridgeEventPhase][i].m_fZ, aBridgeEventLocs[m_uiBridgeEventPhase][i].m_fO, TEMPSUMMON_DEAD_DESPAWN, 0))
             {
-                pTemp->CastSpell(pTemp, SPELL_ETHEREAL_TELEPORT, TRIGGERED_NONE);
+                pTemp->CastSpell(pTemp, SPELL_ETHEREAL_TELEPORT, false);
 
                 switch (m_uiBridgeEventPhase)
                 {

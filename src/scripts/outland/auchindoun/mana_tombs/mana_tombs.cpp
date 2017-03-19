@@ -21,8 +21,7 @@ SDComment: Quest 10218
 SDCategory: Auchindoun, Mana Tombs
 EndScriptData */
 
-#include "precompiled.h"
-#include "escort_ai.h"
+#include "scriptPCH.h"
 #include "TemporarySummon.h"
 
 /*#####
@@ -109,7 +108,7 @@ struct npc_shaheenAI : public npc_escortAI, private DialogueHelper
     {
         if (eventType == AI_EVENT_START_ESCORT && pInvoker->GetTypeId() == TYPEID_PLAYER)
         {
-            Start(false, (Player*)pInvoker, GetQuestTemplateStore(uiMiscValue));
+            Start(false, ((Player*)pInvoker)->GetGUID(), GetQuestTemplateStore(uiMiscValue));
             StartNextDialogueText(SAY_ESCORT_START);
         }
     }

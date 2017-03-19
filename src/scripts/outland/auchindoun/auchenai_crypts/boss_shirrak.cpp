@@ -21,7 +21,7 @@ SDComment:
 SDCategory: Auchindoun, Auchenai Crypts
 EndScriptData */
 
-#include "precompiled.h"
+#include "scriptPCH.h"
 
 enum
 {
@@ -68,7 +68,7 @@ struct boss_shirrakAI : public ScriptedAI
     {
         // The focus fire creature casts the focus fire visual
         if (pSummoned->GetEntry() == NPC_FOCUS_FIRE)
-            pSummoned->CastSpell(pSummoned, SPELL_FOCUS_TARGET_VISUAL, TRIGGERED_OLD_TRIGGERED);
+            pSummoned->CastSpell(pSummoned, SPELL_FOCUS_TARGET_VISUAL, true);
     }
 
     void UpdateAI(const uint32 uiDiff) override

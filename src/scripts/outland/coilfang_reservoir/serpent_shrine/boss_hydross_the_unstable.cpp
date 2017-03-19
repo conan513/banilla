@@ -21,7 +21,7 @@ SDComment: Timers may need improvemets.
 SDCategory: Coilfang Resevoir, Serpent Shrine Cavern
 EndScriptData */
 
-#include "precompiled.h"
+#include "scriptPCH.h"
 #include "serpent_shrine.h"
 
 enum
@@ -203,7 +203,7 @@ struct boss_hydross_the_unstableAI : public ScriptedAI
                 if (bReset)
                     pBeam->InterruptNonMeleeSpells(false);
                 else
-                    pBeam->CastSpell(m_creature, SPELL_BLUE_BEAM, TRIGGERED_NONE);
+                    pBeam->CastSpell(m_creature, SPELL_BLUE_BEAM, false);
             }
         }
     }

@@ -48,7 +48,7 @@ class instance_the_eye : public ScriptedInstance
         void OnObjectCreate(GameObject* pGo) override;
 
         void SetData(uint32 uiType, uint32 uiData) override;
-        uint32 GetData(uint32 uiType) const override;
+        uint32 GetData(uint32 uiType) const;
 
         // No Save or Load needed to current knowledge
 

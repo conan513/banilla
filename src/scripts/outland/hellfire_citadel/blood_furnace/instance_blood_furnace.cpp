@@ -21,7 +21,7 @@ SDComment:
 SDCategory: Blood Furnace
 EndScriptData */
 
-#include "precompiled.h"
+#include "scriptPCH.h"
 #include "blood_furnace.h"
 
 instance_blood_furnace::instance_blood_furnace(Map* pMap) : ScriptedInstance(pMap),
@@ -136,7 +136,7 @@ void instance_blood_furnace::SetData(uint32 uiType, uint32 uiData)
                             continue;
 
                         m_aBroggokEvent[i].m_uiKilledOrcCount = 0;
-                        for (GuidSet::const_iterator itr = m_aBroggokEvent[i].m_sSortedOrcGuids.begin(); itr != m_aBroggokEvent[i].m_sSortedOrcGuids.end(); ++itr)
+                        for (ObjectGuidSet::const_iterator itr = m_aBroggokEvent[i].m_sSortedOrcGuids.begin(); itr != m_aBroggokEvent[i].m_sSortedOrcGuids.end(); ++itr)
                         {
                             if (Creature* pOrc = instance->GetCreature(*itr))
                             {
@@ -162,7 +162,7 @@ void instance_blood_furnace::SetData(uint32 uiType, uint32 uiData)
             m_auiEncounter[uiType] = uiData;
             break;
         default:
-            script_error_log("Instance Blood Furnace SetData with Type %u Data %u, but this is not implemented.", uiType, uiData);
+            //script_error_log("Instance Blood Furnace SetData with Type %u Data %u, but this is not implemented.", uiType, uiData);
             return;
     }
 
@@ -205,7 +205,7 @@ void instance_blood_furnace::DoNextBroggokEventPhase()
 
         m_aBroggokEvent[m_uiBroggokEventPhase].m_bIsCellOpened = true;
 
-        for (GuidSet::const_iterator itr = m_aBroggokEvent[m_uiBroggokEventPhase].m_sSortedOrcGuids.begin(); itr != m_aBroggokEvent[m_uiBroggokEventPhase].m_sSortedOrcGuids.end(); ++itr)
+        for (ObjectGuidSet::const_iterator itr = m_aBroggokEvent[m_uiBroggokEventPhase].m_sSortedOrcGuids.begin(); itr != m_aBroggokEvent[m_uiBroggokEventPhase].m_sSortedOrcGuids.end(); ++itr)
         {
             if (Creature* pOrc = instance->GetCreature(*itr))
             {

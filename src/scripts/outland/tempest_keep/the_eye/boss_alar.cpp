@@ -21,7 +21,7 @@ SDComment: Boss movement should be improved.
 SDCategory: Tempest Keep, The Eye
 EndScriptData */
 
-#include "precompiled.h"
+#include "scriptPCH.h"
 #include "the_eye.h"
 
 enum
@@ -149,7 +149,7 @@ struct boss_alarAI : public ScriptedAI
     void JustSummoned(Creature* pSummoned) override
     {
         if (pSummoned->GetEntry() == NPC_FLAME_PATCH)
-            pSummoned->CastSpell(pSummoned, SPELL_FLAME_PATCH, TRIGGERED_OLD_TRIGGERED);
+            pSummoned->CastSpell(pSummoned, SPELL_FLAME_PATCH, true);
         else
         {
             if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))

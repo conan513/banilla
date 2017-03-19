@@ -21,7 +21,7 @@ SDComment: Timers will need adjustments.
 SDCategory: Tempest Keep, The Arcatraz
 EndScriptData */
 
-#include "precompiled.h"
+#include "scriptPCH.h"
 #include "arcatraz.h"
 
 enum

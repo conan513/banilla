@@ -21,7 +21,7 @@ SDComment: Inner Demons NYI; Transition to final phase needs more work.
 SDCategory: Coilfang Resevoir, Serpent Shrine Cavern
 EndScriptData */
 
-#include "precompiled.h"
+#include "scriptPCH.h"
 #include "serpent_shrine.h"
 
 enum

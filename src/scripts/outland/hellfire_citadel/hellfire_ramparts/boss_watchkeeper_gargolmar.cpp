@@ -21,7 +21,7 @@ SDComment: Missing adds to heal him.
 SDCategory: Hellfire Citadel, Hellfire Ramparts
 EndScriptData */
 
-#include "precompiled.h"
+#include "scriptPCH.h"
 
 enum
 {

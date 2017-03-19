@@ -28,8 +28,7 @@ npc_khadgars_servant
 npc_salsalabim
 EndContentData */
 
-#include "precompiled.h"
-#include "escort_ai.h"
+#include "scriptPCH.h"
 
 enum
 {
@@ -185,7 +184,7 @@ struct npc_dirty_larryAI : public ScriptedAI
         AttackStart(pAttacker);
     }
 
-    void DamageTaken(Unit* /*pDoneBy*/, uint32& uiDamage, DamageEffectType /*damagetype*/) override
+    void DamageTaken(Unit* /*pDoneBy*/, uint32& uiDamage) override
     {
         if (uiDamage < m_creature->GetHealth())
             return;
@@ -230,7 +229,7 @@ bool GossipHello_npc_dirty_larry(Player* pPlayer, Creature* pCreature)
         pPlayer->PrepareQuestMenu(pCreature->GetObjectGuid());
 
     if (pPlayer->GetQuestStatus(QUEST_WHAT_BOOK) == QUEST_STATUS_INCOMPLETE)
-        pPlayer->ADD_GOSSIP_ITEM_ID(GOSSIP_ICON_CHAT, GOSSIP_ITEM_BOOK, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_BOOK, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
     pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetObjectGuid());
     return true;
@@ -313,9 +312,9 @@ struct npc_khadgars_servantAI : public npc_escortAI
     npc_khadgars_servantAI(Creature* pCreature) : npc_escortAI(pCreature)
     {
         if (pCreature->GetOwner() && pCreature->GetOwner()->GetTypeId() == TYPEID_PLAYER)
-            Start(false, (Player*)pCreature->GetOwner());
-        else
-            script_error_log("npc_khadgars_servant can not obtain owner or owner is not a player.");
+            Start(false, ((Player*)pCreature->GetOwner())->GetGUID());
+       // else
+       //     script_error_log("npc_khadgars_servant can not obtain owner or owner is not a player.");
 
         Reset();
     }
@@ -568,7 +567,7 @@ struct npc_salsalabimAI : public ScriptedAI
         m_uiMagneticPullTimer = 15000;
     }
 
-    void DamageTaken(Unit* pDoneBy, uint32& uiDamage, DamageEffectType /*damagetype*/) override
+    void DamageTaken(Unit* pDoneBy, uint32& uiDamage) override
     {
         if (pDoneBy->GetTypeId() == TYPEID_PLAYER)
         {

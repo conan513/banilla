@@ -36,9 +36,7 @@ npc_domesticated_felboar
 npc_veneratus_spawn_node
 EndContentData */
 
-#include "precompiled.h"
-#include "escort_ai.h"
-#include "pet_ai.h"
+#include "scriptPCH.h"
 #include "Spell.h"
 #include "SpellMgr.h"
 
@@ -357,10 +355,7 @@ struct npc_dragonmaw_peonAI : public ScriptedAI
                     // Workaround for broken function GetGameObject
                     if (!pMutton)
                     {
-                        const SpellEntry* pSpell = GetSpellStore()->LookupEntry<SpellEntry>(SPELL_SERVING_MUTTON);
-
-						if (!pSpell)
-							pSpell = GetDBCSpellStore()->LookupEntry(SPELL_SERVING_MUTTON);
+                        const SpellEntry* pSpell = sSpellMgr.GetSpellEntry(SPELL_SERVING_MUTTON);
 
                         uint32 uiGameobjectEntry = pSpell->EffectMiscValue[EFFECT_INDEX_0];
 
@@ -420,7 +415,7 @@ CreatureAI* GetAI_npc_dragonmaw_peon(Creature* pCreature)
     return new npc_dragonmaw_peonAI(pCreature);
 }
 
-bool EffectDummyCreature_npc_dragonmaw_peon(Unit* pCaster, uint32 uiSpellId, SpellEffectIndex uiEffIndex, Creature* pCreatureTarget, ObjectGuid /*originalCasterGuid*/)
+bool EffectDummyCreature_npc_dragonmaw_peon(Unit* pCaster, uint32 uiSpellId, SpellEffectIndex uiEffIndex, Creature* pCreatureTarget)
 {
     if (uiEffIndex != EFFECT_INDEX_1 || uiSpellId != SPELL_SERVING_MUTTON || pCaster->GetTypeId() != TYPEID_PLAYER)
         return false;
@@ -667,7 +662,7 @@ bool QuestAccept_npc_wilda(Player* pPlayer, Creature* pCreature, const Quest* pQ
         pCreature->SetLevitate(false);
 
         if (npc_wildaAI* pEscortAI = dynamic_cast<npc_wildaAI*>(pCreature->AI()))
-            pEscortAI->Start(false, pPlayer, pQuest);
+            pEscortAI->Start(false, pPlayer->GetGUID(), pQuest);
     }
     return true;
 }
@@ -1245,16 +1240,16 @@ struct npc_totem_of_spiritsAI : public ScriptedPetAI
             switch (uiEntry)
             {
                 case NPC_EARTHEN_SOUL:
-                    pWho->CastSpell(m_creature, SPELL_EARTH_CAPTURED, TRIGGERED_OLD_TRIGGERED);
+                    pWho->CastSpell(m_creature, SPELL_EARTH_CAPTURED, true);
                     break;
                 case NPC_FIERY_SOUL:
-                    pWho->CastSpell(m_creature, SPELL_FIERY_CAPTURED, TRIGGERED_OLD_TRIGGERED);
+                    pWho->CastSpell(m_creature, SPELL_FIERY_CAPTURED, true);
                     break;
                 case NPC_WATERY_SOUL:
-                    pWho->CastSpell(m_creature, SPELL_WATER_CAPTURED, TRIGGERED_OLD_TRIGGERED);
+                    pWho->CastSpell(m_creature, SPELL_WATER_CAPTURED, true);
                     break;
                 case NPC_AIRY_SOUL:
-                    pWho->CastSpell(m_creature, SPELL_AIR_CAPTURED, TRIGGERED_OLD_TRIGGERED);
+                    pWho->CastSpell(m_creature, SPELL_AIR_CAPTURED, true);
                     break;
             }
 
@@ -1272,7 +1267,7 @@ struct npc_totem_of_spiritsAI : public ScriptedPetAI
 
         // make elementals cast the sieve is only way to make it work properly, due to the spell target modes 22/7
         if (uiEntry == NPC_EARTH_SPIRIT || uiEntry == NPC_FIERY_SPIRIT || uiEntry == NPC_WATER_SPIRIT || uiEntry == NPC_AIR_SPIRIT)
-            pVictim->CastSpell(pVictim, SPELL_ELEMENTAL_SIEVE, TRIGGERED_OLD_TRIGGERED);
+            pVictim->CastSpell(pVictim, SPELL_ELEMENTAL_SIEVE, true);
     }
 
     void JustSummoned(Creature* pSummoned) override
@@ -1289,7 +1284,7 @@ CreatureAI* GetAI_npc_totem_of_spirits(Creature* pCreature)
     return new npc_totem_of_spiritsAI(pCreature);
 }
 
-bool EffectDummyCreature_npc_totem_of_spirits(Unit* /*pCaster*/, uint32 uiSpellId, SpellEffectIndex uiEffIndex, Creature* pCreatureTarget, ObjectGuid /*originalCasterGuid*/)
+bool EffectDummyCreature_npc_totem_of_spirits(Unit* pCaster, uint32 uiSpellId, SpellEffectIndex uiEffIndex, Creature* pCreatureTarget)
 {
     if (uiEffIndex != EFFECT_INDEX_0)
         return false;
@@ -1298,22 +1293,22 @@ bool EffectDummyCreature_npc_totem_of_spirits(Unit* /*pCaster*/, uint32 uiSpellI
     {
         case SPELL_EARTH_CAPTURED:
         {
-            pCreatureTarget->CastSpell(pCreatureTarget, SPELL_EARTH_CAPTURED_CREDIT, TRIGGERED_OLD_TRIGGERED);
+            pCreatureTarget->CastSpell(pCreatureTarget, SPELL_EARTH_CAPTURED_CREDIT, true);
             return true;
         }
         case SPELL_FIERY_CAPTURED:
         {
-            pCreatureTarget->CastSpell(pCreatureTarget, SPELL_FIERY_CAPTURED_CREDIT, TRIGGERED_OLD_TRIGGERED);
+            pCreatureTarget->CastSpell(pCreatureTarget, SPELL_FIERY_CAPTURED_CREDIT, true);
             return true;
         }
         case SPELL_WATER_CAPTURED:
         {
-            pCreatureTarget->CastSpell(pCreatureTarget, SPELL_WATER_CAPTURED_CREDIT, TRIGGERED_OLD_TRIGGERED);
+            pCreatureTarget->CastSpell(pCreatureTarget, SPELL_WATER_CAPTURED_CREDIT, true);
             return true;
         }
         case SPELL_AIR_CAPTURED:
         {
-            pCreatureTarget->CastSpell(pCreatureTarget, SPELL_AIR_CAPTURED_CREDIT, TRIGGERED_OLD_TRIGGERED);
+            pCreatureTarget->CastSpell(pCreatureTarget, SPELL_AIR_CAPTURED_CREDIT, true);
             return true;
         }
     }
@@ -1351,7 +1346,7 @@ bool EffectAuraDummy_npc_totem_of_spirits(const Aura* pAura, bool bApply)
         case NPC_AIR_SPIRIT:   uiSoulEntry = NPC_AIRY_SOUL;    break;
     }
 
-    pCreature->CastSpell(pCreature, SPELL_CALL_TO_THE_SPIRITS, TRIGGERED_OLD_TRIGGERED);
+    pCreature->CastSpell(pCreature, SPELL_CALL_TO_THE_SPIRITS, true);
     pCreature->SummonCreature(uiSoulEntry, pCaster->GetPositionX(), pCaster->GetPositionY(), pCaster->GetPositionZ(), 0, TEMPSUMMON_TIMED_OOC_OR_CORPSE_DESPAWN, 10000);
 
     return true;
@@ -1600,7 +1595,7 @@ struct npc_spawned_oronok_tornheartAI : public ScriptedAI, private DialogueHelpe
 
     void EnterEvadeMode() override
     {
-        m_creature->RemoveAllAurasOnEvade();
+       // m_creature->RemoveAllAurasOnEvade();
         m_creature->DeleteThreatList();
         m_creature->CombatStop(true);
         m_creature->LoadCreatureAddon(true);
@@ -1619,7 +1614,7 @@ struct npc_spawned_oronok_tornheartAI : public ScriptedAI, private DialogueHelpe
         }
         else
         {
-            script_error_log("Npc %u couldn't be found or something really bad happened. Epilogue event for quest %u will stop.", NPC_CYRUKH_THE_FIRELORD, QUEST_CIPHER_OF_DAMNATION);
+         //   script_error_log("Npc %u couldn't be found or something really bad happened. Epilogue event for quest %u will stop.", NPC_CYRUKH_THE_FIRELORD, QUEST_CIPHER_OF_DAMNATION);
             m_creature->GetMotionMaster()->MoveTargetedHome();
         }
     }
@@ -1705,7 +1700,7 @@ bool GossipHello_npc_spawned_oronok_tornheart(Player* pPlayer, Creature* pCreatu
 {
     if (pPlayer->GetQuestStatus(QUEST_CIPHER_OF_DAMNATION) == QUEST_STATUS_INCOMPLETE)
     {
-        pPlayer->ADD_GOSSIP_ITEM_ID(GOSSIP_ICON_CHAT, GOSSIP_ITEM_FIGHT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_FIGHT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
         pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXT_ID_ORONOK, pCreature->GetObjectGuid());
     }
     else
@@ -1832,7 +1827,7 @@ CreatureAI* GetAI_npc_domesticated_felboar(Creature* pCreature)
     return new npc_domesticated_felboarAI(pCreature);
 }
 
-bool EffectDummyCreature_npc_shadowmoon_tuber_node(Unit* pCaster, uint32 uiSpellId, SpellEffectIndex uiEffIndex, Creature* pCreatureTarget, ObjectGuid /*originalCasterGuid*/)
+bool EffectDummyCreature_npc_shadowmoon_tuber_node(Unit* pCaster, uint32 uiSpellId, SpellEffectIndex uiEffIndex, Creature* pCreatureTarget)
 {
     // always check spellid and effectindex
     if (uiSpellId == SPELL_TUBER_WHISTLE && uiEffIndex == EFFECT_INDEX_0)
@@ -1910,7 +1905,7 @@ void AddSC_shadowmoon_valley()
     pNewScript = new Script;
     pNewScript->Name = "npc_dragonmaw_peon";
     pNewScript->GetAI = &GetAI_npc_dragonmaw_peon;
-    pNewScript->pEffectDummyNPC = &EffectDummyCreature_npc_dragonmaw_peon;
+    pNewScript->pEffectDummyCreature = &EffectDummyCreature_npc_dragonmaw_peon;
     pNewScript->RegisterSelf();
 
     pNewScript = new Script;
@@ -1932,7 +1927,7 @@ void AddSC_shadowmoon_valley()
     pNewScript = new Script;
     pNewScript->Name = "npc_totem_of_spirits";
     pNewScript->GetAI = &GetAI_npc_totem_of_spirits;
-    pNewScript->pEffectDummyNPC = &EffectDummyCreature_npc_totem_of_spirits;
+    pNewScript->pEffectDummyCreature = &EffectDummyCreature_npc_totem_of_spirits;
     pNewScript->pEffectAuraDummy = &EffectAuraDummy_npc_totem_of_spirits;
     pNewScript->RegisterSelf();
 
@@ -1943,7 +1938,7 @@ void AddSC_shadowmoon_valley()
 
     pNewScript = new Script;
     pNewScript->Name = "go_crystal_prison";
-    pNewScript->pQuestAcceptGO = &GOQuestAccept_GO_crystal_prison;
+    pNewScript->pGOQuestAccept = &GOQuestAccept_GO_crystal_prison;
     pNewScript->RegisterSelf();
 
     pNewScript = new Script;
@@ -1960,7 +1955,7 @@ void AddSC_shadowmoon_valley()
 
     pNewScript = new Script;
     pNewScript->Name = "npc_shadowmoon_tuber_node";
-    pNewScript->pEffectDummyNPC = &EffectDummyCreature_npc_shadowmoon_tuber_node;
+    pNewScript->pEffectDummyCreature = &EffectDummyCreature_npc_shadowmoon_tuber_node;
     pNewScript->RegisterSelf();
 
     pNewScript = new Script;

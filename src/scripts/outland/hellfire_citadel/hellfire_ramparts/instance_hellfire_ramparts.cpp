@@ -21,7 +21,7 @@ SDComment:
 SDCategory: Hellfire Ramparts
 EndScriptData */
 
-#include "precompiled.h"
+#include "scriptPCH.h"
 #include "hellfire_ramparts.h"
 
 instance_ramparts::instance_ramparts(Map* pMap) : ScriptedInstance(pMap),
@@ -62,7 +62,7 @@ void instance_ramparts::OnObjectCreate(GameObject* pGo)
 
 void instance_ramparts::SetData(uint32 uiType, uint32 uiData)
 {
-    debug_log("SD2: Instance Ramparts: SetData received for type %u with data %u", uiType, uiData);
+   // debug_log("SD2: Instance Ramparts: SetData received for type %u with data %u", uiType, uiData);
 
     switch (uiType)
     {

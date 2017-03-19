@@ -21,7 +21,7 @@ SDComment: Intro event NYI.
 SDCategory: Auchindoun, Sethekk Halls
 EndScriptData */
 
-#include "precompiled.h"
+#include "scriptPCH.h"
 #include "sethekk_halls.h"
 
 enum

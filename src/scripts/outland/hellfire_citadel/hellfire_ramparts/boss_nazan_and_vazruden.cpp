@@ -21,7 +21,7 @@ SDComment: Bellowing Roar Timer (heroic) needs some love
 SDCategory: Hellfire Citadel, Hellfire Ramparts
 EndScriptData */
 
-#include "precompiled.h"
+#include "scriptPCH.h"
 #include "hellfire_ramparts.h"
 
 enum

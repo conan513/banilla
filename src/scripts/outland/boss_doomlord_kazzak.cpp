@@ -21,7 +21,7 @@ SDComment: Timers
 SDCategory: Hellfire Peninsula
 EndScriptData */
 
-#include "precompiled.h"
+#include "scriptPCH.h"
 
 enum
 {

@@ -68,7 +68,7 @@ class instance_serpentshrine_cavern : public ScriptedInstance
         void OnObjectCreate(GameObject* pGo) override;
 
         void SetData(uint32 uiType, uint32 uiData) override;
-        uint32 GetData(uint32 uiType) const override;
+        uint32 GetData(uint32 uiType) const;
 
         void SetData64(uint32 uiType, uint64 uiGuid) override;
 
@@ -77,7 +77,7 @@ class instance_serpentshrine_cavern : public ScriptedInstance
         void GetBeamHelpersGUIDList(GuidList& lList) { lList = m_lBeamHelpersGUIDList; }
         void GetShieldGeneratorsGUIDList(GuidList& lList) { lList = m_lShieldGeneratorGUIDList; }
 
-        const char* Save() const override { return m_strInstData.c_str(); }
+        const char* Save() const{ return m_strInstData.c_str(); }
         void Load(const char* chrIn) override;
 
     private:
@@ -89,8 +89,8 @@ class instance_serpentshrine_cavern : public ScriptedInstance
         GuidList m_lSpellBindersGUIDList;
         GuidList m_lBeamHelpersGUIDList;
         GuidList m_lShieldGeneratorGUIDList;
-        GuidSet m_sPlatformMobsGUIDSet;
-        GuidSet m_sPlatformMobsAliveGUIDSet;
+        ObjectGuidSet m_sPlatformMobsGUIDSet;
+        ObjectGuidSet m_sPlatformMobsAliveGUIDSet;
 };
 
 #endif

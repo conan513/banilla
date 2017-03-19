@@ -26,8 +26,7 @@ mob_webbed_creature
 npc_demolitionist_legoso
 EndContentData */
 
-#include "precompiled.h"
-#include "escort_ai.h"
+#include "scriptPCH.h"
 
 /*######
 ## mob_webbed_creature
@@ -67,7 +66,7 @@ struct mob_webbed_creatureAI : public Scripted_NoMovementAI
         }
 
         if (uiSpawnCreatureEntry)
-            m_creature->SummonCreature(uiSpawnCreatureEntry, 0.0f, 0.0f, 0.0f, m_creature->GetOrientation(), TEMPSUMMON_TIMED_OOC_DESPAWN, 25000);
+            m_creature->SummonCreature(uiSpawnCreatureEntry, 0.0f, 0.0f, 0.0f, m_creature->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
     }
 };
 
@@ -191,7 +190,7 @@ struct npc_demolitionist_legosoAI : public npc_escortAI, private DialogueHelper
             m_bFirstExplosives = true;
             DoScriptText(SAY_ESCORT_START, m_creature, pInvoker);
             m_creature->SetFactionTemporary(FACTION_ESCORT_A_NEUTRAL_ACTIVE, TEMPFACTION_RESTORE_RESPAWN);
-            Start(true, (Player*)pInvoker, GetQuestTemplateStore(uiMiscValue));
+            Start(true, ((Player*)pInvoker)->GetGUID(), GetQuestTemplateStore(uiMiscValue));
         }
         // start event epilog
         else if (eventType == AI_EVENT_CUSTOM_EVENTAI_A && pSender->GetEntry() == NPC_SIRONAS)
@@ -264,7 +263,7 @@ struct npc_demolitionist_legosoAI : public npc_escortAI, private DialogueHelper
 
         if (lBarrelsInRange.empty())
         {
-            script_error_log("Bloodmyst Isle: ERROR Failed to find any gameobjects of entry %u in range.", uiEntry);
+           // script_error_log("Bloodmyst Isle: ERROR Failed to find any gameobjects of entry %u in range.", uiEntry);
             return;
         }
 
@@ -299,7 +298,7 @@ struct npc_demolitionist_legosoAI : public npc_escortAI, private DialogueHelper
 
         if (lFiresInRange.empty())
         {
-            script_error_log("Bloodmyst Isle: ERROR Failed to find any gameobjects of entry %u and %u in range.", GO_COIL_FIRE_L, GO_COIL_FIRE_S);
+            //script_error_log("Bloodmyst Isle: ERROR Failed to find any gameobjects of entry %u and %u in range.", GO_COIL_FIRE_L, GO_COIL_FIRE_S);
             return;
         }
 
@@ -369,7 +368,7 @@ struct npc_demolitionist_legosoAI : public npc_escortAI, private DialogueHelper
                 {
                     m_creature->SetFacingToObject(pSironas);
                     pSironas->InterruptNonMeleeSpells(false);
-                    pSironas->RemoveAllAurasOnEvade();
+                    //pSironas->RemoveAllAurasOnEvade();
                     // ToDo: find the proper spell to scale up Sironas
                 }
                 break;

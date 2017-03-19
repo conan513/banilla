@@ -21,7 +21,7 @@ SDComment: May need some small adjustments
 SDCategory: Tempest Keep, The Mechanar
 EndScriptData */
 
-#include "precompiled.h"
+#include "scriptPCH.h"
 #include "mechanar.h"
 
 enum

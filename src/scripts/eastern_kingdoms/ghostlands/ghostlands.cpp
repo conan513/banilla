@@ -25,8 +25,7 @@ EndScriptData */
 npc_ranger_lilatha
 EndContentData */
 
-#include "precompiled.h"
-#include "escort_ai.h"
+#include "scriptPCH.h"
 
 /*######
 ## npc_ranger_lilatha

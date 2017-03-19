@@ -21,7 +21,7 @@ SDComment: currently missing info about door. instance not complete
 SDCategory: Hellfire Citadel, Shattered Halls
 EndScriptData */
 
-#include "precompiled.h"
+#include "scriptPCH.h"
 #include "shattered_halls.h"
 
 instance_shattered_halls::instance_shattered_halls(Map* pMap) : ScriptedInstance(pMap),
@@ -284,7 +284,7 @@ void instance_shattered_halls::DoCastGroupDebuff(uint32 uiSpellId)
     {
         Player* pPlayer = itr->getSource();
         if (pPlayer && !pPlayer->HasAura(uiSpellId))
-            pPlayer->CastSpell(pPlayer, uiSpellId, TRIGGERED_OLD_TRIGGERED);
+            pPlayer->CastSpell(pPlayer, uiSpellId, true);
     }
 }
 

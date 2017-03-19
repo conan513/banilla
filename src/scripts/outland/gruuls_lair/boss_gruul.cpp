@@ -21,7 +21,7 @@ SDComment: Ground Slam need further development (knock back effect and shatter e
 SDCategory: Gruul's Lair
 EndScriptData */
 
-#include "precompiled.h"
+#include "scriptPCH.h"
 #include "gruuls_lair.h"
 
 enum
@@ -134,7 +134,7 @@ struct boss_gruulAI : public ScriptedAI
         if (pSpell->Id == SPELL_SHATTER)
         {
             // this spell must have custom handling in mangos, dealing damage based on distance
-            pTarget->CastSpell(pTarget, SPELL_SHATTER_EFFECT, TRIGGERED_OLD_TRIGGERED);
+            pTarget->CastSpell(pTarget, SPELL_SHATTER_EFFECT, true);
 
             if (pTarget->HasAura(SPELL_STONED))
                 pTarget->RemoveAurasDueToSpell(SPELL_STONED);

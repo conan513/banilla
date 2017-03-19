@@ -1471,7 +1471,7 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
 						return SPELL_AURA_PROC_OK;          // charge counting (will removed)
 					}
 
-					CastSpell(this, 54907, TRIGGERED_OLD_TRIGGERED, castItem, triggeredByAura);
+					CastSpell(this, 54907, true, castItem, triggeredByAura);
 					return (procEx & PROC_EX_CRITICAL_HIT) ? SPELL_AURA_PROC_OK : SPELL_AURA_PROC_FAILED; // charge update only at crit hits, no hidden cooldowns
 				}
 

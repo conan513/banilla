@@ -26,7 +26,7 @@ boss_mekgineer_steamrigger
 mob_steamrigger_mechanic
 EndContentData */
 
-#include "precompiled.h"
+#include "scriptPCH.h"
 #include "steam_vault.h"
 
 enum

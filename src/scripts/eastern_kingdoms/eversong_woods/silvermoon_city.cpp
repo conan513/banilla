@@ -24,7 +24,7 @@ EndScriptData */
 /* ContentData
 EndContentData */
 
-#include "precompiled.h"
+#include "scriptPCH.h"
 
 void AddSC_silvermoon_city()
 {

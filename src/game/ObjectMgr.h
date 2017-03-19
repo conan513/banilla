@@ -108,7 +108,13 @@ typedef UNORDERED_MAP<uint32/*mapid*/,CellObjectGuidsMap> MapObjectGuids;
 
 struct MangosStringLocale
 {
+	MangosStringLocale() : SoundId(0), Type(0), LanguageId(LANG_UNIVERSAL), Emote(0) { }
+
     std::vector<std::string> Content;                       // 0 -> default, i -> i-1 locale index
+	uint32 SoundId;
+	uint8  Type;
+	Language LanguageId;
+	uint32 Emote;
 };
 
 typedef UNORDERED_MAP<uint32,CreatureData> CreatureDataMap;

@@ -27,7 +27,7 @@ boss_exarch_maladaar
 mob_avatar_of_martyred
 EndContentData */
 
-#include "precompiled.h"
+#include "scriptPCH.h"
 
 enum
 {
@@ -212,7 +212,7 @@ struct boss_exarch_maladaarAI : public ScriptedAI
         if (pSummoned->GetEntry() == NPC_STOLEN_SOUL)
         {
             // SPELL_STOLEN_SOUL_VISUAL has shapeshift effect, but not implemented feature in mangos for this spell.
-            pSummoned->CastSpell(pSummoned, SPELL_STOLEN_SOUL_VISUAL, TRIGGERED_NONE);
+            pSummoned->CastSpell(pSummoned, SPELL_STOLEN_SOUL_VISUAL, false);
 
             if (Player* pTarget = m_creature->GetMap()->GetPlayer(m_targetGuid))
             {
@@ -243,7 +243,7 @@ struct boss_exarch_maladaarAI : public ScriptedAI
     void SpellHitTarget(Unit* pTarget, const SpellEntry* pSpell) override
     {
         if (pSpell->Id == SPELL_STOLEN_SOUL && pTarget->GetTypeId() == TYPEID_PLAYER)
-            DoSpawnCreature(NPC_STOLEN_SOUL, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OOC_DESPAWN, 10000);
+            DoSpawnCreature(NPC_STOLEN_SOUL, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
     }
 
     void UpdateAI(const uint32 uiDiff) override
