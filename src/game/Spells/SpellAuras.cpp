@@ -4452,8 +4452,8 @@ void Aura::HandleAuraModResistanceExclusive(bool apply, bool /*Real*/)
     for (Unit::AuraList::const_iterator i = mModResistanceExcl.begin(); i != mModResistanceExcl.end(); ++i)
         for (int8 x = SPELL_SCHOOL_NORMAL; x < MAX_SPELL_SCHOOL; ++x)
             if ((*i)->GetSpellProto()->Id != spellProto->Id && (*i)->GetModifier()->m_miscvalue & int32(1 << x))
-                if (maxModifiersOthers[x] < (*i)->GetModifier()->GetModifierAmount(GetTarget()->getLevel()))
-                    maxModifiersOthers[x] = (*i)->GetModifier()->GetModifierAmount(GetTarget()->getLevel());
+                if (maxModifiersOthers[x] < (*i)->GetModifierAmount(GetTarget()->getLevel()))
+                    maxModifiersOthers[x] = (*i)->GetModifierAmount(GetTarget()->getLevel());
     // Application des effets.
     for (int8 x = SPELL_SCHOOL_NORMAL; x < MAX_SPELL_SCHOOL; x++)
     {
@@ -6768,6 +6768,7 @@ bool SpellAuraHolder::IsNeedVisibleSlot(Unit const* caster) const
 			return m_target != caster;
             case SPELL_EFFECT_APPLY_AREA_AURA_PET:
 			case SPELL_EFFECT_APPLY_AREA_AURA_OWNER:
+			case SPELL_EFFECT_APPLY_AREA_AURA_RAID:
 			case SPELL_EFFECT_APPLY_AREA_AURA_FRIEND:
             case SPELL_EFFECT_APPLY_AREA_AURA_PARTY:
                 // passive auras (except totem auras) do not get placed in caster slot

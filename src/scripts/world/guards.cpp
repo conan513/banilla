@@ -131,10 +131,10 @@ void AddSC_guards()
 {
     Script *newscript;
 
-	pNewScript = new Script;
-	pNewScript->Name = "guard_azuremyst";
-	pNewScript->GetAI = &GetAI_guard_azuremyst;
-	pNewScript->RegisterSelf();
+	newscript = new Script;
+	newscript->Name = "guard_azuremyst";
+	newscript->GetAI = &GetAI_guard_azuremyst;
+	newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name = "guard_contested";
@@ -161,15 +161,15 @@ void AddSC_guards()
     newscript->GetAI = &GetAI_guard_elwynnforest;
     newscript->RegisterSelf();
 
-	pNewScript = new Script;
-	pNewScript->Name = "guard_eversong";
-	pNewScript->GetAI = &GetAI_guard_eversong;
-	pNewScript->RegisterSelf();
+	 newscript = new Script;
+	 newscript->Name = "guard_eversong";
+	 newscript->GetAI = &GetAI_guard_eversong;
+	 newscript->RegisterSelf();
 
-	pNewScript = new Script;
-	pNewScript->Name = "guard_exodar";
-	pNewScript->GetAI = &GetAI_guard_exodar;
-	pNewScript->RegisterSelf();
+	 newscript = new Script;
+	 newscript->Name = "guard_exodar";
+	 newscript->GetAI = &GetAI_guard_exodar;
+	 newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name = "guard_ironforge";
@@ -186,10 +186,10 @@ void AddSC_guards()
     newscript->GetAI = &GetAI_guard_orgrimmar;
     newscript->RegisterSelf();
 
-	pNewScript = new Script;
-	pNewScript->Name = "guard_silvermoon";
-	pNewScript->GetAI = &GetAI_guard_silvermoon;
-	pNewScript->RegisterSelf();
+	newscript = new Script;
+	newscript->Name = "guard_silvermoon";
+	newscript->GetAI = &GetAI_guard_silvermoon;
+	newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name = "guard_stormwind";

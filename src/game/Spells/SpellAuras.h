@@ -45,14 +45,19 @@ struct Modifier
 			if (level == 0)
 				return m_amount;
 
-			int32 _level = (int32)level;
+			uint32 _level = level;
 			if (_level >  spellProto->maxLevel &&  spellProto->maxLevel > 0)
-				_level = (int32)spellProto->maxLevel;
-			else if (_level < (int32)spellProto->baseLevel)
-				_level = (int32)spellProto->baseLevel;
-			_level -= (int32)spellProto->spellLevel;
+				_level = spellProto->maxLevel;
+			else if (_level < spellProto->baseLevel)
+				_level = spellProto->baseLevel;
 
-			return m_amount + int32(_level *  m_scale);
+			if (_level > spellProto->spellLevel)
+			{
+				_level -= spellProto->spellLevel;
+				return (int32)(m_amount + (_level *  m_scale));
+			}
+
+			return  m_amount;
 		}
 	}
 };
@@ -436,14 +441,18 @@ class MANGOS_DLL_SPEC Aura
 				if (level == 0)
 					return m_modifier.m_amount;
 
-				int32 _level = (int32)level;
+				uint32 _level = level;
 				if (_level >  m_spellAuraHolder->GetSpellProto()->maxLevel &&  m_spellAuraHolder->GetSpellProto()->maxLevel > 0)
-					_level = (int32)m_spellAuraHolder->GetSpellProto()->maxLevel;
-				else if (_level < (int32)m_spellAuraHolder->GetSpellProto()->baseLevel)
-					_level = (int32)m_spellAuraHolder->GetSpellProto()->baseLevel;
-				_level -= (int32)m_spellAuraHolder->GetSpellProto()->spellLevel;
+					_level = m_spellAuraHolder->GetSpellProto()->maxLevel;
+				else if (_level < m_spellAuraHolder->GetSpellProto()->baseLevel)
+					_level = m_spellAuraHolder->GetSpellProto()->baseLevel;
 
-				return m_modifier.m_amount + int32(_level *  m_modifier.m_scale);
+				if (_level >  m_spellAuraHolder->GetSpellProto()->spellLevel)
+				{
+					_level -= m_spellAuraHolder->GetSpellProto()->spellLevel;
+					return int32(m_modifier.m_amount + (_level *  m_modifier.m_scale));
+				}
+				else return m_modifier.m_amount;
 			}
 		}
         SpellEntry const* GetSpellProto() const { return GetHolder()->GetSpellProto(); }

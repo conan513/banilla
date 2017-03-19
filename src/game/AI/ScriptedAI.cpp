@@ -518,6 +518,8 @@ uint32 ScriptedAI::Randomize(uint32 interval, float multiplier)
 
 uint32 ScriptedAI::RandomizeUp(uint32 interval, float multiplier)
 {
-	float multiplier = GetAdventureCooldownMultiplier(m_creature->GetTargetGuid());
+	if (multiplier)
+		multiplier *= GetAdventureCooldownMultiplier(m_creature->GetTargetGuid());
+	else multiplier = GetAdventureCooldownMultiplier(m_creature->GetTargetGuid());
 	return int(interval + interval * multiplier);
 }

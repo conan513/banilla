@@ -52,7 +52,7 @@ enum LootType
     LOOT_DISENCHANTING          = 4,
                                                             // ignored always by client
     LOOT_SKINNING               = 6,                        // unsupported by client, sending LOOT_PICKPOCKETING instead
-
+	LOOT_PROSPECTING            = 7,
     LOOT_FISHINGHOLE            = 20,                       // unsupported by client, sending LOOT_FISHING instead
     LOOT_FISHING_FAIL           = 21,                       // unsupported by client, sending LOOT_FISHING instead
     LOOT_INSIGNIA               = 22                        // unsupported by client, sending LOOT_CORPSE instead

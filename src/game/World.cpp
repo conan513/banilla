@@ -494,7 +494,7 @@ void World::LoadConfigSettings(bool reload)
     setConfigPos(CONFIG_FLOAT_RATE_POWER_RAGE_LOSS, "Rate.Rage.Loss", 1.0f);
     setConfig(CONFIG_FLOAT_RATE_POWER_FOCUS,             "Rate.Focus", 1.0f);
     setConfigPos(CONFIG_FLOAT_RATE_LOYALTY,              "Rate.Loyalty", 1.0f);
-    setConfigPos(CONFIG_FLOAT_RATE_PET_HAPPINESS_GAIN,        Rate.Happiness",            1.0f);
+    setConfigPos(CONFIG_FLOAT_RATE_PET_HAPPINESS_GAIN,   "Rate.Happiness",            1.0f);
     setConfig(CONFIG_FLOAT_RATE_POWER_ENERGY,            "Rate.Energy", 1.0f);
     setConfigPos(CONFIG_FLOAT_RATE_PLAYER_MISS_CHANCE,"Rate.Player.Miss",5.0f);
     setConfigPos(CONFIG_FLOAT_RATE_SKILL_DISCOVERY,      "Rate.Skill.Discovery",      1.0f);
@@ -1108,7 +1108,7 @@ void World::SetInitialWorldSettings()
             !MapManager::ExistMapAndVMap(1, -618.518f, -4251.67f) ||
             !MapManager::ExistMapAndVMap(0, 1676.35f, 1677.45f) ||
             !MapManager::ExistMapAndVMap(1, 10311.3f, 832.463f) ||
-            !MapManager::ExistMapAndVMap(1, -2917.58f, -257.98f)) ||
+            !MapManager::ExistMapAndVMap(1, -2917.58f, -257.98f) ||
             !MapManager::ExistMapAndVMap(530, 10349.6f, -6357.29f) ||                    //Blood Elf - Draenei
             !MapManager::ExistMapAndVMap(530, -3961.64f, -13931.2f))
     {

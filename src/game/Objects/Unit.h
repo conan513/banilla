@@ -1158,7 +1158,6 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         bool HealthBelowPctDamaged(int32 pct, uint32 damage) const { return int64(GetHealth()) - int64(damage) < int64(CountPctFromMaxHealth(pct)); }
         bool HealthAbovePct(int32 pct) const { return GetHealth() > CountPctFromMaxHealth(pct); }
         bool HealthAbovePctHealed(int32 pct, uint32 heal) const { return uint64(GetHealth()) + uint64(heal) > CountPctFromMaxHealth(pct); }
-        float GetHealthPercent() const { return (GetHealth() * 100.0f) / GetMaxHealth(); }
         uint32 CountPctFromMaxHealth(int32 pct) const { return (GetMaxHealth() * static_cast<float>(pct) / 100.0f); }
         uint32 CountPctFromCurHealth(int32 pct) const { return (GetHealth() * static_cast<float>(pct) / 100.0f); }
 
@@ -1167,11 +1166,6 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         void SetHealthPercent(float percent);
         int32 ModifyHealth(int32 val);
 
-        bool IsFullHealth() const { return GetHealth() == GetMaxHealth(); }
-        bool HealthBelowPct(int32 pct) const { return GetHealth() * 100 < GetMaxHealth() * pct; }
-        bool HealthBelowPctDamaged(int32 pct, uint32 damage) const { return (int32(GetHealth()) - damage) * 100 < GetMaxHealth() * pct; }
-        bool HealthAbovePct(int32 pct) const { return GetHealth() * 100 > GetMaxHealth() * pct; }
-        uint32 CountPctFromMaxHealth(int32 pct) const { return uint32(float(pct) * GetMaxHealth() / 100.0f); }
         void SetFullHealth() { SetHealth(GetMaxHealth()); }
 
         Powers getPowerType() const { return Powers(GetByteValue(UNIT_FIELD_BYTES_0, 3)); }
@@ -1369,6 +1363,7 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
 		bool IsIncapacitated() const { return (IsFleeing() || IsConfused() || IsStunned()); }
 		bool IsCharmed() const { return !(GetCharmer() == nullptr); }
 		bool isSnared() const { return HasAuraType(SPELL_AURA_MOD_DECREASE_SPEED); }
+		bool IsImmobilized() const { return hasUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED); }
 
 		bool isAsleep() const { return HasAuraWithMechanic(MECHANIC_SLEEP); }
 		bool isSilenced()  const { return HasAuraWithMechanic(MECHANIC_SILENCE); }
@@ -1821,7 +1816,6 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         float GetSpeed(UnitMoveType mtype) const;
 		float GetXZFlagBasedSpeed(const Unit *unit) const;
 		float GetSpeedRate(UnitMoveType mtype) const { return m_speed_rate[mtype]; }
-        float GetSpeedRate( UnitMoveType mtype ) const { return m_speed_rate[mtype]; }
         void SetSpeedRate(UnitMoveType mtype, float rate, bool forced = false);
 
         void SetHover(bool on);

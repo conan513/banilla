@@ -442,6 +442,22 @@ void WorldSession::DoLootRelease(ObjectGuid lguid)
 
             switch (pItem->loot.loot_type)
             {
+				// temporary loot in stacking items, clear loot state, no auto loot move
+				case LOOT_PROSPECTING:
+				{
+					uint32 count = pItem->GetCount();
+
+					// >=5 checked in spell code, but will work for cheating cases also with removing from another stacks.
+					if (count > 5)
+						count = 5;
+
+					// reset loot for allow repeat looting if stack > 5
+					pItem->loot.clear();
+					pItem->SetLootState(ITEM_LOOT_REMOVED);
+
+					player->DestroyItemCount(pItem, count, true);
+					break;
+				}
                 // temporary loot, auto loot move
                 case LOOT_DISENCHANTING:
                 {

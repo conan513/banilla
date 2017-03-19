@@ -82,6 +82,8 @@ class HostileRefManager : public RefManager<Unit, ThreatManager>
 
     private:
         Unit* iOwner;                                       // owner of manager variable, back ref. to it, always exist
+
+		ObjectGuid m_redirectionTargetGuid;                 // in 2.x redirected only full threat
 };
 //=================================================
 #endif

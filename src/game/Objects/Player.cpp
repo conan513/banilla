@@ -2773,7 +2773,7 @@ void Player::GiveLevel(uint32 level)
     WorldPacket data(SMSG_LEVELUP_INFO, (4 + 4 + MAX_POWERS * 4 + MAX_STATS * 4));
     data << uint32(level);
 	data << uint32((int32(classInfo.basehealth) - int32(GetCreateHealth()))
-	        ((int32(info.stats[STAT_STAMINA]) - GetCreateStat(STAT_STAMINA)) * 10));
+		+ ((int32(info.stats[STAT_STAMINA]) - GetCreateStat(STAT_STAMINA)) * 10));
     // for(int i = 0; i < MAX_POWERS; ++i)                  // Powers loop (0-6)
     data << uint32(int32(classInfo.basemana)   - int32(GetCreateMana()));
     data << uint32(0);
@@ -9973,13 +9973,13 @@ Item* Player::StoreNewItem(ItemPosCountVec const& dest, uint32 item, bool update
     {
         ItemAddedQuestCheck(item, count);
 
-		if (sWorld.getConfig(CONFIG_BOOL_CUSTOM_ADVENTURE_MODE) && sWorld.getConfig(CONFIG_BOOL_CUSTOM_RANDOMIZE_ITEM) && randomize)
+		if (sWorld.getConfig(CONFIG_BOOL_CUSTOM_ADVENTURE_MODE) && sWorld.getConfig(CONFIG_BOOL_CUSTOM_RANDOMIZE_ITEM))
 		{
 			uint32 adventure_level;
-			if (((Player*)player)->GetGroup())
-				adventure_level = ((Player*)player)->GetAdventureLevelGroup();
+			if (GetGroup())
+				adventure_level = GetAdventureLevelGroup();
 			else
-				adventure_level = ((Player*)player)->GetAdventureLevel();
+				adventure_level = GetAdventureLevel();
 
 			if (roll_chance_f(sWorld.getConfig(CONFIG_FLOAT_CUSTOM_RANDOMIZE_ITEM_CHANCE)*adventure_level))
 			{
@@ -10121,7 +10121,7 @@ Item* Player::StoreNewItem(ItemPosCountVec const& dest, uint32 item, bool update
 
 				if (sWorld.getConfig(CONFIG_FLOAT_CUSTOM_ADVENTURE_ITEMXP))
 				{
-					if (reforgePropertyId && ((Player*)player)->SubstractAdventureXP(sWorld.getConfig(CONFIG_FLOAT_CUSTOM_ADVENTURE_ITEMXP)*itemLevel*ItemQuality*ItemQuality))
+					if (reforgePropertyId && SubstractAdventureXP(sWorld.getConfig(CONFIG_FLOAT_CUSTOM_ADVENTURE_ITEMXP)*itemLevel*ItemQuality*ItemQuality))
 					{
 						randomPropertyId = reforgePropertyId;
 					}
@@ -14721,7 +14721,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SqlQueryHolder *holder)
 	ResetAccumChance();
 	if (sWorld.getConfig(CONFIG_BOOL_CUSTOM_ADVENTURE_MODE))
 	{
-		LoadAdventureLevel(holder->GetResult(PLAYER_LOGIN_QUERY_CUSTOM_ADVENTURE_MODE));
+		_LoadAdventureLevel(holder->GetResult(PLAYER_LOGIN_QUERY_CUSTOM_ADVENTURE_MODE));
 	}
 
     _LoadSpellCooldowns(holder->GetResult(PLAYER_LOGIN_QUERY_LOADSPELLCOOLDOWNS));
@@ -20628,9 +20628,9 @@ bool Player::AttackStop(bool targetSwitch, bool includingCast, bool includingCom
 	if (includingCombo)
 		ClearComboPoints();
 	if (includingCast)
-		Unit::CastStop;
+		((Unit*)this)->CastStop;
 
-	return Unit::AttackStop(targetSwitch);
+	return ((Unit*)this)->AttackStop(targetSwitch);
 }
 
 Player* Player::GetNextRaidMemberWithLowestLifePercentage(float radius, AuraType noAuraType)
@@ -20675,7 +20675,7 @@ Player* Player::GetNextRaidMemberWithLowestLifePercentage(float radius, AuraType
 void Player::KnockBackFrom(Unit* target, float horizontalSpeed, float verticalSpeed)
 {
 	float angle = this == target ? GetOrientation() + M_PI_F : target->GetAngle(this);
-	GetSession()->SendKnockBack(angle, horizontalSpeed, verticalSpeed);
+	KnockBack(angle, horizontalSpeed, verticalSpeed);
 }
 
 //Custom
@@ -20795,13 +20795,13 @@ void Player::UpdateRating(CombatRating cr)
 		UpdateBlockPercentage();
 		break;
 	case CR_HIT_MELEE:
-		UpdateMeleeHitChances();
+		//UpdateMeleeHitChances();
 		break;
 	case CR_HIT_RANGED:
-		UpdateRangedHitChances();
+		//UpdateRangedHitChances();
 		break;
 	case CR_HIT_SPELL:
-		UpdateSpellHitChances();
+		//UpdateSpellHitChances();
 		break;
 	case CR_CRIT_MELEE:
 		if (affectStats)

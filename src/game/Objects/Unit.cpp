@@ -1941,7 +1941,7 @@ void Unit::DealMeleeDamage(CalcDamageInfo *damageInfo, bool durabilityLoss)
             if (alreadyDone.find(*i) == alreadyDone.end())
             {
                 alreadyDone.insert(*i);
-                uint32 damage = (*i)->GetModifier()->GetModifierAmount(getLevel());
+                uint32 damage = (*i)->GetModifierAmount(getLevel());
                 SpellEntry const *i_spellProto = (*i)->GetSpellProto();
 
                 // apply SpellBaseDamageBonusTaken for mobs only
@@ -3896,7 +3896,7 @@ int32 Unit::GetMaxNegativeAuraModifier(AuraType auratype) const
 
     AuraList const& mTotalAuraList = GetAurasByType(auratype);
     for (AuraList::const_iterator i = mTotalAuraList.begin(); i != mTotalAuraList.end(); ++i)
-        if ((*i)->GetModifier()->GetModifierAmount(getLevel()) < modifier)
+        if ((*i)->GetModifierAmount(getLevel()) < modifier)
             modifier = (*i)->GetModifierAmount(getLevel());
 
     return modifier;
@@ -4759,7 +4759,7 @@ void Unit::RemoveAurasOnCast(SpellEntry const* castedSpellEntry)
 		SpellEntry const* spellEntry = holder->GetSpellProto();
 		bool removeThisHolder = false;
 
-		if (spellEntry->AuraInterruptFlags & AURA_INTERRUPT_FLAG_UNK2)
+		if (spellEntry->AuraInterruptFlags & AURA_INTERRUPT_FLAG_CAST)
 		{
 			if (castedSpellEntry->HasAttribute(SPELL_ATTR_EX_NOT_BREAK_STEALTH))
 			{
@@ -6757,7 +6757,7 @@ int32 Unit::SpellBaseDamageBonusDone(SpellSchoolMask schoolMask)
         if (((*i)->GetModifier()->m_miscvalue & schoolMask) != 0 &&
                 (*i)->GetSpellProto()->EquippedItemClass == -1 &&                   // -1 == any item class (not wand then)
                 (*i)->GetSpellProto()->EquippedItemInventoryTypeMask == 0)          //  0 == any inventory type (not wand then)
-            DoneAdvertisedBenefit += (*i)->GetModifier()->GetModifierAmount(getLevel());
+            DoneAdvertisedBenefit += (*i)->GetModifierAmount(getLevel());
     }
 
 	if (GetTypeId() == TYPEID_PLAYER)
@@ -6930,7 +6930,7 @@ bool Unit::IsSpellCrit(Unit *pVictim, SpellEntry const *spellProto, SpellSchoolM
 							if (pVictim->isFrozen() || pVictim->IsFleeing() || pVictim->IsImmobilized()) crit_chance += 5.0f;
 							break;
 						case 8101: 
-							if (pVictim>isFrozen() || pVictim->IsFleeing() || pVictim->IsImmobilized()) crit_chance += 10.0f;
+							if (pVictim->isFrozen() || pVictim->IsFleeing() || pVictim->IsImmobilized()) crit_chance += 10.0f;
 							break;
 						case 8102: if (pVictim->isFrozen() || pVictim->IsFleeing() || pVictim->IsImmobilized()) crit_chance += 15.0f;
 							break;
@@ -7078,7 +7078,7 @@ uint32 Unit::SpellHealingBonusDone(Unit *pVictim, SpellEntry const *spellProto, 
     // Healing done percent
     AuraList const& mHealingDonePct = GetAurasByType(SPELL_AURA_MOD_HEALING_DONE_PERCENT);
     for (AuraList::const_iterator i = mHealingDonePct.begin(); i != mHealingDonePct.end(); ++i)
-        DoneTotalMod *= (100.0f + (*i)->GetModifierAmount(getLevel()) / 100.0f;
+        DoneTotalMod *= (100.0f + (*i)->GetModifierAmount(getLevel())) / 100.0f;
 
     // done scripted mod (take it from owner)
     Unit *owner = GetOwner();
@@ -9852,12 +9852,6 @@ bool CharmInfo::IsReturning()
     return _isReturning;
 }
 
-
-bool Unit::isFrozen() const
-{
-    return HasAuraState(AURA_STATE_FROZEN);
-}
-
 uint32 createProcExtendMask(SpellNonMeleeDamage *damageInfo, SpellMissInfo missCondition)
 {
     uint32 procEx = PROC_EX_NONE;
@@ -10823,7 +10817,7 @@ void Unit::RestoreOriginalFaction()
 				setFaction(owner->getFaction());
 		}
 		else
-			setFaction(creature->GetCreatureInfo()->FactionAlliance);
+			setFaction(creature->GetCreatureInfo()->faction_A);
 	}
 }
 
@@ -10901,7 +10895,7 @@ void Unit::KnockBackWithAngle(float angle, float horizontalSpeed, float vertical
 {
 	if (GetTypeId() == TYPEID_PLAYER)
 	{
-		((Player*)this)->GetSession()->SendKnockBack(angle, horizontalSpeed, verticalSpeed);
+		KnockBack(angle, horizontalSpeed, verticalSpeed);
 	}
 	else
 	{
@@ -10916,53 +10910,10 @@ void Unit::KnockBackWithAngle(float angle, float horizontalSpeed, float vertical
 		float fx = ox + dis * vcos;
 		float fy = oy + dis * vsin;
 		float fz = oz + 0.5f;
-		GetMap()->GetHitPosition(ox, oy, oz + 0.5f, fx, fy, fz, -0.5f);
+		GetMap()->GetLosHitPosition(ox, oy, oz + 0.5f, fx, fy, fz, -0.5f);
 		UpdateAllowedPositionZ(fx, fy, fz);
 		GetMotionMaster()->MoveJump(fx, fy, fz, horizontalSpeed, max_height);
 	}
-}
-
-struct StopAttackFactionHelper
-{
-    explicit StopAttackFactionHelper(uint32 _faction_id) : faction_id(_faction_id) {}
-    void operator()(Unit* unit) const
-    {
-        unit->StopAttackFaction(faction_id);
-    }
-    uint32 faction_id;
-};
-
-void Unit::StopAttackFaction(uint32 faction_id)
-{
-    if (Unit* victim = getVictim())
-    {
-        if (victim->getFactionTemplateEntry()->faction == faction_id)
-        {
-            AttackStop();
-            if (IsNonMeleeSpellCasted(false))
-                InterruptNonMeleeSpells(false);
-
-            // melee and ranged forced attack cancel
-            if (GetTypeId() == TYPEID_PLAYER)
-                ((Player*)this)->SendAttackSwingCancelAttack();
-        }
-    }
-
-    AttackerSet const& attackers = getAttackers();
-    for (AttackerSet::const_iterator itr = attackers.begin(); itr != attackers.end();)
-    {
-        if ((*itr)->getFactionTemplateEntry()->faction == faction_id)
-        {
-            (*itr)->AttackStop();
-            itr = attackers.begin();
-        }
-        else
-            ++itr;
-    }
-
-    getHostileRefManager().deleteReferencesForFaction(faction_id);
-
-    CallForAllControlledUnits(StopAttackFactionHelper(faction_id), CONTROLLED_PET | CONTROLLED_GUARDIANS | CONTROLLED_CHARM);
 }
 
 void Unit::CleanupDeletedAuras()

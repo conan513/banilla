@@ -1289,7 +1289,7 @@ void CreatureEventAI::UpdateAI(const uint32 diff)
                         ProcessEvent(*i);
                         break;
                     case EVENT_T_TIMER:
-					EVENT_T_TIMER_GENERIC:
+					case EVENT_T_TIMER_GENERIC:
                     case EVENT_T_MANA:
                     case EVENT_T_HP:
                     case EVENT_T_TARGET_HP:

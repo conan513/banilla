@@ -79,7 +79,7 @@ struct boss_anubshiahAI : public ScriptedAI
         if (CurseOfWeakness_Timer < diff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_CURSEOFWEAKNESS);
-            CurseOfWeakness_Timer = Randomize(45000);
+            CurseOfWeakness_Timer = Randomize(45000,1.5);
         }
         else CurseOfWeakness_Timer -= diff;
 

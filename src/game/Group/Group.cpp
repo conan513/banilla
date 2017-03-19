@@ -1737,24 +1737,24 @@ static void RewardGroupAtKill_helper(Player* pGroupGuy, Unit* pVictim, uint32 co
     }
 
     // xp and reputation only in !PvP case
-    if (!PvP)
-    {
-        float rate = group_rate * float(pGroupGuy->getLevel()) / sum_level;
+	if (!PvP)
+	{
+		float rate = group_rate * float(pGroupGuy->getLevel()) / sum_level;
 
-        // if is in dungeon then all receive full reputation at kill
-        // rewarded any alive/dead/near_corpse group member
-        pGroupGuy->RewardReputation(pVictim, 1.0f);
+		// if is in dungeon then all receive full reputation at kill
+		// rewarded any alive/dead/near_corpse group member
+		pGroupGuy->RewardReputation(pVictim, 1.0f);
 
-        // XP updated only for alive group member
-        if (pGroupGuy->isAlive() && not_gray_member_with_max_level &&
-                pGroupGuy->getLevel() <= not_gray_member_with_max_level->getLevel())
-        {
-            uint32 itr_xp = (member_with_max_level == not_gray_member_with_max_level) ? uint32(xp * rate) : uint32((xp * rate / 2) + 1);
+		// XP updated only for alive group member
+		if (pGroupGuy->isAlive() && not_gray_member_with_max_level &&
+			pGroupGuy->getLevel() <= not_gray_member_with_max_level->getLevel())
+		{
+			uint32 itr_xp = (member_with_max_level == not_gray_member_with_max_level) ? uint32(xp * rate) : uint32((xp * rate / 2) + 1);
 
-            pGroupGuy->GiveXP(itr_xp, pVictim);
-            if (Pet* pet = pGroupGuy->GetPet())
-                pet->GivePetXP(itr_xp);
-        }
+			pGroupGuy->GiveXP(itr_xp, pVictim);
+			if (Pet* pet = pGroupGuy->GetPet())
+				pet->GivePetXP(itr_xp);
+		}
 
 		if (sWorld.getConfig(CONFIG_BOOL_CUSTOM_ADVENTURE_MODE) && sWorld.getConfig(CONFIG_FLOAT_CUSTOM_ADVENTURE_KILLXP))
 		{
@@ -1762,39 +1762,40 @@ static void RewardGroupAtKill_helper(Player* pGroupGuy, Unit* pVictim, uint32 co
 			float multiplier = 1;
 			uint32 attacker_level = pGroupGuy->getLevel();
 			Creature * pCreature = (Creature*)(pVictim);
-			
+
 			if (pCreature->IsElite())
 				multiplier = 5;
-			
+
 			if (pCreature->IsWorldBoss())
 				multiplier = 40;
-			
+
 			if (sWorld.getConfig(CONFIG_UINT32_CUSTOM_ADVENTURE_BOSSONLYXP) < pGroupGuy->GetAdventureLevel() && !pCreature->IsWorldBoss())
 				multiplier = 0;
-			
+
 			if ((victim_level + 3 - attacker_level) > 0)
 				multiplier = victim_level * multiplier;
 			else
 				multiplier = (-0.5f)*victim_level * multiplier;
-			
-				
+
+
 			int newxp = (int)(sWorld.getConfig(CONFIG_FLOAT_CUSTOM_ADVENTURE_KILLXP)*multiplier);
 			pGroupGuy->AddAdventureXP(newxp);
-        
-		// quest objectives updated only for alive group member or dead but with not released body
-        if (pGroupGuy->isAlive() || !pGroupGuy->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
-        {
-            // normal creature (not pet/etc) can be only in !PvP case
-            if (pVictim->GetTypeId() == TYPEID_UNIT)
-                pGroupGuy->KilledMonster(((Creature*)pVictim)->GetCreatureInfo(), pVictim->GetObjectGuid());
-        }
-    }
-	else if (sWorld.getConfig(CONFIG_BOOL_CUSTOM_ADVENTURE_MODE) && sWorld.getConfig(CONFIG_FLOAT_CUSTOM_ADVENTURE_PVPXP))
-	{
-			uint32 victim_level = pVictim->getLevel();
-			
-				pGroupGuy->AddAdventureXP(ceil(sWorld.getConfig(CONFIG_FLOAT_CUSTOM_ADVENTURE_PVPXP)*victim_level*(victim_level + 2 - pGroupGuy->getLevel()))*rate);
+
+			// quest objectives updated only for alive group member or dead but with not released body
+			if (pGroupGuy->isAlive() || !pGroupGuy->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
+			{
+				// normal creature (not pet/etc) can be only in !PvP case
+				if (pVictim->GetTypeId() == TYPEID_UNIT)
+					pGroupGuy->KilledMonster(((Creature*)pVictim)->GetCreatureInfo(), pVictim->GetObjectGuid());
 			}
+		}
+		else if (sWorld.getConfig(CONFIG_BOOL_CUSTOM_ADVENTURE_MODE) && sWorld.getConfig(CONFIG_FLOAT_CUSTOM_ADVENTURE_PVPXP))
+		{
+			uint32 victim_level = pVictim->getLevel();
+
+			pGroupGuy->AddAdventureXP(ceil(sWorld.getConfig(CONFIG_FLOAT_CUSTOM_ADVENTURE_PVPXP)*victim_level*(victim_level + 2 - pGroupGuy->getLevel()))*rate);
+		}
+	}
 }
 
 /** Provide rewards to group members at unit kill
