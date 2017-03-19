@@ -56,7 +56,7 @@ struct boss_gorosh_the_dervishAI : public ScriptedAI
         if (WhirlWind_Timer < diff)
         {
             DoCastSpellIfCan(m_creature, SPELL_WHIRLWIND);
-            WhirlWind_Timer = 15000;
+            WhirlWind_Timer = Randomize(15000);
         }
         else WhirlWind_Timer -= diff;
 
@@ -64,7 +64,7 @@ struct boss_gorosh_the_dervishAI : public ScriptedAI
         if (MortalStrike_Timer < diff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_MORTALSTRIKE);
-            MortalStrike_Timer = 15000;
+            MortalStrike_Timer = Randomize(15000);
         }
         else MortalStrike_Timer -= diff;
 
@@ -74,7 +74,7 @@ struct boss_gorosh_the_dervishAI : public ScriptedAI
             if (Bloodlust_Timer < diff)
             {
                 DoCastSpellIfCan(m_creature, SPELL_BLOODLUST);
-                Bloodlust_Timer = 45000;
+                Bloodlust_Timer = Randomize(45000,1.5);
             }
             else Bloodlust_Timer -= diff;
         }

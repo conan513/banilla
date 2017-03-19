@@ -43,8 +43,8 @@ struct boss_general_angerforgeAI : public ScriptedAI
     void Reset()
     {
         MightyBlow_Timer = 8000;
-        HamString_Timer = 12000;
-        Cleave_Timer = 16000;
+        HamString_Timer = Randomize(12000);
+        Cleave_Timer = Randomize(16000);
         Adds_Timer = 0;
         Medics = false;
     }
@@ -73,7 +73,7 @@ struct boss_general_angerforgeAI : public ScriptedAI
         if (MightyBlow_Timer < diff)
         {
             if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_MIGHTYBLOW) == CAST_OK)
-                MightyBlow_Timer = 18000;
+                MightyBlow_Timer = Randomize(18000);
         }
         else
             MightyBlow_Timer -= diff;
@@ -82,7 +82,7 @@ struct boss_general_angerforgeAI : public ScriptedAI
         if (HamString_Timer < diff)
         {
             if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_HAMSTRING) == CAST_OK)
-                HamString_Timer = 15000;
+                HamString_Timer = Randomize(15000);
         }
         else
             HamString_Timer -= diff;
@@ -91,13 +91,13 @@ struct boss_general_angerforgeAI : public ScriptedAI
         if (Cleave_Timer < diff)
         {
             if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_CLEAVE) == CAST_OK)
-                Cleave_Timer = 9000;
+                Cleave_Timer = Randomize(9000);
         }
         else
             Cleave_Timer -= diff;
 
         //Adds_Timer
-        if (m_creature->GetHealthPercent() < 21.0f)
+        if (m_creature->GetHealthPercent() <  RandomizeUp(21.0f))
         {
             if (Adds_Timer < diff)
             {
@@ -105,14 +105,14 @@ struct boss_general_angerforgeAI : public ScriptedAI
                 for (int i = 0; i < 3; ++i)
                     SummonAdds(m_creature->getVictim());
 
-                Adds_Timer = 25000;
+                Adds_Timer = Randomize(25000);
             }
             else
                 Adds_Timer -= diff;
         }
 
         //Summon Medics
-        if (!Medics && m_creature->GetHealthPercent() < 21.0f)
+        if (!Medics && m_creature->GetHealthPercent() <  RandomizeUp(21.0f))
         {
             SummonMedics(m_creature->getVictim());
             SummonMedics(m_creature->getVictim());

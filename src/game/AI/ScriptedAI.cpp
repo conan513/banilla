@@ -506,3 +506,18 @@ void ScriptedAI::DoTeleportAll(float fX, float fY, float fZ, float fO)
             if (i_pl->isAlive())
                 i_pl->TeleportTo(me->GetMapId(), fX, fY, fZ, fO, TELE_TO_NOT_LEAVE_COMBAT);
 }
+
+//custom
+uint32 ScriptedAI::Randomize(uint32 interval, float multiplier)
+{
+	if (multiplier)
+		multiplier *= GetAdventureCooldownMultiplier(m_creature->GetTargetGuid());
+	else multiplier *= GetAdventureCooldownMultiplier(m_creature->GetTargetGuid());
+	return int(interval * multiplier);
+}
+
+uint32 ScriptedAI::RandomizeUp(uint32 interval, float multiplier)
+{
+	float multiplier = GetAdventureCooldownMultiplier(m_creature->GetTargetGuid());
+	return int(interval + interval * multiplier);
+}

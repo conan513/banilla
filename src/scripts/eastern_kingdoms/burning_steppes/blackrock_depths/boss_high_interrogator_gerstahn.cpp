@@ -46,9 +46,9 @@ struct boss_high_interrogator_gerstahnAI : public ScriptedAI
     void Reset()
     {
         m_uiShadowWordPain_Timer = 4000;
-        m_uiManaBurn_Timer = 14000;
-        m_uiPsychicScream_Timer = 32000;
-        m_uiShadowShield_Timer = 8000;
+        m_uiManaBurn_Timer = Randomize(14000);
+        m_uiPsychicScream_Timer = Randomize(32000,1.5);
+        m_uiShadowShield_Timer = Randomize(8000);
     }
 
     void UpdateAI(const uint32 uiDiff)
@@ -63,7 +63,7 @@ struct boss_high_interrogator_gerstahnAI : public ScriptedAI
             if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
                 DoCastSpellIfCan(pTarget, SPELL_SHADOWWORDPAIN);
 
-            m_uiShadowWordPain_Timer = 7000;
+            m_uiShadowWordPain_Timer = Randomize(7000);
         }
         else
             m_uiShadowWordPain_Timer -= uiDiff;
@@ -74,7 +74,7 @@ struct boss_high_interrogator_gerstahnAI : public ScriptedAI
             if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
                 DoCastSpellIfCan(pTarget, SPELL_MANABURN);
 
-            m_uiManaBurn_Timer = 10000;
+            m_uiManaBurn_Timer = Randomize(10000);
         }
         else
             m_uiManaBurn_Timer -= uiDiff;
@@ -83,7 +83,7 @@ struct boss_high_interrogator_gerstahnAI : public ScriptedAI
         if (m_uiPsychicScream_Timer < uiDiff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_PSYCHICSCREAM);
-            m_uiPsychicScream_Timer = 30000;
+            m_uiPsychicScream_Timer = Randomize(30000,1.5);
         }
         else
             m_uiPsychicScream_Timer -= uiDiff;
@@ -92,7 +92,7 @@ struct boss_high_interrogator_gerstahnAI : public ScriptedAI
         if (m_uiShadowShield_Timer < uiDiff)
         {
             DoCastSpellIfCan(m_creature, SPELL_SHADOWSHIELD);
-            m_uiShadowShield_Timer = 25000;
+            m_uiShadowShield_Timer = Randomize(25000,1.5);
         }
         else
             m_uiShadowShield_Timer -= uiDiff;

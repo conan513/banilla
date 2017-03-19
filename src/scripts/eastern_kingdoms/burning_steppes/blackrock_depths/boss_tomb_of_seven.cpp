@@ -123,10 +123,10 @@ struct boss_doomrelAI : public ScriptedAI
 
     void Reset()
     {
-        m_uiShadowVolley_Timer = 10000;
-        m_uiImmolate_Timer = 18000;
+        m_uiShadowVolley_Timer = Randomize(10000);
+        m_uiImmolate_Timer = Randomize(18000);
         m_uiCurseOfWeakness_Timer = 5000;
-        m_uiDemonArmor_Timer = 16000;
+        m_uiDemonArmor_Timer = Randomize(16000);
         m_uiCallToFight_Timer = 0;
         m_uiWipeCheck_Timer = 25000;
         m_uiDwarfRound = 0;
@@ -206,7 +206,7 @@ struct boss_doomrelAI : public ScriptedAI
                     {
                         CallToFight(true);
                         ++m_uiDwarfRound;
-                        m_uiCallToFight_Timer = 30000;
+                        m_uiCallToFight_Timer = Randomize(30000);
                         m_uiWipeCheck_Timer = 25000;
                     }
                     else
@@ -251,7 +251,7 @@ struct boss_doomrelAI : public ScriptedAI
         if (m_uiShadowVolley_Timer < diff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_SHADOWBOLTVOLLEY);
-            m_uiShadowVolley_Timer = 12000;
+            m_uiShadowVolley_Timer = Randomize(12000);
         }
         else
             m_uiShadowVolley_Timer -= diff;
@@ -262,7 +262,7 @@ struct boss_doomrelAI : public ScriptedAI
             if (Unit* target = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
                 DoCastSpellIfCan(target, SPELL_IMMOLATE);
 
-            m_uiImmolate_Timer = 25000;
+            m_uiImmolate_Timer = Randomize(25000,1.5);
         }
         else
             m_uiImmolate_Timer -= diff;
@@ -271,7 +271,7 @@ struct boss_doomrelAI : public ScriptedAI
         if (m_uiCurseOfWeakness_Timer < diff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_CURSEOFWEAKNESS);
-            m_uiCurseOfWeakness_Timer = 45000;
+            m_uiCurseOfWeakness_Timer = Randomize(45000,1.5);
         }
         else
             m_uiCurseOfWeakness_Timer -= diff;

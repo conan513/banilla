@@ -47,7 +47,7 @@ struct boss_magmusAI : public ScriptedAI
 
     void Reset()
     {
-        m_uiFieryBurst_Timer = 5000;
+        m_uiFieryBurst_Timer = Randomize(5000);
         m_uiWarStomp_Timer = 0;
 
         if (Engaged)
@@ -79,18 +79,18 @@ struct boss_magmusAI : public ScriptedAI
         if (m_uiFieryBurst_Timer < uiDiff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_FIERYBURST);
-            m_uiFieryBurst_Timer = 6000;
+            m_uiFieryBurst_Timer = Randomize(6000);
         }
         else
             m_uiFieryBurst_Timer -= uiDiff;
 
         //WarStomp_Timer
-        if (m_creature->GetHealthPercent() < 51.0f)
+        if (m_creature->GetHealthPercent() < RandomizeUp(51.0f))
         {
             if (m_uiWarStomp_Timer < uiDiff)
             {
                 DoCastSpellIfCan(m_creature->getVictim(), SPELL_WARSTOMP);
-                m_uiWarStomp_Timer = 8000;
+                m_uiWarStomp_Timer = Randomize(8000);
             }
             else
                 m_uiWarStomp_Timer -= uiDiff;

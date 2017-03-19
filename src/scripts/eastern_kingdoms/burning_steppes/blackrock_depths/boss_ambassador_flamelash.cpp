@@ -47,7 +47,7 @@ struct boss_ambassador_flamelashAI : public ScriptedAI
     void Reset()
     {
         FireBlast_Timer = 2000;
-        Spirit_Timer = urand(15000, 20000);
+        Spirit_Timer = Randomize(urand(15000, 20000));
     }
 
     void SummonSpirits(Unit* victim)
@@ -68,7 +68,7 @@ struct boss_ambassador_flamelashAI : public ScriptedAI
         if (FireBlast_Timer < diff)
         {
             if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_FIREBLAST) == CAST_OK)
-                FireBlast_Timer = 8000;
+                FireBlast_Timer = Randomize(8000);
         }
         else
             FireBlast_Timer -= diff;
@@ -76,7 +76,7 @@ struct boss_ambassador_flamelashAI : public ScriptedAI
         //Spirit_Timer
         if (Spirit_Timer < diff)
         {
-            Spirit_Timer = 30000;
+            Spirit_Timer = Randomize(30000);
             // Summon 4 spirits
             for (int i = 0; i < 4; ++i)
                 SummonSpirits(m_creature->getVictim());

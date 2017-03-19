@@ -229,7 +229,7 @@ struct boss_alarAI : public ScriptedAI
         }
     }
 
-    void DamageTaken(Unit* /*pKiller*/, uint32& uiDamage, DamageEffectType /*damagetype*/) override
+    void DamageTaken(Unit* /*pKiller*/, uint32& uiDamage) override
     {
         // Only init fake in phase one
         if (m_uiPhase != PHASE_ONE)
@@ -390,7 +390,7 @@ struct boss_alarAI : public ScriptedAI
                     if (DoCastSpellIfCan(m_creature, SPELL_BOMB_REBIRTH) == CAST_OK)
                     {
                         m_creature->RemoveAurasDueToSpell(SPELL_DIVE_BOMB_VISUAL);
-                        SetCombatMovement(true, true);
+                        SetCombatMovement(true);
 
                         // Spawn 2 Embers of Alar
                         float fX, fY, fZ;

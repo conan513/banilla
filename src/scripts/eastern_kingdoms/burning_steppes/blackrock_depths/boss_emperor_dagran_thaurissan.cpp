@@ -51,9 +51,9 @@ struct boss_emperor_dagran_thaurissanAI : public ScriptedAI
 
     void Reset()
     {
-        m_uiHandOfThaurissan_Timer        = urand(5000, 7500);
-        m_uiAvatarOfFlame_Timer           = 18000;
-        m_uiIronfoeTimer                  = 9000;
+        m_uiHandOfThaurissan_Timer        = Randomize(urand(5000, 7500));
+        m_uiAvatarOfFlame_Timer           = Randomize(18000);
+        m_uiIronfoeTimer                  = Randomize(9000);
     }
 
     void Aggro(Unit* pWho)
@@ -92,7 +92,7 @@ struct boss_emperor_dagran_thaurissanAI : public ScriptedAI
             if (m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 1, nullptr, SELECT_FLAG_PLAYER))
             {
                 if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_HANDOFTHAURISSAN) == CAST_OK)
-                    m_uiHandOfThaurissan_Timer = urand(10000, 15000);
+                    m_uiHandOfThaurissan_Timer = Randomize(urand(10000, 15000));
             }
         }
         else
@@ -101,7 +101,7 @@ struct boss_emperor_dagran_thaurissanAI : public ScriptedAI
         if (m_uiAvatarOfFlame_Timer < uiDiff)
         {
             DoCastSpellIfCan(m_creature, SPELL_AVATAROFFLAME);
-            m_uiAvatarOfFlame_Timer = 18000;
+            m_uiAvatarOfFlame_Timer = Randomize(18000);
         }
         else
             m_uiAvatarOfFlame_Timer -= uiDiff;
@@ -159,10 +159,10 @@ struct boss_moira_bronzebeardAI : public ScriptedAI
 
     void Reset()
     {
-        m_uiHeal_Timer = 12000;                                 //These times are probably wrong
-        m_uiMindBlast_Timer = 16000;
+        m_uiHeal_Timer = Randomize(12000);                                 //These times are probably wrong
+        m_uiMindBlast_Timer = Randomize(16000);
         m_uiShadowWordPain_Timer = 2000;
-        m_uiSmite_Timer = 8000;
+        m_uiSmite_Timer = Randomize(8000);
     }
 
     void JustReachedHome()
@@ -188,7 +188,7 @@ struct boss_moira_bronzebeardAI : public ScriptedAI
         if (m_uiMindBlast_Timer < uiDiff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_MINDBLAST);
-            m_uiMindBlast_Timer = 14000;
+            m_uiMindBlast_Timer = Randomize(14000);
         }
         else
             m_uiMindBlast_Timer -= uiDiff;
@@ -197,7 +197,7 @@ struct boss_moira_bronzebeardAI : public ScriptedAI
         if (m_uiShadowWordPain_Timer < uiDiff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_SHADOWWORDPAIN);
-            m_uiShadowWordPain_Timer = 18000;
+            m_uiShadowWordPain_Timer = Randomize(18000);
         }
         else
             m_uiShadowWordPain_Timer -= uiDiff;
@@ -206,7 +206,7 @@ struct boss_moira_bronzebeardAI : public ScriptedAI
         if (m_uiSmite_Timer < uiDiff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_SMITE);
-            m_uiSmite_Timer = 10000;
+            m_uiSmite_Timer = Randomize(10000);
         }
         else
             m_uiSmite_Timer -= uiDiff;
@@ -220,7 +220,7 @@ struct boss_moira_bronzebeardAI : public ScriptedAI
                     DoCastSpellIfCan(pEmperor, SPELL_HEAL);
             }
 
-            m_uiHeal_Timer = 10000;
+            m_uiHeal_Timer = Randomize(10000);
         }
         else
             m_uiHeal_Timer -= uiDiff;

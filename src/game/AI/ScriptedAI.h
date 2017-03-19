@@ -155,6 +155,9 @@ struct MANGOS_DLL_DECL ScriptedAI : CreatureAI
     void EnterEvadeIfOutOfHomeArea();
 
     void DoGoHome();
+	//custom
+	uint32 Randomize(uint32 interval, float multiplier = 0);
+	uint32 RandomizeUp(uint32 interval, float multiplier = 0);
 
     float DoGetThreat(Unit* pUnit);
     void DoModifyThreatPercent(Unit* pUnit, int32 pct);

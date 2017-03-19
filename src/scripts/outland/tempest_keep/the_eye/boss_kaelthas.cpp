@@ -701,13 +701,13 @@ struct boss_kaelthasAI : public ScriptedAI
     }
 };
 
-bool EffectDummyCreature_kael_phase_2(Unit* pCaster, uint32 uiSpellId, SpellEffectIndex uiEffIndex, Creature* pCreatureTarget, ObjectGuid /*originalCasterGuid*/)
+bool EffectDummyCreature_kael_phase_2(Unit *caster, uint32 spellId, SpellEffectIndex effIndex, Creature *crTarget)
 {
     // always check spellid and effectindex
-    if (uiSpellId == SPELL_KAEL_PHASE_2 && uiEffIndex == EFFECT_INDEX_0)
+    if (spellId == SPELL_KAEL_PHASE_2 && effIndex == EFFECT_INDEX_0)
     {
-        if (boss_kaelthasAI* pKaelAI = dynamic_cast<boss_kaelthasAI*>(pCreatureTarget->AI()))
-            pKaelAI->AdvisorDefeated(pCaster->GetEntry());
+        if (boss_kaelthasAI* pKaelAI = dynamic_cast<boss_kaelthasAI*>(crTarget->AI()))
+            pKaelAI->AdvisorDefeated(caster->GetEntry());
 
         // always return true when we are handling this spell and effect
         return true;
@@ -755,7 +755,7 @@ struct advisor_base_ai : public ScriptedAI
         }
     }
 
-    void DamageTaken(Unit* /*pDoneby*/, uint32& uiDamage, DamageEffectType damagetype) override
+    void DamageTaken(Unit* /*pDoneby*/, uint32& uiDamage) override
     {
         // Allow fake death only in the first phase
         if (!m_bCanFakeDeath)
@@ -1122,7 +1122,7 @@ struct mob_phoenix_tkAI : public ScriptedAI
         ScriptedAI::EnterEvadeMode();
     }
 
-    void DamageTaken(Unit* /*pKiller*/, uint32& uiDamage, DamageEffectType /*damagetype*/) override
+    void DamageTaken(Unit* /*pKiller*/, uint32& uiDamage) override
     {
         if (uiDamage < m_creature->GetHealth())
             return;
@@ -1271,7 +1271,7 @@ void AddSC_boss_kaelthas()
     pNewScript = new Script;
     pNewScript->Name = "boss_kaelthas";
     pNewScript->GetAI = &GetAI_boss_kaelthas;
-    pNewScript->pEffectDummyNPC = &EffectDummyCreature_kael_phase_2;
+    pNewScript->pEffectDummyCreature = &EffectDummyCreature_kael_phase_2;
     pNewScript->RegisterSelf();
 
     pNewScript = new Script;

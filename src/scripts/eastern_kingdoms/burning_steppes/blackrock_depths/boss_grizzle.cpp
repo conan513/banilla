@@ -54,19 +54,19 @@ struct boss_grizzleAI : public ScriptedAI
         if (GroundTremor_Timer < diff)
         {
             DoCastSpellIfCan(m_creature, SPELL_GROUNDTREMOR);
-            GroundTremor_Timer = 8000;
+            GroundTremor_Timer = Randomize(8000);
         }
         else GroundTremor_Timer -= diff;
 
         //Frenzy_Timer
-        if (m_creature->GetHealthPercent() < 51.0f)
+        if (m_creature->GetHealthPercent() <  RandomizeUp(51.0f))
         {
             if (Frenzy_Timer < diff)
             {
                 if (DoCastSpellIfCan(m_creature, SPELL_FRENZY) == CAST_OK)
                 {
                     DoScriptText(EMOTE_GENERIC_FRENZY_KILL, m_creature);
-                    Frenzy_Timer = 15000;
+                    Frenzy_Timer = Randomize(15000);
                 }
             }
             else Frenzy_Timer -= diff;

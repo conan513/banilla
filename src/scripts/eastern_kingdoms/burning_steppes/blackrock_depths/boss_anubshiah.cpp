@@ -44,11 +44,11 @@ struct boss_anubshiahAI : public ScriptedAI
 
     void Reset()
     {
-        ShadowBolt_Timer = 7000;
-        CurseOfTongues_Timer = 24000;
-        CurseOfWeakness_Timer = 12000;
+        ShadowBolt_Timer = Randomize(7000);
+        CurseOfTongues_Timer = Randomize(24000);
+        CurseOfWeakness_Timer = Randomize(12000);
         DemonArmor_Timer = 3000;
-        EnvelopingWeb_Timer = 16000;
+        EnvelopingWeb_Timer = Randomize(16000);
     }
 
     void UpdateAI(const uint32 diff)
@@ -61,7 +61,7 @@ struct boss_anubshiahAI : public ScriptedAI
         if (ShadowBolt_Timer < diff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_SHADOWBOLT);
-            ShadowBolt_Timer = 7000;
+            ShadowBolt_Timer = Randomize(7000);
         }
         else ShadowBolt_Timer -= diff;
 
@@ -71,7 +71,7 @@ struct boss_anubshiahAI : public ScriptedAI
             Unit* target = NULL;
             target = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0);
             if (target) DoCastSpellIfCan(target, SPELL_CURSEOFTONGUES);
-            CurseOfTongues_Timer = 18000;
+            CurseOfTongues_Timer = Randomize(18000);
         }
         else CurseOfTongues_Timer -= diff;
 
@@ -79,7 +79,7 @@ struct boss_anubshiahAI : public ScriptedAI
         if (CurseOfWeakness_Timer < diff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_CURSEOFWEAKNESS);
-            CurseOfWeakness_Timer = 45000;
+            CurseOfWeakness_Timer = Randomize(45000);
         }
         else CurseOfWeakness_Timer -= diff;
 
@@ -97,7 +97,7 @@ struct boss_anubshiahAI : public ScriptedAI
             Unit* target = NULL;
             target = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0);
             if (target) DoCastSpellIfCan(target, SPELL_ENVELOPINGWEB);
-            EnvelopingWeb_Timer = 12000;
+            EnvelopingWeb_Timer = Randomize(12000);
         }
         else EnvelopingWeb_Timer -= diff;
 
