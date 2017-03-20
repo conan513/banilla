@@ -1234,6 +1234,16 @@ bool GOUse(Player* pPlayer, GameObject* pGo)
 	return pTempScript->pGOUse(pPlayer, pGo);
 }
 
+bool EffectScriptEffectCreature(Unit* pCaster, uint32 spellId, SpellEffectIndex effIndex, Creature* pTarget, ObjectGuid originalCasterGuid)
+{
+	Script* pTempScript = m_scripts[pTarget->GetScriptId()];
+
+	if (!pTempScript || !pTempScript->pEffectScriptEffectNPC)
+		return false;
+
+	return pTempScript->pEffectScriptEffectNPC(pCaster, spellId, effIndex, pTarget, originalCasterGuid);
+}
+
 uint32 GetAreaTriggerScriptId(uint32 triggerId)
 {
     return sScriptMgr.GetAreaTriggerScriptId(triggerId);

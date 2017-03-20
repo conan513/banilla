@@ -27,7 +27,6 @@ npc_magwin
 EndContentData */
 
 #include "scriptPCH.h"
-#include "escort_ai.h"
 
 /*######
 ## npc_draenei_survivor
@@ -257,7 +256,7 @@ struct npc_magwinAI : public npc_escortAI
         if (eventType == AI_EVENT_START_ESCORT && pInvoker->GetTypeId() == TYPEID_PLAYER)
         {
             m_creature->SetFactionTemporary(FACTION_ESCORT_A_NEUTRAL_PASSIVE, TEMPFACTION_RESTORE_RESPAWN);
-            Start(false, (Player*)pInvoker, GetQuestTemplateStore(uiMiscValue));
+            Start(false, ((Player*)pInvoker)->GetGUID(), GetQuestTemplateStore(uiMiscValue));
         }
     }
 };

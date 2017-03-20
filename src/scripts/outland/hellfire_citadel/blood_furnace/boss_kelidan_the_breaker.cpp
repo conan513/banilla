@@ -43,7 +43,7 @@ enum
     SAY_NOVA                    = -1542006,
     SAY_DIE                     = -1542007,
 
-    SPELL_CORRUPTION            = 30938,
+    SPELL_CORRUPTION_KEL            = 30938,
     SPELL_EVOCATION             = 30935,
 
     SPELL_FIRE_NOVA             = 33132,
@@ -255,7 +255,7 @@ struct boss_kelidan_the_breakerAI : public ScriptedAI
 
         if (m_uiCorruptionTimer < uiDiff)
         {
-            if (DoCastSpellIfCan(m_creature, SPELL_CORRUPTION) == CAST_OK)
+            if (DoCastSpellIfCan(m_creature, SPELL_CORRUPTION_KEL) == CAST_OK)
                 m_uiCorruptionTimer = urand(30000, 50000);
         }
         else

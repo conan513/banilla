@@ -165,10 +165,15 @@ struct MANGOS_DLL_DECL ScriptedAI : CreatureAI
     void DoTeleportTo(const float fPos[4]);
     void DoTeleportAll(float fX, float fY, float fZ, float fO);
     Creature* me;
+	void SetAttackDistance(float distance) { m_attackDistance = distance; }
 
     private:
         bool   m_bCombatMovement;
         uint32 m_uiEvadeCheckCooldown;
+
+		/// How should an enemy be chased
+		float m_attackDistance;
+		float m_attackAngle;
 
         bool m_bEvadeOutOfHomeArea;
         uint32 m_uiHomeArea;

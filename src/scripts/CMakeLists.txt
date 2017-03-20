@@ -203,6 +203,22 @@ set (SCRIPTS_SRCS
 	eastern_kingdoms/westfall/deadmines/deadmines.cpp
 	eastern_kingdoms/westfall/deadmines/instance_deadmines.cpp
 	eastern_kingdoms/wetlands/wetlands.cpp
+	eastern_kingdoms/eversong_woods/eversong_woods.cpp
+	eastern_kingdoms/eversong_woods/silvermoon_city.cpp
+	eastern_kingdoms/ghostlands/ghostlands.cpp
+	eastern_kingdoms/karazhan/boss_curator.cpp
+	eastern_kingdoms/karazhan/boss_maiden_of_virtue.cpp
+	eastern_kingdoms/karazhan/boss_midnight.cpp
+	eastern_kingdoms/karazhan/boss_moroes.cpp
+	eastern_kingdoms/karazhan/boss_netherspite.cpp
+	eastern_kingdoms/karazhan/boss_nightbane.cpp
+	eastern_kingdoms/karazhan/boss_prince_malchezaar.cpp
+	eastern_kingdoms/karazhan/boss_shade_of_aran.cpp
+	eastern_kingdoms/karazhan/boss_terestian_illhoof.cpp
+	eastern_kingdoms/karazhan/bosses_opera.cpp
+	eastern_kingdoms/karazhan/chess_event.cpp
+	eastern_kingdoms/karazhan/instance_karazhan.cpp
+	eastern_kingdoms/karazhan/karazhan.cpp
 	kalimdor/ashenvale/ashenvale.cpp
 	kalimdor/ashenvale/blackfathom_deeps/instance_blackfathom_deeps.cpp
 	kalimdor/azshara/azshara.cpp
@@ -270,6 +286,77 @@ set (SCRIPTS_SRCS
 	kalimdor/thunder_bluff/thunder_bluff.cpp
 	kalimdor/ungoro_crater/ungoro_crater.cpp
 	kalimdor/winterspring/winterspring.cpp
+        kalimdor/azuremyst_isle/azuremyst_isle.cpp
+	kalimdor/bloodmyst_isle/bloodmyst_isle.cpp
+	outland/blades_edge_mountains.cpp
+	outland/boss_doomlord_kazzak.cpp
+	outland/boss_doomwalker.cpp
+	outland/hellfire_peninsula.cpp
+	outland/nagrand.cpp
+	outland/netherstorm.cpp
+	outland/shadowmoon_valley.cpp
+	outland/shattrath_city.cpp
+	outland/terokkar_forest.cpp
+	outland/zangarmarsh.cpp
+	outland/auchindoun/auchenai_crypts/boss_exarch_maladaar.cpp
+	outland/auchindoun/auchenai_crypts/boss_shirrak.cpp
+	outland/auchindoun/mana_tombs/boss_pandemonius.cpp
+	outland/auchindoun/mana_tombs/boss_nexusprince_shaffar.cpp
+	outland/auchindoun/mana_tombs/mana_tombs.cpp
+	outland/auchindoun/sethekk_halls/boss_anzu.cpp
+	outland/auchindoun/sethekk_halls/boss_darkweaver_syth.cpp
+	outland/auchindoun/sethekk_halls/boss_talon_king_ikiss.cpp
+	outland/auchindoun/sethekk_halls/instance_sethekk_halls.cpp
+	outland/auchindoun/shadow_labyrinth/boss_ambassador_hellmaw.cpp
+	outland/auchindoun/shadow_labyrinth/boss_blackheart_the_inciter.cpp
+	outland/auchindoun/shadow_labyrinth/boss_grandmaster_vorpil.cpp
+	outland/auchindoun/shadow_labyrinth/boss_murmur.cpp
+	outland/auchindoun/shadow_labyrinth/instance_shadow_labyrinth.cpp
+	outland/coilfang_reservoir/serpent_shrine/boss_fathomlord_karathress.cpp
+	outland/coilfang_reservoir/serpent_shrine/boss_hydross_the_unstable.cpp
+	outland/coilfang_reservoir/serpent_shrine/boss_lady_vashj.cpp
+	outland/coilfang_reservoir/serpent_shrine/boss_leotheras_the_blind.cpp
+	outland/coilfang_reservoir/serpent_shrine/boss_morogrim_tidewalker.cpp
+	outland/coilfang_reservoir/serpent_shrine/boss_the_lurker_below.cpp
+	outland/coilfang_reservoir/serpent_shrine/instance_serpent_shrine.cpp
+	outland/coilfang_reservoir/steam_vault/boss_hydromancer_thespia.cpp
+	outland/coilfang_reservoir/steam_vault/boss_mekgineer_steamrigger.cpp
+	outland/coilfang_reservoir/steam_vault/boss_warlord_kalithresh.cpp
+	outland/coilfang_reservoir/steam_vault/instance_steam_vault.cpp
+	outland/coilfang_reservoir/underbog/boss_hungarfen.cpp
+	outland/gruuls_lair/boss_gruul.cpp
+	outland/gruuls_lair/boss_high_king_maulgar.cpp
+	outland/gruuls_lair/instance_gruuls_lair.cpp
+	outland/hellfire_citadel/blood_furnace/boss_broggok.cpp
+	outland/hellfire_citadel/blood_furnace/boss_kelidan_the_breaker.cpp
+	outland/hellfire_citadel/blood_furnace/boss_the_maker.cpp
+	outland/hellfire_citadel/blood_furnace/instance_blood_furnace.cpp
+	outland/hellfire_citadel/hellfire_ramparts/boss_nazan_and_vazruden.cpp
+	outland/hellfire_citadel/hellfire_ramparts/boss_omor_the_unscarred.cpp
+	outland/hellfire_citadel/hellfire_ramparts/boss_watchkeeper_gargolmar.cpp
+	outland/hellfire_citadel/hellfire_ramparts/instance_hellfire_ramparts.cpp
+	outland/hellfire_citadel/magtheridons_lair/boss_magtheridon.cpp
+	outland/hellfire_citadel/magtheridons_lair/instance_magtheridons_lair.cpp
+	outland/hellfire_citadel/shattered_halls/boss_nethekurse.cpp
+	outland/hellfire_citadel/shattered_halls/boss_warbringer_omrogg.cpp
+	outland/hellfire_citadel/shattered_halls/boss_warchief_kargath_bladefist.cpp
+	outland/hellfire_citadel/shattered_halls/instance_shattered_halls.cpp
+	outland/tempest_keep/arcatraz/arcatraz.cpp
+	outland/tempest_keep/arcatraz/boss_dalliah.cpp
+	outland/tempest_keep/arcatraz/boss_harbinger_skyriss.cpp
+	outland/tempest_keep/arcatraz/boss_soccothrates.cpp
+	outland/tempest_keep/arcatraz/instance_arcatraz.cpp
+	outland/tempest_keep/botanica/boss_high_botanist_freywinn.cpp
+	outland/tempest_keep/botanica/boss_laj.cpp
+	outland/tempest_keep/botanica/boss_warp_splinter.cpp
+	outland/tempest_keep/the_eye/boss_alar.cpp
+	outland/tempest_keep/the_eye/boss_astromancer.cpp
+	outland/tempest_keep/the_eye/boss_kaelthas.cpp
+	outland/tempest_keep/the_eye/boss_void_reaver.cpp
+	outland/tempest_keep/the_eye/instance_the_eye.cpp
+	outland/tempest_keep/the_mechanar/boss_nethermancer_sepethrea.cpp
+	outland/tempest_keep/the_mechanar/boss_pathaleon_the_calculator.cpp
+	outland/tempest_keep/the_mechanar/instance_mechanar.cpp
 	PrecompiledHeaders/scriptPCH.cpp
 	world/areatrigger_scripts.cpp
 	world/boss_anachronos.cpp

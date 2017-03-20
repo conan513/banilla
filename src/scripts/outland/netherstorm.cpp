@@ -472,7 +472,7 @@ struct npc_commander_dawnforgeAI : public ScriptedAI
             return true;
         }
 
-        debug_log("SD2: npc_commander_dawnforge event already in progress, need to wait.");
+        //debug_log("SD2: npc_commander_dawnforge event already in progress, need to wait.");
         return false;
     }
 
@@ -672,7 +672,7 @@ bool QuestAccept_npc_bessy(Player* pPlayer, Creature* pCreature, const Quest* pQ
         pCreature->SetFactionTemporary(FACTION_ESCORT_N_NEUTRAL_PASSIVE, TEMPFACTION_RESTORE_RESPAWN | TEMPFACTION_TOGGLE_NON_ATTACKABLE);
 
         if (npc_bessyAI* pBessyAI = dynamic_cast<npc_bessyAI*>(pCreature->AI()))
-            pBessyAI->Start(true, pPlayer, pQuest);
+            pBessyAI->Start(true, pPlayer->GetGUID(), pQuest);
     }
     return true;
 }
@@ -831,7 +831,7 @@ bool QuestAccept_npc_maxx_a_million(Player* pPlayer, Creature* pCreature, const 
             // Set emote-state to 0 (is EMOTE_STATE_STUN by default)
             pCreature->HandleEmote(EMOTE_ONESHOT_NONE);
 
-            pEscortAI->Start(false, pPlayer, pQuest, true);
+            pEscortAI->Start(false, pPlayer->GetGUID(), pQuest, true);
         }
     }
     return true;
@@ -938,7 +938,7 @@ struct npc_protectorate_demolitionistAI : public npc_escortAI
                 if (m_creature->IsWithinDistInMap(pWho, 10.0f))
                 {
                     m_creature->SetFactionTemporary(FACTION_FRIENDLY, TEMPFACTION_RESTORE_RESPAWN);
-                    Start(false, (Player*)pWho);
+                    Start(false, ((Player*)pWho)->GetGUID());
                 }
             }
         }
@@ -1128,7 +1128,7 @@ bool QuestAccept_npc_captured_vanguard(Player* pPlayer, Creature* pCreature, con
     if (pQuest->GetQuestId() == QUEST_ID_ESCAPE_STAGING_GROUNDS)
     {
         if (npc_captured_vanguardAI* pEscortAI = dynamic_cast<npc_captured_vanguardAI*>(pCreature->AI()))
-            pEscortAI->Start(false, pPlayer, pQuest);
+            pEscortAI->Start(false, pPlayer->GetGUID(), pQuest);
 
         DoScriptText(SAY_VANGUARD_START, pCreature, pPlayer);
     }
@@ -1313,7 +1313,7 @@ struct npc_drijyaAI : public npc_escortAI
         if (eventType == AI_EVENT_START_ESCORT && pInvoker->GetTypeId() == TYPEID_PLAYER)
         {
             m_creature->SetFactionTemporary(FACTION_ESCORT_N_NEUTRAL_PASSIVE, TEMPFACTION_RESTORE_RESPAWN);
-            Start(false, (Player*)pInvoker, GetQuestTemplateStore(uiMiscValue), true);
+            Start(false, ((Player*)pInvoker)->GetGUID(), GetQuestTemplateStore(uiMiscValue), true);
         }
     }
 

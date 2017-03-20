@@ -1418,6 +1418,7 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         void SetFly(bool enable);
         void SetWalk(bool enable, bool asDefault = true);
         void SetLevitate(bool enable);
+		void SetSwim(bool enable);
 
         virtual bool CanWalk() const = 0;
         virtual bool CanFly() const = 0;

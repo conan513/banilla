@@ -103,7 +103,10 @@ enum AIEventType
 class MANGOS_DLL_SPEC CreatureAI
 {
     public:
-        explicit CreatureAI(Creature* creature) : m_creature(creature), m_bUseAiAtControl(false), m_uLastAlertTime(0) {}
+        explicit CreatureAI(Creature* creature) : m_creature(creature), m_bUseAiAtControl(false), m_uLastAlertTime(0) {
+			m_dismountOnAggro = !(m_creature->GetCreatureInfo()->flags_extra & CREATURE_EXTRA_FLAG_DONT_DISMOUNT_ON_AGGRO);
+		}
+
 
         virtual ~CreatureAI();
         virtual void OnRemoveFromWorld() {}

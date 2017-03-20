@@ -14,6 +14,8 @@ ScriptedAI::ScriptedAI(Creature* pCreature) : CreatureAI(pCreature),
     me(pCreature),
     m_bCombatMovement(true),
     m_uiEvadeCheckCooldown(2500),
+	m_attackDistance(0.0f),
+	m_attackAngle(0.0f),
     m_uiHomeArea(m_creature->GetAreaId())
 {
     m_bEvadeOutOfHomeArea = false;
@@ -57,7 +59,7 @@ void ScriptedAI::AttackStart(Unit* pWho)
         pWho->SetInCombatWith(m_creature);
 
         if (IsCombatMovement())
-            m_creature->GetMotionMaster()->MoveChase(pWho);
+            m_creature->GetMotionMaster()->MoveChase(pWho,m_attackDistance, m_attackAngle);
     }
     else
         DEBUG_UNIT(m_creature, DEBUG_AI, "AttackStart %s impossible.", pWho->GetName());

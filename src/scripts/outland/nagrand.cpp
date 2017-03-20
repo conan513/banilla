@@ -75,7 +75,7 @@ struct mob_lumpAI : public ScriptedAI
         AttackStart(pAttacker);
     }
 
-    void DamageTaken(Unit* /*pDealer*/, uint32& uiDamage, DamageEffectType /*damagetype*/) override
+    void DamageTaken(Unit* /*pDealer*/, uint32& uiDamage) override
     {
         if (m_creature->GetHealth() < uiDamage || (m_creature->GetHealth() - uiDamage) * 100 / m_creature->GetMaxHealth() < 30)
         {
@@ -228,7 +228,7 @@ struct npc_nagrand_captiveAI : public npc_escortAI
                 m_creature->SummonCreature(NPC_MURK_BRUTE, -1525.484f, 8475.383f, -2.482f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
             }
 
-            Start(false, (Player*)pInvoker, GetQuestTemplateStore(uiMiscValue));
+            Start(false, ((Player*)pInvoker)->GetGUID(), GetQuestTemplateStore(uiMiscValue));
         }
     }
 
@@ -444,7 +444,7 @@ struct npc_rethhedronAI : public ScriptedAI
         }
     }
 
-    void DamageTaken(Unit* /*pDealer*/, uint32& uiDamage, DamageEffectType /*damagetype*/) override
+    void DamageTaken(Unit* /*pDealer*/, uint32& uiDamage) override
     {
         // go to epilog at 10% health
         if (!m_bEventFinished && m_creature->GetHealthPercent() < 10.0f)

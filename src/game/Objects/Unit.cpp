@@ -11722,6 +11722,19 @@ void Unit::SetLevitate(bool enable)
         m_movementInfo.RemoveMovementFlag(MOVEFLAG_LEVITATING);
 }
 
+
+void Unit::SetSwim(bool enable)
+{
+	if (enable)
+		m_movementInfo.AddMovementFlag(MOVEFLAG_SWIMMING);
+	else
+		m_movementInfo.RemoveMovementFlag(MOVEFLAG_SWIMMING);
+
+	WorldPacket data(enable ? SMSG_SPLINE_MOVE_START_SWIM : SMSG_SPLINE_MOVE_STOP_SWIM);
+	data << GetPackGUID();
+	SendMessageToSet(&data, true);
+}
+
 void Unit::SetFly(bool enable)
 {
     if (enable)

@@ -403,7 +403,7 @@ CreatureAI* GetAI_npc_netherspite_portal(Creature* pCreature)
     return new npc_netherspite_portalAI(pCreature);
 }
 
-bool EffectScriptEffectCreature_spell_portal_attunement(Unit* pCaster, uint32 uiSpellId, SpellEffectIndex uiEffIndex, Creature* pCreatureTarget)
+bool EffectScriptEffectCreature_spell_portal_attunement(Unit* pCaster, uint32 uiSpellId, SpellEffectIndex uiEffIndex, Creature* pCreatureTarget, ObjectGuid /*originalCasterGuid*/)
 {
     if (uiSpellId == SPELL_PORTAL_ATTUNEMENT && uiEffIndex == EFFECT_INDEX_0)
     {
@@ -428,6 +428,6 @@ void AddSC_boss_netherspite()
     pNewScript = new Script;
     pNewScript->Name = "npc_netherspite_portal";
     pNewScript->GetAI = &GetAI_npc_netherspite_portal;
-    pNewScript->pEffectDummyCreature = &EffectScriptEffectCreature_spell_portal_attunement;
+    pNewScript->pEffectScriptEffectNPC = &EffectScriptEffectCreature_spell_portal_attunement;
     pNewScript->RegisterSelf();
 }

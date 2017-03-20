@@ -517,7 +517,7 @@ CreatureAI* GetAI_npc_fel_guard_hound(Creature* pCreature)
     return new npc_fel_guard_houndAI(pCreature);
 }
 
-bool EffectDummyCreature_npc_fel_guard_hound(Unit* pCaster, uint32 uiSpellId, SpellEffectIndex uiEffIndex, Creature* pCreatureTarget, ObjectGuid /*originalCasterGuid*/)
+bool EffectDummyCreature_npc_fel_guard_hound(Unit* pCaster, uint32 uiSpellId, SpellEffectIndex uiEffIndex, Creature* pCreatureTarget)
 {
     // always check spellid and effectindex
     if (uiSpellId == SPELL_INFORM_DOG && uiEffIndex == EFFECT_INDEX_0)
@@ -666,7 +666,7 @@ struct npc_anchorite_baradaAI : public ScriptedAI, private DialogueHelper
         {
             case 3:
                 // pause wp and resume dialogue
-                m_creature->addUnitState(UNIT_STAT_WAYPOINT_PAUSED);
+				m_creature->SetMovement(MOVE_UNROOT);
                 m_creature->SetStandState(UNIT_STAND_STATE_KNEEL);
                 m_bEventInProgress = true;
 
@@ -755,7 +755,7 @@ struct npc_anchorite_baradaAI : public ScriptedAI, private DialogueHelper
                 }
                 // resume wp movemnet
                 m_creature->RemoveAllAuras();
-                m_creature->clearUnitState(UNIT_STAT_WAYPOINT_PAUSED);
+				m_creature->SetMovement(MOVE_UNROOT);
                 m_creature->SetStandState(UNIT_STAND_STATE_STAND);
                 break;
         }
@@ -793,7 +793,7 @@ bool GossipHello_npc_anchorite_barada(Player* pPlayer, Creature* pCreature)
 {
     // check if quest is active but not completed
     if (pPlayer->IsCurrentQuest(QUEST_ID_EXORCISM, 1))
-        pPlayer->ADD_GOSSIP_ITEM_ID(GOSSIP_ICON_CHAT, GOSSIP_ITEM_EXORCISM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_EXORCISM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
     pPlayer->SEND_GOSSIP_MENU(TEXT_ID_ANCHORITE, pCreature->GetObjectGuid());
     return true;
@@ -852,7 +852,7 @@ bool GossipHello_npc_colonel_jules(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool EffectDummyCreature_npc_colonel_jules(Unit* pCaster, uint32 uiSpellId, SpellEffectIndex uiEffIndex, Creature* pCreatureTarget, ObjectGuid /*originalCasterGuid*/)
+bool EffectDummyCreature_npc_colonel_jules(Unit* pCaster, uint32 uiSpellId, SpellEffectIndex uiEffIndex, Creature* pCreatureTarget)
 {
     // always check spellid and effectindex
     if (uiSpellId == SPELL_JULES_RELEASE_DARKNESS && uiEffIndex == EFFECT_INDEX_0 && pCreatureTarget->GetEntry() == NPC_COLONEL_JULES)
@@ -925,7 +925,7 @@ struct npc_magister_aledisAI : public ScriptedAI
 
     void EnterEvadeMode() override
     {
-        m_creature->RemoveAllAurasOnEvade();
+       // m_creature->RemoveAllAurasOnEvade();
         m_creature->DeleteThreatList();
         m_creature->CombatStop(true);
 
@@ -1173,7 +1173,7 @@ void AddSC_hellfire_peninsula()
     pNewScript = new Script;
     pNewScript->Name = "npc_fel_guard_hound";
     pNewScript->GetAI = &GetAI_npc_fel_guard_hound;
-    pNewScript->pEffectDummyNPC = &EffectDummyCreature_npc_fel_guard_hound;
+    pNewScript->pEffectDummyCreature = &EffectDummyCreature_npc_fel_guard_hound;
     pNewScript->RegisterSelf();
 
     pNewScript = new Script;
@@ -1186,7 +1186,7 @@ void AddSC_hellfire_peninsula()
     pNewScript = new Script;
     pNewScript->Name = "npc_colonel_jules";
     pNewScript->pGossipHello = &GossipHello_npc_colonel_jules;
-    pNewScript->pEffectDummyNPC = &EffectDummyCreature_npc_colonel_jules;
+    pNewScript->pEffectDummyCreature= &EffectDummyCreature_npc_colonel_jules;
     pNewScript->RegisterSelf();
 
     pNewScript = new Script;

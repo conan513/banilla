@@ -38,7 +38,7 @@ enum
 
     SPELL_WATER_TOMB            = 38235,
     SPELL_VILE_SLUDGE           = 38246,
-    SPELL_CORRUPTION            = 37961,                    // transform spell
+    SPELL_CORRUPTION_HYDR            = 37961,                    // transform spell
     SPELL_ENRAGE                = 27680,                    // ToDo: this spell need verification
     SPELL_BLUE_BEAM             = 38015,
     SPELL_SUMMON_WATER_ELEMENT  = 36459,                    // spawn elemental on OOC timer
@@ -258,7 +258,7 @@ struct boss_hydross_the_unstableAI : public ScriptedAI
                 if (m_creature->IsWithinDist2d(fPosX, fPosY, SWITCH_RADIUS))
                 {
                     DoScriptText(SAY_SWITCH_TO_CLEAN, m_creature);
-                    m_creature->RemoveAurasDueToSpell(SPELL_CORRUPTION);
+                    m_creature->RemoveAurasDueToSpell(SPELL_CORRUPTION_HYDR);
                     m_uiMarkCount = 0;
 
                     DoHandleBeamHelpers(false);
@@ -300,7 +300,7 @@ struct boss_hydross_the_unstableAI : public ScriptedAI
 
                 if (!m_creature->IsWithinDist2d(fPosX, fPosY, SWITCH_RADIUS))
                 {
-                    if (DoCastSpellIfCan(m_creature, SPELL_CORRUPTION) == CAST_OK)
+                    if (DoCastSpellIfCan(m_creature, SPELL_CORRUPTION_HYDR) == CAST_OK)
                     {
                         DoScriptText(SAY_SWITCH_TO_CORRUPT, m_creature);
                         m_uiMarkCount = 0;

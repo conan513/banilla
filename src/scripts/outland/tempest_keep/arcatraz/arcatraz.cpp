@@ -52,7 +52,7 @@ enum
     SPELL_CONJURE_WATER             = 36879,
     SPELL_ARCANE_INTELLECT          = 36880,
     SPELL_ICE_ARMOR                 = 36881,
-    SPELL_DRINK                     = 30024,
+    SPELL_DRINK_MILL                     = 30024,
 
     SPELL_ARCANE_MISSILES           = 33833,
     SPELL_CONE_OF_COLD              = 12611,
@@ -89,10 +89,10 @@ struct npc_millhouse_manastormAI : public ScriptedAI, private DialogueHelper
     {
         m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
         InitializeDialogueHelper(m_pInstance);
-        Reset();
-        m_attackDistance = 25.0f;
+		SetAttackDistance(25.0f);
+        Reset();	
     }
-
+	
     ScriptedInstance* m_pInstance;
 
     bool m_bHasLowHp;
@@ -123,7 +123,7 @@ struct npc_millhouse_manastormAI : public ScriptedAI, private DialogueHelper
             m_creature->AddThreat(pWho);
             m_creature->SetInCombatWith(pWho);
             pWho->SetInCombatWith(m_creature);
-            HandleMovementOnAttackStart(pWho);
+           // HandleMovementOnAttackStart(pWho);
         }
     }
 
@@ -143,7 +143,7 @@ struct npc_millhouse_manastormAI : public ScriptedAI, private DialogueHelper
 
     void EnterEvadeMode() override
     {
-        m_creature->RemoveAllAurasOnEvade();
+       // m_creature->RemoveAllAurasOnEvade();
         m_creature->DeleteThreatList();
         m_creature->CombatStop(true);
         m_creature->LoadCreatureAddon(true);
@@ -175,7 +175,7 @@ struct npc_millhouse_manastormAI : public ScriptedAI, private DialogueHelper
                 DoCastSpellIfCan(m_creature, SPELL_ICE_ARMOR);
                 break;
             case SAY_DRINK:
-                DoCastSpellIfCan(m_creature, SPELL_DRINK);
+                DoCastSpellIfCan(m_creature, SPELL_DRINK_MILL);
                 break;
             case POINT_ID_CENTER:
                 m_creature->SetWalk(false);
@@ -305,7 +305,7 @@ struct npc_warden_mellicharAI : public ScriptedAI
 
     void JustSummoned(Creature* pSummoned) override
     {
-        pSummoned->CastSpell(pSummoned, SPELL_SIMPLE_TELEPORT, TRIGGERED_NONE);
+        pSummoned->CastSpell(pSummoned, SPELL_SIMPLE_TELEPORT, false);
 
         if (pSummoned->GetEntry() != NPC_MILLHOUSE && pSummoned->GetEntry() != NPC_SKYRISS)
         {

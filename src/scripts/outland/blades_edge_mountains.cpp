@@ -763,7 +763,7 @@ CreatureAI* GetAI_npc_simon_game_bunny(Creature* pCreature)
     return new npc_simon_game_bunnyAI(pCreature);
 }
 
-bool EffectDummyCreature_npc_simon_game_bunny(Unit* pCaster, uint32 uiSpellId, SpellEffectIndex uiEffIndex, Creature* pCreatureTarget, ObjectGuid /*originalCasterGuid*/)
+bool EffectDummyCreature_npc_simon_game_bunny(Unit* pCaster, uint32 uiSpellId, SpellEffectIndex uiEffIndex, Creature* pCreatureTarget)
 {
     if (pCreatureTarget->GetEntry() != NPC_SIMON_GAME_BUNNY)
         return false;
@@ -1002,7 +1002,7 @@ void AddSC_blades_edge_mountains()
     pNewScript = new Script;
     pNewScript->Name = "npc_simon_game_bunny";
     pNewScript->GetAI = &GetAI_npc_simon_game_bunny;
-    pNewScript->pEffectDummyNPC = &EffectDummyCreature_npc_simon_game_bunny;
+    pNewScript->pEffectDummyCreature = &EffectDummyCreature_npc_simon_game_bunny;
     pNewScript->pEffectScriptEffectNPC = &EffectScriptEffectCreature_npc_simon_game_bunny;
     pNewScript->RegisterSelf();
 

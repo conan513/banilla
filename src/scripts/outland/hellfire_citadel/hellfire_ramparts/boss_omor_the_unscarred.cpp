@@ -129,7 +129,7 @@ struct boss_omor_the_unscarredAI : public ScriptedAI
                 if (Player* pPlayer = m_creature->GetMap()->GetPlayer(m_playerGuid))
                 {
                     // if unit dosen't have this flag, then no pulling back (script will attempt cast, even if orbital strike was resisted)
-                    if (pPlayer->HasMovementFlag(MOVEFLAG_FALLING))
+                    if (pPlayer->IsFalling())
                         DoCastSpellIfCan(pPlayer, SPELL_SHADOW_WHIP, CAST_INTERRUPT_PREVIOUS);
                 }
                 m_playerGuid.Clear();
