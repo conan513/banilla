@@ -249,266 +249,269 @@ static void clearAcceptTradeMode(Item **myItems, Item **hisItems)
 
 void WorldSession::HandleAcceptTradeOpcode(WorldPacket& recvPacket)
 {
-    recvPacket.read_skip<uint32>();
+	recvPacket.read_skip<uint32>();
 
-    TradeData* my_trade = _player->m_trade;
-    if (!my_trade)
-        return;
-    if (time(NULL) - my_trade->GetLastModificationTime() <= 2) // 3 seconds delay, after last modification
-    {
-        SendTradeStatus(TRADE_STATUS_BACK_TO_TRADE);
-        return;
-    }
+	TradeData* my_trade = _player->m_trade;
+	if (!my_trade)
+		return;
+	double lastModificationTimeInMS = difftime(time(NULL), my_trade->GetLastModificationTime()) * 1000;
+	if (lastModificationTimeInMS < my_trade->GetScamPreventionDelay()) // if we are not outside the delay period since last modification
+	{
+		SendTradeStatus(TRADE_STATUS_BACK_TO_TRADE);
+		return;
+	}
 
-    Player* trader = my_trade->GetTrader();
+	my_trade->SetLastModificationTime(time(NULL)); // Update it
 
-    TradeData* his_trade = trader->m_trade;
-    if (!his_trade)
-        return;
+	Player* trader = my_trade->GetTrader();
 
-    Item *myItems[TRADE_SLOT_TRADED_COUNT]  = { NULL, NULL, NULL, NULL, NULL, NULL };
-    Item *hisItems[TRADE_SLOT_TRADED_COUNT] = { NULL, NULL, NULL, NULL, NULL, NULL };
-    bool myCanCompleteTrade = true, hisCanCompleteTrade = true;
+	TradeData* his_trade = trader->m_trade;
+	if (!his_trade)
+		return;
 
-    // set before checks to properly undo at problems (it already set in to client)
-    my_trade->SetAccepted(true);
+	Item *myItems[TRADE_SLOT_TRADED_COUNT] = { NULL, NULL, NULL, NULL, NULL, NULL };
+	Item *hisItems[TRADE_SLOT_TRADED_COUNT] = { NULL, NULL, NULL, NULL, NULL, NULL };
+	bool myCanCompleteTrade = true, hisCanCompleteTrade = true;
 
-    // not accept case incorrect money amount
-    if (my_trade->GetMoney() > _player->GetMoney())
-    {
-        SendNotification(LANG_NOT_ENOUGH_GOLD);
-        my_trade->SetAccepted(false, true);
-        return;
-    }
+	// set before checks to properly undo at problems (it already set in to client)
+	my_trade->SetAccepted(true);
 
-    // not accept case incorrect money amount
-    if (his_trade->GetMoney() > trader->GetMoney())
-    {
-        trader->GetSession()->SendNotification(LANG_NOT_ENOUGH_GOLD);
-        his_trade->SetAccepted(false, true);
-        return;
-    }
-    if (!sWorld.getConfig(CONFIG_BOOL_GM_ALLOW_TRADES) &&
-            (trader->GetSession()->GetSecurity() > SEC_PLAYER ||
-            GetSecurity() > SEC_PLAYER))
-    {
-        SendTradeStatus(TRADE_STATUS_TRADE_CANCELED);
-        return;
-    }
+	// not accept case incorrect money amount
+	if (my_trade->GetMoney() > _player->GetMoney())
+	{
+		SendNotification(LANG_NOT_ENOUGH_GOLD);
+		my_trade->SetAccepted(false, true);
+		return;
+	}
 
-    // not accept if some items now can't be trade (cheating)
-    for (int i = 0; i < TRADE_SLOT_TRADED_COUNT; ++i)
-    {
-        if (Item* item = my_trade->GetItem(TradeSlots(i)))
-        {
-            if (!item->CanBeTraded())
-            {
-                SendTradeStatus(TRADE_STATUS_TRADE_CANCELED);
-                return;
-            }
-        }
+	// not accept case incorrect money amount
+	if (his_trade->GetMoney() > trader->GetMoney())
+	{
+		trader->GetSession()->SendNotification(LANG_NOT_ENOUGH_GOLD);
+		his_trade->SetAccepted(false, true);
+		return;
+	}
+	if (!sWorld.getConfig(CONFIG_BOOL_GM_ALLOW_TRADES) &&
+		(trader->GetSession()->GetSecurity() > SEC_PLAYER ||
+			GetSecurity() > SEC_PLAYER))
+	{
+		SendTradeStatus(TRADE_STATUS_TRADE_CANCELED);
+		return;
+	}
 
-        if (Item* item  = his_trade->GetItem(TradeSlots(i)))
-        {
-            if (!item->CanBeTraded())
-            {
-                SendTradeStatus(TRADE_STATUS_TRADE_CANCELED);
-                return;
-            }
-        }
-    }
+	// not accept if some items now can't be trade (cheating)
+	for (int i = 0; i < TRADE_SLOT_TRADED_COUNT; ++i)
+	{
+		if (Item* item = my_trade->GetItem(TradeSlots(i)))
+		{
+			if (!item->CanBeTraded())
+			{
+				SendTradeStatus(TRADE_STATUS_TRADE_CANCELED);
+				return;
+			}
+		}
 
-    if (his_trade->IsAccepted())
-    {
-        PlayerTransactionData log;
-        log.type = "Trade";
-        my_trade->FillTransactionLog(log.parts[0]);
-        his_trade->FillTransactionLog(log.parts[1]);
-        sWorld.LogTransaction(log);
+		if (Item* item = his_trade->GetItem(TradeSlots(i)))
+		{
+			if (!item->CanBeTraded())
+			{
+				SendTradeStatus(TRADE_STATUS_TRADE_CANCELED);
+				return;
+			}
+		}
+	}
 
-        setAcceptTradeMode(my_trade, his_trade, myItems, hisItems);
+	if (his_trade->IsAccepted())
+	{
+		PlayerTransactionData log;
+		log.type = "Trade";
+		my_trade->FillTransactionLog(log.parts[0]);
+		his_trade->FillTransactionLog(log.parts[1]);
+		sWorld.LogTransaction(log);
 
-        Spell* my_spell = NULL;
-        SpellCastTargets my_targets;
+		setAcceptTradeMode(my_trade, his_trade, myItems, hisItems);
 
-        Spell* his_spell = NULL;
-        SpellCastTargets his_targets;
+		Spell* my_spell = NULL;
+		SpellCastTargets my_targets;
 
-        // not accept if spell can't be casted now (cheating)
-        if (uint32 my_spell_id = my_trade->GetSpell())
-        {
-            SpellEntry const* spellEntry = sSpellMgr.GetSpellEntry(my_spell_id);
-            Item* castItem = my_trade->GetSpellCastItem();
+		Spell* his_spell = NULL;
+		SpellCastTargets his_targets;
 
-            if (!spellEntry || !his_trade->GetItem(TRADE_SLOT_NONTRADED) ||
-                    (my_trade->HasSpellCastItem() && !castItem))
-            {
-                clearAcceptTradeMode(my_trade, his_trade);
-                clearAcceptTradeMode(myItems, hisItems);
+		// not accept if spell can't be casted now (cheating)
+		if (uint32 my_spell_id = my_trade->GetSpell())
+		{
+			SpellEntry const* spellEntry = sSpellMgr.GetSpellEntry(my_spell_id);
+			Item* castItem = my_trade->GetSpellCastItem();
 
-                my_trade->SetSpell(0);
-                return;
-            }
+			if (!spellEntry || !his_trade->GetItem(TRADE_SLOT_NONTRADED) ||
+				(my_trade->HasSpellCastItem() && !castItem))
+			{
+				clearAcceptTradeMode(my_trade, his_trade);
+				clearAcceptTradeMode(myItems, hisItems);
 
-            my_spell = new Spell(_player, spellEntry, true);
-            my_spell->SetCastItem(castItem);
-            my_targets.setTradeItemTarget(_player);
-            my_spell->m_targets = my_targets;
+				my_trade->SetSpell(0);
+				return;
+			}
 
-            SpellCastResult res = my_spell->CheckCast(true);
-            if (res != SPELL_CAST_OK)
-            {
-                my_spell->SendCastResult(res);
+			my_spell = new Spell(_player, spellEntry, true);
+			my_spell->SetCastItem(castItem);
+			my_targets.setTradeItemTarget(_player);
+			my_spell->m_targets = my_targets;
 
-                clearAcceptTradeMode(my_trade, his_trade);
-                clearAcceptTradeMode(myItems, hisItems);
+			SpellCastResult res = my_spell->CheckCast(true);
+			if (res != SPELL_CAST_OK)
+			{
+				my_spell->SendCastResult(res);
 
-                my_spell->Delete();
-                my_trade->SetSpell(NULL);
-                return;
-            }
-        }
+				clearAcceptTradeMode(my_trade, his_trade);
+				clearAcceptTradeMode(myItems, hisItems);
 
-        // not accept if spell can't be casted now (cheating)
-        if (uint32 his_spell_id = his_trade->GetSpell())
-        {
-            SpellEntry const* spellEntry = sSpellMgr.GetSpellEntry(his_spell_id);
-            Item* castItem = his_trade->GetSpellCastItem();
+				my_spell->Delete();
+				my_trade->SetSpell(NULL);
+				return;
+			}
+		}
 
-            if (!spellEntry || !my_trade->GetItem(TRADE_SLOT_NONTRADED) ||
-                    (his_trade->HasSpellCastItem() && !castItem))
-            {
-                if (my_spell)
-                    my_spell->Delete();
-                his_trade->SetSpell(NULL);
+		// not accept if spell can't be casted now (cheating)
+		if (uint32 his_spell_id = his_trade->GetSpell())
+		{
+			SpellEntry const* spellEntry = sSpellMgr.GetSpellEntry(his_spell_id);
+			Item* castItem = his_trade->GetSpellCastItem();
 
-                clearAcceptTradeMode(my_trade, his_trade);
-                clearAcceptTradeMode(myItems, hisItems);
-                return;
-            }
+			if (!spellEntry || !my_trade->GetItem(TRADE_SLOT_NONTRADED) ||
+				(his_trade->HasSpellCastItem() && !castItem))
+			{
+				if (my_spell)
+					my_spell->Delete();
+				his_trade->SetSpell(NULL);
 
-            his_spell = new Spell(trader, spellEntry, true);
-            his_spell->SetCastItem(castItem);
-            his_targets.setTradeItemTarget(trader);
-            his_spell->m_targets = his_targets;
+				clearAcceptTradeMode(my_trade, his_trade);
+				clearAcceptTradeMode(myItems, hisItems);
+				return;
+			}
 
-            SpellCastResult res = his_spell->CheckCast(true);
-            if (res != SPELL_CAST_OK)
-            {
-                his_spell->SendCastResult(res);
+			his_spell = new Spell(trader, spellEntry, true);
+			his_spell->SetCastItem(castItem);
+			his_targets.setTradeItemTarget(trader);
+			his_spell->m_targets = his_targets;
 
-                clearAcceptTradeMode(my_trade, his_trade);
-                clearAcceptTradeMode(myItems, hisItems);
+			SpellCastResult res = his_spell->CheckCast(true);
+			if (res != SPELL_CAST_OK)
+			{
+				his_spell->SendCastResult(res);
 
-                if (my_spell)
-                    my_spell->Delete();
-                his_spell->Delete();
+				clearAcceptTradeMode(my_trade, his_trade);
+				clearAcceptTradeMode(myItems, hisItems);
 
-                his_trade->SetSpell(NULL);
-                return;
-            }
-        }
+				if (my_spell)
+					my_spell->Delete();
+				his_spell->Delete();
 
-        // inform partner client
-        trader->GetSession()->SendTradeStatus(TRADE_STATUS_TRADE_ACCEPT);
+				his_trade->SetSpell(NULL);
+				return;
+			}
+		}
 
-        // test if item will fit in each inventory
-        hisCanCompleteTrade = (trader->CanStoreItems(myItems, TRADE_SLOT_TRADED_COUNT) == EQUIP_ERR_OK);
-        myCanCompleteTrade = (_player->CanStoreItems(hisItems, TRADE_SLOT_TRADED_COUNT) == EQUIP_ERR_OK);
+		// inform partner client
+		trader->GetSession()->SendTradeStatus(TRADE_STATUS_TRADE_ACCEPT);
 
-        clearAcceptTradeMode(myItems, hisItems);
+		// test if item will fit in each inventory
+		hisCanCompleteTrade = (trader->CanStoreItems(myItems, TRADE_SLOT_TRADED_COUNT) == EQUIP_ERR_OK);
+		myCanCompleteTrade = (_player->CanStoreItems(hisItems, TRADE_SLOT_TRADED_COUNT) == EQUIP_ERR_OK);
 
-        // in case of missing space report error
-        if (!myCanCompleteTrade)
-        {
-            clearAcceptTradeMode(my_trade, his_trade);
+		clearAcceptTradeMode(myItems, hisItems);
 
-            SendNotification(LANG_NOT_FREE_TRADE_SLOTS);
-            trader->GetSession()->SendNotification(LANG_NOT_PARTNER_FREE_TRADE_SLOTS);
-            my_trade->SetAccepted(false);
-            his_trade->SetAccepted(false);
-            his_trade->SetLastModificationTime(time(NULL));
-            return;
-        }
-        else if (!hisCanCompleteTrade)
-        {
-            clearAcceptTradeMode(my_trade, his_trade);
+		// in case of missing space report error
+		if (!myCanCompleteTrade)
+		{
+			clearAcceptTradeMode(my_trade, his_trade);
 
-            SendNotification(LANG_NOT_PARTNER_FREE_TRADE_SLOTS);
-            trader->GetSession()->SendNotification(LANG_NOT_FREE_TRADE_SLOTS);
-            my_trade->SetAccepted(false);
-            his_trade->SetAccepted(false);
-            his_trade->SetLastModificationTime(time(NULL));
-            return;
-        }
+			SendNotification(LANG_NOT_FREE_TRADE_SLOTS);
+			trader->GetSession()->SendNotification(LANG_NOT_PARTNER_FREE_TRADE_SLOTS);
+			my_trade->SetAccepted(false);
+			his_trade->SetAccepted(false);
+			his_trade->SetLastModificationTime(time(NULL));
+			return;
+		}
+		else if (!hisCanCompleteTrade)
+		{
+			clearAcceptTradeMode(my_trade, his_trade);
 
-        // execute trade: 1. remove
-        for (int i = 0; i < TRADE_SLOT_TRADED_COUNT; ++i)
-        {
-            if (Item* item = myItems[i])
-            {
-                item->SetGuidValue(ITEM_FIELD_GIFTCREATOR, _player->GetObjectGuid());
-                _player->MoveItemFromInventory(item->GetBagSlot(), item->GetSlot(), true);
-            }
-            if (Item* item = hisItems[i])
-            {
-                item->SetGuidValue(ITEM_FIELD_GIFTCREATOR, trader->GetObjectGuid());
-                trader->MoveItemFromInventory(item->GetBagSlot(), item->GetSlot(), true);
-            }
-        }
+			SendNotification(LANG_NOT_PARTNER_FREE_TRADE_SLOTS);
+			trader->GetSession()->SendNotification(LANG_NOT_FREE_TRADE_SLOTS);
+			my_trade->SetAccepted(false);
+			his_trade->SetAccepted(false);
+			his_trade->SetLastModificationTime(time(NULL));
+			return;
+		}
 
-        // execute trade: 2. store
-        moveItems(myItems, hisItems);
+		// execute trade: 1. remove
+		for (int i = 0; i < TRADE_SLOT_TRADED_COUNT; ++i)
+		{
+			if (Item* item = myItems[i])
+			{
+				item->SetGuidValue(ITEM_FIELD_GIFTCREATOR, _player->GetObjectGuid());
+				_player->MoveItemFromInventory(item->GetBagSlot(), item->GetSlot(), true);
+			}
+			if (Item* item = hisItems[i])
+			{
+				item->SetGuidValue(ITEM_FIELD_GIFTCREATOR, trader->GetObjectGuid());
+				trader->MoveItemFromInventory(item->GetBagSlot(), item->GetSlot(), true);
+			}
+		}
 
-        // logging money
-        if (sWorld.getConfig(CONFIG_BOOL_GM_LOG_TRADE))
-        {
-            if (_player->GetSession()->GetSecurity() > SEC_PLAYER && my_trade->GetMoney() > 0)
-            {
-                sLog.outCommand(_player->GetSession()->GetAccountId(), "GM %s (Account: %u) give money (Amount: %u) to player: %s (Account: %u)",
-                                _player->GetName(), _player->GetSession()->GetAccountId(),
-                                my_trade->GetMoney(),
-                                trader->GetName(), trader->GetSession()->GetAccountId());
-            }
-            if (trader->GetSession()->GetSecurity() > SEC_PLAYER && his_trade->GetMoney() > 0)
-            {
-                sLog.outCommand(trader->GetSession()->GetAccountId(), "GM %s (Account: %u) give money (Amount: %u) to player: %s (Account: %u)",
-                                trader->GetName(), trader->GetSession()->GetAccountId(),
-                                his_trade->GetMoney(),
-                                _player->GetName(), _player->GetSession()->GetAccountId());
-            }
-        }
+		// execute trade: 2. store
+		moveItems(myItems, hisItems);
 
-        // update money
-        _player->ModifyMoney(-int32(my_trade->GetMoney()));
-        _player->LogModifyMoney(his_trade->GetMoney(), "Trade", trader->GetObjectGuid());
-        trader->ModifyMoney(-int32(his_trade->GetMoney()));
-        trader->LogModifyMoney(my_trade->GetMoney(), "Trade", _player->GetObjectGuid());
+		// logging money
+		if (sWorld.getConfig(CONFIG_BOOL_GM_LOG_TRADE))
+		{
+			if (_player->GetSession()->GetSecurity() > SEC_PLAYER && my_trade->GetMoney() > 0)
+			{
+				sLog.outCommand(_player->GetSession()->GetAccountId(), "GM %s (Account: %u) give money (Amount: %u) to player: %s (Account: %u)",
+					_player->GetName(), _player->GetSession()->GetAccountId(),
+					my_trade->GetMoney(),
+					trader->GetName(), trader->GetSession()->GetAccountId());
+			}
+			if (trader->GetSession()->GetSecurity() > SEC_PLAYER && his_trade->GetMoney() > 0)
+			{
+				sLog.outCommand(trader->GetSession()->GetAccountId(), "GM %s (Account: %u) give money (Amount: %u) to player: %s (Account: %u)",
+					trader->GetName(), trader->GetSession()->GetAccountId(),
+					his_trade->GetMoney(),
+					_player->GetName(), _player->GetSession()->GetAccountId());
+			}
+		}
 
-        if (my_spell)
-            my_spell->prepare(&my_targets);
+		// update money
+		_player->ModifyMoney(-int32(my_trade->GetMoney()));
+		_player->LogModifyMoney(his_trade->GetMoney(), "Trade", trader->GetObjectGuid());
+		trader->ModifyMoney(-int32(his_trade->GetMoney()));
+		trader->LogModifyMoney(my_trade->GetMoney(), "Trade", _player->GetObjectGuid());
 
-        if (his_spell)
-            his_spell->prepare(&his_targets);
+		if (my_spell)
+			my_spell->prepare(&my_targets);
 
-        // cleanup
-        clearAcceptTradeMode(my_trade, his_trade);
-        delete _player->m_trade;
-        _player->m_trade = NULL;
-        delete trader->m_trade;
-        trader->m_trade = NULL;
+		if (his_spell)
+			his_spell->prepare(&his_targets);
 
-        // desynchronized with the other saves here (SaveInventoryAndGoldToDB() not have own transaction guards)
-        CharacterDatabase.BeginTransaction();
-        _player->SaveInventoryAndGoldToDB();
-        trader->SaveInventoryAndGoldToDB();
-        CharacterDatabase.CommitTransaction();
+		// cleanup
+		clearAcceptTradeMode(my_trade, his_trade);
+		delete _player->m_trade;
+		_player->m_trade = NULL;
+		delete trader->m_trade;
+		trader->m_trade = NULL;
 
-        trader->GetSession()->SendTradeStatus(TRADE_STATUS_TRADE_COMPLETE);
-        SendTradeStatus(TRADE_STATUS_TRADE_COMPLETE);
-    }
-    else
-        trader->GetSession()->SendTradeStatus(TRADE_STATUS_TRADE_ACCEPT);
+		// desynchronized with the other saves here (SaveInventoryAndGoldToDB() not have own transaction guards)
+		CharacterDatabase.BeginTransaction();
+		_player->SaveInventoryAndGoldToDB();
+		trader->SaveInventoryAndGoldToDB();
+		CharacterDatabase.CommitTransaction();
+
+		trader->GetSession()->SendTradeStatus(TRADE_STATUS_TRADE_COMPLETE);
+		SendTradeStatus(TRADE_STATUS_TRADE_COMPLETE);
+	}
+	else
+		trader->GetSession()->SendTradeStatus(TRADE_STATUS_TRADE_ACCEPT);
 }
 
 void WorldSession::HandleUnacceptTradeOpcode(WorldPacket& /*recvPacket*/)
