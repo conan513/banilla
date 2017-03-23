@@ -548,9 +548,9 @@ bool StartDB(std::string name, DatabaseType& database, const char **migrations)
         sLog.outError("Cannot connect to world database %s",dbstring.c_str());
         return false;
     }
-
-    if (!database.CheckRequiredMigrations(migrations))
-        return false;
+//Disable migrations for testing
+ //   if (!database.CheckRequiredMigrations(migrations))
+ //       return false;
 
     return true;
 }
