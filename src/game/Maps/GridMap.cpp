@@ -32,13 +32,10 @@
 #include "SQLStorages.h"
 
 char const* MAP_MAGIC         = "MAPS";
-char const* MAP_VERSION_MAGIC = "s1.3";
+char const* MAP_VERSION_MAGIC = "z1.3";
 char const* MAP_AREA_MAGIC    = "AREA";
 char const* MAP_HEIGHT_MAGIC  = "MHGT";
 char const* MAP_LIQUID_MAGIC  = "MLIQ";
-
-static uint16 holetab_h[4] = { 0x1111, 0x2222, 0x4444, 0x8888 };
-static uint16 holetab_v[4] = { 0x000F, 0x00F0, 0x0F00, 0xF000 };
 
 GridMap::GridMap()
 {
@@ -54,7 +51,6 @@ GridMap::GridMap()
     m_gridIntHeightMultiplier = 0;
     m_V9 = NULL;
     m_V8 = NULL;
-	memset(m_holes, 0, sizeof(m_holes));
 
     // Liquid data
     m_liquidType    = 0;
@@ -95,14 +91,6 @@ bool GridMap::loadData(char* filename)
             fclose(in);
             return false;
         }
-
-		// loadup holes data
-		if (header.holesOffset && !loadHolesData(in, header.holesOffset, header.holesSize))
-		{
-			sLog.outError("Error loading map holes data\n");
-			fclose(in);
-			return false;
-		}
 
         // loadup height data
         if (header.heightMapOffset && !loadHeightData(in, header.heightMapOffset, header.heightMapSize))
@@ -209,16 +197,6 @@ bool GridMap::loadHeightData(FILE* in, uint32 offset, uint32 /*size*/)
     return true;
 }
 
-bool GridMap::loadHolesData(FILE* in, uint32 offset, uint32 size)
-{
-	if (fseek(in, offset, SEEK_SET) != 0)
-		return false;
-
-	if (fread(&m_holes, sizeof(m_holes), 1, in) != 1)
-		return false;
-	return true;
-}
-
 bool GridMap::loadGridMapLiquidData(FILE* in, uint32 offset, uint32 /*size*/)
 {
     GridMapLiquidHeader header;
@@ -269,18 +247,6 @@ float GridMap::getHeightFromFlat(float /*x*/, float /*y*/) const
     return m_gridHeight;
 }
 
-bool GridMap::isHole(int row, int col) const
-{
-	int cellRow = row / 8;     // 8 squares per cell
-	int cellCol = col / 8;
-	int holeRow = row % 8 / 2;
-	int holeCol = (col - (cellCol * 8)) / 2;
-
-	uint16 hole = m_holes[cellRow][cellCol];
-
-	return (hole & holetab_h[holeCol] & holetab_v[holeRow]) != 0;
-}
-
 float GridMap::getHeightFromFloat(float x, float y) const
 {
     if (!m_V8 || !m_V9)
@@ -295,10 +261,6 @@ float GridMap::getHeightFromFloat(float x, float y) const
     y -= y_int;
     x_int &= (MAP_RESOLUTION - 1);
     y_int &= (MAP_RESOLUTION - 1);
-
-
-	if (isHole(x_int, y_int))
-		return m_gridHeight;
 
     // Height stored as: h5 - its v8 grid, h1-h4 - its v9 grid
     // +--------------> X
@@ -644,7 +606,7 @@ bool GridMap::ExistMap(uint32 mapid, int gx, int gy)
 {
     int len = sWorld.GetDataPath().length() + strlen("maps/%03u%02u%02u.map") + 1;
     char* tmp = new char[len];
-    snprintf(tmp, len, (char*)(sWorld.GetDataPath() + "maps/%03u%02u%02u.map").c_str(), mapid, gx, gy);
+    snprintf(tmp, len, (char*)(sWorld.GetDataPath() + "maps/%03u%02u%02u.map").c_str(), mapid, gy, gx);
 
     FILE* pf = fopen(tmp, "rb");
 
@@ -1139,8 +1101,9 @@ float TerrainInfo::GetWaterOrGroundLevel(float x, float y, float z, float* pGrou
 GridMap* TerrainInfo::GetGrid(const float x, const float y)
 {
     // half opt method
-    int gx = (int)(32 - x / SIZE_OF_GRIDS);                 // grid x
-    int gy = (int)(32 - y / SIZE_OF_GRIDS);                 // grid y
+    // Giperion Elysium: It's reversed. That's ok
+    int gx = (int)(32 - y / SIZE_OF_GRIDS);                 // grid x
+    int gy = (int)(32 - x / SIZE_OF_GRIDS);                 // grid y
 
     // quick check if GridMap already loaded
     GridMap* pMap = m_GridMaps[gx][gy];
@@ -1164,7 +1127,7 @@ GridMap* TerrainInfo::LoadMapAndVMap(const uint32 x, const uint32 y)
             // map file name
             int len = sWorld.GetDataPath().length() + strlen("maps/%03u%02u%02u.map") + 1;
             char* tmp = new char[len];
-            snprintf(tmp, len, (char*)(sWorld.GetDataPath() + "maps/%03u%02u%02u.map").c_str(), m_mapId, x, y);
+            snprintf(tmp, len, (char*)(sWorld.GetDataPath() + "maps/%03u%02u%02u.map").c_str(), m_mapId, y, x);
 
             if (!map->loadData(tmp))
             {

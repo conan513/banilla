@@ -1004,7 +1004,7 @@ namespace MaNGOS
                 if(u == i_funit)
                     return false;
 
-                if ( !u->CanAssistTo(i_funit, i_enemy) )
+                if (i_enemy && !u->CanAssistTo(i_funit, i_enemy))
                     return false;
 
                 // too far

@@ -19,6 +19,7 @@
 #include "GridMap.h"
 #include "Log.h"
 #include "World.h"
+#include "VMapFactory.h"
 
 #include "MoveMap.h"
 #include "MoveMapSharedDefines.h"
@@ -75,8 +76,7 @@ bool MMapManager::loadMapData(uint32 mapId)
     FILE* file = fopen(fileName, "rb");
     if (!file)
     {
-        //DEBUG_LOG("MMAP:loadMapData: Error: Could not open mmap file '%s'", fileName);
-		sLog.outError("MMAP:loadMapData: Error: Could not open mmap file '%s'", fileName);
+        DEBUG_LOG("MMAP:loadMapData: Error: Could not open mmap file '%s'", fileName);
         delete [] fileName;
         return false;
     }
@@ -140,12 +140,16 @@ bool MMapManager::loadMap(uint32 mapId, int32 x, int32 y)
     // load this tile :: mmaps/MMMXXYY.mmtile
     uint32 pathLen = sWorld.GetDataPath().length() + strlen("mmaps/%03i%02i%02i.mmtile") + 1;
     char *fileName = new char[pathLen];
-    snprintf(fileName, pathLen, (sWorld.GetDataPath() + "mmaps/%03i%02i%02i.mmtile").c_str(), mapId, x, y);
+    snprintf(fileName, pathLen, (sWorld.GetDataPath() + "mmaps/%03i%02i%02i.mmtile").c_str(), mapId, y, x);
 
     FILE *file = fopen(fileName, "rb");
     if (!file)
     {
-        DEBUG_LOG("MMAP:loadMap: Could not open mmtile file '%s'", fileName);
+        //mmaps not generated on every tile. But it's often generating, where vmap placed (most of the time)
+        if (VMAP::VMapFactory::createOrGetVMapManager()->existsMap((sWorld.GetDataPath() + "vmaps").c_str(), mapId, x, y))
+        {
+            DEBUG_LOG("MMAP:loadMap: Could not open mmtile file '%s' and vmap is exist in this tile", fileName);
+        }
         delete [] fileName;
         return false;
     }
@@ -313,6 +317,7 @@ dtNavMeshQuery const* MMapManager::GetNavMeshQuery(uint32 mapId)
     if (loadedMMaps.find(mapId) == loadedMMaps.end())
         return NULL;
 
+    //deprecated
     uint32 tid = ACE_Based::Thread::currentId();
     MMapData* mmap = loadedMMaps[mapId];
     mmap->navMeshQueries_lock.acquire_read();
@@ -327,7 +332,7 @@ dtNavMeshQuery const* MMapManager::GetNavMeshQuery(uint32 mapId)
         // allocate mesh query
         navMeshQuery = dtAllocNavMeshQuery();
         MANGOS_ASSERT(navMeshQuery);
-        if (DT_SUCCESS != navMeshQuery->init(mmap->navMesh, 2048, tid))
+        if (DT_SUCCESS != navMeshQuery->init(mmap->navMesh, 2048))
         {
             mmap->navMeshQueries_lock.release();
             dtFreeNavMeshQuery(navMeshQuery);
@@ -417,6 +422,7 @@ dtNavMeshQuery const* MMapManager::GetModelNavMeshQuery(uint32 displayId)
     if (loadedModels.find(displayId) == loadedModels.end())
         return NULL;
 
+    //deprecated
     uint32 tid = ACE_Based::Thread::currentId();
     MMapData* mmap = loadedModels[displayId];
     if (mmap->navMeshQueries.find(tid) == mmap->navMeshQueries.end())
@@ -427,7 +433,7 @@ dtNavMeshQuery const* MMapManager::GetModelNavMeshQuery(uint32 displayId)
             // allocate mesh query
             dtNavMeshQuery* query = dtAllocNavMeshQuery();
             MANGOS_ASSERT(query);
-            if (dtStatusFailed(query->init(mmap->navMesh, 2048, tid)))
+            if (dtStatusFailed(query->init(mmap->navMesh, 2048)))
             {
                 dtFreeNavMeshQuery(query);
                 sLog.outError("MMAP:GetNavMeshQuery: Failed to initialize dtNavMeshQuery for displayid %03u tid %u", displayId, tid);
