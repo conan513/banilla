@@ -47,7 +47,7 @@ struct boss_ramstein_the_gorgerAI : public ScriptedAI
     void Reset()
     {
         Trample_Timer = 3000;
-        Knockout_Timer = 12000;
+        Knockout_Timer = Randomize(12000);
         if (Engaged)
             m_pInstance->SetData(TYPE_RAMSTEIN, FAIL);
         Engaged = false;
@@ -85,7 +85,7 @@ struct boss_ramstein_the_gorgerAI : public ScriptedAI
         if (Trample_Timer < diff)
         {
             DoCastSpellIfCan(m_creature, SPELL_TRAMPLE);
-            Trample_Timer = 7000;
+            Trample_Timer = Randomize(7000);
         }
         else Trample_Timer -= diff;
 
@@ -95,7 +95,7 @@ struct boss_ramstein_the_gorgerAI : public ScriptedAI
             if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_KNOCKOUT) == CAST_OK)
             {
                 m_creature->getThreatManager().modifyThreatPercent(m_creature->getVictim(), -100);
-                Knockout_Timer = 10000;
+                Knockout_Timer = Randomize(10000);
             }
         }
         else Knockout_Timer -= diff;

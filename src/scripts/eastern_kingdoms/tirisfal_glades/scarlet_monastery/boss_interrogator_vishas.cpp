@@ -98,7 +98,7 @@ struct boss_interrogator_vishasAI : public ScriptedAI
         if (ShadowWordPain_Timer < diff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_SHADOWWORDPAIN);
-            ShadowWordPain_Timer = urand(5000, 15000);
+            ShadowWordPain_Timer = Randomize(urand(5000, 15000));
         }
         else ShadowWordPain_Timer -= diff;
 

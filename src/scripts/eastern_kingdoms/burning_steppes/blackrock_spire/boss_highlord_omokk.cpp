@@ -49,12 +49,12 @@ struct boss_highlordomokkAI : public ScriptedAI
 
     void Reset()
     {
-        m_uiWarStompTimer    = 15000;
-        m_uiStrikeTimer      = 10000;
-        m_uiRendTimer        = 14000;
+        m_uiWarStompTimer    = Randomize(15000);
+        m_uiStrikeTimer      = Randomize(10000);
+        m_uiRendTimer        = Randomize(14000);
         m_uiSunderArmorTimer = 2000;
-        m_uiKnockAwayTimer   = 18000;
-        m_uiSlowTimer        = 24000;
+        m_uiKnockAwayTimer   = Randomize(18000);
+        m_uiSlowTimer        = Randomize(24000);
     }
 
     void UpdateAI(const uint32 uiDiff)
@@ -67,7 +67,7 @@ struct boss_highlordomokkAI : public ScriptedAI
         if (m_uiWarStompTimer < uiDiff)
         {
             DoCastSpellIfCan(m_creature, SPELL_WARSTOMP);
-            m_uiWarStompTimer = 14000;
+            m_uiWarStompTimer = Randomize(14000);
         }
         else
             m_uiWarStompTimer -= uiDiff;
@@ -76,7 +76,7 @@ struct boss_highlordomokkAI : public ScriptedAI
         if (m_uiStrikeTimer < uiDiff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_STRIKE);
-            m_uiStrikeTimer = 10000;
+            m_uiStrikeTimer = Randomize(10000);
         }
         else
             m_uiStrikeTimer -= uiDiff;
@@ -85,7 +85,7 @@ struct boss_highlordomokkAI : public ScriptedAI
         if (m_uiRendTimer < uiDiff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_REND);
-            m_uiRendTimer = 18000;
+            m_uiRendTimer = Randomize(18000);
         }
         else
             m_uiRendTimer -= uiDiff;
@@ -94,7 +94,7 @@ struct boss_highlordomokkAI : public ScriptedAI
         if (m_uiSunderArmorTimer < uiDiff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_SUNDERARMOR);
-            m_uiSunderArmorTimer = 25000;
+            m_uiSunderArmorTimer = Randomize(25000);
         }
         else
             m_uiSunderArmorTimer -= uiDiff;
@@ -103,7 +103,7 @@ struct boss_highlordomokkAI : public ScriptedAI
         if (m_uiKnockAwayTimer < uiDiff)
         {
             DoCastSpellIfCan(m_creature, SPELL_KNOCKAWAY);
-            m_uiKnockAwayTimer = 12000;
+            m_uiKnockAwayTimer = Randomize(12000);
         }
         else
             m_uiKnockAwayTimer -= uiDiff;
@@ -112,7 +112,7 @@ struct boss_highlordomokkAI : public ScriptedAI
         if (m_uiSlowTimer < uiDiff)
         {
             DoCastSpellIfCan(m_creature, SPELL_SLOW);
-            m_uiSlowTimer = 18000;
+            m_uiSlowTimer = Randomize(18000);
         }
         else
             m_uiSlowTimer -= uiDiff;

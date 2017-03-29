@@ -41,7 +41,7 @@ struct boss_halyconAI : public ScriptedAI
     void Reset()
     {
         CrowdPummel_Timer = 8000;
-        MightyBlow_Timer = 14000;
+        MightyBlow_Timer = Randomize(14000);
     }
 
     void UpdateAI(const uint32 diff)
@@ -54,7 +54,7 @@ struct boss_halyconAI : public ScriptedAI
         if (CrowdPummel_Timer < diff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_CROWDPUMMEL);
-            CrowdPummel_Timer = 14000;
+            CrowdPummel_Timer = Randomize(14000);
         }
         else CrowdPummel_Timer -= diff;
 
@@ -62,7 +62,7 @@ struct boss_halyconAI : public ScriptedAI
         if (MightyBlow_Timer < diff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_MIGHTYBLOW);
-            MightyBlow_Timer = 10000;
+            MightyBlow_Timer = Randomize(10000);
         }
         else MightyBlow_Timer -= diff;
 

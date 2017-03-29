@@ -192,7 +192,7 @@ struct boss_pyroguard_emberseerAI : public ScriptedAI
     {
         m_uiFireNovaTimer = 6000;
         m_uiFlameBuffetTimer = 3000;
-        m_uiPyroBlastTimer = 14000;
+        m_uiPyroBlastTimer = Randomize(14000);
 
         // NOSTALRIUS
         bCanalisationEnCours = true;
@@ -281,7 +281,7 @@ struct boss_pyroguard_emberseerAI : public ScriptedAI
         if (m_uiFlameBuffetTimer < uiDiff)
         {
             DoCastSpellIfCan(m_creature, SPELL_FLAMEBUFFET);
-            m_uiFlameBuffetTimer = 14000;
+            m_uiFlameBuffetTimer = Randomize(14000);
         }
         else
             m_uiFlameBuffetTimer -= uiDiff;
@@ -291,7 +291,7 @@ struct boss_pyroguard_emberseerAI : public ScriptedAI
         {
             if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
                 DoCastSpellIfCan(pTarget, SPELL_PYROBLAST);
-            m_uiPyroBlastTimer += 15000;
+            m_uiPyroBlastTimer += Randomize(15000);
         }
         else
             m_uiPyroBlastTimer -= uiDiff;
@@ -369,7 +369,7 @@ struct npc_geolier_main_noireAI : public ScriptedAI
                 if (pTarget->IsWithinLOSInMap(m_creature) && !pTarget->HasAura(SPELL_PLAYER_MISE_EN_CAGE))
                 {
                     m_creature->CastSpell(pTarget, SPELL_PLAYER_MISE_EN_CAGE, false);
-                    MiseEnCage_Timer = urand(20000, 40000);
+                    MiseEnCage_Timer = Randomize(urand(20000, 40000));
                 }
             }
         }
@@ -379,7 +379,7 @@ struct npc_geolier_main_noireAI : public ScriptedAI
         if (Frappe_Timer < uiDiff)
         {
             if (DoCastSpellIfCan(m_creature->getVictim(), 15580) == CAST_OK)
-                Frappe_Timer = urand(7900, 14000);
+                Frappe_Timer = Randomize(urand(7900, 14000));
         }
         else
             Frappe_Timer -= uiDiff;

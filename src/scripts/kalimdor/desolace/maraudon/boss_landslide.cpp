@@ -54,7 +54,7 @@ struct boss_landslideAI : public ScriptedAI
         if (KnockAway_Timer < diff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_KNOCKAWAY);
-            KnockAway_Timer = 15000;
+            KnockAway_Timer = Randomize(15000);
         }
         else KnockAway_Timer -= diff;
 
@@ -62,18 +62,18 @@ struct boss_landslideAI : public ScriptedAI
         if (Trample_Timer < diff)
         {
             DoCastSpellIfCan(m_creature, SPELL_TRAMPLE);
-            Trample_Timer = 8000;
+            Trample_Timer = Randomize(8000);
         }
         else Trample_Timer -= diff;
 
         //Landslide
-        if (m_creature->GetHealthPercent() < 50.0f)
+        if (m_creature->GetHealthPercent() < RandomizeUp(50.0f))
         {
             if (Landslide_Timer < diff)
             {
                 m_creature->InterruptNonMeleeSpells(false);
                 DoCastSpellIfCan(m_creature, SPELL_LANDSLIDE);
-                Landslide_Timer = 60000;
+                Landslide_Timer = Randomize(60000);
             }
             else Landslide_Timer -= diff;
         }

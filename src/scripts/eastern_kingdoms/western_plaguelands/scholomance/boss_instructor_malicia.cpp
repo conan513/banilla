@@ -49,9 +49,9 @@ struct boss_instructormaliciaAI : public ScriptedAI
     {
         CallOfGraves_Timer = 4000;
         Corruption_Timer = 8000;
-        FlashHeal_Timer = 22000;
-        Renew_Timer = 15000;
-        HealingTouch_Timer = 25000;
+        FlashHeal_Timer = Randomize(22000);
+        Renew_Timer = Randomize(15000);
+        HealingTouch_Timer = Randomize(25000);
         FlashCounter = 0;
         TouchCounter = 0;
     }
@@ -71,7 +71,7 @@ struct boss_instructormaliciaAI : public ScriptedAI
         if (CallOfGraves_Timer < diff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_CALLOFGRAVES);
-            CallOfGraves_Timer = 65000;
+            CallOfGraves_Timer = Randomize(65000,1.25);
         }
         else CallOfGraves_Timer -= diff;
 
@@ -82,7 +82,7 @@ struct boss_instructormaliciaAI : public ScriptedAI
             target = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0);
             if (target) DoCastSpellIfCan(target, SPELL_CORRUPTION);
 
-            Corruption_Timer = 24000;
+            Corruption_Timer = Randomize(24000);
         }
         else Corruption_Timer -= diff;
 
@@ -90,7 +90,7 @@ struct boss_instructormaliciaAI : public ScriptedAI
         if (Renew_Timer < diff)
         {
             DoCastSpellIfCan(m_creature, SPELL_RENEW);
-            Renew_Timer = 10000;
+            Renew_Timer = Randomize(10000);
         }
         else Renew_Timer -= diff;
 
@@ -108,7 +108,7 @@ struct boss_instructormaliciaAI : public ScriptedAI
             else
             {
                 FlashCounter = 0;
-                FlashHeal_Timer = 30000;
+                FlashHeal_Timer = Randomize(30000);
             }
         }
         else FlashHeal_Timer -= diff;
@@ -127,7 +127,7 @@ struct boss_instructormaliciaAI : public ScriptedAI
             else
             {
                 TouchCounter = 0;
-                HealingTouch_Timer = 30000;
+                HealingTouch_Timer = Randomize(30000);
             }
         }
         else HealingTouch_Timer -= diff;

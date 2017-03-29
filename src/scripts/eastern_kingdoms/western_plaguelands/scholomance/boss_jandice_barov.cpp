@@ -55,7 +55,7 @@ struct boss_jandicebarovAI : public ScriptedAI
     void Reset()
     {
         CurseOfBlood_Timer = 10000;
-        Illusion_Timer = 15000;
+        Illusion_Timer = Randomize(15000);
         Invisible_Timer = 3000;                             //Too much too low?
         Invisible = false;
         damageTaken = 0;
@@ -139,7 +139,7 @@ struct boss_jandicebarovAI : public ScriptedAI
         if (CurseOfBlood_Timer < diff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_CURSEOFBLOOD);
-            CurseOfBlood_Timer = 30000;
+            CurseOfBlood_Timer = Randomize(30000);
         }
         else
             CurseOfBlood_Timer -= diff;
@@ -159,7 +159,7 @@ struct boss_jandicebarovAI : public ScriptedAI
             Invisible_Timer = 3000;
 
             //25 seconds until we should cast this agian
-            Illusion_Timer = 25000;
+            Illusion_Timer = Randomize(25000);
 
             //Summon 10 Illusions attacking random gamers
             Unit* target = NULL;
@@ -203,7 +203,7 @@ struct mob_illusionofjandicebarovAI : public ScriptedAI
         if (Cleave_Timer < diff)
         {
             if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_CLEAVE) == CAST_OK)
-                Cleave_Timer = urand(5000, 15000);
+                Cleave_Timer = Randomize(urand(5000, 15000));
         }
         else
             Cleave_Timer -= diff;

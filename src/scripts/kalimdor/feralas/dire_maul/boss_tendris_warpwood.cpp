@@ -92,13 +92,13 @@ struct boss_tendris_warpwoodAI : public ScriptedAI
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim() || m_creature->IsNonMeleeSpellCasted(false))
             return;
 
-        if (ManageTimer(uiDiff, &m_uiTrampleTimer,              urand(9000, 14000)))
+        if (ManageTimer(uiDiff, &m_uiTrampleTimer,              Randomize(urand(9000, 14000))))
             DoCastSpellIfCan(m_creature, SPELL_TRAMPLE);
 
-        if (ManageTimer(uiDiff, &m_uiUppercutTimer,             urand(12000, 15000)))
+        if (ManageTimer(uiDiff, &m_uiUppercutTimer,             Randomize(urand(12000, 15000))))
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_UPPERCUT);
 
-        if (ManageTimer(uiDiff, &m_uiGraspingVinesTimer,       urand(17000, 22000)))
+        if (ManageTimer(uiDiff, &m_uiGraspingVinesTimer,       Randomize(urand(17000, 22000))))
             DoCastSpellIfCan(m_creature, SPELL_GRASPING_VINES);
 
         if (m_creature->GetHealthPercent() < 30.0f && !m_creature->HasAura(SPELL_ENRAGE))

@@ -42,9 +42,9 @@ struct celebras_the_cursedAI : public ScriptedAI
 
     void Reset()
     {
-        Wrath_Timer = 8000;
+        Wrath_Timer = Randomize(8000);
         EntanglingRoots_Timer = 2000;
-        CorruptForces_Timer = 30000;
+        CorruptForces_Timer = Randomize(30000);
     }
 
     void JustDied(Unit* Killer)
@@ -64,7 +64,7 @@ struct celebras_the_cursedAI : public ScriptedAI
             target = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0);
             if (target)
                 DoCastSpellIfCan(target, SPELL_WRATH);
-            Wrath_Timer = 8000;
+            Wrath_Timer = Randomize(8000);
         }
         else Wrath_Timer -= diff;
 
@@ -72,7 +72,7 @@ struct celebras_the_cursedAI : public ScriptedAI
         if (EntanglingRoots_Timer < diff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_ENTANGLINGROOTS);
-            EntanglingRoots_Timer = 20000;
+            EntanglingRoots_Timer = Randomize(20000);
         }
         else EntanglingRoots_Timer -= diff;
 

@@ -197,7 +197,7 @@ struct mobs_spectral_ghostly_citizenAI : public ScriptedAI
     void Reset()
     {
         Die_Timer = 5000;
-        cast_Haunting = 20000;
+        cast_Haunting = Randomize(20000);
         Tagged = false;
     }
 
@@ -239,7 +239,7 @@ struct mobs_spectral_ghostly_citizenAI : public ScriptedAI
         if (cast_Haunting < diff)
         {
             m_creature->CastSpell(m_creature->getVictim(), SPELL_HAUNTING_PHANTOM, false);
-            cast_Haunting = 20000;
+            cast_Haunting = Randomize(20000);
         }
         else cast_Haunting -= diff;
 

@@ -112,7 +112,7 @@ struct boss_general_angerforgeAI : public ScriptedAI
         }
 
         //Summon Medics
-        if (!Medics && m_creature->GetHealthPercent() <  RandomizeUp(21.0f))
+        if (!Medics && m_creature->GetHealthPercent() <  21.0f)
         {
             SummonMedics(m_creature->getVictim());
             SummonMedics(m_creature->getVictim());

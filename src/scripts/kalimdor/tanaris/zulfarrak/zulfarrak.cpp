@@ -131,7 +131,7 @@ struct npc_sergeant_blyAI : public ScriptedAI
         if (ShieldBash_Timer <= diff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_SHIELD_BASH);
-            ShieldBash_Timer = 15000;
+            ShieldBash_Timer = Randomize(15000);
         }
         else
             ShieldBash_Timer -= diff;
@@ -139,7 +139,7 @@ struct npc_sergeant_blyAI : public ScriptedAI
         if (Revenge_Timer <= diff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_REVENGE);
-            Revenge_Timer = 10000;
+            Revenge_Timer = Randomize(10000);
         }
         else
             Revenge_Timer -= diff;
@@ -281,7 +281,7 @@ struct npc_weegli_blastfuseAI : public ScriptedAI
         destroyingDoor = false;
         runAway = false;
         Bomb_Timer = 10000;
-        LandMine_Timer = 30000;
+        LandMine_Timer = Randomize(30000);
         explosiveGUID = 0;
         disappear = false;
         regen = false;
@@ -363,7 +363,7 @@ struct npc_weegli_blastfuseAI : public ScriptedAI
         if (Bomb_Timer < diff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_BOMB);
-            Bomb_Timer = 10000;
+            Bomb_Timer = Randomize(10000);
         }
         else
             Bomb_Timer -= diff;
@@ -646,7 +646,7 @@ struct ZumRahAI : public ScriptedAI
         if (m_uiShadowBoltTimer < uiDiff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), 12739, true);
-            m_uiShadowBoltTimer = 7500;
+            m_uiShadowBoltTimer = Randomize(7500);
         }
         else
             m_uiShadowBoltTimer -= uiDiff;
@@ -654,7 +654,7 @@ struct ZumRahAI : public ScriptedAI
         if (m_uiGraveTimer < uiDiff)
         {
             DoCastSpellIfCan(m_creature, 11086);
-            m_uiGraveTimer = 7000;
+            m_uiGraveTimer = Randomize(7000);
         }
         else
             m_uiGraveTimer -= uiDiff;
@@ -687,7 +687,7 @@ struct ZumRahAI : public ScriptedAI
                                    (*it)->GetPositionY(),
                                    (*it)->GetPositionZ(), 5.93f, TEMPSUMMON_CORPSE_DESPAWN, 60000);
                 undead->AI()->AttackStart(m_creature->getVictim());
-                m_uiGraveTimer = 18000;
+                m_uiGraveTimer = Randomize(18000);
                 zombieNumber++;
                 if (zombieNumber == 2)
                     return;

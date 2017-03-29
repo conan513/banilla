@@ -729,7 +729,7 @@ struct npc_rookery_hatcherAI : public ScriptedAI
         if (SunderArmor_Timer < uiDiff)
         {
             if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_SUNDER_ARMOR) == CAST_OK)
-                SunderArmor_Timer = urand(10000, 15000);
+                SunderArmor_Timer = Randomize(urand(10000, 15000));
         }
         else
             SunderArmor_Timer -= uiDiff;
@@ -749,7 +749,7 @@ struct npc_rookery_hatcherAI : public ScriptedAI
             if (DoCastSpellIfCan(m_creature, SPELL_HATCH_ROOKERY_EGG) == CAST_OK)
             {
                 HatchRookeryEgg();
-                HatchRookeryEgg_Timer = urand(15000, 20000);
+                HatchRookeryEgg_Timer = Randomize(urand(15000, 20000));
             }
         }
         else

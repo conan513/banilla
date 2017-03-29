@@ -31,8 +31,8 @@ struct boss_magistrate_barthilasAI : public ScriptedAI
 
     void Reset()
     {
-        DrainingBlow_Timer = 16000;
-        CrowdPummel_Timer = 12000;
+        DrainingBlow_Timer = Randomize(16000);
+        CrowdPummel_Timer = Randomize(12000);
         MightyBlow_Timer = 8000;
         FuriousAnger_Timer = 5000;
         AngerCount = 0;
@@ -130,7 +130,7 @@ struct boss_magistrate_barthilasAI : public ScriptedAI
         if (DrainingBlow_Timer < diff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_DRAININGBLOW);
-            DrainingBlow_Timer = 15000;
+            DrainingBlow_Timer = Randomize(15000);
         }
         else DrainingBlow_Timer -= diff;
 
@@ -138,7 +138,7 @@ struct boss_magistrate_barthilasAI : public ScriptedAI
         if (CrowdPummel_Timer < diff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_CROWDPUMMEL);
-            CrowdPummel_Timer = 15000;
+            CrowdPummel_Timer = Randomize(15000);
         }
         else CrowdPummel_Timer -= diff;
 
@@ -146,7 +146,7 @@ struct boss_magistrate_barthilasAI : public ScriptedAI
         if (MightyBlow_Timer < diff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_MIGHTYBLOW);
-            MightyBlow_Timer = 20000;
+            MightyBlow_Timer = Randomize(20000);
         }
         else MightyBlow_Timer -= diff;
 

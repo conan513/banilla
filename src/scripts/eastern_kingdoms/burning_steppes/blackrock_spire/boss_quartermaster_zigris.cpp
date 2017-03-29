@@ -40,13 +40,13 @@ struct boss_quatermasterzigrisAI : public ScriptedAI
 
     uint32 m_uiShootTimer;
     uint32 m_uiStunBombTimer;
-    //uint32 HelingPotion_Timer;
+    uint32 HelingPotion_Timer;
 
     void Reset()
     {
         m_uiShootTimer    = 1000;
-        m_uiStunBombTimer = 16000;
-        //HelingPotion_Timer = 25000;
+        m_uiStunBombTimer = Randomize(16000);
+        HelingPotion_Timer = Randomize(25000);
     }
 
     void UpdateAI(const uint32 uiDiff)
@@ -68,7 +68,7 @@ struct boss_quatermasterzigrisAI : public ScriptedAI
         if (m_uiStunBombTimer < uiDiff)
         {
             DoCastSpellIfCan(m_creature, SPELL_STUNBOMB);
-            m_uiStunBombTimer = 14000;
+            m_uiStunBombTimer = Randomize(14000);
         }
         else
             m_uiStunBombTimer -= uiDiff;

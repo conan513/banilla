@@ -51,10 +51,10 @@ struct boss_bloodmage_thalnosAI : public ScriptedAI
     void Reset()
     {
         HpYell = false;
-        FlameShock_Timer = 10000;
+        FlameShock_Timer = Randomize(10000);
         ShadowBolt_Timer = 2000;
-        FlameSpike_Timer = 8000;
-        FireNova_Timer = 40000;
+        FlameSpike_Timer = Randomize(8000);
+        FireNova_Timer = Randomize(40000);
     }
 
     void Aggro(Unit *who)
@@ -83,7 +83,7 @@ struct boss_bloodmage_thalnosAI : public ScriptedAI
         if (FlameShock_Timer < diff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_FLAMESHOCK);
-            FlameShock_Timer = urand(10000, 15000);
+            FlameShock_Timer = Randomize(urand(10000, 15000));
         }
         else FlameShock_Timer -= diff;
 
@@ -91,7 +91,7 @@ struct boss_bloodmage_thalnosAI : public ScriptedAI
         if (FlameSpike_Timer < diff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_FLAMESPIKE);
-            FlameSpike_Timer = 30000;
+            FlameSpike_Timer = Randomize(30000);
         }
         else FlameSpike_Timer -= diff;
 
@@ -99,7 +99,7 @@ struct boss_bloodmage_thalnosAI : public ScriptedAI
         if (FireNova_Timer < diff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_FIRENOVA);
-            FireNova_Timer = 40000;
+            FireNova_Timer = Randomize(40000);
         }
         else FireNova_Timer -= diff;
 

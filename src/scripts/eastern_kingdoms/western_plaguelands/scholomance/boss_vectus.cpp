@@ -70,7 +70,7 @@ struct boss_vectusAI : public ScriptedAI
     void Reset()
     {
         m_uiFlameStrike_Timer   = 2000;
-        m_uiBlastWave_Timer     = 14000;
+        m_uiBlastWave_Timer     = Randomize(14000);
         m_uiFrenzy_Timer        = 0;
         _fullAggroDone          = false;
     }
@@ -110,7 +110,7 @@ struct boss_vectusAI : public ScriptedAI
                     else
                     {
                         pGambit->Delete();
-                        m_uiGambitEvent_Timer = 12000;
+                        m_uiGambitEvent_Timer = Randomize(12000);
                         eventGambitStart = true;
                     }
                 }
@@ -172,7 +172,7 @@ struct boss_vectusAI : public ScriptedAI
         if (m_uiFlameStrike_Timer < uiDiff)
         {
             DoCastSpellIfCan(m_creature, SPELL_FLAMESTRIKE);
-            m_uiFlameStrike_Timer = 30000;
+            m_uiFlameStrike_Timer = Randomize(30000);
         }
         else
             m_uiFlameStrike_Timer -= uiDiff;
@@ -181,23 +181,23 @@ struct boss_vectusAI : public ScriptedAI
         if (m_uiBlastWave_Timer < uiDiff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_BLAST_WAVE);
-            m_uiBlastWave_Timer = 12000;
+            m_uiBlastWave_Timer = Randomize(12000);
         }
         else
             m_uiBlastWave_Timer -= uiDiff;
 
         //Frenzy_Timer
-        /*if (m_creature->GetHealthPercent() < 25.0f)
+        if (m_creature->GetHealthPercent() < 25.0f)
         {
             if (m_uiFrenzy_Timer < uiDiff)
             {
                 DoCastSpellIfCan(m_creature, SPELL_FRENZY);
                 DoScriptText(EMOTE_GENERIC_FRENZY_KILL, m_creature);
-                m_uiFrenzy_Timer = 24000;
+                m_uiFrenzy_Timer = Randomize(24000);
             }
             else
                 m_uiFrenzy_Timer -= uiDiff;
-        }*/
+        }
 
         DoMeleeAttackIfReady();
     }

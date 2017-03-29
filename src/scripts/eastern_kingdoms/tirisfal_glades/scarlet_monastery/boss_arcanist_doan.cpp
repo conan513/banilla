@@ -50,8 +50,8 @@ struct boss_arcanist_doanAI : public ScriptedAI
 
     void Reset()
     {
-        Polymorph_Timer = 20000;
-        AoESilence_Timer = 15000;
+        Polymorph_Timer = Randomize(20000);
+        AoESilence_Timer = Randomize(15000);
         ArcaneExplosion_Timer = 3000;
         bCanDetonate = false;
         bShielded = false;
@@ -95,7 +95,7 @@ struct boss_arcanist_doanAI : public ScriptedAI
             if (Unit* target = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 1))
                 DoCastSpellIfCan(target, SPELL_POLYMORPH);
 
-            Polymorph_Timer = 20000;
+            Polymorph_Timer = Randomize(20000);
         }
         else Polymorph_Timer -= diff;
 
@@ -103,7 +103,7 @@ struct boss_arcanist_doanAI : public ScriptedAI
         if (AoESilence_Timer < diff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_AOESILENCE);
-            AoESilence_Timer = urand(15000, 20000);
+            AoESilence_Timer = Randomize(urand(15000, 20000));
         }
         else AoESilence_Timer -= diff;
 
@@ -111,7 +111,7 @@ struct boss_arcanist_doanAI : public ScriptedAI
         if (ArcaneExplosion_Timer < diff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_ARCANEEXPLOSION);
-            ArcaneExplosion_Timer = 8000;
+            ArcaneExplosion_Timer = Randomize(8000);
         }
         else ArcaneExplosion_Timer -= diff;
 

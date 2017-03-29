@@ -434,7 +434,7 @@ struct boss_gythAI : public ScriptedAI
             if (uiFreezeTimer < uiDiff)
             {
                 if (DoCastSpellIfCan(m_creature, SPELL_FREEZE) == CAST_OK)
-                    uiFreezeTimer = 16000;
+                    uiFreezeTimer = Randomize(16000);
             }
             else
                 uiFreezeTimer -= uiDiff;
@@ -443,7 +443,7 @@ struct boss_gythAI : public ScriptedAI
             if (uiFlamebreathTimer < uiDiff)
             {
                 if (DoCastSpellIfCan(m_creature, SPELL_FLAMEBREATH) == CAST_OK)
-                    uiFlamebreathTimer = 10500;
+                    uiFlamebreathTimer = Randomize(10500);
             }
             else
                 uiFlamebreathTimer -= uiDiff;
@@ -455,7 +455,7 @@ struct boss_gythAI : public ScriptedAI
                     if (pTarget->GetDistance(m_creature) < 10.0f)
                     {
                         if (DoCastSpellIfCan(pTarget, SPELL_KNOCKAWAY) == CAST_OK)
-                            uiKnockAwayTimer = urand(8000, 12000);
+                            uiKnockAwayTimer = Randomize(urand(8000, 12000));
                     }
                 }
             }

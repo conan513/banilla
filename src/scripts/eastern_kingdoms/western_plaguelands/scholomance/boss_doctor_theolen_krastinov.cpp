@@ -66,7 +66,7 @@ struct boss_theolenkrastinovAI : public ScriptedAI
         if (m_uiRend_Timer < uiDiff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_REND);
-            m_uiRend_Timer = 10000;
+            m_uiRend_Timer = Randomize(10000);
         }
         else
             m_uiRend_Timer -= uiDiff;
@@ -75,7 +75,7 @@ struct boss_theolenkrastinovAI : public ScriptedAI
         if (m_uiBackhand_Timer < uiDiff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_BACKHAND);
-            m_uiBackhand_Timer = 10000;
+            m_uiBackhand_Timer = Randomize(10000);
         }
         else
             m_uiBackhand_Timer -= uiDiff;
@@ -88,7 +88,7 @@ struct boss_theolenkrastinovAI : public ScriptedAI
                 if (DoCastSpellIfCan(m_creature, SPELL_FRENZY) == CAST_OK)
                 {
                     DoScriptText(EMOTE_GENERIC_FRENZY_KILL, m_creature);
-                    m_uiFrenzy_Timer = 120000;
+                    m_uiFrenzy_Timer = Randomize(120000);
                 }
             }
             else

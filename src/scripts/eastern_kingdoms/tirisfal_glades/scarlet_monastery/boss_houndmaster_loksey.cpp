@@ -41,7 +41,7 @@ struct boss_houndmaster_lokseyAI : public ScriptedAI
 
     void Reset()
     {
-        BloodLust_Timer = 20000;
+        BloodLust_Timer = Randomize(20000);
     }
 
     void Aggro(Unit *who)
@@ -58,7 +58,7 @@ struct boss_houndmaster_lokseyAI : public ScriptedAI
         if (BloodLust_Timer < diff)
         {
             DoCastSpellIfCan(m_creature, SPELL_BLOODLUST);
-            BloodLust_Timer = 20000;
+            BloodLust_Timer = Randomize(20000);
         }
         else BloodLust_Timer -= diff;
 

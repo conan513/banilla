@@ -45,7 +45,7 @@ struct boss_ptheradrasAI : public ScriptedAI
         Dustfield_Timer = 8000;
         Boulder_Timer = 2000;
         Thrash_Timer = 5000;
-        RepulsiveGaze_Timer = 23000;
+        RepulsiveGaze_Timer = Randomize(23000);
     }
 
     void JustDied(Unit* Killer)
@@ -62,7 +62,7 @@ struct boss_ptheradrasAI : public ScriptedAI
         if (Dustfield_Timer < diff)
         {
             DoCastSpellIfCan(m_creature, SPELL_DUSTFIELD);
-            Dustfield_Timer = 14000;
+            Dustfield_Timer = Randomize(14000);
         }
         else Dustfield_Timer -= diff;
 
@@ -73,7 +73,7 @@ struct boss_ptheradrasAI : public ScriptedAI
             target = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0);
             if (target)
                 DoCastSpellIfCan(target, SPELL_BOULDER);
-            Boulder_Timer = 10000;
+            Boulder_Timer = Randomize(10000);
         }
         else Boulder_Timer -= diff;
 
@@ -81,7 +81,7 @@ struct boss_ptheradrasAI : public ScriptedAI
         if (RepulsiveGaze_Timer < diff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_REPULSIVEGAZE);
-            RepulsiveGaze_Timer = 20000;
+            RepulsiveGaze_Timer = Randomize(20000);
         }
         else RepulsiveGaze_Timer -= diff;
 
@@ -89,7 +89,7 @@ struct boss_ptheradrasAI : public ScriptedAI
         if (Thrash_Timer < diff)
         {
             DoCastSpellIfCan(m_creature, SPELL_THRASH);
-            Thrash_Timer = 18000;
+            Thrash_Timer = Randomize(18000);
         }
         else Thrash_Timer -= diff;
 

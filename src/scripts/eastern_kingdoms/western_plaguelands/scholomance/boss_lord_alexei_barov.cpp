@@ -40,7 +40,7 @@ struct boss_lordalexeibarovAI : public ScriptedAI
     void Reset()
     {
         Immolate_Timer = 7000;
-        VeilofShadow_Timer = 15000;
+        VeilofShadow_Timer = Randomize(15000);
 
         m_creature->LoadCreatureAddon();
     }
@@ -63,7 +63,7 @@ struct boss_lordalexeibarovAI : public ScriptedAI
             target = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0);
             if (target) DoCastSpellIfCan(target, SPELL_IMMOLATE);
 
-            Immolate_Timer = 12000;
+            Immolate_Timer = Randomize(12000);
         }
         else Immolate_Timer -= diff;
 
@@ -71,7 +71,7 @@ struct boss_lordalexeibarovAI : public ScriptedAI
         if (VeilofShadow_Timer < diff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_VEILOFSHADOW);
-            VeilofShadow_Timer = 20000;
+            VeilofShadow_Timer = Randomize(20000);
         }
         else VeilofShadow_Timer -= diff;
 

@@ -41,7 +41,7 @@ struct boss_timmy_the_cruelAI : public ScriptedAI
 
     void Reset()
     {
-        RavenousClaw_Timer = 7000;
+        RavenousClaw_Timer = Randomize(7000);
     }
 
     void UpdateAI(const uint32 diff)
@@ -54,11 +54,11 @@ struct boss_timmy_the_cruelAI : public ScriptedAI
         if (RavenousClaw_Timer < diff)
         {
             if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_RAVENOUSCLAW) == CAST_OK)
-                RavenousClaw_Timer = 12000;
+                RavenousClaw_Timer = Randomize(12000);
         }
         else RavenousClaw_Timer -= diff;
 
-        if (m_creature->GetHealthPercent() < 10.0f && !m_creature->HasAura(SPELL_ENRAGE))
+        if (m_creature->GetHealthPercent() < RandomizeUp(10.0f) && !m_creature->HasAura(SPELL_ENRAGE))
             m_creature->CastSpell(m_creature, SPELL_ENRAGE, true);
 
         DoMeleeAttackIfReady();
@@ -123,7 +123,7 @@ struct npc_gardien_cramoisiAI : public ScriptedAI
         if (uiDesarmerTimer < diff)
         {
             if (DoCastSpellIfCan(m_creature->getVictim(), 6713) == CAST_OK)
-                uiDesarmerTimer = 15000;
+                uiDesarmerTimer = Randomize(15000);
         }
         else
             uiDesarmerTimer -= diff;

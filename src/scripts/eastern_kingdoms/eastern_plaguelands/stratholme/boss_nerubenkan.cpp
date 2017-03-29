@@ -50,7 +50,7 @@ struct boss_nerubenkanAI : public ScriptedAI
     void Reset()
     {
         EncasingWebs_Timer = 7000;
-        PierceArmor_Timer = 15000;
+        PierceArmor_Timer = Randomize(15000);
         RaiseUndeadScarab_Timer = 3000;
 
         WebbedPlayerGuid = 0;
@@ -128,7 +128,7 @@ struct boss_nerubenkanAI : public ScriptedAI
                     WebbedPlayerGuid = pTarget->GetGUID();
                     WebbedPlayerAggro = m_creature->getThreatManager().getThreat(pTarget);
                     m_creature->getThreatManager().modifyThreatPercent(pTarget, -100);
-                    EncasingWebs_Timer = urand(10000, 15000);
+                    EncasingWebs_Timer = Randomize(urand(10000, 15000));
                 }
             }
         }
@@ -138,7 +138,7 @@ struct boss_nerubenkanAI : public ScriptedAI
         if (PierceArmor_Timer < diff)
         {
             if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_PIERCEARMOR) == CAST_OK)
-                PierceArmor_Timer = urand(15000, 20000);
+                PierceArmor_Timer = Randomize(urand(15000, 20000));
         }
         else
             PierceArmor_Timer -= diff;
@@ -149,7 +149,7 @@ struct boss_nerubenkanAI : public ScriptedAI
             if (Unit* target = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
             {
                 RaiseUndeadScarab(target, (urand(0, 1) ? true : false));
-                RaiseUndeadScarab_Timer = urand(6000, 10000);
+                RaiseUndeadScarab_Timer = Randomize(urand(6000, 10000));
             }
         }
         else

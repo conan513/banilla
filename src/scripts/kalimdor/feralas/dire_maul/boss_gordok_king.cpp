@@ -38,9 +38,9 @@ struct boss_king_gordokAI : public ScriptedAI
     void Reset()
     {
         m_uiWarStomp_Timer        = urand(7000, 8000);
-        m_uiMortalStrike_Timer    = urand(15000, 25000);
+        m_uiMortalStrike_Timer    = Randomize(urand(15000, 25000));
         m_uiSunderArmor_Timer     = urand(4000, 8000);
-        m_uiBerserkerCharge_Timer = urand(9000, 12000);
+        m_uiBerserkerCharge_Timer = Randomize(urand(9000, 12000));
         m_uiPhase = 0;
         
         m_uiNumPlayers = 0;        
@@ -70,7 +70,7 @@ struct boss_king_gordokAI : public ScriptedAI
                     if (pAura->GetStackAmount() == 5)
                         m_uiSunderArmor_Timer = urand(15000, 25000);
                     else 
-                        m_uiSunderArmor_Timer = urand(5000, 15000);
+                        m_uiSunderArmor_Timer = Randomize(urand(5000, 15000));
                 } 
                 else 
                     m_uiSunderArmor_Timer = urand(5000, 15000);
@@ -83,7 +83,7 @@ struct boss_king_gordokAI : public ScriptedAI
         if (m_uiMortalStrike_Timer < uiDiff) 
         {
             if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_MORTAL_STRIKE) == CAST_OK)
-                m_uiMortalStrike_Timer = urand(12000, 20000);
+                m_uiMortalStrike_Timer = Randomize(urand(12000, 20000));
         } 
         else 
             m_uiMortalStrike_Timer -= uiDiff;
@@ -92,7 +92,7 @@ struct boss_king_gordokAI : public ScriptedAI
         if (m_uiWarStomp_Timer < uiDiff) 
         {
             if (DoCastSpellIfCan(m_creature, SPELL_WAR_STOMP) == CAST_OK)
-                m_uiWarStomp_Timer = urand(20000, 30000);
+                m_uiWarStomp_Timer = Randomize(urand(20000, 30000));
         } 
         else 
             m_uiWarStomp_Timer -= uiDiff;
@@ -101,7 +101,7 @@ struct boss_king_gordokAI : public ScriptedAI
         if (m_uiBerserkerCharge_Timer < uiDiff) 
         {
             if (DoCastSpellIfCan(m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 1, nullptr, SELECT_FLAG_PLAYER), SPELL_BERSERKER_CHARGE) == CAST_OK)
-                m_uiBerserkerCharge_Timer = urand(25000, 30000);
+                m_uiBerserkerCharge_Timer = Randomize(urand(25000, 30000));
         } 
         else 
             m_uiBerserkerCharge_Timer -= uiDiff;
@@ -311,7 +311,7 @@ void boss_chorushAI::UpdateAIMage(const uint32 uiDiff)
             pTarget = pKing;
 
         if (DoCastSpellIfCan(pTarget, SPELL_BLOODLUST) == CAST_OK)
-            m_uiSpellTimers[3] = urand(10000, 20000);
+            m_uiSpellTimers[3] = Randomize(urand(10000, 20000));
     } 
     else
         m_uiSpellTimers[3] -= uiDiff;
@@ -350,7 +350,7 @@ void boss_chorushAI::UpdateAIMage(const uint32 uiDiff)
                 }
         if (m_bMeleeAttackers)
             if (DoCastSpellIfCan(m_creature, SPELL_FROST_NOVA) == CAST_OK)
-                m_uiSpellTimers[2] = urand(20000, 30000);
+                m_uiSpellTimers[2] = Randomize(urand(20000, 30000));
     } 
     else 
         m_uiSpellTimers[2] -= uiDiff;
@@ -396,7 +396,7 @@ void boss_chorushAI::UpdateAIShaman(const uint32 uiDiff)
                 }
         if (m_bMeleeAttackers)
             if (DoCastSpellIfCan(m_creature, SPELL_EARTHGRAB_TOTEM) == CAST_OK)
-                m_uiSpellTimers[2] = urand(20000, 30000);
+                m_uiSpellTimers[2] = Randomize(urand(20000, 30000));
     } 
     else 
         m_uiSpellTimers[2] -= uiDiff;
@@ -411,7 +411,7 @@ void boss_chorushAI::UpdateAIShaman(const uint32 uiDiff)
 
         if (pTarget)
             if (DoCastSpellIfCan(pTarget, SPELL_HEALING_WAVE) == CAST_OK)
-                m_uiSpellTimers[3] = urand(10000, 15000);
+                m_uiSpellTimers[3] = Randomize(urand(10000, 15000));
     } 
     else 
         m_uiSpellTimers[3] -= uiDiff;
@@ -429,7 +429,7 @@ void boss_chorushAI::UpdateAIShaman(const uint32 uiDiff)
     if (m_uiSpellTimers[1] < uiDiff) 
     {
         if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_CHAIN_LIGHTNING) == CAST_OK)
-            m_uiSpellTimers[1] = urand(15000, 25000);
+            m_uiSpellTimers[1] = Randomize(urand(15000, 25000));
     } 
     else 
         m_uiSpellTimers[1] -= uiDiff;
@@ -491,7 +491,7 @@ void boss_chorushAI::UpdateAIPrist(const uint32 uiDiff)
         if (Unit* pTarget = DoSelectLowestHpFriendly(40.0f))
         {
             if (DoCastSpellIfCan(pTarget, SPELL_POWER_WORD_SHIELD) == CAST_OK)
-                m_uiSpellTimers[1] = urand(17000, 22000);
+                m_uiSpellTimers[1] = Randomize(urand(17000, 22000));
         }
     } 
     else

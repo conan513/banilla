@@ -43,8 +43,8 @@ struct boss_illuciabarovAI : public ScriptedAI
 
     void Reset()
     {
-        CurseOfAgony_Timer = 18000;
-        ShadowShock_Timer = 9000;
+        CurseOfAgony_Timer = Randomize(18000);
+        ShadowShock_Timer = Randomize(9000);
         Silence_Timer = 5000;
         Fear_Timer = 30000;
     }
@@ -64,7 +64,7 @@ struct boss_illuciabarovAI : public ScriptedAI
         if (CurseOfAgony_Timer < diff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_CURSEOFAGONY);
-            CurseOfAgony_Timer = 30000;
+            CurseOfAgony_Timer = Randomize(30000);
         }
         else CurseOfAgony_Timer -= diff;
 
@@ -75,7 +75,7 @@ struct boss_illuciabarovAI : public ScriptedAI
             target = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0);
             if (target) DoCastSpellIfCan(target, SPELL_SHADOWSHOCK);
 
-            ShadowShock_Timer = 12000;
+            ShadowShock_Timer = Randomize(12000);
         }
         else ShadowShock_Timer -= diff;
 
@@ -83,7 +83,7 @@ struct boss_illuciabarovAI : public ScriptedAI
         if (Silence_Timer < diff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_SILENCE);
-            Silence_Timer = 14000;
+            Silence_Timer = Randomize(14000);
         }
         else Silence_Timer -= diff;
 
@@ -91,7 +91,7 @@ struct boss_illuciabarovAI : public ScriptedAI
         if (Fear_Timer < diff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_FEAR);
-            Fear_Timer = 30000;
+            Fear_Timer = Randomize(30000);
         }
         else Fear_Timer -= diff;
 

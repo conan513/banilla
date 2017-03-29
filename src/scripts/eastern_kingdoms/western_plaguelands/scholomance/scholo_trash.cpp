@@ -183,7 +183,7 @@ struct npc_spectral_tutorAI : public ScriptedAI
                 {
                     if (DoCastSpellIfCan(target, SPELL_MANA_BURN) == CAST_OK)
                     {
-                        m_uiManaBurnTimer = urand(8600, 26400);
+                        m_uiManaBurnTimer = Randomize(urand(8600, 26400));
                     }                
                 }
             }
@@ -197,7 +197,7 @@ struct npc_spectral_tutorAI : public ScriptedAI
                 {
                     if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_SILENCE) == CAST_OK)
                     {
-                        m_uiSilenceTimer = urand(12000, 26300);
+                        m_uiSilenceTimer = Randomize(urand(12000, 26300));
                     }          
                 }
             }
@@ -212,7 +212,7 @@ struct npc_spectral_tutorAI : public ScriptedAI
                 if (DoCastSpellIfCan(m_creature, SPELL_SUMMON_PROJECTION, CAST_TRIGGERED, CAST_INTERRUPT_PREVIOUS) == CAST_OK)
                 {
                     DoCastSpellIfCan(m_creature, SPELL_IMAGE_PROJECTION, CAST_TRIGGERED);
-                    m_uiImageTimer = urand(17700, 25300);
+                    m_uiImageTimer = Randomize(urand(17700, 25300));
                     m_uiHideTimer = 5800;
                     m_isProjection = true;
                 }

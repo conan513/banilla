@@ -93,13 +93,13 @@ struct boss_immol_tharAI : public ScriptedAI
         if (m_creature->IsNonMeleeSpellCasted(false))
             return;
 
-        if (ManageTimer(uiDiff, &m_uiTrampleTimer,              urand(9000, 14000)))
+        if (ManageTimer(uiDiff, &m_uiTrampleTimer,              Randomize(urand(9000, 14000))))
             DoCastSpellIfCan(m_creature, SPELL_TRAMPLE);
 
-        if (ManageTimer(uiDiff, &m_uiInfectedBiteTimer,         urand(8000, 12000)))
+        if (ManageTimer(uiDiff, &m_uiInfectedBiteTimer,         Randomize(urand(8000, 12000))))
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_INFECTED_BITE);
 
-        if (ManageTimer(uiDiff, &m_uiEyeOfImmolTharTimer,       urand(15000, 22000)))
+        if (ManageTimer(uiDiff, &m_uiEyeOfImmolTharTimer,       Randomize(urand(15000, 22000))))
         {
             Creature* tmp = m_creature->SummonCreature(14396,
                                                m_creature->GetPositionX(),
@@ -111,7 +111,7 @@ struct boss_immol_tharAI : public ScriptedAI
             tmp->Attack(m_creature->getVictim(),true);
         }
 
-        if (ManageTimer(uiDiff, &m_uiPortalOfImmolTharTimer,    urand(17000, 24000)))
+        if (ManageTimer(uiDiff, &m_uiPortalOfImmolTharTimer,    Randomize(urand(17000, 24000))))
         {
             if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
             {

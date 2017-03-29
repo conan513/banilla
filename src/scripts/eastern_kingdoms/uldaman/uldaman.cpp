@@ -120,7 +120,7 @@ struct mob_stone_keeperAI : public ScriptedAI
         if (m_uiTrample_Timer < diff)
         {
             if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_TRAMPLE) == CAST_OK)
-                m_uiTrample_Timer = urand(4000, 10000);
+                m_uiTrample_Timer = Randomize(urand(4000, 10000));
         }
         else m_uiTrample_Timer -= diff;
 
@@ -166,7 +166,7 @@ struct mob_jadespine_basiliskAI : public ScriptedAI
             m_creature->CastSpell(m_creature->getVictim(), SPELL_CSLUMBER, true);
 
             //Stop attacking target thast asleep and pick new target
-            Cslumber_Timer = 28000;
+            Cslumber_Timer = Randomize(28000,1.5);
 
             Unit* Target = m_creature->SelectAttackingTarget(ATTACKING_TARGET_TOPAGGRO, 0);
 
@@ -445,7 +445,7 @@ struct EarthenUldamanAI : public ScriptedAI
         if (m_uiFlame_Timer < uiDiff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_FLAME_BUFFET);
-            m_uiFlame_Timer = 5700;
+            m_uiFlame_Timer = Randomize(5700);
         }
         else
             m_uiFlame_Timer -= uiDiff;

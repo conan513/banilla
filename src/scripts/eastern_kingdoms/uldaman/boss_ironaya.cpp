@@ -71,7 +71,7 @@ struct boss_ironayaAI : public ScriptedAI
             return;
 
         //If we are <50% hp do knockaway ONCE
-        if (!hasCastedKnockaway && m_creature->GetHealthPercent() < 50.0f)
+        if (!hasCastedKnockaway && m_creature->GetHealthPercent() < RandomizeUp(50.0f))
         {
             m_creature->CastSpell(m_creature->getVictim(), SPELL_KNOCKAWAY, true);
 
@@ -92,11 +92,11 @@ struct boss_ironayaAI : public ScriptedAI
         if (Arcing_Timer < diff)
         {
             DoCastSpellIfCan(m_creature, SPELL_ARCINGSMASH);
-            Arcing_Timer = 13000;
+            Arcing_Timer = Randomize(13000);
         }
         else Arcing_Timer -= diff;
 
-        if (!hasCastedWstomp && m_creature->GetHealthPercent() < 25.0f)
+        if (!hasCastedWstomp && m_creature->GetHealthPercent() < RandomizeUp(25.0f))
         {
             DoCastSpellIfCan(m_creature, SPELL_WSTOMP);
             hasCastedWstomp = true;

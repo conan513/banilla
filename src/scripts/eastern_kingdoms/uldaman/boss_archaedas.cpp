@@ -76,7 +76,7 @@ struct boss_archaedasAI : public ScriptedAI
 
     void Reset()
     {
-        uiTremorTimer = 60000;
+        uiTremorTimer = Randomize(60000);
         iAwakenTimer = 0;
         uiWallMinionTimer = 10000;
         bWakingUp = false;
@@ -158,12 +158,12 @@ struct boss_archaedasAI : public ScriptedAI
         if (uiWallMinionTimer <= uiDiff)
         {
             instance->SetData(DATA_MINIONS, IN_PROGRESS);
-            uiWallMinionTimer = 10000;
+            uiWallMinionTimer = Randomize(10000);
         }
         else uiWallMinionTimer -= uiDiff;
 
         //If we are <66 summon the guardians
-        if (!bGuardiansAwake && me->GetHealthPercent() <= 66.0f)
+        if (!bGuardiansAwake && me->GetHealthPercent() <= RandomizeUp(66.0f))
         {
             ActivateMinion(instance->GetData64(5), true); // EarthenGuardian1
             ActivateMinion(instance->GetData64(6), true); // EarthenGuardian2
@@ -177,7 +177,7 @@ struct boss_archaedasAI : public ScriptedAI
         }
 
         //If we are <33 summon the vault walkers
-        if (!bVaultWalkersAwake && me->GetHealthPercent() <= 33.0f)
+        if (!bVaultWalkersAwake && me->GetHealthPercent() <= RandomizeUp(33.0f))
         {
             ActivateMinion(instance->GetData64(1), true); // VaultWalker1
             ActivateMinion(instance->GetData64(2), true); // VaultWalker2
@@ -191,7 +191,7 @@ struct boss_archaedasAI : public ScriptedAI
             //Cast
             DoCast(me->getVictim(), SPELL_GROUND_TREMOR);
             //45 seconds until we should cast this agian
-            uiTremorTimer = 45000;
+            uiTremorTimer = Randomize(45000);
         }
         else uiTremorTimer -= uiDiff;
 
@@ -306,7 +306,7 @@ struct mob_archaedas_minionsAI : public ScriptedAI
         if (m_creature->GetEntry() == 10120 && uiTrample_Timer <= uiDiff)
         {
             DoCast(me->getVictim(), SPELL_TRAMPLE);
-            uiTrample_Timer = 10000;
+            uiTrample_Timer = Randomize(10000);
         }
         else uiTrample_Timer -= uiDiff;
 

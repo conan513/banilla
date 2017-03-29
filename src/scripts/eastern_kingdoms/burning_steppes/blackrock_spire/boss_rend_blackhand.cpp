@@ -97,7 +97,7 @@ struct boss_rend_blackhandAI : public ScriptedAI
             if (m_uiMortalStrikeTimer < uiDiff)
             {
                 if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_MORTALSTRIKE) == CAST_OK)
-                    m_uiMortalStrikeTimer = urand(6000, 10000);
+                    m_uiMortalStrikeTimer = Randomize(urand(6000, 10000));
             }
             else
                 m_uiMortalStrikeTimer -= uiDiff;
@@ -115,7 +115,7 @@ struct boss_rend_blackhandAI : public ScriptedAI
         }
 
         // Frenzy
-        if (m_creature->GetHealthPercent() <= 25.0f)
+        if (m_creature->GetHealthPercent() <= RandomizeUp(25.0f))
         {
             if (m_uiFrenzyTimer < uiDiff)
             {

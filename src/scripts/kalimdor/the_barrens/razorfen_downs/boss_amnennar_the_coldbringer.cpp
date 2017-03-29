@@ -90,7 +90,7 @@ struct boss_amnennar_the_coldbringerAI : public ScriptedAI
         if (AmnenarsWrath_Timer < diff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_AMNENNARSWRATH);
-            AmnenarsWrath_Timer = 12000;
+            AmnenarsWrath_Timer = Randomize(12000);
         }
         else AmnenarsWrath_Timer -= diff;
 
@@ -98,14 +98,14 @@ struct boss_amnennar_the_coldbringerAI : public ScriptedAI
         if (FrostBolt_Timer < diff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_FROSTBOLT);
-            FrostBolt_Timer = 8000;
+            FrostBolt_Timer = Randomize(8000);
         }
         else FrostBolt_Timer -= diff;
 
         if (FrostNova_Timer < diff)
         {
             DoCastSpellIfCan(m_creature, SPELL_FROST_NOVA);
-            FrostNova_Timer = 9000;
+            FrostNova_Timer = Randomize(9000);
         }
         else FrostNova_Timer -= diff;
 

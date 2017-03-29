@@ -56,8 +56,8 @@ struct boss_silver_hand_bossesAI : public ScriptedAI
 
     void Reset()
     {
-        HolyLight_Timer = 20000;
-        DivineShield_Timer = 20000;
+        HolyLight_Timer = Randomize(20000);
+        DivineShield_Timer = Randomize(20000);
 
         if (m_pInstance)
         {
@@ -120,17 +120,17 @@ struct boss_silver_hand_bossesAI : public ScriptedAI
             if (m_creature->GetHealthPercent() < 20.0f)
             {
                 DoCast(m_creature, SPELL_HOLY_LIGHT);
-                HolyLight_Timer = 20000;
+                HolyLight_Timer = Randomize(20000);
             }
         }
         else HolyLight_Timer -= diff;
 
         if (DivineShield_Timer < diff)
         {
-            if (m_creature->GetHealthPercent() < 5.0f)
+            if (m_creature->GetHealthPercent() < RandomizeUp(5.0f))
             {
                 DoCast(m_creature, SPELL_DIVINE_SHIELD);
-                DivineShield_Timer = 40000;
+                DivineShield_Timer = Randomize(40000);
             }
         }
         else DivineShield_Timer -= diff;

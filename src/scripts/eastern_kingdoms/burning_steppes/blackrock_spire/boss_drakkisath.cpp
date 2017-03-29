@@ -50,8 +50,8 @@ struct boss_drakkisathAI : public ScriptedAI
 
     void Reset()
     {
-        m_uiFlameStrikeTimer    = 16000;
-        m_uiCleaveTimer         = 12000;
+        m_uiFlameStrikeTimer    = Randomize(16000);
+        m_uiCleaveTimer         = Randomize(12000);
         m_uiConfligurationTimer = 8000;
         m_uiThunderclapTimer    = 1000;
         m_uiRageTimer           = 1000;
@@ -68,7 +68,7 @@ struct boss_drakkisathAI : public ScriptedAI
         if (m_uiFlameStrikeTimer < uiDiff)
         {
             if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_FLAMESTRIKE) == CAST_OK)
-                m_uiFlameStrikeTimer = urand(13000, 14000);
+                m_uiFlameStrikeTimer = Randomize(urand(13000, 14000));
         }
         else
             m_uiFlameStrikeTimer -= uiDiff;
@@ -77,7 +77,7 @@ struct boss_drakkisathAI : public ScriptedAI
         if (m_uiCleaveTimer < uiDiff)
         {
             if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_CLEAVE) == CAST_OK)
-                m_uiCleaveTimer = urand(8000, 10000);
+                m_uiCleaveTimer = Randomize(urand(8000, 10000));
         }
         else
             m_uiCleaveTimer -= uiDiff;
@@ -86,7 +86,7 @@ struct boss_drakkisathAI : public ScriptedAI
         if (m_uiConfligurationTimer < uiDiff)
         {
             if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_CONFLIGURATION, 0, m_creature->getVictim()->GetGUID()) == CAST_OK)
-                m_uiConfligurationTimer = 18000;
+                m_uiConfligurationTimer = Randomize(18000);
         }
         else
             m_uiConfligurationTimer -= uiDiff;
@@ -97,7 +97,7 @@ struct boss_drakkisathAI : public ScriptedAI
             if ((m_creature->getVictim())->GetDistance(m_creature) < 10.0f)
             {
                 if (DoCastSpellIfCan(m_creature, SPELL_THUNDERCLAP) == CAST_OK)
-                    m_uiThunderclapTimer = 20000;
+                    m_uiThunderclapTimer = Randomize(20000);
             }
         }
         else
@@ -107,7 +107,7 @@ struct boss_drakkisathAI : public ScriptedAI
         if (m_uiRageTimer < uiDiff)
         {
             if (DoCastSpellIfCan(m_creature, SPELL_RAGE) == CAST_OK)
-                m_uiRageTimer = 35000;
+                m_uiRageTimer = Randomize(35000);
         }
         else
             m_uiRageTimer -= uiDiff;
@@ -115,7 +115,7 @@ struct boss_drakkisathAI : public ScriptedAI
         if (m_uiPierceArmorTimer < uiDiff)
         {
             if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_PIERCEARMOR) == CAST_OK)
-                m_uiPierceArmorTimer = 40000;
+                m_uiPierceArmorTimer = Randomize(40000);
         }
         else
             m_uiPierceArmorTimer -= uiDiff;

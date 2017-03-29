@@ -43,9 +43,9 @@ struct boss_lorekeeperpolkeltAI : public ScriptedAI
 
     void Reset()
     {
-        VolatileInfection_Timer = 38000;
-        CorrosiveAcid_Timer = 45000;
-        NoxiousCatalyst_Timer = 35000;
+        VolatileInfection_Timer = Randomize(38000);
+        CorrosiveAcid_Timer = Randomize(45000);
+        NoxiousCatalyst_Timer = Randomize(35000);
     }
 
     void Aggro(Unit* /*pWho*/)
@@ -68,7 +68,7 @@ struct boss_lorekeeperpolkeltAI : public ScriptedAI
         if (VolatileInfection_Timer < diff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_VOLATILEINFECTION);
-            VolatileInfection_Timer = 32000;
+            VolatileInfection_Timer = Randomize(32000);
         }
         else VolatileInfection_Timer -= diff;
 
@@ -76,7 +76,7 @@ struct boss_lorekeeperpolkeltAI : public ScriptedAI
         if (CorrosiveAcid_Timer < diff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_CORROSIVEACID);
-            CorrosiveAcid_Timer = 25000;
+            CorrosiveAcid_Timer = Randomize(25000);
         }
         else CorrosiveAcid_Timer -= diff;
 
@@ -84,7 +84,7 @@ struct boss_lorekeeperpolkeltAI : public ScriptedAI
         if (NoxiousCatalyst_Timer < diff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_NOXIOUSCATALYST);
-            NoxiousCatalyst_Timer = 38000;
+            NoxiousCatalyst_Timer = Randomize(38000);
         }
         else NoxiousCatalyst_Timer -= diff;
 

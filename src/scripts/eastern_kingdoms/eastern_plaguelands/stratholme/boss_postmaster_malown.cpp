@@ -53,8 +53,8 @@ struct boss_postmaster_malownAI : public ScriptedAI
         WailingDead_Timer = 19000; //lasts 6 sec
         Backhand_Timer = 8000; //2 sec stun
         CurseOfWeakness_Timer = 20000; //lasts 2 mins
-        CurseOfTongues_Timer = 22000;
-        CallOfTheGrave_Timer = 25000;
+        CurseOfTongues_Timer = Randomize(22000);
+        CallOfTheGrave_Timer = Randomize(25000);
         HasYelled = false;
     }
 
@@ -71,7 +71,7 @@ struct boss_postmaster_malownAI : public ScriptedAI
             if (rand() % 100 < 65) //65% chance to cast
                 DoCastSpellIfCan(m_creature->getVictim(), SPELL_WAILINGDEAD);
             //19 seconds until we should cast this again
-            WailingDead_Timer = 19000;
+            WailingDead_Timer = Randomize(19000);
         }
         else WailingDead_Timer -= diff;
 
@@ -79,10 +79,10 @@ struct boss_postmaster_malownAI : public ScriptedAI
         if (Backhand_Timer < diff)
         {
             //Cast
-            if (rand() % 100 < 45) //45% chance to cast
+            if (rand() % 100 < RandomizeUp(45)) //45% chance to cast
                 DoCastSpellIfCan(m_creature->getVictim(), SPELL_BACKHAND);
             //8 seconds until we should cast this again
-            Backhand_Timer = 8000;
+            Backhand_Timer = Randomize(8000);
         }
         else Backhand_Timer -= diff;
 
@@ -90,10 +90,10 @@ struct boss_postmaster_malownAI : public ScriptedAI
         if (CurseOfWeakness_Timer < diff)
         {
             //Cast
-            if (rand() % 100 < 3) //3% chance to cast
+            if (rand() % 100 < RandomizeUp(3)) //3% chance to cast
                 DoCastSpellIfCan(m_creature->getVictim(), SPELL_CURSEOFWEAKNESS);
             //20 seconds until we should cast this again
-            CurseOfWeakness_Timer = 20000;
+            CurseOfWeakness_Timer = Randomize(20000);
         }
         else CurseOfWeakness_Timer -= diff;
 
@@ -101,10 +101,10 @@ struct boss_postmaster_malownAI : public ScriptedAI
         if (CurseOfTongues_Timer < diff)
         {
             //Cast
-            if (rand() % 100 < 3) //3% chance to cast
+            if (rand() % 100 < RandomizeUp(3)) //3% chance to cast
                 DoCastSpellIfCan(m_creature->getVictim(), SPELL_CURSEOFTONGUES);
             //22 seconds until we should cast this again
-            CurseOfTongues_Timer = 22000;
+            CurseOfTongues_Timer = Randomize(22000);
         }
         else CurseOfTongues_Timer -= diff;
 
@@ -112,10 +112,10 @@ struct boss_postmaster_malownAI : public ScriptedAI
         if (CallOfTheGrave_Timer < diff)
         {
             //Cast
-            if (rand() % 100 < 5) //5% chance to cast
+            if (rand() % 100 < Randomize(5)) //5% chance to cast
                 DoCastSpellIfCan(m_creature->getVictim(), SPELL_CALLOFTHEGRAVE);
             //25 seconds until we should cast this again
-            CallOfTheGrave_Timer = 25000;
+            CallOfTheGrave_Timer = Randomize(25000);
         }
         else CallOfTheGrave_Timer -= diff;
 

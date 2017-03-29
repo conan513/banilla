@@ -47,10 +47,10 @@ struct boss_warmastervooneAI : public ScriptedAI
     void Reset()
     {
         Snapkick_Timer = 8000;
-        Cleave_Timer = 14000;
-        Uppercut_Timer = 20000;
-        MortalStrike_Timer = 12000;
-        Pummel_Timer = 32000;
+        Cleave_Timer = Randomize(14000);
+        Uppercut_Timer = Randomize(20000);
+        MortalStrike_Timer = Randomize(12000);
+        Pummel_Timer = Randomize(32000);
         ThrowAxe_Timer = 1000;
     }
 
@@ -72,7 +72,7 @@ struct boss_warmastervooneAI : public ScriptedAI
         if (Cleave_Timer < diff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_CLEAVE);
-            Cleave_Timer = 12000;
+            Cleave_Timer = Randomize(12000);
         }
         else Cleave_Timer -= diff;
 
@@ -80,7 +80,7 @@ struct boss_warmastervooneAI : public ScriptedAI
         if (Uppercut_Timer < diff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_UPPERCUT);
-            Uppercut_Timer = 14000;
+            Uppercut_Timer = Randomize(14000);
         }
         else Uppercut_Timer -= diff;
 
@@ -88,7 +88,7 @@ struct boss_warmastervooneAI : public ScriptedAI
         if (MortalStrike_Timer < diff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_MORTALSTRIKE);
-            MortalStrike_Timer = 10000;
+            MortalStrike_Timer = Randomize(10000);
         }
         else MortalStrike_Timer -= diff;
 
@@ -96,7 +96,7 @@ struct boss_warmastervooneAI : public ScriptedAI
         if (Pummel_Timer < diff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_PUMMEL);
-            Pummel_Timer = 16000;
+            Pummel_Timer = Randomize(16000);
         }
         else Pummel_Timer -= diff;
 
@@ -104,7 +104,7 @@ struct boss_warmastervooneAI : public ScriptedAI
         if (ThrowAxe_Timer < diff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_THROWAXE);
-            ThrowAxe_Timer = 8000;
+            ThrowAxe_Timer = Randomize(8000);
         }
         else ThrowAxe_Timer -= diff;
 

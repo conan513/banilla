@@ -41,9 +41,9 @@ struct boss_kormokAI : public ScriptedAI
 
     void Reset()
     {
-        ShadowVolley_Timer = 10000;
+        ShadowVolley_Timer = Randomize(10000);
         BoneShield_Timer = 2000;
-        Minion_Timer = 15000;
+        Minion_Timer = Randomize(15000);
         Mage_Timer = 0;
         Mages = false;
     }
@@ -71,7 +71,7 @@ struct boss_kormokAI : public ScriptedAI
         if (ShadowVolley_Timer < diff)
         {
             if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_SHADOWBOLTVOLLEY) == CAST_OK)
-                ShadowVolley_Timer = 15000;
+                ShadowVolley_Timer = Randomize(15000);
         }
         else
             ShadowVolley_Timer -= diff;
@@ -80,7 +80,7 @@ struct boss_kormokAI : public ScriptedAI
         if (BoneShield_Timer < diff)
         {
             if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_BONESHIELD) == CAST_OK)
-                BoneShield_Timer = 45000;
+                BoneShield_Timer = Randomize(45000);
         }
         else
             BoneShield_Timer -= diff;
@@ -92,7 +92,7 @@ struct boss_kormokAI : public ScriptedAI
             for (int i = 0; i < 4; ++i)
                 SummonMinion(m_creature->getVictim());
 
-            Minion_Timer = 12000;
+            Minion_Timer = Randomize(12000);
         }
         else
             Minion_Timer -= diff;

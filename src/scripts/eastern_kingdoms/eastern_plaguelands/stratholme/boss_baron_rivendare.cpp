@@ -97,9 +97,9 @@ struct boss_baron_rivendareAI : public ScriptedAI
     void Reset()
     {
         ShadowBolt_Timer = 5000;
-        Cleave_Timer = 8000;
-        MortalStrike_Timer = 12000;
-        SummonSkeletons_Timer = 15000;
+        Cleave_Timer = Randomize(8000);
+        MortalStrike_Timer = Randomize(12000);
+        SummonSkeletons_Timer = Randomize(15000);
 
         RaiseDeadCasted = false;
 
@@ -154,7 +154,7 @@ struct boss_baron_rivendareAI : public ScriptedAI
         {
             if (Unit* target = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
                 if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_SHADOWBOLT) == CAST_OK)
-                    ShadowBolt_Timer = 10000;
+                    ShadowBolt_Timer = Randomize(10000);
         }
         else ShadowBolt_Timer -= diff;
 
@@ -162,7 +162,7 @@ struct boss_baron_rivendareAI : public ScriptedAI
         if (Cleave_Timer < diff)
         {
             if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_CLEAVE) == CAST_OK)
-                Cleave_Timer = urand(7000, 17000);
+                Cleave_Timer = Randomize(urand(7000, 17000));
         }
         else Cleave_Timer -= diff;
 
@@ -170,7 +170,7 @@ struct boss_baron_rivendareAI : public ScriptedAI
         if (MortalStrike_Timer < diff)
         {
             if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_MORTALSTRIKE) == CAST_OK)
-                MortalStrike_Timer = urand(10000, 25000);
+                MortalStrike_Timer = Randomize(urand(10000, 25000));
         }
         else MortalStrike_Timer -= diff;
 

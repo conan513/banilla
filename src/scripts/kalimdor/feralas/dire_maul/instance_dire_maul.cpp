@@ -584,7 +584,7 @@ struct npc_reste_manaAI : public ScriptedAI
 
     void Reset()
     {
-        m_uiBlink_Timer = urand(12000, 23000);
+        m_uiBlink_Timer = Randomize(urand(12000, 23000));
         m_uiChainLighting_Timer = urand(2000, 6000);
         m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_ARCANE, true);
     }
@@ -1147,7 +1147,7 @@ struct GordokBruteAI : public ScriptedAI
         {
             if(m_creature->GetHealthPercent() > 30.0f && m_creature->getVictim()->IsNonMeleeSpellCasted(true))
                 if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_PUMMEL) == CAST_OK)
-                    m_uiPummel_Timer = urand(8000, 10000);
+                    m_uiPummel_Timer = Randomize(urand(8000, 10000));
         }
         else
             m_uiPummel_Timer -= uiDiff;
@@ -1169,7 +1169,7 @@ struct GordokBruteAI : public ScriptedAI
             if (m_uiBackhand_Timer < uiDiff)
             {
                 if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_BACK_HAND) == CAST_OK)
-                    m_uiBackhand_Timer = urand(5000, 9000);
+                    m_uiBackhand_Timer = Randomize(urand(5000, 9000));
             }
             else
                 m_uiBackhand_Timer -= uiDiff;
@@ -1178,7 +1178,7 @@ struct GordokBruteAI : public ScriptedAI
         if (m_uiUppercut_Timer < uiDiff)
         {
             if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_UPPERCUT) == CAST_OK)
-                m_uiUppercut_Timer = urand(6000, 10000);
+                m_uiUppercut_Timer = Randomize(urand(6000, 10000));
         }
         else
             m_uiUppercut_Timer -= uiDiff;
@@ -1240,9 +1240,9 @@ struct boss_guardsAI : public ScriptedAI
     void Reset()
     {
         m_uiShieldCharge_Timer = 500;
-        m_uiStrike_Timer       = urand(10000, 20000);
-        m_uiKnockAway_Timer    = urand(20000, 30000);
-        m_uiShieldBash_Timer   = urand(8000, 15000);
+        m_uiStrike_Timer       = Randomize(urand(10000, 20000));
+        m_uiKnockAway_Timer    = Randomize(urand(20000, 30000));
+        m_uiShieldBash_Timer   = Randomize(urand(8000, 15000));
         m_bEnrageUsed          = false;
 
         m_uiCombatBugTimer = 0;
@@ -1304,7 +1304,7 @@ struct boss_guardsAI : public ScriptedAI
             if (m_creature->getVictim()->IsNonMeleeSpellCasted(true))
             {
                 if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_SHIELD_BASH) == CAST_OK)
-                    m_uiShieldBash_Timer = urand(10000, 15000);
+                    m_uiShieldBash_Timer = Randomize(urand(10000, 15000));
             }
         } 
         else 
@@ -1314,7 +1314,7 @@ struct boss_guardsAI : public ScriptedAI
         if (m_uiStrike_Timer < uiDiff) 
         {
             if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_STRIKE) == CAST_OK)
-                m_uiStrike_Timer = urand(10000, 15000);
+                m_uiStrike_Timer = Randomize(urand(10000, 15000));
         } 
         else 
             m_uiStrike_Timer -= uiDiff;
@@ -1323,7 +1323,7 @@ struct boss_guardsAI : public ScriptedAI
         if (m_uiKnockAway_Timer < uiDiff) 
         {
             if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_KNOCK_AWAY) == CAST_OK)
-                m_uiKnockAway_Timer = urand(20000, 30000);
+                m_uiKnockAway_Timer = Randomize(urand(20000, 30000));
         } 
         else 
             m_uiKnockAway_Timer -= uiDiff;
@@ -1487,8 +1487,8 @@ struct boss_kromcrushAI : public ScriptedAI
 
     void Reset()
     {
-        m_uiMortalCleave_Timer      = urand(7000, 13000);
-        m_uiIntimidatingShout_Timer = 10000;
+        m_uiMortalCleave_Timer      = Randomize(urand(7000, 13000));
+        m_uiIntimidatingShout_Timer = Randomize(10000);
         m_bRetaliationUsed          = false;
         m_bCallReavers              = false;
     }
@@ -1585,7 +1585,7 @@ struct boss_kromcrushAI : public ScriptedAI
         if (m_uiMortalCleave_Timer < uiDiff)
         {
             if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_MORTAL_CLEAVE) == CAST_OK)
-                m_uiMortalCleave_Timer = urand(15000, 20000);
+                m_uiMortalCleave_Timer = Randomize(urand(15000, 20000));
         } 
         else 
             m_uiMortalCleave_Timer -= uiDiff;
@@ -1594,13 +1594,13 @@ struct boss_kromcrushAI : public ScriptedAI
         if (m_uiIntimidatingShout_Timer < uiDiff)
         {
             if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_INTIMIDATING_SHOUT) == CAST_OK)
-                m_uiIntimidatingShout_Timer = urand(30000, 35000);
+                m_uiIntimidatingShout_Timer = Randomize(urand(30000, 35000));
         }
         else 
             m_uiIntimidatingShout_Timer -= uiDiff;
 
         // Retaliation
-        if (!m_bRetaliationUsed && m_creature->GetHealthPercent() < 25.0f) 
+        if (!m_bRetaliationUsed && m_creature->GetHealthPercent() < RandomizeUp(25.0f)) 
         {
             DoCastSpellIfCan(m_creature, SPELL_RETALIATION);
             DoScriptText(EMOTE_RETALIATION, m_creature);
@@ -1703,10 +1703,10 @@ struct boss_prince_tortheldrinAI:public ScriptedAI
 
     void Reset()
     {
-        arcaneBlastTimer     = urand(15000, 20000);
-        counterspellTimer    = urand(10000, 20000);
+        arcaneBlastTimer     = Randomize(urand(15000, 20000));
+        counterspellTimer    = Randomize(urand(10000, 20000));
         summonTimer          = urand(0, 3000);       
-        whirlwindTimer       = urand(14000, 22000);
+        whirlwindTimer       = Randomize(urand(14000, 22000));
 
         // Thrash
         DoCastSpellIfCan(m_creature, SPELL_THRASH, CAST_TRIGGERED | CAST_AURA_NOT_PRESENT);
@@ -1721,7 +1721,7 @@ struct boss_prince_tortheldrinAI:public ScriptedAI
         if (summonTimer < uiDiff)
         {
             if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_SUMMON) == CAST_OK)            
-                summonTimer = urand(13000, 20000);
+                summonTimer = Randomize(urand(13000, 20000));
         }
         else 
             summonTimer -= uiDiff;
@@ -1744,7 +1744,7 @@ struct boss_prince_tortheldrinAI:public ScriptedAI
             }
             if (m_bMeleeAttackers)
                 if (DoCastSpellIfCan(m_creature, SPELL_WHIRLWIND) == CAST_OK)
-                    whirlwindTimer = urand(10000, 20000);
+                    whirlwindTimer = Randomize(urand(10000, 20000));
         }
         else
             whirlwindTimer -= uiDiff;
@@ -1755,7 +1755,7 @@ struct boss_prince_tortheldrinAI:public ScriptedAI
             if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_ARCANE_BLAST) == CAST_OK)
             {
                 DoResetThreat();
-                arcaneBlastTimer = urand(10000, 15000);
+                arcaneBlastTimer = Randomize(urand(10000, 15000));
             }
         }
         else
@@ -1769,7 +1769,7 @@ struct boss_prince_tortheldrinAI:public ScriptedAI
                 if (pTarget->IsNonMeleeSpellCasted(true))
                 {
                     if (DoCastSpellIfCan(pTarget, SPELL_COUNTERSPELL) == CAST_OK)
-                        counterspellTimer = urand(25000, 30000);
+                        counterspellTimer = Randomize(urand(25000, 30000));
                 }
             }
         }
@@ -2022,7 +2022,7 @@ struct boss_alzzin_the_wildshaperAI : ScriptedAI
                 {
                     if (DoCastSpellIfCan(m_creature, SPELL_THORNS) == CAST_OK)
                     {
-                        m_uiThornsTimer = urand(10000, 15000);
+                        m_uiThornsTimer = Randomize(urand(10000, 15000));
                         m_bCastThorns = false;
                     }
                 }
@@ -2093,7 +2093,7 @@ struct boss_alzzin_the_wildshaperAI : ScriptedAI
             if (m_uiWitherTimer < uiDiff)
             {                    
                 if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_WITHER, CAST_AURA_NOT_PRESENT) == CAST_OK)
-                    m_uiWitherTimer = urand(8000, 10000);
+                    m_uiWitherTimer = Randomize(urand(8000, 10000));
             }
             else
                 m_uiWitherTimer -= uiDiff;
@@ -2102,7 +2102,7 @@ struct boss_alzzin_the_wildshaperAI : ScriptedAI
             if (m_uiEnervateTimer < uiDiff)
             {                    
                 if (DoCastSpellIfCan(m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0, nullptr, SELECT_FLAG_PLAYER | SELECT_FLAG_POWER_MANA), SPELL_ENERVATE) == CAST_OK)
-                    m_uiEnervateTimer = urand(12000, 15000);
+                    m_uiEnervateTimer = Randomize(urand(12000, 15000));
             }
             else
                 m_uiEnervateTimer -= uiDiff;
@@ -2114,7 +2114,7 @@ struct boss_alzzin_the_wildshaperAI : ScriptedAI
             if (m_uiMangleTimer < uiDiff)
             {
                 if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_MANGLE, CAST_AURA_NOT_PRESENT) == CAST_OK)
-                    m_uiMangleTimer = urand(8000, 10000);
+                    m_uiMangleTimer = Randomize(urand(8000, 10000));
             }
             else
                 m_uiMangleTimer -= uiDiff;
@@ -2123,7 +2123,7 @@ struct boss_alzzin_the_wildshaperAI : ScriptedAI
             if (m_uiViciousBiteTimer < uiDiff)
             {
                 if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_VICIOUS_BITE) == CAST_OK)
-                    m_uiViciousBiteTimer = urand(8000, 15000);
+                    m_uiViciousBiteTimer = Randomize(urand(8000, 15000));
             }
             else
                 m_uiViciousBiteTimer -= uiDiff;
@@ -2135,7 +2135,7 @@ struct boss_alzzin_the_wildshaperAI : ScriptedAI
             if (m_uiKnockAwayTimer < uiDiff)
             {
                 if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_KNOCK_AWAY) == CAST_OK)
-                    m_uiKnockAwayTimer = urand(16000, 20000);
+                    m_uiKnockAwayTimer = Randomize(urand(16000, 20000));
             }
             else
                 m_uiKnockAwayTimer -= uiDiff;
@@ -2144,7 +2144,7 @@ struct boss_alzzin_the_wildshaperAI : ScriptedAI
             if (m_uiDisarmTimer < uiDiff)
             {
                 if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_DISARM) == CAST_OK)
-                    m_uiDisarmTimer = urand(16000, 20000);
+                    m_uiDisarmTimer = Randomize(urand(16000, 20000));
             }
             else
                 m_uiDisarmTimer -= uiDiff;
@@ -2155,7 +2155,7 @@ struct boss_alzzin_the_wildshaperAI : ScriptedAI
                 if (m_creature->GetHealthPercent() < 50.0f)
                 {
                     if (DoCastSpellIfCan(m_creature, SPELL_WILD_REGENERATION, CAST_AURA_NOT_PRESENT) == CAST_OK)
-                        m_uiWildRegenerationTimer = urand(10000, 15000);
+                        m_uiWildRegenerationTimer = Randomize(urand(10000, 15000));
                 }
             }
             else
@@ -2262,7 +2262,7 @@ struct boss_ferraAI : public ScriptedAI
         if (m_uiMaul_Timer < uiDiff) 
         {
             if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_MAUL) == CAST_OK)
-                m_uiMaul_Timer = urand(15000, 20000);
+                m_uiMaul_Timer = Randomize(urand(15000, 20000));
         }
         else 
             m_uiMaul_Timer -= uiDiff;
@@ -2271,7 +2271,7 @@ struct boss_ferraAI : public ScriptedAI
         if (m_uiCharge_Timer < uiDiff) 
         {
             if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_CHARGE) == CAST_OK)
-                m_uiCharge_Timer = urand(6000, 10000);
+                m_uiCharge_Timer = Randomize(urand(6000, 10000));
         }
         else 
             m_uiCharge_Timer -= uiDiff;
@@ -2322,7 +2322,7 @@ struct boss_magister_kalendrisAI:public ScriptedAI
     {
         m_bShadowformUsed = false;
         m_uiShadowWordPainTimer     = urand(5000, 10000);
-        m_uiMindFlayTimer           = urand(10000, 20000);
+        m_uiMindFlayTimer           = Randomize(urand(10000, 20000));
         m_uiMindBlastTimer          = 0;
         m_uiDominateMindTimer       = urand(20000, 30000);
     }
@@ -2337,7 +2337,7 @@ struct boss_magister_kalendrisAI:public ScriptedAI
         if (m_uiShadowWordPainTimer < uiDiff)
         {
             if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_SHADOW_WORD_PAIN, CAST_AURA_NOT_PRESENT) == CAST_OK)
-                m_uiShadowWordPainTimer = urand(9000, 11000);
+                m_uiShadowWordPainTimer = Randomize(urand(9000, 11000));
         }
         else
             m_uiShadowWordPainTimer -= uiDiff;
@@ -2346,7 +2346,7 @@ struct boss_magister_kalendrisAI:public ScriptedAI
         if (m_uiMindFlayTimer < uiDiff)
         {
             if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_MIND_FLAY) == CAST_OK)
-                m_uiMindFlayTimer = urand(18000, 23000);
+                m_uiMindFlayTimer = Randomize(urand(18000, 23000));
         }
         else
             m_uiMindFlayTimer -= uiDiff;
@@ -2364,7 +2364,7 @@ struct boss_magister_kalendrisAI:public ScriptedAI
         if (m_uiDominateMindTimer < uiDiff)
         {
             if (DoCastSpellIfCan(m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 1, nullptr, SELECT_FLAG_PLAYER), SPELL_DOMINATE_MIND) == CAST_OK)
-                m_uiDominateMindTimer = urand(25000, 35000);
+                m_uiDominateMindTimer = Randomize(urand(25000, 35000));
         }
         else
             m_uiDominateMindTimer -= uiDiff;

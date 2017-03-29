@@ -50,12 +50,12 @@ struct boss_high_inquisitor_fairbanksAI : public ScriptedAI
 
     void Reset()
     {
-        CurseOfBlood_Timer = 10000;
-        DispelMagic_Timer = 30000;
-        Fear_Timer = 40000;
-        Heal_Timer = 30000;
-        Sleep_Timer = 30000;
-        Dispel_Timer = 20000;
+        CurseOfBlood_Timer = Randomize(10000);
+        DispelMagic_Timer = Randomize(30000);
+        Fear_Timer = Randomize(40000);
+        Heal_Timer = Randomize(30000);
+        Sleep_Timer = Randomize(30000);
+        Dispel_Timer = Randomize(20000);
         PowerWordShield = false;
     }
 
@@ -68,7 +68,7 @@ struct boss_high_inquisitor_fairbanksAI : public ScriptedAI
         if (m_creature->GetHealthPercent() <= 25.0f && !m_creature->IsNonMeleeSpellCasted(false) && Heal_Timer < diff)
         {
             DoCastSpellIfCan(m_creature, SPELL_HEAL);
-            Heal_Timer = 30000;
+            Heal_Timer = Randomize(30000);
         }
         else Heal_Timer -= diff;
 
@@ -78,7 +78,7 @@ struct boss_high_inquisitor_fairbanksAI : public ScriptedAI
             if (Unit* target = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 1))
                 DoCastSpellIfCan(target, SPELL_FEAR);
 
-            Fear_Timer = 40000;
+            Fear_Timer = Randomize(40000,1.25);
         }
         else Fear_Timer -= diff;
 
@@ -88,7 +88,7 @@ struct boss_high_inquisitor_fairbanksAI : public ScriptedAI
             if (Unit* target = m_creature->SelectAttackingTarget(ATTACKING_TARGET_TOPAGGRO, 0))
                 DoCastSpellIfCan(target, SPELL_SLEEP);
 
-            Sleep_Timer = 30000;
+            Sleep_Timer = Randomize(30000);
         }
         else Sleep_Timer -= diff;
 
@@ -105,7 +105,7 @@ struct boss_high_inquisitor_fairbanksAI : public ScriptedAI
             if (Unit* target = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
                 DoCastSpellIfCan(target, SPELL_DISPELMAGIC);
 
-            DispelMagic_Timer = 30000;
+            DispelMagic_Timer = Randomize(30000);
         }
         else DispelMagic_Timer -= diff;
 
@@ -113,7 +113,7 @@ struct boss_high_inquisitor_fairbanksAI : public ScriptedAI
         if (CurseOfBlood_Timer < diff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_CURSEOFBLOOD);
-            CurseOfBlood_Timer = 25000;
+            CurseOfBlood_Timer = Randomize(25000);
         }
         else CurseOfBlood_Timer -= diff;
 

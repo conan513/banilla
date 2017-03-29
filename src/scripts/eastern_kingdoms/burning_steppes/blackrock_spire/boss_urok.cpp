@@ -334,7 +334,7 @@ struct urokEnforcerAI : public urokUnderlingAI
         if (m_uiStrike_Timer < uiDiff)
         {
             if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_STRIKE ) == CAST_OK)
-                m_uiStrike_Timer = urand(10000, 18000);
+                m_uiStrike_Timer = Randomize(urand(10000, 18000));
         }
         else
             m_uiStrike_Timer -= uiDiff;
@@ -354,7 +354,7 @@ struct urokOgreMagusAI : public urokUnderlingAI
     void abilityReset()
     {
         m_uiBloodlust_Timer = 200;
-        m_uiSlow_Timer = urand(8000, 11000);
+        m_uiSlow_Timer = Randomize(urand(8000, 11000));
         m_uiArcaneBolt_Timer = 0;
     }
     uint32 m_uiStrike_Timer;
@@ -373,17 +373,17 @@ struct urokOgreMagusAI : public urokUnderlingAI
         if (m_uiSlow_Timer < uiDiff)
         {
             if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_SLOW ) == CAST_OK)
-                m_uiSlow_Timer = urand(17000, 24000);
+                m_uiSlow_Timer = Randomize(urand(17000, 24000));
         }
         else
             m_uiSlow_Timer -= uiDiff;
 
-        if(m_creature->GetHealthPercent() < 30.0f)
+        if(m_creature->GetHealthPercent() < RandomizeUp(30.0f))
         {
             if (m_uiBloodlust_Timer < uiDiff)
             {
                 if (DoCastSpellIfCan(m_creature, SPELL_BLOODLUST ) == CAST_OK)
-                    m_uiBloodlust_Timer = urand(35000, 50000);
+                    m_uiBloodlust_Timer = Randomize(urand(35000, 50000));
             }
             else
                 m_uiStrike_Timer -= uiDiff;
@@ -426,7 +426,7 @@ void DefineGoChallenge(Creature * crea, uint64 gobjGUID)
         underlingAI->SetMoundGuid(gobjGUID);
     }
 }
-void AddSC_boss_urok() // Permet l'intégration dans la DB.
+void AddSC_boss_urok() // Permet l'intgration dans la DB.
 {
     Script *newscript;
     newscript = new Script;

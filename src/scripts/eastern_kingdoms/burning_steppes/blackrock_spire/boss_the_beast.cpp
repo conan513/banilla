@@ -50,12 +50,12 @@ struct boss_thebeastAI : public ScriptedAI
 
     void Reset()
     {
-        m_uiFlamebreakTimer     = urand(8000, 12000);
+        m_uiFlamebreakTimer     = Randomize(urand(8000, 12000));
         //m_uiImmolateTimer       = 3000;
-        m_uiTerrifyingRoarTimer = 13000;
-        m_uiBeserkerChargeTimer = 12000;
-        m_uiFireballTimer       = 10000;
-        m_uiFireBlastTimer      = urand(8000, 11000);
+        m_uiTerrifyingRoarTimer = Randomize(13000);
+        m_uiBeserkerChargeTimer = Randomize(12000);
+        m_uiFireballTimer       = Randomize(10000);
+        m_uiFireBlastTimer      = Randomize(urand(8000, 11000));
     }
 
     void UpdateAI(const uint32 uiDiff)
@@ -70,28 +70,28 @@ struct boss_thebeastAI : public ScriptedAI
         if (m_uiFlamebreakTimer < uiDiff)
         {
             if (DoCastSpellIfCan(m_creature, SPELL_FLAMEBREAK) == CAST_OK)
-                m_uiFlamebreakTimer = urand(14000, 20000);
+                m_uiFlamebreakTimer = Randomize(urand(14000, 20000));
         }
         else
             m_uiFlamebreakTimer -= uiDiff;
 
         // Immolate
-        // if (m_uiImmolateTimer < uiDiff)
-        // {
-        // if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
-        // {
-        // DoCastSpellIfCan(pTarget, SPELL_IMMOLATE);
-        // m_uiImmolateTimer = urand(8000, 12000);
-        // }
-        // }
-        // else
-        // m_uiImmolateTimer -= uiDiff;
+        if (m_uiImmolateTimer < uiDiff)
+        {
+           if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
+           {
+            DoCastSpellIfCan(pTarget, SPELL_IMMOLATE);
+              m_uiImmolateTimer = Randomize(urand(8000, 12000));
+           }
+        }
+        else
+             m_uiImmolateTimer -= uiDiff;
 
         // Terrifying Roar
         if (m_uiTerrifyingRoarTimer < uiDiff)
         {
             if (DoCastSpellIfCan(m_creature, SPELL_TERRIFYINGROAR) == CAST_OK)
-                m_uiTerrifyingRoarTimer = urand(16000, 18000);
+                m_uiTerrifyingRoarTimer = Randomize(urand(16000, 18000));
         }
         else
             m_uiTerrifyingRoarTimer -= uiDiff;
@@ -102,7 +102,7 @@ struct boss_thebeastAI : public ScriptedAI
             if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 1))
             {
                 if (DoCastSpellIfCan(pTarget, SPELL_BERSERKER_CHARGE) == CAST_OK)
-                    m_uiBeserkerChargeTimer = urand(15000, 20000);
+                    m_uiBeserkerChargeTimer = Randomize(urand(15000, 20000));
             }
         }
         else
@@ -114,7 +114,7 @@ struct boss_thebeastAI : public ScriptedAI
             if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 1))
             {
                 if (DoCastSpellIfCan(pTarget, SPELL_FIREBALL) == CAST_OK)
-                    m_uiFireballTimer = urand(10000, 12000);
+                    m_uiFireballTimer = Randomize(urand(10000, 12000));
             }
         }
         else
@@ -125,7 +125,7 @@ struct boss_thebeastAI : public ScriptedAI
             if (Unit* pTarget = m_creature->getVictim())
             {
                 if (DoCastSpellIfCan(pTarget, SPELL_FIREBLAST) == CAST_OK)
-                    m_uiFireBlastTimer = urand(14000, 20000);
+                    m_uiFireBlastTimer = Randomize(urand(14000, 20000));
             }
         }
         else

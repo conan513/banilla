@@ -322,7 +322,7 @@ struct boss_sneed_shredderAI : public ScriptedAI
     void Reset()
     {
         m_uiDistracting_Timer = 5000;
-        m_uiTerrify_Timer = 8000;
+        m_uiTerrify_Timer = Randomize(8000);
     }
 
     void Aggro(Unit* pPuller)
@@ -343,7 +343,7 @@ struct boss_sneed_shredderAI : public ScriptedAI
         if (m_uiDistracting_Timer < uiDiff)
         {
             if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_DISTRACTING_PLAIN) == CAST_OK)
-                m_uiDistracting_Timer = 5000;
+                m_uiDistracting_Timer = Randomize(5000);
         }
         else
             m_uiDistracting_Timer -= uiDiff;
@@ -351,7 +351,7 @@ struct boss_sneed_shredderAI : public ScriptedAI
         if (m_uiTerrify_Timer < uiDiff)
         {
             if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_TERRIFY) == CAST_OK)
-                m_uiTerrify_Timer = 8000;
+                m_uiTerrify_Timer = Randomize(8000);
         }
         else
             m_uiTerrify_Timer -= uiDiff;

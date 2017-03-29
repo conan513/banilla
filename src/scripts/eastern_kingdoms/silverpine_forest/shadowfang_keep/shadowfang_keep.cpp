@@ -288,7 +288,7 @@ struct mob_arugal_voidwalkerAI : public ScriptedAI
 
         if (m_uiDarkOffering < uiDiff)
         {
-            m_uiDarkOffering = urand(4400, 12500);
+            m_uiDarkOffering = Randomize(urand(4400, 12500));
 
             if (Unit* pUnit = DoSelectLowestHpFriendly(10.0f, 290))
                 DoCastSpellIfCan(pUnit, SPELL_DARK_OFFERING);
@@ -463,7 +463,7 @@ struct boss_arugalAI : public ScriptedAI
     {
         isVictimNear = false;
         m_uiTeleportTimer = 5000;//urand(22000, 26000);
-        m_uiCurseTimer = urand(20000, 30000);
+        m_uiCurseTimer = Randomize(urand(20000, 30000));
         m_uiVoidboltTimer = m_uiThundershockTimer = m_uiSpeechTimer = 0;
         m_uiEmergencyTimer = 2000;
         isFirstTP = true;
@@ -593,7 +593,7 @@ struct boss_arugalAI : public ScriptedAI
                 DoScriptText(YELL_COMBAT, m_creature);
                 DoCastSpellIfCan(pTarget, SPELL_ARUGALS_CURSE, true);
             }
-            m_uiCurseTimer = urand(20000, 25000);
+            m_uiCurseTimer = Randomize(urand(20000, 25000));
         }
         else
             m_uiCurseTimer -= uiDiff;
@@ -603,7 +603,7 @@ struct boss_arugalAI : public ScriptedAI
             if (GetVictimDistance() < 5.0f)
             {
                 DoCastSpellIfCan(m_creature->getVictim(), SPELL_THUNDERSHOCK);
-                m_uiThundershockTimer = urand(15200, 18500);
+                m_uiThundershockTimer = Randomize(urand(15200, 18500));
             }
         }
         else
@@ -635,7 +635,7 @@ struct boss_arugalAI : public ScriptedAI
                     StartAttacking();
                 m_uiVoidboltTimer = 2000;
                 m_posPosition = posNewPosition;
-                m_uiTeleportTimer = urand(20000, 30000);
+                m_uiTeleportTimer = Randomize(urand(20000, 30000));
             }
             m_uiEmergencyTimer = 2000;
         }
@@ -706,7 +706,7 @@ struct boss_arugalAI : public ScriptedAI
             else
                 StartAttacking();
 
-            m_uiTeleportTimer = urand(20000, 30000);
+            m_uiTeleportTimer = Randomize(urand(20000, 30000));
         }
         else
             m_uiTeleportTimer -= uiDiff;

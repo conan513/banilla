@@ -122,13 +122,13 @@ struct boss_dathrohan_balnazzarAI : public ScriptedAI
     void Reset()
     {
         m_uiCrusadersHammer_Timer = 8000;
-        m_uiCrusaderStrike_Timer = 12000;
+        m_uiCrusaderStrike_Timer = Randomize(12000);
         m_uiMindBlast_Timer = 6000;
-        m_uiHolyStrike_Timer = 18000;
+        m_uiHolyStrike_Timer = Randomize(18000);
         m_uiShadowShock_Timer = 3000;
-        m_uiPsychicScream_Timer = 12000;
+        m_uiPsychicScream_Timer = Randomize(12000);
         m_uiDeepSleep_Timer = 9000;
-        m_uiMindControl_Timer = 18000;
+        m_uiMindControl_Timer = Randomize(18000);
         m_uiTransform_Timer = 0;
         m_bTransformed = false;
 
@@ -183,7 +183,7 @@ struct boss_dathrohan_balnazzarAI : public ScriptedAI
             if (m_uiMindBlast_Timer < uiDiff)
             {
                 if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_MINDBLAST) == CAST_OK)
-                    m_uiMindBlast_Timer = urand(15000, 20000);
+                    m_uiMindBlast_Timer = Randomize(urand(15000, 20000));
             }
             else m_uiMindBlast_Timer -= uiDiff;
 
@@ -191,7 +191,7 @@ struct boss_dathrohan_balnazzarAI : public ScriptedAI
             if (m_uiCrusadersHammer_Timer < uiDiff)
             {
                 if (DoCastSpellIfCan(m_creature, SPELL_CRUSADERSHAMMER) == CAST_OK)
-                    m_uiCrusadersHammer_Timer = 12000;
+                    m_uiCrusadersHammer_Timer = Randomize(12000);
             }
             else m_uiCrusadersHammer_Timer -= uiDiff;
 
@@ -199,7 +199,7 @@ struct boss_dathrohan_balnazzarAI : public ScriptedAI
             if (m_uiCrusaderStrike_Timer < uiDiff)
             {
                 if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_CRUSADERSTRIKE) == CAST_OK)
-                    m_uiCrusaderStrike_Timer = 15000;
+                    m_uiCrusaderStrike_Timer = Randomize(15000);
             }
             else m_uiCrusaderStrike_Timer -= uiDiff;
 
@@ -207,7 +207,7 @@ struct boss_dathrohan_balnazzarAI : public ScriptedAI
             if (m_uiHolyStrike_Timer < uiDiff)
             {
                 if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_HOLYSTRIKE) == CAST_OK)
-                    m_uiHolyStrike_Timer = 15000;
+                    m_uiHolyStrike_Timer = Randomize(15000);
             }
             else m_uiHolyStrike_Timer -= uiDiff;
 
@@ -283,7 +283,7 @@ struct boss_dathrohan_balnazzarAI : public ScriptedAI
             if (m_uiMindBlast_Timer < uiDiff)
             {
                 if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_MINDBLAST) == CAST_OK)
-                    m_uiMindBlast_Timer = urand(15000, 20000);
+                    m_uiMindBlast_Timer = Randomize(urand(15000, 20000));
             }
             else m_uiMindBlast_Timer -= uiDiff;
 
@@ -291,7 +291,7 @@ struct boss_dathrohan_balnazzarAI : public ScriptedAI
             if (m_uiShadowShock_Timer < uiDiff)
             {
                 DoCastSpellIfCan(m_creature->getVictim(), SPELL_SHADOWSHOCK);
-                m_uiShadowShock_Timer = 11000;
+                m_uiShadowShock_Timer = Randomize(11000);
             }
             else m_uiShadowShock_Timer -= uiDiff;
 
@@ -299,7 +299,7 @@ struct boss_dathrohan_balnazzarAI : public ScriptedAI
             if (m_uiPsychicScream_Timer < uiDiff)
             {
                 if (DoCastSpellIfCan(m_creature, SPELL_PSYCHICSCREAM) == CAST_OK)
-                    m_uiPsychicScream_Timer = 20000;
+                    m_uiPsychicScream_Timer = Randomize(20000);
             }
             else m_uiPsychicScream_Timer -= uiDiff;
 
@@ -315,7 +315,7 @@ struct boss_dathrohan_balnazzarAI : public ScriptedAI
                         if (DoCastSpellIfCan(pTarget, SPELL_SLEEP) == CAST_OK)
                         {
                             m_creature->getThreatManager().modifyThreatPercent(pTarget, -100);
-                            m_uiDeepSleep_Timer = 15000;
+                            m_uiDeepSleep_Timer = Randomize(15000);
                         }
                     }
                 }
@@ -332,7 +332,7 @@ struct boss_dathrohan_balnazzarAI : public ScriptedAI
                         MCPlayerGuid = pTarget->GetGUID();
                         MCPlayerAggro = m_creature->getThreatManager().getThreat(pTarget);
                         if (DoCastSpellIfCan(pTarget, SPELL_MINDCONTROL) == CAST_OK)
-                            m_uiMindControl_Timer = urand(25000, 30000);
+                            m_uiMindControl_Timer = Randomize(urand(25000, 30000));
                     }
                 }
             }

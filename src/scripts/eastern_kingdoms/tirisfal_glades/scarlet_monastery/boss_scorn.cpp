@@ -63,10 +63,10 @@ struct boss_scornAI : public ScriptedAI
 
     void Reset()
     {
-        LichSlap_Timer = 45000;
-        FrostboltVolley_Timer = 30000;
-        MindFlay_Timer = 30000;
-        FrostNova_Timer = 30000;
+        LichSlap_Timer = Randomize(45000);
+        FrostboltVolley_Timer = Randomize(30000);
+        MindFlay_Timer = Randomize(30000);
+        FrostNova_Timer = Randomize(30000);
         m_creature->GetMotionMaster()->MovePoint(LastWayPoint, ronde[LastWayPoint].x, ronde[LastWayPoint].y, ronde[LastWayPoint].z);
     }
     void MovementInform(uint32 uiType, uint32 uiPointId)
@@ -91,7 +91,7 @@ struct boss_scornAI : public ScriptedAI
         if (LichSlap_Timer < diff)
         {
             DoCast(m_creature->getVictim(), SPELL_LICHSLAP);
-            LichSlap_Timer = 45000;
+            LichSlap_Timer = Randomize(45000);
         }
         else LichSlap_Timer -= diff;
 
@@ -99,7 +99,7 @@ struct boss_scornAI : public ScriptedAI
         if (FrostboltVolley_Timer < diff)
         {
             DoCast(m_creature->getVictim(), SPELL_FROSTBOLTVOLLEY);
-            FrostboltVolley_Timer = 20000;
+            FrostboltVolley_Timer = Randomize(20000);
         }
         else FrostboltVolley_Timer -= diff;
 
@@ -107,7 +107,7 @@ struct boss_scornAI : public ScriptedAI
         if (MindFlay_Timer < diff)
         {
             DoCast(m_creature->getVictim(), SPELL_MINDFLAY);
-            MindFlay_Timer = 20000;
+            MindFlay_Timer = Randomize(20000);
         }
         else MindFlay_Timer -= diff;
 
@@ -115,7 +115,7 @@ struct boss_scornAI : public ScriptedAI
         if (FrostNova_Timer < diff)
         {
             DoCast(m_creature->getVictim(), SPELL_FROSTNOVA);
-            FrostNova_Timer = 15000;
+            FrostNova_Timer = Randomize(15000);
         }
         else FrostNova_Timer -= diff;
 

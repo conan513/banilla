@@ -44,10 +44,10 @@ struct boss_theravenianAI : public ScriptedAI
 
     void Reset()
     {
-        Trample_Timer = 24000;
-        Cleave_Timer = 15000;
-        SunderingCleave_Timer = 40000;
-        KnockAway_Timer = 32000;
+        Trample_Timer = Randomize(24000);
+        Cleave_Timer = Randomize(15000);
+        SunderingCleave_Timer = Randomize(40000);
+        KnockAway_Timer = Randomize(32000);
         HasYelled = false;
     }
 
@@ -66,7 +66,7 @@ struct boss_theravenianAI : public ScriptedAI
         if (Trample_Timer < diff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_TRAMPLE);
-            Trample_Timer = 10000;
+            Trample_Timer = Randomize(10000);
         }
         else Trample_Timer -= diff;
 
@@ -74,7 +74,7 @@ struct boss_theravenianAI : public ScriptedAI
         if (Cleave_Timer < diff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_CLEAVE);
-            Cleave_Timer = 7000;
+            Cleave_Timer = Randomize(7000);
         }
         else Cleave_Timer -= diff;
 
@@ -82,7 +82,7 @@ struct boss_theravenianAI : public ScriptedAI
         if (SunderingCleave_Timer < diff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_SUNDERINCLEAVE);
-            SunderingCleave_Timer = 20000;
+            SunderingCleave_Timer = Randomize(20000);
         }
         else SunderingCleave_Timer -= diff;
 
@@ -90,7 +90,7 @@ struct boss_theravenianAI : public ScriptedAI
         if (KnockAway_Timer < diff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_KNOCKAWAY);
-            KnockAway_Timer = 12000;
+            KnockAway_Timer = Randomize(12000);
         }
         else KnockAway_Timer -= diff;
 

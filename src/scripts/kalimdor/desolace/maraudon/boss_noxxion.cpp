@@ -41,8 +41,8 @@ struct boss_noxxionAI : public ScriptedAI
 
     void Reset()
     {
-        ToxicVolley_Timer = 7000;
-        Uppercut_Timer = 16000;
+        ToxicVolley_Timer = Randomize(7000);
+        Uppercut_Timer = Randomize(16000);
         Adds_Timer = 19000;
         Invisible_Timer = 15000;                            //Too much too low?
         Invisible = false;
@@ -82,7 +82,7 @@ struct boss_noxxionAI : public ScriptedAI
         if (ToxicVolley_Timer < diff)
         {
             if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_TOXICVOLLEY) == CAST_OK)
-                ToxicVolley_Timer = 9000;
+                ToxicVolley_Timer = Randomize(9000);
         }
         else
             ToxicVolley_Timer -= diff;
@@ -91,7 +91,7 @@ struct boss_noxxionAI : public ScriptedAI
         if (Uppercut_Timer < diff)
         {
             if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_UPPERCUT) == CAST_OK)
-                Uppercut_Timer = 12000;
+                Uppercut_Timer = Randomize(12000);
         }
         else
             Uppercut_Timer -= diff;
@@ -226,7 +226,7 @@ struct TinkererGizlockAI : public ScriptedAI
                 if (m_uiGoblinDragonGun_Timer < uiDiff)
                 {
                     if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_GOBLIN_DRAGON_GUN) == CAST_OK)
-                        m_uiGoblinDragonGun_Timer = urand(7500, 10000);
+                        m_uiGoblinDragonGun_Timer = Randomize(urand(7500, 10000));
                 }
                 else
                     m_uiGoblinDragonGun_Timer -= uiDiff;
@@ -239,7 +239,7 @@ struct TinkererGizlockAI : public ScriptedAI
                     if (target)
                     {
                         DoCastSpellIfCan(m_creature->getVictim(), SPELL_BOMB);
-                        m_uiBomb_Timer = 7500;
+                        m_uiBomb_Timer = Randomize(7500);
                     }
                 }
                 else

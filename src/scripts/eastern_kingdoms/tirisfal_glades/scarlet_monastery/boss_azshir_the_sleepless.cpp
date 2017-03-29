@@ -41,8 +41,8 @@ struct boss_azshir_the_sleeplessAI : public ScriptedAI
     void Reset()
     {
         SoulSiphon_Timer = 1;
-        CallOftheGrave_Timer = 30000;
-        Terrify_Timer = 20000;
+        CallOftheGrave_Timer = Randomize(30000);
+        Terrify_Timer = Randomize(20000);
     }
 
     void UpdateAI(const uint32 diff)
@@ -59,7 +59,7 @@ struct boss_azshir_the_sleeplessAI : public ScriptedAI
                 DoCastSpellIfCan(m_creature->getVictim(), SPELL_SOULSIPHON);
                 return;
 
-                SoulSiphon_Timer = 20000;
+                SoulSiphon_Timer = Randomize(20000);
             }
             else SoulSiphon_Timer -= diff;
         }
@@ -68,7 +68,7 @@ struct boss_azshir_the_sleeplessAI : public ScriptedAI
         if (CallOftheGrave_Timer < diff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_CALLOFTHEGRAVE);
-            CallOftheGrave_Timer = 30000;
+            CallOftheGrave_Timer = Randomize(30000);
         }
         else CallOftheGrave_Timer -= diff;
 
@@ -76,7 +76,7 @@ struct boss_azshir_the_sleeplessAI : public ScriptedAI
         if (Terrify_Timer < diff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_TERRIFY);
-            Terrify_Timer = 20000;
+            Terrify_Timer = Randomize(20000);
         }
         else Terrify_Timer -= diff;
 

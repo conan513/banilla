@@ -42,8 +42,8 @@ struct boss_mothersmolderwebAI : public ScriptedAI
 
     void Reset()
     {
-        m_uiCrystalizeTimer  = 20000;
-        m_uiMothersMilkTimer = 10000;
+        m_uiCrystalizeTimer  = Randomize(20000);
+        m_uiMothersMilkTimer = Randomize(10000);
     }
 
     void DamageTaken(Unit* pDoneBy, uint32 &uiDamage)
@@ -62,7 +62,7 @@ struct boss_mothersmolderwebAI : public ScriptedAI
         if (m_uiCrystalizeTimer < uiDiff)
         {
             DoCastSpellIfCan(m_creature, SPELL_CRYSTALIZE);
-            m_uiCrystalizeTimer = 15000;
+            m_uiCrystalizeTimer = Randomize(15000);
         }
         else
             m_uiCrystalizeTimer -= uiDiff;
@@ -71,7 +71,7 @@ struct boss_mothersmolderwebAI : public ScriptedAI
         if (m_uiMothersMilkTimer < uiDiff)
         {
             DoCastSpellIfCan(m_creature, SPELL_MOTHERSMILK);
-            m_uiMothersMilkTimer = urand(5000, 12500);
+            m_uiMothersMilkTimer = Randomize(urand(5000, 12500));
         }
         else
             m_uiMothersMilkTimer -= uiDiff;

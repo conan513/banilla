@@ -363,7 +363,7 @@ struct npc_obsidionAI : public ScriptedAI
         if (m_uiKnockAwayTimer < uiDiff)
         {
             if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_KNOCK_AWAY) == CAST_OK)
-                m_uiKnockAwayTimer = 12000;
+                m_uiKnockAwayTimer = Randomize(12000);
         }
         else
             m_uiKnockAwayTimer -= uiDiff;

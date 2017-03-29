@@ -48,10 +48,10 @@ struct boss_rasfrostAI : public ScriptedAI
     {
         IceArmor_Timer = 2000;
         Frostbolt_Timer = 8000;
-        ChillNova_Timer = 12000;
-        Freeze_Timer = 18000;
-        FrostVolley_Timer = 24000;
-        Fear_Timer = 45000;
+        ChillNova_Timer = Randomize(12000);
+        Freeze_Timer = Randomize(18000);
+        FrostVolley_Timer = Randomize(24000);
+        Fear_Timer = Randomize(45000);
 
         m_creature->CastSpell(m_creature, SPELL_ICEARMOR, true);
     }
@@ -76,7 +76,7 @@ struct boss_rasfrostAI : public ScriptedAI
             target = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0);
             if (target) DoCastSpellIfCan(target, SPELL_FROSTBOLT);
 
-            Frostbolt_Timer = 8000;
+            Frostbolt_Timer = Randomize(8000);
         }
         else Frostbolt_Timer -= diff;
 
@@ -84,7 +84,7 @@ struct boss_rasfrostAI : public ScriptedAI
         if (Freeze_Timer < diff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_FREEZE);
-            Freeze_Timer = 24000;
+            Freeze_Timer = Randomize(24000);
         }
         else Freeze_Timer -= diff;
 
@@ -92,7 +92,7 @@ struct boss_rasfrostAI : public ScriptedAI
         if (Fear_Timer < diff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_FEAR);
-            Fear_Timer = 30000;
+            Fear_Timer = Randomize(30000);
         }
         else Fear_Timer -= diff;
 
@@ -100,7 +100,7 @@ struct boss_rasfrostAI : public ScriptedAI
         if (ChillNova_Timer < diff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_CHILLNOVA);
-            ChillNova_Timer = 14000;
+            ChillNova_Timer = Randomize(14000);
         }
         else ChillNova_Timer -= diff;
 
@@ -108,7 +108,7 @@ struct boss_rasfrostAI : public ScriptedAI
         if (FrostVolley_Timer < diff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_FROSTVOLLEY);
-            FrostVolley_Timer = 15000;
+            FrostVolley_Timer = Randomize(15000);
         }
         else FrostVolley_Timer -= diff;
 

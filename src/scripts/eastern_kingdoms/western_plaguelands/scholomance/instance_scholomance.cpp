@@ -450,7 +450,7 @@ struct boss_lordblackwoodAI : public ScriptedAI
         if (ShieldBash_Timer < diff)
         {
             if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_SHIELD_BASH) == CAST_OK)
-                ShieldBash_Timer = 8000;
+                ShieldBash_Timer = Randomize(8000);
         }
         else
             ShieldBash_Timer -= diff;

@@ -47,7 +47,7 @@ struct npc_primordial_behemothAI : ScriptedAI
             if (m_uiTrampleTimer < uiDiff)
             {
                 if (DoCastSpellIfCan(m_creature, SPELL_TRAMPLE) == CAST_OK)
-                    m_uiTrampleTimer = urand(12000, 15000);
+                    m_uiTrampleTimer = Randomize(urand(12000, 15000));
             }
             else
                 m_uiTrampleTimer -= uiDiff;

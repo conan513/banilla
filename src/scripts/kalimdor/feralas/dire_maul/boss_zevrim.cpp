@@ -45,7 +45,7 @@ struct boss_zevrimAI : public ScriptedAI
         if (m_uiIntensePainTimer < uiDiff)
         {
             DoCastSpellIfCan(m_creature, SPELL_INTENSIVE_PAIN);
-            m_uiIntensePainTimer = urand(20000, 26000);
+            m_uiIntensePainTimer = Randomize(urand(20000, 26000));
         }
         else
             m_uiIntensePainTimer -= uiDiff;
@@ -56,7 +56,7 @@ struct boss_zevrimAI : public ScriptedAI
                 if (!pTarget->IsPet())
                 {
                     DoCastSpellIfCan(pTarget, SPELL_SACRIFICE);
-                    m_uiSacrificeTimer = urand(15000, 18000);
+                    m_uiSacrificeTimer = Randomize(urand(15000, 18000));
                 }
         }
         else

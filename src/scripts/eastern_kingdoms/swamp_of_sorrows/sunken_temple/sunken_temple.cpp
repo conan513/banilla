@@ -461,7 +461,7 @@ struct npc_shade_hakkarAI : public ScriptedAI
                         Minion->GetMotionMaster()->MovePoint(rand, aMobDest[rand].m_fX, aMobDest[rand].m_fY, aMobDest[rand].m_fZ, MOVE_PATHFINDING | MOVE_FORCE_DESTINATION | MOVE_WALK_MODE);
                 }
             }
-            m_uiHakkariTimer = urand(5000, 15000);
+            m_uiHakkariTimer = Randomize(urand(5000, 15000));
         }
         else
             m_uiHakkariTimer -= uiDiff;

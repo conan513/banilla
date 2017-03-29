@@ -32,7 +32,7 @@ struct npc_blackhand_summonerAI : public ScriptedAI
     void Reset()
     {
         m_uiBouleFeuTimer = 7000;
-        m_uiNovaGivreTimer = 10000;
+        m_uiNovaGivreTimer = Randomize(10000);
         m_uiSummonTimer = 0;
     }
     bool ManageTimer(uint32 const diff, uint32* timer)
@@ -159,7 +159,7 @@ struct npc_blackhand_veteranAI : public ScriptedAI
             if (pTarget1)
             {
                 if (DoCastSpellIfCan(pTarget1, SPELL_CHARGE_BOUCLIER) == CAST_OK)
-                    m_uiChargeBouclierTimer = urand(8000, 14000);
+                    m_uiChargeBouclierTimer = Randomize(urand(8000, 14000));
             }
         }
         if (ManageTimer(uiDiff, &m_uiCoupBouclierTimer))
@@ -171,7 +171,7 @@ struct npc_blackhand_veteranAI : public ScriptedAI
                     if (!urand(0, 3)) //because otherwise they all decast at the same, which is stupid.
                     {
                         if (DoCastSpellIfCan(pTarget2, SPELL_COUP_BOUCLIER) == CAST_OK)
-                            m_uiCoupBouclierTimer = 10000;
+                            m_uiCoupBouclierTimer = Randomize(10000);
                     }
                 }
             }

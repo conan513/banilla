@@ -113,7 +113,7 @@ struct boss_maleki_the_pallidAI : public ScriptedAI
                     IcedPlayerGuid = pTarget->GetGUID();
                     IcedPlayerAggro = m_creature->getThreatManager().getThreat(pTarget);
                     m_creature->getThreatManager().modifyThreatPercent(pTarget, -100);
-                    IceTomb_Timer = urand(20000, 25000);
+                    IceTomb_Timer = Randomize(urand(20000, 25000));
                 }
             }
         }
@@ -130,7 +130,7 @@ struct boss_maleki_the_pallidAI : public ScriptedAI
                     if (pTarget->GetPower(POWER_MANA))
                         ManaTarget = true;
                 if (DoCastSpellIfCan(m_creature->getVictim(), (ManaTarget ? SPELL_DRAIN_MANA : SPELL_DRAIN_LIFE)) == CAST_OK)
-                    Drain_Timer = urand(12000, 18000);
+                    Drain_Timer = Randomize(urand(12000, 18000));
             }
             else
                 Drain_Timer -= diff;

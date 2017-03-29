@@ -45,7 +45,7 @@ struct boss_shadowvoshAI : public ScriptedAI
     {
         m_uiCurseOfBloodTimer = 2000;
         m_uiHexTimer          = 8000;
-        m_uiCleaveTimer       = 14000;
+        m_uiCleaveTimer       = Randomize(14000);
 
         //m_creature->CastSpell(m_creature,SPELL_ICEARMOR,true);
     }
@@ -60,7 +60,7 @@ struct boss_shadowvoshAI : public ScriptedAI
         if (m_uiCurseOfBloodTimer < uiDiff)
         {
             DoCastSpellIfCan(m_creature, SPELL_CURSEOFBLOOD);
-            m_uiCurseOfBloodTimer = 45000;
+            m_uiCurseOfBloodTimer = Randomize(45000);
         }
         else
             m_uiCurseOfBloodTimer -= uiDiff;
@@ -71,7 +71,7 @@ struct boss_shadowvoshAI : public ScriptedAI
             if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
             {
                 DoCastSpellIfCan(pTarget, SPELL_HEX);
-                m_uiHexTimer += 15000;
+                m_uiHexTimer += Randomize(15000);
             }
         }
         else
@@ -81,7 +81,7 @@ struct boss_shadowvoshAI : public ScriptedAI
         if (m_uiCleaveTimer < uiDiff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_CLEAVE);
-            m_uiCleaveTimer = 7000;
+            m_uiCleaveTimer = Randomize(7000);
         }
         else
             m_uiCleaveTimer -= uiDiff;

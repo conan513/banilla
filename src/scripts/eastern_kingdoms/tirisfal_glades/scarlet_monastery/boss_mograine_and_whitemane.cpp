@@ -80,8 +80,8 @@ struct boss_scarlet_commander_mograineAI : public ScriptedAI
 
     void Reset()
     {
-        m_uiCrusaderStrike_Timer = 10000;
-        m_uiHammerOfJustice_Timer = 15000;
+        m_uiCrusaderStrike_Timer = Randomize(10000);
+        m_uiHammerOfJustice_Timer = Randomize(15000);
 
         //Incase wipe during phase that mograine fake death
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
@@ -224,8 +224,8 @@ struct boss_scarlet_commander_mograineAI : public ScriptedAI
             {
                 DoCastSpellIfCan(pWhitemane, SPELL_LAYONHANDS);
 
-                m_uiCrusaderStrike_Timer = 10000;
-                m_uiHammerOfJustice_Timer = 15000;
+                m_uiCrusaderStrike_Timer = Randomize(10000);
+                m_uiHammerOfJustice_Timer = Randomize(15000);
 
                 if (m_creature->getVictim())
                     m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
@@ -242,7 +242,7 @@ struct boss_scarlet_commander_mograineAI : public ScriptedAI
         if (m_uiCrusaderStrike_Timer < uiDiff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_CRUSADERSTRIKE);
-            m_uiCrusaderStrike_Timer = 10000;
+            m_uiCrusaderStrike_Timer = Randomize(10000);
         }
         else
             m_uiCrusaderStrike_Timer -= uiDiff;
@@ -251,7 +251,7 @@ struct boss_scarlet_commander_mograineAI : public ScriptedAI
         if (m_uiHammerOfJustice_Timer < uiDiff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_HAMMEROFJUSTICE);
-            m_uiHammerOfJustice_Timer = 45000;
+            m_uiHammerOfJustice_Timer = Randomize(45000,1.25);
         }
         else
             m_uiHammerOfJustice_Timer -= uiDiff;
@@ -290,7 +290,7 @@ struct boss_high_inquisitor_whitemaneAI : public ScriptedAI
     {
         m_uiWait_Timer = 7000;
         m_uiHeal_Timer = 10000;
-        m_uiPowerWordShield_Timer = 15000;
+        m_uiPowerWordShield_Timer = Randomize(15000);
         m_uiHolySmite_Timer = 6000;
         m_uiStopAttack_Timer = 2000;
 
@@ -447,7 +447,7 @@ struct boss_high_inquisitor_whitemaneAI : public ScriptedAI
             if (pTarget)
                 DoCastSpellIfCan(pTarget, SPELL_HEAL);
 
-            m_uiHeal_Timer = 13000;
+            m_uiHeal_Timer = Randomize(13000);
         }
         else
             m_uiHeal_Timer -= uiDiff;
@@ -456,7 +456,7 @@ struct boss_high_inquisitor_whitemaneAI : public ScriptedAI
         if (m_uiPowerWordShield_Timer < uiDiff)
         {
             DoCastSpellIfCan(m_creature, SPELL_POWERWORDSHIELD);
-            m_uiPowerWordShield_Timer = 15000;
+            m_uiPowerWordShield_Timer = Randomize(15000);
         }
         else
             m_uiPowerWordShield_Timer -= uiDiff;

@@ -114,8 +114,8 @@ struct boss_cannon_master_willeyAI : public ScriptedAI
         SetCombatMovement(true);
         m_bInMelee                  = true;
 
-        m_uiKnockAwayTimer          = urand(15000, 20000);
-        m_uiPummelTimer             = urand(5000, 10000);
+        m_uiKnockAwayTimer          = Randomize(urand(15000, 20000));
+        m_uiPummelTimer             = Randomize(urand(5000, 10000));
         m_uiShootTimer              = 1000;
         m_uiSummonRiflemanTimer     = 5000;
     }
@@ -166,7 +166,7 @@ struct boss_cannon_master_willeyAI : public ScriptedAI
         if (m_uiPummelTimer < diff)
         {
             if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_PUMMEL) == CAST_OK)
-                m_uiPummelTimer = 12000;
+                m_uiPummelTimer = Randomize(12000);
         }
         else 
             m_uiPummelTimer -= diff;
@@ -175,7 +175,7 @@ struct boss_cannon_master_willeyAI : public ScriptedAI
         if (m_uiKnockAwayTimer < diff)
         {
             if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_KNOCK_AWAY) == CAST_OK)
-                m_uiKnockAwayTimer = urand(15000, 20000);
+                m_uiKnockAwayTimer = Randomize(urand(15000, 20000));
         }
         else 
             m_uiKnockAwayTimer -= diff;
@@ -232,7 +232,7 @@ struct boss_cannon_master_willeyAI : public ScriptedAI
                     m_creature->SummonCreature(NPC_CRIMSON_RIFLEMAN, ADD_3X,ADD_3Y,ADD_3Z,ADD_3O, TEMPSUMMON_TIMED_DESPAWN, 240000);
                     break;
             }            
-            m_uiSummonRiflemanTimer = 10000;
+            m_uiSummonRiflemanTimer = Randomize(10000);
         }
         else 
             m_uiSummonRiflemanTimer -= diff;

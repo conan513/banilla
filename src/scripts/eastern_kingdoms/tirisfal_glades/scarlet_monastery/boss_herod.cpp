@@ -211,7 +211,7 @@ struct boss_herodAI : ScriptedAI
         if (Cleave_Timer < diff)
         {
             if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_CLEAVE) == CAST_OK)
-                Cleave_Timer = 12000;
+                Cleave_Timer = Randomize(12000);
         }
         else
             Cleave_Timer -= diff;
@@ -225,7 +225,7 @@ struct boss_herodAI : ScriptedAI
                 m_bWhirlwind = true;
                 m_uiRootTimer = 11000;
                 DoScriptText(SAY_WHIRLWIND, m_creature);
-                Whirlwind_Timer = urand(20000, 30000);
+                Whirlwind_Timer = Randomize(urand(20000, 30000));
             }
         }
         else

@@ -491,7 +491,7 @@ struct instance_stratholme : public ScriptedInstance
                     if (GameObject* pGob = instance->GetGameObject(m_uiPortGauntletGUID))
                         if (pGob->GetGoState() != GO_STATE_READY) // Si pas ferm�e
                             UpdateGoState(m_uiPortGauntletGUID, GO_STATE_READY, false);
-                    m_uiSlaugtherAboMob_Timer = 20000;
+                    m_uiSlaugtherAboMob_Timer = Randomize(20000);
                 }
                 if (uiData == IN_PROGRESS) // on mob Death // on ramstein aggro OK
                 {

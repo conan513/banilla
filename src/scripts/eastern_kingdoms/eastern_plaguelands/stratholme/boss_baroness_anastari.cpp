@@ -64,9 +64,9 @@ struct boss_baroness_anastariAI : public ScriptedAI
     void Reset()
     {
         BansheeWail_Timer       = 1000;
-        BansheeCurse_Timer      = 11000;
-        Silence_Timer           = 13000;
-        Possess_Timer           = 20000;
+        BansheeCurse_Timer      = Randomize(11000);
+        Silence_Timer           = Randomize(13000);
+        Possess_Timer           = Randomize(20000);
         CheckPossess_Timer      = 1000;
         PlayerHealth            = 0;
 
@@ -145,9 +145,9 @@ struct boss_baroness_anastariAI : public ScriptedAI
                         m_creature->Attack(pTarget, false);
 
                         if (DoCastSpellIfCan(m_creature, SPELL_SILENCE) == CAST_OK)
-                            Silence_Timer = 13000;
+                            Silence_Timer = Randomize(13000);
 
-                        Possess_Timer = urand(13000, 18000);
+                        Possess_Timer = Randomize(urand(13000, 18000));
                         Possessed = false;
                     }
                 }
@@ -245,7 +245,7 @@ struct boss_baroness_anastariAI : public ScriptedAI
         if (BansheeCurse_Timer < diff)
         {
             if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_BANSHEECURSE, CAST_AURA_NOT_PRESENT) == CAST_OK)
-                BansheeCurse_Timer = 18000;
+                BansheeCurse_Timer = Randomize(18000);
         }
         else BansheeCurse_Timer -= diff;
 
@@ -253,7 +253,7 @@ struct boss_baroness_anastariAI : public ScriptedAI
         if (Silence_Timer < diff)
         {
             if (DoCastSpellIfCan(m_creature, SPELL_SILENCE) == CAST_OK)
-                Silence_Timer = urand(13000, 18000);
+                Silence_Timer = Randomize(urand(13000, 18000));
         }
         else Silence_Timer -= diff;
 

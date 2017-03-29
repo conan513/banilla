@@ -110,7 +110,7 @@ struct boss_ladyFaltheressAI : public ScriptedAI
         if (MindBlast_Timer < diff)
         {
             if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_MIND_BLAST) == CAST_OK)
-                MindBlast_Timer = 8000;
+                MindBlast_Timer = Randomize(8000);
         }
         else
             MindBlast_Timer -= diff;

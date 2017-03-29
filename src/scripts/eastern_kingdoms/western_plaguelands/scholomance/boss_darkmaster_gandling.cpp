@@ -122,7 +122,7 @@ struct boss_darkmaster_gandlingAI : public ScriptedAI
         {
             if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_ARCANEMISSILES) == CAST_OK)
             {
-                ArcaneMissiles_Timer = urand(10000, 16000);
+                ArcaneMissiles_Timer = Randomize(urand(10000, 16000));
                 m_uiArcaneTriggerTimer = 0;
             }
         }
@@ -132,7 +132,7 @@ struct boss_darkmaster_gandlingAI : public ScriptedAI
         if (ShadowShield_Timer < diff)
         {
             if (DoCastSpellIfCan(m_creature, SPELL_SHADOWSHIELD) == CAST_OK)
-                ShadowShield_Timer = urand(10000, 12000);
+                ShadowShield_Timer = Randomize(urand(10000, 12000));
         }
         else ShadowShield_Timer -= diff;
 
@@ -140,7 +140,7 @@ struct boss_darkmaster_gandlingAI : public ScriptedAI
         if (Curse_Timer < diff)
         {
             if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_CURSE) == CAST_OK)
-                Curse_Timer = urand(15000, 27000);
+                Curse_Timer = Randomize(urand(15000, 27000));
         }
         else Curse_Timer -= diff;
 
@@ -319,7 +319,7 @@ struct boss_darkmaster_gandlingAI : public ScriptedAI
                                 break;
                         }
                     }
-                    Teleport_Timer = urand(20000, 35000);
+                    Teleport_Timer = Randomize(urand(20000, 35000));
                 }
             }
             else Teleport_Timer -= diff;

@@ -378,7 +378,7 @@ struct RazorfenDefenderAI : public ScriptedAI
         if (m_uiShieldBash_Timer < uiDiff)
         {
             if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_SHIELD_BASH) == CAST_OK)
-                m_uiShieldBash_Timer = 8100;
+                m_uiShieldBash_Timer = Randomize(8100);
         }
         else
             m_uiShieldBash_Timer -= uiDiff;
