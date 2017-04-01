@@ -4707,6 +4707,21 @@ void Unit::RemoveAurasDueToSpell(uint32 spellId, SpellAuraHolder* except, AuraRe
     }
 }
 
+void Unit::RemoveSingleAuraDueToItemSet(uint32 spellId, AuraRemoveMode mode)
+{
+	SpellAuraHolderBounds bounds = GetSpellAuraHolderBounds(spellId);
+	for (SpellAuraHolderMap::iterator iter = bounds.first; iter != bounds.second;)
+	{
+		if (!iter->second->GetCastItemGuid())
+		{
+			RemoveSpellAuraHolder(iter->second, mode);
+			return;
+		}
+		else
+			++iter;
+		}
+}
+
 void Unit::RemoveAurasDueToItemSpell(Item* castItem, uint32 spellId)
 {
     SpellAuraHolderBounds bounds = GetSpellAuraHolderBounds(spellId);
@@ -8817,7 +8832,7 @@ bool Unit::SelectHostileTarget()
     if (target)
     {
         // Nostalrius : Correction bug sheep/fear
-        if (!hasUnitState(UNIT_STAT_STUNNED | UNIT_STAT_PENDING_STUNNED | UNIT_STAT_DIED | UNIT_STAT_CONFUSED | UNIT_STAT_DONT_TURN | UNIT_STAT_SEEKING_ASSISTANCE | UNIT_STAT_FLEEING) && !HasAuraType(SPELL_AURA_MOD_FEAR) && !HasAuraType(SPELL_AURA_MOD_CONFUSE))
+      	if (!hasUnitState(UNIT_STAT_STUNNED | UNIT_STAT_PENDING_STUNNED | UNIT_STAT_DIED | UNIT_STAT_CONFUSED | UNIT_STAT_DONT_TURN | UNIT_STAT_SEEKING_ASSISTANCE | UNIT_STAT_FLEEING) && (!HasAuraType(SPELL_AURA_MOD_FEAR) || HasAuraType(SPELL_AURA_PREVENTS_FLEEING)) && !HasAuraType(SPELL_AURA_MOD_CONFUSE))
         {
             SetInFront(target);
             ((Creature*)this)->AI()->AttackStart(target);
@@ -10139,7 +10154,7 @@ void Unit::ModConfuseSpell(bool apply, ObjectGuid casterGuid, uint32 spellID, Mo
     else
         RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CONFUSED);
 
-    if (HasAuraType(SPELL_AURA_MOD_FEAR))
+	if (HasAuraType(SPELL_AURA_MOD_FEAR) && !HasAuraType(SPELL_AURA_PREVENTS_FLEEING))
     {
         controlFinished = false;
         SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_FLEEING);

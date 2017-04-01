@@ -326,25 +326,25 @@ bool GOUse_go_manaforge_control_console(Player* pPlayer, GameObject* pGo)
             if ((pPlayer->GetQuestStatus(QUEST_SHUTDOWN_BNAAR_ALDOR) == QUEST_STATUS_INCOMPLETE
                     || pPlayer->GetQuestStatus(QUEST_SHUTDOWN_BNAAR_SCRYERS) == QUEST_STATUS_INCOMPLETE)
                     && pPlayer->HasItemCount(ITEM_BNAAR_ACESS_CRYSTAL, 1))
-                pManaforge = pPlayer->SummonCreature(NPC_BNAAR_C_CONSOLE, 2918.95f, 4189.98f, 161.88f, 0.34f, TEMPSUMMON_TIMED_OOC_OR_CORPSE_DESPAWN, 125000);
+                pManaforge = pPlayer->SummonCreature(NPC_BNAAR_C_CONSOLE, 2918.95f, 4189.98f, 161.88f, 0.34f, TEMPSUMMON_TIMED_COMBAT_OR_CORPSE_DESPAWN, 125000);
             break;
         case 3730:                                          // coruu
             if ((pPlayer->GetQuestStatus(QUEST_SHUTDOWN_CORUU_ALDOR) == QUEST_STATUS_INCOMPLETE
                     || pPlayer->GetQuestStatus(QUEST_SHUTDOWN_CORUU_SCRYERS) == QUEST_STATUS_INCOMPLETE)
                     && pPlayer->HasItemCount(ITEM_CORUU_ACESS_CRYSTAL, 1))
-                pManaforge = pPlayer->SummonCreature(NPC_CORUU_C_CONSOLE, 2426.77f, 2750.38f, 133.24f, 2.14f, TEMPSUMMON_TIMED_OOC_OR_CORPSE_DESPAWN, 125000);
+                pManaforge = pPlayer->SummonCreature(NPC_CORUU_C_CONSOLE, 2426.77f, 2750.38f, 133.24f, 2.14f, TEMPSUMMON_TIMED_COMBAT_OR_CORPSE_DESPAWN, 125000);
             break;
         case 3734:                                          // duro
             if ((pPlayer->GetQuestStatus(QUEST_SHUTDOWN_DURO_ALDOR) == QUEST_STATUS_INCOMPLETE
                     || pPlayer->GetQuestStatus(QUEST_SHUTDOWN_DURO_SCRYERS) == QUEST_STATUS_INCOMPLETE)
                     && pPlayer->HasItemCount(ITEM_DURO_ACESS_CRYSTAL, 1))
-                pManaforge = pPlayer->SummonCreature(NPC_DURO_C_CONSOLE, 2976.48f, 2183.29f, 163.20f, 1.85f, TEMPSUMMON_TIMED_OOC_OR_CORPSE_DESPAWN, 125000);
+                pManaforge = pPlayer->SummonCreature(NPC_DURO_C_CONSOLE, 2976.48f, 2183.29f, 163.20f, 1.85f, TEMPSUMMON_TIMED_COMBAT_OR_CORPSE_DESPAWN, 125000);
             break;
         case 3722:                                          // ara
             if ((pPlayer->GetQuestStatus(QUEST_SHUTDOWN_ARA_ALDOR) == QUEST_STATUS_INCOMPLETE
                     || pPlayer->GetQuestStatus(QUEST_SHUTDOWN_ARA_SCRYERS) == QUEST_STATUS_INCOMPLETE)
                     && pPlayer->HasItemCount(ITEM_ARA_ACESS_CRYSTAL, 1))
-                pManaforge = pPlayer->SummonCreature(NPC_ARA_C_CONSOLE, 4013.71f, 4028.76f, 192.10f, 1.25f, TEMPSUMMON_TIMED_OOC_OR_CORPSE_DESPAWN, 125000);
+                pManaforge = pPlayer->SummonCreature(NPC_ARA_C_CONSOLE, 4013.71f, 4028.76f, 192.10f, 1.25f, TEMPSUMMON_TIMED_COMBAT_OR_CORPSE_DESPAWN, 125000);
             break;
     }
 
@@ -997,12 +997,12 @@ struct npc_protectorate_demolitionistAI : public npc_escortAI
                 switch (m_uiEventStage)
                 {
                     case 0:
-                        m_creature->SummonCreature(NPC_ARCHON, 3875.69f, 2308.72f, 115.80f, 1.48f, TEMPSUMMON_TIMED_OOC_OR_DEAD_DESPAWN, 30000);
+                        m_creature->SummonCreature(NPC_ARCHON, 3875.69f, 2308.72f, 115.80f, 1.48f, TEMPSUMMON_TIMED_COMBAT_OR_DEAD_DESPAWN, 30000);
                         m_uiEventTimer = 4000;
                         break;
                     case 1:
-                        m_creature->SummonCreature(NPC_NEXUS_STALKER, 3884.06f, 2325.22f, 111.37f, 3.45f, TEMPSUMMON_TIMED_OOC_OR_DEAD_DESPAWN, 30000);
-                        m_creature->SummonCreature(NPC_NEXUS_STALKER, 3861.54f, 2320.44f, 111.48f, 0.32f, TEMPSUMMON_TIMED_OOC_OR_DEAD_DESPAWN, 30000);
+                        m_creature->SummonCreature(NPC_NEXUS_STALKER, 3884.06f, 2325.22f, 111.37f, 3.45f, TEMPSUMMON_TIMED_COMBAT_OR_DEAD_DESPAWN, 30000);
+                        m_creature->SummonCreature(NPC_NEXUS_STALKER, 3861.54f, 2320.44f, 111.48f, 0.32f, TEMPSUMMON_TIMED_COMBAT_OR_DEAD_DESPAWN, 30000);
                         m_uiEventTimer = 9000;
                         break;
                     case 2:
@@ -1207,7 +1207,7 @@ struct npc_drijyaAI : public npc_escortAI
     void DoSpawnCreature(uint32 uiEntry)
     {
         if (Creature* pTrigger = m_creature->GetMap()->GetCreature(m_explodeTriggerGuid))
-            m_creature->SummonCreature(uiEntry, pTrigger->GetPositionX(), pTrigger->GetPositionY(), pTrigger->GetPositionZ(), pTrigger->GetOrientation(), TEMPSUMMON_TIMED_OOC_OR_DEAD_DESPAWN, 10000);
+            m_creature->SummonCreature(uiEntry, pTrigger->GetPositionX(), pTrigger->GetPositionY(), pTrigger->GetPositionZ(), pTrigger->GetOrientation(), TEMPSUMMON_TIMED_COMBAT_OR_DEAD_DESPAWN, 10000);
     }
 
     void JustSummoned(Creature* pSummoned) override
@@ -1489,7 +1489,7 @@ struct npc_dimensiusAI : public Scripted_NoMovementAI
             for (uint8 i = 0; i < 4; ++i)
             {
                 m_creature->GetNearPoint(m_creature, fX, fY, fZ, 0, 30.0f, i * (M_PI_F / 2));
-                m_creature->SummonCreature(NPC_SPAWN_OF_DIMENSIUS, fX, fY, fZ, 0, TEMPSUMMON_TIMED_OOC_OR_DEAD_DESPAWN, 120000);
+                m_creature->SummonCreature(NPC_SPAWN_OF_DIMENSIUS, fX, fY, fZ, 0, TEMPSUMMON_TIMED_COMBAT_OR_DEAD_DESPAWN, 120000);
             }
 
             m_uiRainTimer = 5000;

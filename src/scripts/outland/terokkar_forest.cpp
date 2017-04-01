@@ -1197,8 +1197,8 @@ struct npc_skyguard_prisonerAI : public npc_escortAI
                 DoScriptText(SAY_ESCORT_START, m_creature);
                 break;
             case 13:
-                m_creature->SummonCreature(NPC_WING_GUARD, -4179.043f, 3081.007f, 328.28f, 4.51f, TEMPSUMMON_TIMED_OOC_OR_DEAD_DESPAWN, 60000);
-                m_creature->SummonCreature(NPC_WING_GUARD, -4181.610f, 3081.289f, 328.32f, 4.52f, TEMPSUMMON_TIMED_OOC_OR_DEAD_DESPAWN, 60000);
+                m_creature->SummonCreature(NPC_WING_GUARD, -4179.043f, 3081.007f, 328.28f, 4.51f, TEMPSUMMON_TIMED_COMBAT_OR_DEAD_DESPAWN, 60000);
+                m_creature->SummonCreature(NPC_WING_GUARD, -4181.610f, 3081.289f, 328.32f, 4.52f, TEMPSUMMON_TIMED_COMBAT_OR_DEAD_DESPAWN, 60000);
                 break;
             case 14:
                 DoScriptText(SAY_AMBUSH_END, m_creature);

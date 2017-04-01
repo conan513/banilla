@@ -866,7 +866,7 @@ bool EffectDummyCreature_npc_colonel_jules(Unit* pCaster, uint32 uiSpellId, Spel
         pCreatureTarget->GetNearPoint(pCreatureTarget, fX, fY, fZ, 5.0f, 10.0f, frand(0, M_PI_F / 2));
 
         // spawn a Darkness Released npc and move around the room
-        if (Creature* pDarkness = pCreatureTarget->SummonCreature(NPC_DARKNESS_RELEASED, 0, 0, 0, 0, TEMPSUMMON_TIMED_OOC_OR_DEAD_DESPAWN, 20000))
+        if (Creature* pDarkness = pCreatureTarget->SummonCreature(NPC_DARKNESS_RELEASED, 0, 0, 0, 0, TEMPSUMMON_TIMED_COMBAT_OR_DEAD_DESPAWN, 20000))
             pDarkness->GetMotionMaster()->MovePoint(0, fX, fY, fZ);
 
         // always return true when we are handling this spell and effect

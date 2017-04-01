@@ -141,51 +141,56 @@ void TemporarySummon::Update(uint32 update_diff,  uint32 diff)
                 m_timer = m_lifetime;
             break;
         }
-		case TEMPSUMMON_TIMED_OOC_OR_DEAD_DESPAWN:
+		case TEMPSUMMON_TIMED_COMBAT_OR_CORPSE_DESPAWN:
 		{
-			// if m_deathState is DEAD, CORPSE was skipped
+			if (isDead())
+			{
+				UnSummon();
+				return;
+			}
+			if (m_timer <= update_diff)
+			{
+				if (!isInCombat())
+				{
+					UnSummon();
+					return;
+				}
+				else
+					m_timer = 0;
+			}
+			else
+				m_timer -= update_diff;
+			break;
+		}
+		case TEMPSUMMON_TIMED_COMBAT_OR_DEAD_DESPAWN:
+		{
 			if (IsDespawned())
 			{
 				UnSummon();
 				return;
 			}
 
-			if (!isInCombat() && isAlive())
+			// Reset timer when the mob dies
+			if (!isAlive() && !m_justDied)
 			{
-				if (m_timer <= update_diff)
-				{
-					UnSummon();
-					return;
-				}
-				else
-					m_timer -= update_diff;
-			}
-			else if (m_timer != m_lifetime)
+				m_justDied = true;
 				m_timer = m_lifetime;
-			break;
-		case TEMPSUMMON_TIMED_OOC_OR_CORPSE_DESPAWN:
-		{
-			// if m_deathState is DEAD, CORPSE was skipped
-			if (isDead())
-			{
-				UnSummon();
-				return;
 			}
 
-			if (!isInCombat())
+			if (m_timer <= update_diff)
 			{
-				if (m_timer <= update_diff)
+				// Prevent despawn while the mob is still in combat
+				if (!isInCombat())
 				{
 					UnSummon();
 					return;
 				}
 				else
-					m_timer -= update_diff;
+					m_timer = 0;
 			}
-			else if (m_timer != m_lifetime)
-				m_timer = m_lifetime;
+			else
+				m_timer -= update_diff;
 			break;
-		}
 		}
         default:
             UnSummon();

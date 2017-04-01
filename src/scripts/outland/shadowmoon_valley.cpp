@@ -561,7 +561,7 @@ struct npc_wildaAI : public npc_escortAI
         for (uint8 i = 0; i < uiCount; ++i)
         {
             m_creature->GetRandomPoint(m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), 10.0f, fX, fY, fZ);
-            m_creature->SummonCreature(NPC_COILSKAR_ASSASSIN, fX, fY, fZ, 0.0f, TEMPSUMMON_TIMED_OOC_OR_DEAD_DESPAWN, 10000);
+            m_creature->SummonCreature(NPC_COILSKAR_ASSASSIN, fX, fY, fZ, 0.0f, TEMPSUMMON_TIMED_COMBAT_OR_DEAD_DESPAWN, 10000);
         }
 
         // random chance to yell
@@ -1347,7 +1347,7 @@ bool EffectAuraDummy_npc_totem_of_spirits(const Aura* pAura, bool bApply)
     }
 
     pCreature->CastSpell(pCreature, SPELL_CALL_TO_THE_SPIRITS, true);
-    pCreature->SummonCreature(uiSoulEntry, pCaster->GetPositionX(), pCaster->GetPositionY(), pCaster->GetPositionZ(), 0, TEMPSUMMON_TIMED_OOC_OR_CORPSE_DESPAWN, 10000);
+    pCreature->SummonCreature(uiSoulEntry, pCaster->GetPositionX(), pCaster->GetPositionY(), pCaster->GetPositionZ(), 0, TEMPSUMMON_TIMED_COMBAT_OR_CORPSE_DESPAWN, 10000);
 
     return true;
 }
@@ -1875,7 +1875,7 @@ struct npc_veneratus_spawn_nodeAI : public Scripted_NoMovementAI
         if (pWho->GetEntry() == NPC_SPIRIT_HUNTER && m_creature->IsWithinDistInMap(pWho, 40.0f) && m_creature->IsWithinLOSInMap(pWho))
         {
             DoScriptText(SAY_VENERATUS_SPAWN, pWho);
-            DoSpawnCreature(NPC_VENERATUS, 0, 0, 0, 0, TEMPSUMMON_TIMED_OOC_OR_DEAD_DESPAWN, 60000);
+            DoSpawnCreature(NPC_VENERATUS, 0, 0, 0, 0, TEMPSUMMON_TIMED_COMBAT_OR_DEAD_DESPAWN, 60000);
             m_creature->ForcedDespawn();
         }
     }

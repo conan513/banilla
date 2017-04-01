@@ -26,7 +26,7 @@ EndScriptData */
 enum
 {
     SPELL_FLAMEBREAK       = 16785,
-    //SPELL_IMMOLATE         = 20294,
+    SPELL_IMMOLATE         = 20294,
     AURA_IMMOLATE          = 15506,
     SPELL_TERRIFYINGROAR   = 14100,
     SPELL_BERSERKER_CHARGE = 16636,
@@ -42,7 +42,7 @@ struct boss_thebeastAI : public ScriptedAI
     }
 
     uint32 m_uiFlamebreakTimer;
-    //uint32 m_uiImmolateTimer;
+    uint32 m_uiImmolateTimer;
     uint32 m_uiTerrifyingRoarTimer;
     uint32 m_uiBeserkerChargeTimer;
     uint32 m_uiFireballTimer;
@@ -51,7 +51,7 @@ struct boss_thebeastAI : public ScriptedAI
     void Reset()
     {
         m_uiFlamebreakTimer     = Randomize(urand(8000, 12000));
-        //m_uiImmolateTimer       = 3000;
+        m_uiImmolateTimer       = 3000;
         m_uiTerrifyingRoarTimer = Randomize(13000);
         m_uiBeserkerChargeTimer = Randomize(12000);
         m_uiFireballTimer       = Randomize(10000);

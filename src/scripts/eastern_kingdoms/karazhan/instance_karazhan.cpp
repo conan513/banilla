@@ -437,7 +437,7 @@ void instance_karazhan::OnCreatureDeath(Creature* pCreature)
                     m_bBasementBossReady = false;
 
                     if (Creature* pBoss = pCreature->SummonCreature(aBasementEnum[uiIndex].uiEntry, aBasementEnum[uiIndex].fX, aBasementEnum[uiIndex].fY, aBasementEnum[uiIndex].fZ,
-                            aBasementEnum[uiIndex].fO, TEMPSUMMON_TIMED_OOC_OR_DEAD_DESPAWN, 2 * HOUR * IN_MILLISECONDS, true))
+                            aBasementEnum[uiIndex].fO, TEMPSUMMON_TIMED_COMBAT_OR_DEAD_DESPAWN, 2 * HOUR * IN_MILLISECONDS, true))
                         DoScriptText(aBasementEnum[uiIndex].iEmote, pBoss);
                 }
             }

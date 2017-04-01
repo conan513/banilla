@@ -137,50 +137,53 @@ bool MySQLConnection::OpenConnection(bool reconnect)
     }
 }
 
+bool MySQLConnection::Reconnect()
+{
+	sLog.outString("Reconnection attempt to database %s (on %s)", m_database.c_str(), m_host.c_str());
+
+	if (OpenConnection(true))
+	{
+		FreePreparedStatements(); // We need to prepare everything again!
+		sLog.outString("Successfully reconnected to %s @%s:%u.",
+			m_database.c_str(), m_host.c_str(), m_port);
+
+		return true;
+	}
+
+	return false; // Failed to reconnect
+}
+
 bool MySQLConnection::HandleMySQLError(uint32 errNo)
 {
-    switch (errNo)
-    {
-        case CR_SERVER_GONE_ERROR:
-        case CR_SERVER_LOST:
-        case CR_INVALID_CONN_HANDLE:
-        case CR_SERVER_LOST_EXTENDED:
-        {
-            uint64 oldThreadId = mysql_thread_id(mMysql);
-            mysql_close(mMysql);
+	switch (errNo)
+	{
+	case CR_SERVER_GONE_ERROR:
+	case CR_SERVER_LOST:
+	case CR_INVALID_CONN_HANDLE:
+	case CR_SERVER_LOST_EXTENDED:
+	{
+		mysql_close(mMysql);
+		return Reconnect();
+	}
 
-            if (OpenConnection(true))
-            {
-                FreePreparedStatements(); // We need to prepare everything again!
-                sLog.outString("Reconnection attempt to database %s (on %s)", m_database.c_str(), m_host.c_str());
-                if (oldThreadId != mysql_thread_id(mMysql))
-                    sLog.outString("Successfully reconnected to %s @%s:%u.",
-                        m_database.c_str(), m_host.c_str(), m_port);
-
-                return true;
-            }
-
-            return false; // Failed to reconnect
-        }
-
-        case ER_LOCK_DEADLOCK:
+    case ER_LOCK_DEADLOCK:
             return false;
         // Query related errors - skip query
-        case ER_WRONG_VALUE_COUNT:
-        case ER_DUP_ENTRY:
+     case ER_WRONG_VALUE_COUNT:
+     case ER_DUP_ENTRY:
             return false;
 
         // Outdated table or database structure - terminate core
-        case ER_BAD_FIELD_ERROR:
-        case ER_NO_SUCH_TABLE:
+     case ER_BAD_FIELD_ERROR:
+     case ER_NO_SUCH_TABLE:
             sLog.outErrorDb("Your database structure is not up to date. Please make sure you have executed all the queries in the sql/updates folders.");
             ASSERT(false);
             return false;
-        case ER_PARSE_ERROR:
+     case ER_PARSE_ERROR:
             sLog.outErrorDb("Error while parsing SQL. Core fix required.");
             ASSERT(false);
             return false;
-        default:
+      default:
             sLog.outErrorDb("Unhandled MySQL errno %u. Unexpected behaviour possible.", errNo);
             return false;
     }

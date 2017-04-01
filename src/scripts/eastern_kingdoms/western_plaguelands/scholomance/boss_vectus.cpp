@@ -26,7 +26,7 @@ EndScriptData */
 
 enum
 {
-    //EMOTE_GENERIC_FRENZY_KILL   = -1000001,
+    EMOTE_GENERIC_FRENZY_KILL   = -1000001,
 
     NPC_STUDENT                                     = 10475,
     NPC_MARDUK_BLACKPOOL                            = 10433,
@@ -37,8 +37,8 @@ enum
 
     SPELL_VIEWING_ROOM_STUDENT_TRANSFORM_EFFECT     = 18115,    //spell qui transforme les étudiants élites en squelettes
     SPELL_FLAMESTRIKE                               = 18399,
-    SPELL_BLAST_WAVE                                = 16046
-            //SPELL_FRENZY                                  = 28371     //spell is used by Gluth, confirm this is for this boss too
+    SPELL_BLAST_WAVE                                = 16046,
+    SPELL_FRENZY                                  = 28371     //spell is used by Gluth, confirm this is for this boss too
             //SPELL_FIRE_SHIELD                             = 0         //should supposedly have some aura, but proper spell not found
 };
 
