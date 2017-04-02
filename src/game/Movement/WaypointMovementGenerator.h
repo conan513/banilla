@@ -94,12 +94,15 @@ public PathMovementBase<Creature, WaypointPath const*>
 
         void Stop(int32 time) { i_nextMoveTime.Reset(time);}
 
-        bool Stopped() { return !i_nextMoveTime.Passed();}
+        bool Stopped(Creature& u) { return !i_nextMoveTime.Passed() || u.hasUnitState(UNIT_STAT_WAYPOINT_PAUSED);}
 
-        bool CanMove(int32 diff)
+        bool CanMove(int32 diff, Creature& u)
         {
-            i_nextMoveTime.Update(diff);
-            return i_nextMoveTime.Passed();
+			i_nextMoveTime.Update(diff);
+			if (i_nextMoveTime.Passed() && u.hasUnitState(UNIT_STAT_WAYPOINT_PAUSED))
+				i_nextMoveTime.Reset(1);
+
+			return i_nextMoveTime.Passed() && !u.hasUnitState(UNIT_STAT_WAYPOINT_PAUSED);
         }
 
         void OnArrived(Creature&);

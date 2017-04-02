@@ -101,7 +101,63 @@ enum eScriptCommand
                                                             // datalong = stand state (enum UnitStandStateType)
                                                             // datalong2 = creature entry (searching for a buddy, closest to source), datalong3 = creature search radius
                                                             // data_flags = flag_target_as_source           = 0x01
+	SCRIPT_COMMAND_MODIFY_NPC_FLAGS         = 29,           // resSource = Creature
+                                                            // datalong=NPCFlags
+                                                            // datalong2:0x00=toggle, 0x01=add, 0x02=remove
+    SCRIPT_COMMAND_SEND_TAXI_PATH           = 30,           // datalong = taxi path id (source or target must be player)
+    SCRIPT_COMMAND_TERMINATE_SCRIPT         = 31,           // datalong = search for npc entry if provided
+                                                            // datalong2= search distance
+                                                            // data_flags & SCRIPT_FLAG_COMMAND_ADDITIONAL: terminate steps of this script if npc found
+                                                            //                                        ELSE: terminate steps of this script if npc not found
+                                                            // dataint=diff to change a waittime of current Waypoint Movement
+    SCRIPT_COMMAND_PAUSE_WAYPOINTS          = 32,           // resSource = Creature
+                                                            // datalong = 0: unpause waypoint 1: pause waypoint
+    SCRIPT_COMMAND_RESERVED_1               = 33,           // reserved for 3.x and later
+    SCRIPT_COMMAND_TERMINATE_COND           = 34,           // datalong = condition_id, datalong2 = if != 0 then quest_id of quest that will be failed for player's group if the script is terminated
+                                                            // data_flags & SCRIPT_FLAG_COMMAND_ADDITIONAL terminate when condition is false ELSE terminate when condition is true
+    SCRIPT_COMMAND_SEND_AI_EVENT            = 35,           // resSource = Creature, resTarget = Unit
+                                                            // datalong = AIEventType
+                                                            // datalong2 = radius. If radius isn't provided and the target is a creature, then send AIEvent to target
+    SCRIPT_COMMAND_SET_FACING               = 36,           // resSource = Creature, resTarget WorldObject. Turn resSource towards Taget
+                                                            // data_flags & SCRIPT_FLAG_COMMAND_ADDITIONAL also set TargetGuid of resSource to resTarget. In this case resTarget MUST be Creature/ Player
+                                                            // datalong != 0 Reset TargetGuid, Reset orientation
+    SCRIPT_COMMAND_MOVE_DYNAMIC             = 37,           // resSource = Creature, resTarget Worldobject.
+                                                            // datalong = 0: Move resSource towards resTarget
+                                                            // datalong != 0: Move resSource to a random point between datalong2..datalong around resTarget.
+                                                            //      orientation != 0: Obtain a random point around resTarget in direction of orientation
+                                                            // data_flags & SCRIPT_FLAG_COMMAND_ADDITIONAL Obtain a random point around resTarget in direction of resTarget->GetOrientation + orientation
+                                                            // for resTarget == resSource and orientation == 0 this will mean resSource moving forward
+    SCRIPT_COMMAND_SEND_MAIL                = 38,           // resSource WorldObject, can be nullptr, resTarget Player
+                                                            // datalong: Send mailTemplateId from resSource (if provided) to player resTarget
+                                                            // datalong2: AlternativeSenderEntry. Use as sender-Entry
+                                                            // dataint1: Delay (>= 0) in Seconds
+    SCRIPT_COMMAND_SET_FLY                  = 39,           // resSource = Creature
+                                                            // datalong = bool 0=off, 1=on
+                                                            // data_flags & SCRIPT_FLAG_COMMAND_ADDITIONAL set/unset byte flag UNIT_BYTE1_FLAG_ALWAYS_STAND
+    SCRIPT_COMMAND_DESPAWN_GO               = 40,           // resTarget = GameObject
+    SCRIPT_COMMAND_RESPAWN                  = 41,           // resSource = Creature. Requires SCRIPT_FLAG_BUDDY_IS_DESPAWNED to find dead or despawned targets
+    SCRIPT_COMMAND_SET_EQUIPMENT_SLOTS      = 42,           // resSource = Creature
+                                                            // datalong = resetDefault: bool 0=false, 1=true
+                                                            // dataint = main hand slot; dataint2 = off hand slot; dataint3 = ranged slot
+    SCRIPT_COMMAND_RESET_GO                 = 43,           // resTarget = GameObject
+    SCRIPT_COMMAND_UPDATE_TEMPLATE          = 44,           // resSource = Creature
+                                                            // datalong = new Creature entry
+                                                            // datalong2 = Alliance(0) Horde(1), other values throw error
 };
+
+
+enum ScriptInfoDataFlags
+{
+	// default: s/b -> t
+	SCRIPT_FLAG_BUDDY_AS_TARGET = 0x01,         // s -> b
+	SCRIPT_FLAG_REVERSE_DIRECTION = 0x02,         // t* -> s* (* result after previous flag is evaluated)
+	SCRIPT_FLAG_SOURCE_TARGETS_SELF = 0x04,         // s* -> s* (* result after previous flag is evaluated)
+	SCRIPT_FLAG_COMMAND_ADDITIONAL = 0x08,         // command dependend
+	SCRIPT_FLAG_BUDDY_BY_GUID = 0x10,         // take the buddy by guid
+	SCRIPT_FLAG_BUDDY_IS_PET = 0x20,         // buddy is a pet
+	SCRIPT_FLAG_BUDDY_IS_DESPAWNED = 0X40,         // buddy is dead or despawned
+};
+#define MAX_SCRIPT_FLAG_VALID               (2 * SCRIPT_FLAG_BUDDY_IS_DESPAWNED - 1)
 
 #define MAX_TEXT_ID 4                                       // used for SCRIPT_COMMAND_TALK
 
@@ -315,6 +371,83 @@ struct ScriptInfo
             uint32 unused1;                                 // datalong4
             uint32 flags;                                   // data_flags
         } standState;
+		struct                                              // SCRIPT_COMMAND_MODIFY_NPC_FLAGS (29)
+		{
+			uint32 flag;                                    // datalong
+			uint32 change_flag;                             // datalong2
+		} npcFlag;
+
+		struct                                              // SCRIPT_COMMAND_SEND_TAXI_PATH (30)
+		{
+			uint32 taxiPathId;                              // datalong
+			uint32 empty;
+		} sendTaxiPath;
+
+		struct                                              // SCRIPT_COMMAND_TERMINATE_SCRIPT (31)
+		{
+			uint32 npcEntry;                                // datalong
+			uint32 searchDist;                              // datalong2
+															// changeWaypointWaitTime                       // dataint
+		} terminateScript;
+
+		struct                                              // SCRIPT_COMMAND_PAUSE_WAYPOINTS (32)
+		{
+			uint32 doPause;                                 // datalong
+			uint32 empty;
+		} pauseWaypoint;
+
+		struct                                              // SCRIPT_COMMAND_TERMINATE_COND (34)
+		{
+			uint32 conditionId;                             // datalong
+			uint32 failQuest;                               // datalong2
+		} terminateCond;
+
+		struct                                              // SCRIPT_COMMAND_SEND_AI_EVENT_AROUND (35)
+		{
+			uint32 eventType;                               // datalong
+			uint32 radius;                                  // datalong2
+		} sendAIEvent;
+
+		struct                                              // SCRIPT_COMMAND_SET_FACING (36)
+		{
+			uint32 resetFacing;                             // datalong
+			uint32 empty;                                   // datalong2
+		} setFacing;
+
+		struct                                              // SCRIPT_COMMAND_MOVE_DYNAMIC (37)
+		{
+			uint32 maxDist;                                 // datalong
+			uint32 minDist;                                 // datalong2
+		} moveDynamic;
+
+		struct                                              // SCRIPT_COMMAND_SEND_MAIL (38)
+		{
+			uint32 mailTemplateId;                          // datalong
+			uint32 altSender;                               // datalong2;
+		} sendMail;
+
+		struct                                              // SCRIPT_COMMAND_SET_FLY (39)
+		{
+			uint32 fly;                                     // datalong
+			uint32 empty;                                   // datalong2
+		} fly;
+
+		// datalong unsed                                   // SCRIPT_COMMAND_DESPAWN_GO (40)
+		// datalong unsed                                   // SCRIPT_COMMAND_RESPAWN (41)
+
+		struct                                              // SCRIPT_COMMAND_SET_EQUIPMENT_SLOTS (42)
+		{
+			uint32 resetDefault;                            // datalong
+			uint32 empty;                                   // datalong2
+		} setEquipment;
+
+		// datalong unsed                                   // SCRIPT_COMMAND_RESET_GO (43)
+
+		struct                                              // SCRIPT_COMMAND_UPDATE_TEMPLATE (44)
+		{
+			uint32 newTemplate;                             // datalong
+			uint32 newFactionTeam;                          // datalong2
+		} updateTemplate;
 
         struct
         {
@@ -327,6 +460,11 @@ struct ScriptInfo
     float z;
     float o;
 
+	// Buddy system (entry can be npc or go entry, depending on command)
+	uint32 buddyEntry;                                      // buddy_entry
+	uint32 searchRadiusOrGuid;                              // search_radius (can also be guid in case of SCRIPT_FLAG_BUDDY_BY_GUID)
+	uint8 data_flags;                                       // data_flags
+
     // helpers
     uint32 GetGOGuid() const
     {
@@ -338,6 +476,44 @@ struct ScriptInfo
             default: return 0;
         }
     }
+
+	bool IsCreatureBuddy() const
+	{
+		switch (command)
+		{
+		case SCRIPT_COMMAND_RESPAWN_GAMEOBJECT:
+		case SCRIPT_COMMAND_OPEN_DOOR:
+		case SCRIPT_COMMAND_CLOSE_DOOR:
+		case SCRIPT_COMMAND_ACTIVATE_OBJECT:
+		case SCRIPT_COMMAND_GO_LOCK_STATE:
+		case SCRIPT_COMMAND_DESPAWN_GO:
+		case SCRIPT_COMMAND_RESET_GO:
+			return false;
+		default:
+			return true;
+		}
+	}
+
+	bool HasAdditionalScriptFlag() const
+	{
+		switch (command)
+		{
+		case SCRIPT_COMMAND_MOVE_TO:
+		case SCRIPT_COMMAND_TEMP_SUMMON_CREATURE:
+		case SCRIPT_COMMAND_CAST_SPELL:
+		case SCRIPT_COMMAND_MOVEMENT:
+		case SCRIPT_COMMAND_MORPH_TO_ENTRY_OR_MODEL:
+		case SCRIPT_COMMAND_MOUNT_TO_ENTRY_OR_MODEL:
+		case SCRIPT_COMMAND_TERMINATE_SCRIPT:
+		case SCRIPT_COMMAND_TERMINATE_COND:
+		case SCRIPT_COMMAND_SET_FACING:
+		case SCRIPT_COMMAND_MOVE_DYNAMIC:
+		case SCRIPT_COMMAND_SET_FLY:
+			return true;
+		default:
+			return false;
+		}
+	}
 };
 
 struct ScriptAction
@@ -355,8 +531,10 @@ extern ScriptMapMap sQuestEndScripts;
 extern ScriptMapMap sQuestStartScripts;
 extern ScriptMapMap sSpellScripts;
 extern ScriptMapMap sGameObjectScripts;
+extern ScriptMapMap sGameObjectTemplateScripts;
 extern ScriptMapMap sEventScripts;
 extern ScriptMapMap sGossipScripts;
+extern ScriptMapMap sCreatureDeathScripts;
 extern ScriptMapMap sCreatureMovementScripts;
 
 #define MAX_SCRIPTS         5000                            //72 bytes each (approx 351kb)
@@ -521,6 +699,7 @@ class ScriptMgr
         void LoadSpellScripts();
         void LoadGossipScripts();
         void LoadCreatureMovementScripts();
+		void LoadCreatureDeathScripts();
 
         void LoadDbScriptStrings();
 

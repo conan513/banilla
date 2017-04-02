@@ -71,6 +71,7 @@ void WaypointMovementGenerator<Creature>::Initialize(Creature &creature)
 {
     LoadPath(creature);
     creature.addUnitState(UNIT_STAT_ROAMING | UNIT_STAT_ROAMING_MOVE);
+	creature.clearUnitState(UNIT_STAT_WAYPOINT_PAUSED);
 }
 
 void WaypointMovementGenerator<Creature>::Finalize(Creature &creature)
@@ -152,7 +153,7 @@ void WaypointMovementGenerator<Creature>::StartMove(Creature &creature)
     if (!i_path || i_path->empty())
         return;
 
-    if (Stopped())
+    if (Stopped(creature))
         return;
 
     if (WaypointBehavior *behavior = i_path->at(i_currentNode).behavior)
@@ -203,9 +204,9 @@ bool WaypointMovementGenerator<Creature>::Update(Creature &creature, const uint3
         return true;
     }
 
-    if (Stopped())
+    if (Stopped(creature))
     {
-        if (CanMove(diff))
+        if (CanMove(diff,creature))
             StartMove(creature);
     }
     else

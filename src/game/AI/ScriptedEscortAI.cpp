@@ -520,10 +520,16 @@ void npc_escortAI::SetEscortPaused(bool bPaused)
     if (!HasEscortState(STATE_ESCORT_ESCORTING))
         return;
 
-    if (bPaused)
-        AddEscortState(STATE_ESCORT_PAUSED);
-    else
-        RemoveEscortState(STATE_ESCORT_PAUSED);
+	if (bPaused)
+	{
+		AddEscortState(STATE_ESCORT_PAUSED);
+		m_creature->addUnitState(UNIT_STAT_WAYPOINT_PAUSED);
+	}
+	else
+	{
+		RemoveEscortState(STATE_ESCORT_PAUSED);
+		m_creature->clearUnitState(UNIT_STAT_WAYPOINT_PAUSED);
+	}
 }
 
 

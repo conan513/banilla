@@ -725,7 +725,7 @@ class MANGOS_DLL_SPEC WorldObject : public Object
         void UpdateAllowedPositionZ(float x, float y, float &z) const;
 
         // Valeur de retour : false si aucun point correct trouve.
-        bool GetRandomPoint(float x, float y, float z, float distance, float &rand_x, float &rand_y, float &rand_z) const;
+        bool GetRandomPoint(float x, float y, float z, float distance, float &rand_x, float &rand_y, float &rand_z, float minDist = 0.0f, float const* ori = nullptr) const;
 
         uint32 GetMapId() const { return m_mapId; }
         uint32 GetInstanceId() const { return m_InstanceId; }

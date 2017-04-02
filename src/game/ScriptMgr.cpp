@@ -27,6 +27,7 @@
 #include "GossipDef.h"
 #include "SpellAuras.h"
 #include "ScriptLoader.h"
+#include "CreatureAI.h"
 
 typedef std::vector<Script*> ScriptVector;
 int num_sc_scripts;
@@ -36,8 +37,10 @@ ScriptMapMap sQuestEndScripts;
 ScriptMapMap sQuestStartScripts;
 ScriptMapMap sSpellScripts;
 ScriptMapMap sGameObjectScripts;
+ScriptMapMap sGameObjectTemplateScripts;
 ScriptMapMap sEventScripts;
 ScriptMapMap sGossipScripts;
+ScriptMapMap sCreatureDeathScripts;
 ScriptMapMap sCreatureMovementScripts;
 
 INSTANTIATE_SINGLETON_1(ScriptMgr);
@@ -117,7 +120,7 @@ void ScriptMgr::LoadScripts(ScriptMapMap& scripts, const char* tablename)
 
     scripts.clear();                                        // need for reload support
 
-    QueryResult *result = WorldDatabase.PQuery("SELECT id, delay, command, datalong, datalong2, datalong3, datalong4, data_flags, dataint, dataint2, dataint3, dataint4, x, y, z, o FROM %s", tablename);
+    QueryResult *result = WorldDatabase.PQuery("SELECT id, delay, command, datalong, datalong2, datalong3, datalong4, data_flags, dataint, dataint2, dataint3, dataint4, x, y, z, o, buddy_entry, search_radius FROM %s", tablename);
 
     uint32 count = 0;
 
@@ -156,6 +159,79 @@ void ScriptMgr::LoadScripts(ScriptMapMap& scripts, const char* tablename)
         tmp.z           = fields[14].GetFloat();
         tmp.o           = fields[15].GetFloat();
 
+		tmp.buddyEntry = fields[16].GetUInt32();
+		tmp.searchRadiusOrGuid = fields[17].GetUInt32();
+		tmp.data_flags = fields[7].GetUInt8();
+
+		// generic command args check
+		if (tmp.buddyEntry && !(tmp.data_flags & SCRIPT_FLAG_BUDDY_BY_GUID))
+		{
+			if (tmp.IsCreatureBuddy() && !ObjectMgr::GetCreatureTemplate(tmp.buddyEntry))
+			{
+				sLog.outErrorDb("Table `%s` has buddyEntry = %u in command %u for script id %u, but this creature_template does not exist, skipping.", tablename, tmp.buddyEntry, tmp.command, tmp.id);
+				continue;
+			}
+			else if (!tmp.IsCreatureBuddy() && !ObjectMgr::GetGameObjectInfo(tmp.buddyEntry))
+			{
+				sLog.outErrorDb("Table `%s` has buddyEntry = %u in command %u for script id %u, but this gameobject_template does not exist, skipping.", tablename, tmp.buddyEntry, tmp.command, tmp.id);
+				continue;
+			}
+			if (!tmp.searchRadiusOrGuid)
+			{
+				sLog.outErrorDb("Table `%s` has searchRadius = 0 in command %u for script id %u for buddy %u, skipping.", tablename, tmp.command, tmp.id, tmp.buddyEntry);
+				continue;
+			}
+		}
+
+		if (tmp.data_flags)                                 // Check flags
+		{
+			if (tmp.data_flags & ~MAX_SCRIPT_FLAG_VALID)
+			{
+				sLog.outErrorDb("Table `%s` has invalid data_flags %u in command %u for script id %u, skipping.", tablename, tmp.data_flags, tmp.command, tmp.id);
+				continue;
+			}
+			if (!tmp.HasAdditionalScriptFlag() && tmp.data_flags & SCRIPT_FLAG_COMMAND_ADDITIONAL)
+			{
+				sLog.outErrorDb("Table `%s` has invalid data_flags %u in command %u for script id %u, skipping.", tablename, tmp.data_flags, tmp.command, tmp.id);
+				continue;
+			}
+			if (tmp.data_flags & SCRIPT_FLAG_BUDDY_AS_TARGET && !tmp.buddyEntry)
+			{
+				sLog.outErrorDb("Table `%s` has buddy required in data_flags %u in command %u for script id %u, but no buddy defined, skipping.", tablename, tmp.data_flags, tmp.command, tmp.id);
+				continue;
+			}
+			if (tmp.data_flags & SCRIPT_FLAG_BUDDY_BY_GUID) // Check guid
+			{
+				if (tmp.IsCreatureBuddy())
+				{
+					CreatureData const* data = sObjectMgr.GetCreatureData(tmp.searchRadiusOrGuid);
+					if (!data)
+					{
+						sLog.outErrorDb("Table `%s` has buddy defined by guid (SCRIPT_FLAG_BUDDY_BY_GUID %u set) but no npc spawned with guid %u, skipping.", tablename, SCRIPT_FLAG_BUDDY_BY_GUID, tmp.searchRadiusOrGuid);
+						continue;
+					}
+					if (data->id != tmp.buddyEntry)
+					{
+						sLog.outErrorDb("Table `%s` has buddy defined by guid (SCRIPT_FLAG_BUDDY_BY_GUID %u set) but spawned npc with guid %u has entry %u, expected buddy_entry is %u, skipping.", tablename, SCRIPT_FLAG_BUDDY_BY_GUID, tmp.searchRadiusOrGuid, data->id, tmp.buddyEntry);
+						continue;
+					}
+				}
+				else
+				{
+					GameObjectData const* data = sObjectMgr.GetGOData(tmp.searchRadiusOrGuid);
+					if (!data)
+					{
+						sLog.outErrorDb("Table `%s` has go-buddy defined by guid (SCRIPT_FLAG_BUDDY_BY_GUID %u set) but no go spawned with guid %u, skipping.", tablename, SCRIPT_FLAG_BUDDY_BY_GUID, tmp.searchRadiusOrGuid);
+						continue;
+					}
+					if (data->id != tmp.buddyEntry)
+					{
+						sLog.outErrorDb("Table `%s` has go-buddy defined by guid (SCRIPT_FLAG_BUDDY_BY_GUID %u set) but spawned go with guid %u has entry %u, expected buddy_entry is %u, skipping.", tablename, SCRIPT_FLAG_BUDDY_BY_GUID, tmp.searchRadiusOrGuid, data->id, tmp.buddyEntry);
+						continue;
+					}
+				}
+			}
+		}
         // generic command args check
         switch (tmp.command)
         {
@@ -289,9 +365,20 @@ void ScriptMgr::LoadScripts(ScriptMapMap& scripts, const char* tablename)
                 GameObjectData const* data = sObjectMgr.GetGOData(tmp.GetGOGuid());
                 if (!data)
                 {
-                    sLog.outErrorDb("Table `%s` has invalid gameobject (GUID: %u) in SCRIPT_COMMAND_RESPAWN_GAMEOBJECT for script id %u", tablename, tmp.GetGOGuid(), tmp.id);
-                    continue;
-                }
+					if (!tmp.buddyEntry)
+					{
+						sLog.outErrorDb("Table `%s` has invalid gameobject (GUID: %u) in SCRIPT_COMMAND_RESPAWN_GAMEOBJECT for script id %u", tablename, tmp.GetGOGuid(), tmp.id);
+						continue;
+					}
+					else
+						data = sObjectMgr.GetGOData(tmp.buddyEntry);
+
+					if (!data)
+					{
+						sLog.outErrorDb("Table `%s` has invalid gameobject (GUID: %u) in SCRIPT_COMMAND_RESPAWN_GAMEOBJECT for script id %u", tablename, tmp.GetGOGuid(), tmp.id);
+						continue;
+					}
+				}
 
                 GameObjectInfo const* info = ObjectMgr::GetGameObjectInfo(data->id);
                 if (!info)
@@ -332,8 +419,19 @@ void ScriptMgr::LoadScripts(ScriptMapMap& scripts, const char* tablename)
                 GameObjectData const* data = sObjectMgr.GetGOData(tmp.GetGOGuid());
                 if (!data)
                 {
-                    sLog.outErrorDb("Table `%s` has invalid gameobject (GUID: %u) in %s for script id %u", tablename, tmp.GetGOGuid(), (tmp.command == SCRIPT_COMMAND_OPEN_DOOR ? "SCRIPT_COMMAND_OPEN_DOOR" : "SCRIPT_COMMAND_CLOSE_DOOR"), tmp.id);
-                    continue;
+					if (!tmp.buddyEntry)
+					{
+						sLog.outErrorDb("Table `%s` has invalid gameobject (GUID: %u) in %s for script id %u", tablename, tmp.GetGOGuid(), (tmp.command == SCRIPT_COMMAND_OPEN_DOOR ? "SCRIPT_COMMAND_OPEN_DOOR" : "SCRIPT_COMMAND_CLOSE_DOOR"), tmp.id);
+						continue;
+					}
+					else
+						data = sObjectMgr.GetGOData(tmp.buddyEntry);
+
+					if (!data)
+					{
+						sLog.outErrorDb("Table `%s` has invalid gameobject (GUID: %u) in %s for script id %u", tablename, tmp.GetGOGuid(), (tmp.command == SCRIPT_COMMAND_OPEN_DOOR ? "SCRIPT_COMMAND_OPEN_DOOR" : "SCRIPT_COMMAND_CLOSE_DOOR"), tmp.id);
+						continue;
+					}
                 }
 
                 GameObjectInfo const* info = ObjectMgr::GetGameObjectInfo(data->id);
@@ -605,6 +703,135 @@ void ScriptMgr::LoadScripts(ScriptMapMap& scripts, const char* tablename)
                 }
                 break;
             }
+			case SCRIPT_COMMAND_MODIFY_NPC_FLAGS:           // 29
+				break;
+			case SCRIPT_COMMAND_SEND_TAXI_PATH:             // 30
+			{
+				if (!sTaxiPathStore.LookupEntry(tmp.sendTaxiPath.taxiPathId))
+				{
+					sLog.outErrorDb("Table `%s` has datalong = %u in SCRIPT_COMMAND_SEND_TAXI_PATH for script id %u, but this taxi path does not exist.", tablename, tmp.sendTaxiPath.taxiPathId, tmp.id);
+					continue;
+				}
+				// Check if this taxi path can be triggered with a spell
+				if (!sLog.HasLogFilter(LOG_FILTER_DB_STRICTED_CHECK))
+				{
+					uint32 taxiSpell = 0;
+					for (uint32 i = 1; i < sSpellMgr.GetMaxSpellId() && taxiSpell == 0; ++i)
+					{
+						if (SpellEntry const* spell = sSpellMgr.GetSpellEntry(i))
+							for (int j = 0; j < MAX_EFFECT_INDEX; ++j)
+							{
+								if (spell->Effect[j] == SPELL_EFFECT_SEND_TAXI && spell->EffectMiscValue[j] == int32(tmp.sendTaxiPath.taxiPathId))
+								{
+									taxiSpell = i;
+									break;
+								}
+							}
+					}
+
+					if (taxiSpell)
+					{
+						sLog.outErrorDb("Table `%s` has datalong = %u in SCRIPT_COMMAND_SEND_TAXI_PATH for script id %u, but this taxi path can be triggered by spell %u.", tablename, tmp.sendTaxiPath.taxiPathId, tmp.id, taxiSpell);
+						continue;
+					}
+				}
+				break;
+			}
+			case SCRIPT_COMMAND_TERMINATE_SCRIPT:           // 31
+			{
+				if (tmp.terminateScript.npcEntry && !ObjectMgr::GetCreatureTemplate(tmp.terminateScript.npcEntry))
+				{
+					sLog.outErrorDb("Table `%s` has datalong = %u in SCRIPT_COMMAND_TERMINATE_SCRIPT for script id %u, but this npc entry does not exist.", tablename, tmp.sendTaxiPath.taxiPathId, tmp.id);
+					continue;
+				}
+				break;
+			}
+			case SCRIPT_COMMAND_PAUSE_WAYPOINTS:            // 32
+				break;
+			case SCRIPT_COMMAND_RESERVED_1:                 // 33
+				break;
+			case SCRIPT_COMMAND_TERMINATE_COND:             // 34
+			{
+				if (!sConditionStorage.LookupEntry<PlayerCondition>(tmp.terminateCond.conditionId))
+				{
+					sLog.outErrorDb("Table `%s` has datalong = %u in SCRIPT_COMMAND_TERMINATE_COND for script id %u, but this condition_id does not exist.", tablename, tmp.terminateCond.conditionId, tmp.id);
+					continue;
+				}
+				if (tmp.terminateCond.failQuest && !sObjectMgr.GetQuestTemplate(tmp.terminateCond.failQuest))
+				{
+					sLog.outErrorDb("Table `%s` has datalong2 = %u in SCRIPT_COMMAND_TERMINATE_COND for script id %u, but this questId does not exist.", tablename, tmp.terminateCond.failQuest, tmp.id);
+					continue;
+				}
+				break;
+			}
+			case SCRIPT_COMMAND_SEND_AI_EVENT:              // 35
+			{
+				if (tmp.sendAIEvent.eventType >= MAXIMAL_AI_EVENT_EVENTAI)
+				{
+					sLog.outErrorDb("Table `%s` has invalid AI event (datalong = %u) in SCRIPT_COMMAND_SEND_AI_EVENT for script id %u", tablename, tmp.sendAIEvent.eventType, tmp.id);
+					continue;
+				}
+				break;
+			}
+			case SCRIPT_COMMAND_SET_FACING:                 // 36
+				break;
+			case SCRIPT_COMMAND_MOVE_DYNAMIC:               // 37
+			{
+				if (tmp.moveDynamic.maxDist < tmp.moveDynamic.minDist)
+				{
+					sLog.outErrorDb("Table `%s` has invalid min-dist (datalong2 = %u) less than max-dist (datalong = %u) in SCRIPT_COMMAND_MOVE_DYNAMIC for script id %u", tablename, tmp.moveDynamic.minDist, tmp.moveDynamic.maxDist, tmp.id);
+					continue;
+				}
+				break;
+			}
+			case SCRIPT_COMMAND_SEND_MAIL:                  // 38
+			{
+				if (!sMailTemplateStore.LookupEntry(tmp.sendMail.mailTemplateId))
+				{
+					sLog.outErrorDb("Table `%s` has invalid mailTemplateId (datalong = %u) in SCRIPT_COMMAND_SEND_MAIL for script id %u", tablename, tmp.sendMail.mailTemplateId, tmp.id);
+					continue;
+				}
+				if (tmp.sendMail.altSender && !ObjectMgr::GetCreatureTemplate(tmp.sendMail.altSender))
+				{
+					sLog.outErrorDb("Table `%s` has invalid alternativeSender (datalong2 = %u) in SCRIPT_COMMAND_SEND_MAIL for script id %u", tablename, tmp.sendMail.altSender, tmp.id);
+					continue;
+				}
+				break;
+			}
+			case SCRIPT_COMMAND_SET_FLY:                    // 39
+			case SCRIPT_COMMAND_DESPAWN_GO:                 // 40
+			case SCRIPT_COMMAND_RESPAWN:                    // 41
+				break;
+			case SCRIPT_COMMAND_SET_EQUIPMENT_SLOTS:        // 42
+			{
+				if (tmp.raw.data[5] < 0 || tmp.raw.data[6] < 0 || tmp.raw.data[7] < 0)
+				{
+					sLog.outErrorDb("Table `%s` has invalid equipment slot (dataint = %u, dataint2 = %u, dataint3 = %u) in SCRIPT_COMMAND_SET_EQUIPMENT_SLOTS for script id %u", tablename, tmp.raw.data[5], tmp.raw.data[6], tmp.raw.data[7], tmp.id);
+					continue;
+				}
+				break;
+			}
+			case SCRIPT_COMMAND_RESET_GO:                   // 43
+				break;
+			case SCRIPT_COMMAND_UPDATE_TEMPLATE:            // 44
+			{
+				if (!sCreatureStorage.LookupEntry<CreatureInfo>(tmp.updateTemplate.newTemplate))
+				{
+					sLog.outErrorDb("Table `%s` uses nonexistent creature entry %u in SCRIPT_COMMAND_UPDATE_TEMPLATE for script id %u.", tablename, tmp.updateTemplate.newTemplate, tmp.id);
+					continue;
+				}
+				if (tmp.updateTemplate.newFactionTeam != 0 && tmp.updateTemplate.newFactionTeam != 1)
+				{
+					sLog.outErrorDb("Table `%s` uses nonexistent faction team %u in SCRIPT_COMMAND_UPDATE_TEMPLATE for script id %u.", tablename, tmp.updateTemplate.newFactionTeam, tmp.id);
+					continue;
+				}
+				break;
+			}
+			default:
+			{
+				sLog.outErrorDb("Table `%s` unknown command %u, skipping.", tablename, tmp.command);
+				continue;
+			}
         }
 
         if (scripts.find(tmp.id) == scripts.end())
@@ -634,6 +861,27 @@ void ScriptMgr::LoadGameObjectScripts()
         if (!sObjectMgr.GetGOData(itr->first))
             sLog.outErrorDb("Table `gameobject_scripts` has not existing gameobject (GUID: %u) as script id", itr->first);
     }
+
+	LoadScripts(sGameObjectTemplateScripts, "gameobject_template_scripts");
+	
+	// check ids
+	for (ScriptMapMap::const_iterator itr = sGameObjectTemplateScripts.begin(); itr != sGameObjectTemplateScripts.end(); ++itr)
+	{
+		if (!ObjectMgr::GetGameObjectInfo(itr->first))
+			sLog.outErrorDb("Table `gameobject_template_scripts` has not existing gameobject_template (GUID: %u) as script id", itr->first);
+	}
+}
+
+void ScriptMgr::LoadCreatureDeathScripts()
+{
+	LoadScripts(sCreatureDeathScripts, "creature_death_scripts");
+
+	// check ids
+	for (ScriptMapMap::const_iterator itr = sCreatureDeathScripts.begin(); itr != sCreatureDeathScripts.end(); ++itr)
+	{
+		if (!sObjectMgr.GetCreatureTemplate(itr->first))
+			sLog.outErrorDb("Table `creature_death_scripts` has not existing creature (Entry: %u) as script id", itr->first);
+	}
 }
 
 void ScriptMgr::LoadQuestEndScripts()
