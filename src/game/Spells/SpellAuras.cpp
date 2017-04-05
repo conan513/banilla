@@ -3718,7 +3718,22 @@ void Aura::HandleAuraModSilence(bool apply, bool Real)
         {
             // Arcane Torrent (Energy)
             case 25046:
-			case 28730:
+			{
+				Unit * caster = GetCaster();
+				if (!caster)
+					return;
+
+				// Search Mana Tap auras on caster
+				Aura * dummy = caster->GetDummyAura(28734);
+				if (dummy)
+				{
+					int32 bp = dummy->GetStackAmount() * 10;
+					caster->CastCustomSpell(caster, 25048, &bp, nullptr, nullptr, true);
+					caster->RemoveAurasDueToSpell(28734);
+				}
+				break;
+			}		
+			// Arcane Torrent (Rage)
 			case 54636:
             {
                 Unit * caster = GetCaster();
@@ -3726,14 +3741,14 @@ void Aura::HandleAuraModSilence(bool apply, bool Real)
                     return;
 
                 // Search Mana Tap auras on caster
-                Aura * dummy = caster->GetDummyAura(28734);
+                Aura * dummy = caster->GetDummyAura(54633);
                 if (dummy)
                 {
                     int32 bp = dummy->GetStackAmount() * 10;
                     caster->CastCustomSpell(caster, 25048, &bp, nullptr, nullptr, true);
-                    caster->RemoveAurasDueToSpell(28734);
 					caster->RemoveAurasDueToSpell(54633);
                 }
+				break;
             }
         }
     }

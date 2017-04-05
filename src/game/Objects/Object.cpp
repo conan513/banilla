@@ -1508,8 +1508,6 @@ bool WorldObject::GetRandomPoint(float x, float y, float z, float distance, floa
 		}
 
 		float randDist;
-		
-		float new_dist;
 		if (minDist == 0.0f)
 			randDist = rand_norm_f() * distance;
 		else

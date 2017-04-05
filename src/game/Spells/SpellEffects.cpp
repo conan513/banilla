@@ -1589,6 +1589,7 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
 
 			return;
 		}
+		/*
 		case 54947:                                 // Arcane Torrent (Rage)
 		{
 			Aura* dummy = m_caster->GetDummyAura(54632);
@@ -1613,6 +1614,7 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
 
 			return;
 		}
+		*/
 		case 29200:                                 // Purify Helboar Meat
 		{
 			if (m_caster->GetTypeId() != TYPEID_PLAYER)
