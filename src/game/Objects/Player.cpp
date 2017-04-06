@@ -1236,13 +1236,7 @@ void Player::Update(uint32 update_diff, uint32 p_time)
         }
     }
 
-    if (m_regenTimer)
-    {
-        if (update_diff >= m_regenTimer)
-            m_regenTimer = 0;
-        else
-            m_regenTimer -= update_diff;
-    }
+    m_regenTimer -= update_diff;
 
     if (m_weaponChangeTimer > 0)
     {
@@ -2279,7 +2273,7 @@ void Player::RewardRage(uint32 damage, bool attacker)
 
 void Player::RegenerateAll()
 {
-    if (m_regenTimer != 0)
+    if (m_regenTimer > 0)
         return;
 
     // Not in combat or they have regeneration
@@ -2295,7 +2289,7 @@ void Player::RegenerateAll()
 
     Regenerate(POWER_MANA);
 
-    m_regenTimer = REGEN_TIME_FULL;
+    m_regenTimer += REGEN_TIME_FULL;
 }
 
 void Player::Regenerate(Powers power)

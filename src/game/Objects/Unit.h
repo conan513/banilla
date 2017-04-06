@@ -2048,7 +2048,7 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
 
         uint32 m_reactiveTimer[MAX_REACTIVE];
         ObjectGuid m_reactiveTarget[MAX_REACTIVE];
-        uint32 m_regenTimer;
+        int32 m_regenTimer;
         uint32 m_lastManaUseTimer;
 
         SpellCooldowns m_spellCooldowns;
