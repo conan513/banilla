@@ -313,8 +313,8 @@ struct npc_khadgars_servantAI : public npc_escortAI
     {
         if (pCreature->GetOwner() && pCreature->GetOwner()->GetTypeId() == TYPEID_PLAYER)
             Start(false, ((Player*)pCreature->GetOwner())->GetGUID());
-       // else
-       //     script_error_log("npc_khadgars_servant can not obtain owner or owner is not a player.");
+       else
+		   sLog.outString("npc_khadgars_servant can not obtain owner or owner is not a player.");
 
         Reset();
     }

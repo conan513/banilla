@@ -310,8 +310,8 @@ struct boss_malchezaarAI : public ScriptedAI
                         m_uiInfernalTimer = Randomize(m_uiPhase == 3 ? 17000 : 45000);
                     }
                 }
-                //else
-                   // script_error_log("Instance Karazhan: ERROR Failed to properly load Infernal Relays for creature %u.", m_creature->GetEntry());
+             else
+				sLog.outString("Instance Karazhan: ERROR Failed to properly load Infernal Relays for creature %u.", m_creature->GetEntry());
             }
         }
         else

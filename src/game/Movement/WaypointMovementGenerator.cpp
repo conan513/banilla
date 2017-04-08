@@ -241,6 +241,26 @@ bool WaypointMovementGenerator<Creature>::GetResetPosition(Creature&, float& x, 
     return true;
 }
 
+bool WaypointMovementGenerator<Creature>::SetNextWaypoint(uint32 pointId)
+{
+	if (!i_path || i_path->empty() || i_path->size() < pointId)
+		return false;
+
+	//WaypointPath::const_iterator currPoint = i_path->find(pointId);
+	//if (currPoint == i_path->end())
+	//	return false;
+
+	// Allow Moving with next tick
+	// Handle allow movement this way to not interact with PAUSED state.
+	// If this function is called while PAUSED, it will move properly when unpaused.
+	i_nextMoveTime.Reset(1);
+	m_isArrivalDone = false;
+
+	// Set the point
+	i_currentNode = pointId;
+	return true;
+}
+
 //----------------------------------------------------//
 uint32 FlightPathMovementGenerator::GetPathAtMapEnd() const
 {

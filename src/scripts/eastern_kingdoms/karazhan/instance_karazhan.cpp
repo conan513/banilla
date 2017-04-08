@@ -457,7 +457,7 @@ void instance_karazhan::DoPrepareChessEvent()
                 pSquare = GetClosestCreatureWithEntry(pChessPiece, NPC_SQUARE_WHITE, 2.0f);
             if (!pSquare)
             {
-                //script_error_log("Instance Karazhan: ERROR Failed to properly load the Chess square for %s.", pChessPiece->GetGuidStr().c_str());
+				sLog.outString("Instance Karazhan: ERROR Failed to properly load the Chess square for %s.", pChessPiece->GetGuidStr().c_str());
                 return;
             }
 
@@ -475,7 +475,7 @@ void instance_karazhan::DoPrepareChessEvent()
                 pSquare = GetClosestCreatureWithEntry(pChessPiece, NPC_SQUARE_WHITE, 2.0f);
             if (!pSquare)
             {
-                //script_error_log("Instance Karazhan: ERROR Failed to properly load the Chess square for %s.", pChessPiece->GetGuidStr().c_str());
+				sLog.outString("Instance Karazhan: ERROR Failed to properly load the Chess square for %s.", pChessPiece->GetGuidStr().c_str());
                 return;
             }
 
@@ -507,7 +507,7 @@ void instance_karazhan::DoPrepareChessEvent()
 
     if (lStalkers.empty())
     {
-       // script_error_log("Instance Karazhan: ERROR Failed to properly load the horde side stalkers for the Chess Event.");
+		sLog.outString("Instance Karazhan: ERROR Failed to properly load the horde side stalkers for the Chess Event.");
         return;
     }
 
@@ -529,7 +529,7 @@ void instance_karazhan::DoPrepareChessEvent()
 
     if (lStalkers.empty())
     {
-        //script_error_log("Instance Karazhan: ERROR Failed to properly load the alliance side stalkers for the Chess Event.");
+		sLog.outString("Instance Karazhan: ERROR Failed to properly load the alliance side stalkers for the Chess Event.");
         return;
     }
 

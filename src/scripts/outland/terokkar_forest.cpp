@@ -1156,14 +1156,14 @@ struct npc_skyguard_prisonerAI : public npc_escortAI
                 SetEscortPaused(true);
                 //SetCurrentWaypoint(WP_ID_SPAWN_1);
                 //SetEscortPaused(false);
-               // script_error_log("NPC entry %u, location %f, %f, %f does not have waypoints implemented for current spawn location. Please contact customer support!", m_creature->GetEntry(), m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ());
+				sLog.outString("NPC entry %u, location %f, %f, %f does not have waypoints implemented for current spawn location. Please contact customer support!", m_creature->GetEntry(), m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ());
             }
             else if (m_creature->GetPositionZ() < 330.0f)
             {
                 SetEscortPaused(true);
                 //SetCurrentWaypoint(WP_ID_SPAWN_2);
                 //SetEscortPaused(false);
-                //script_error_log("NPC entry %u, location %f, %f, %f does not have waypoints implemented for current spawn location. Please contact customer support!", m_creature->GetEntry(), m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ());
+				sLog.outString("NPC entry %u, location %f, %f, %f does not have waypoints implemented for current spawn location. Please contact customer support!", m_creature->GetEntry(), m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ());
             }
             // else just use standard WP
 

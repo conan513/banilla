@@ -524,6 +524,16 @@ void MotionMaster::propagateSpeedChange()
         (*it)->unitSpeedChanged();
 }
 
+bool MotionMaster::SetNextWaypoint(uint32 pointId)
+{
+	for (Impl::container_type::reverse_iterator rItr = Impl::c.rbegin(); rItr != Impl::c.rend(); ++rItr)
+	{
+		if ((*rItr)->GetMovementGeneratorType() == WAYPOINT_MOTION_TYPE)
+			return (static_cast<WaypointMovementGenerator<Creature>*>(*rItr))->SetNextWaypoint(pointId);
+	}
+	return false;
+}
+
 uint32 MotionMaster::getLastReachedWaypoint() const
 {
     for (Impl::container_type::const_reverse_iterator rItr = Impl::c.rbegin(); rItr != Impl::c.rend(); ++rItr)

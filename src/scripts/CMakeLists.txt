@@ -273,6 +273,17 @@ set (SCRIPTS_SRCS
 	kalimdor/tanaris/tanaris.cpp
 	kalimdor/tanaris/zulfarrak/instance_zulfarrak.cpp
 	kalimdor/tanaris/zulfarrak/zulfarrak.cpp
+	kalimdor/tanaris/caverns_of_time/dark_portal/boss_aeonus.cpp
+	kalimdor/tanaris/caverns_of_time/dark_portal/boss_chrono_lord_deja.cpp
+	kalimdor/tanaris/caverns_of_time/dark_portal/boss_temporus.cpp
+	kalimdor/tanaris/caverns_of_time/dark_portal/dark_portal.cpp
+	kalimdor/tanaris/caverns_of_time/dark_portal/instance_dark_portal.cpp
+	kalimdor/tanaris/caverns_of_time/hyjal/boss_archimonde.cpp
+	kalimdor/tanaris/caverns_of_time/hyjal/hyjal.cpp
+	kalimdor/tanaris/caverns_of_time/hyjal/hyjalAI.cpp
+	kalimdor/tanaris/caverns_of_time/hyjal/instance_hyjal.cpp
+	kalimdor/tanaris/caverns_of_time/old_hillsbrad/instance_old_hillsbrad.cpp
+	kalimdor/tanaris/caverns_of_time/old_hillsbrad/old_hillsbrad.cpp
 	kalimdor/teldrassil/teldrassil.cpp
 	kalimdor/the_barrens/the_barrens.cpp
 	kalimdor/the_barrens/razorfen_downs/boss_amnennar_the_coldbringer.cpp
@@ -287,7 +298,7 @@ set (SCRIPTS_SRCS
 	kalimdor/ungoro_crater/ungoro_crater.cpp
 	kalimdor/winterspring/winterspring.cpp
         kalimdor/azuremyst_isle/azuremyst_isle.cpp
-	kalimdor/bloodmyst_isle/bloodmyst_isle.cpp
+	kalimdor/bloodmyst_isle/bloodmyst_isle.cpp	
 	outland/blades_edge_mountains.cpp
 	outland/boss_doomlord_kazzak.cpp
 	outland/boss_doomwalker.cpp

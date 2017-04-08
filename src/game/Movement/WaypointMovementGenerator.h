@@ -89,6 +89,8 @@ public PathMovementBase<Creature, WaypointPath const*>
         void AddToWaypointPauseTime(int32 waitTimeDiff);
 
         uint32 getLastReachedWaypoint() const { return m_lastReachedWaypoint; }
+		
+		bool SetNextWaypoint(uint32 pointId);
 
     protected:
 

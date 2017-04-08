@@ -432,6 +432,21 @@ void npc_escortAI::FillPointMovementListForCreature()
     }
 }
 
+void npc_escortAI::SetCurrentWaypoint(uint32 uiPointId)
+{
+	if (!(HasEscortState(STATE_ESCORT_PAUSED)))             // Only when paused
+	{
+		sLog.outDebug("EscortAI for %s tried to set new waypoint %u, but not paused", m_creature->GetGuidStr().c_str(), uiPointId);
+		return;
+	}
+
+	if (!m_creature->GetMotionMaster()->SetNextWaypoint(uiPointId))
+	{
+		sLog.outDebug("EscortAI for %s current waypoint tried to set to id %u, but doesn't exist in this path", m_creature->GetGuidStr().c_str(), uiPointId);
+		return;
+	}
+}
+
 void npc_escortAI::SetRun(bool bRun)
 {
     if (bRun)

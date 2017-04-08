@@ -263,7 +263,7 @@ struct npc_demolitionist_legosoAI : public npc_escortAI, private DialogueHelper
 
         if (lBarrelsInRange.empty())
         {
-           // script_error_log("Bloodmyst Isle: ERROR Failed to find any gameobjects of entry %u in range.", uiEntry);
+			sLog.outString("Bloodmyst Isle: ERROR Failed to find any gameobjects of entry %u in range.", uiEntry);
             return;
         }
 
@@ -298,7 +298,7 @@ struct npc_demolitionist_legosoAI : public npc_escortAI, private DialogueHelper
 
         if (lFiresInRange.empty())
         {
-            //script_error_log("Bloodmyst Isle: ERROR Failed to find any gameobjects of entry %u and %u in range.", GO_COIL_FIRE_L, GO_COIL_FIRE_S);
+			sLog.outString("Bloodmyst Isle: ERROR Failed to find any gameobjects of entry %u and %u in range.", GO_COIL_FIRE_L, GO_COIL_FIRE_S);
             return;
         }
 
