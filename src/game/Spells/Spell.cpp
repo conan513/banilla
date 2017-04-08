@@ -2915,6 +2915,7 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                 case SPELL_EFFECT_ENCHANT_ITEM:
                 case SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY:
                 case SPELL_EFFECT_DISENCHANT:
+				case SPELL_EFFECT_PROSPECTING:
                 case SPELL_EFFECT_FEED_PET:
 				case SPELL_EFFECT_REFORGE_ITEM:
                     if (m_targets.getItemTarget())
@@ -6979,6 +6980,29 @@ SpellCastResult Spell::CheckItems()
                     return SPELL_FAILED_CANT_BE_DISENCHANTED;
                 break;
             }
+			case SPELL_EFFECT_PROSPECTING:
+			{
+				if (!m_targets.getItemTarget())
+					return SPELL_FAILED_CANT_BE_PROSPECTED;
+				// ensure item is a prospectable ore
+				if (!(m_targets.getItemTarget()->GetProto()->Flags & ITEM_FLAG_IS_PROSPECTABLE))
+					return SPELL_FAILED_CANT_BE_PROSPECTED;
+				// prevent prospecting in trade slot
+				if (m_targets.getItemTarget()->GetOwnerGuid() != m_caster->GetObjectGuid())
+					return SPELL_FAILED_CANT_BE_PROSPECTED;
+				// Check for enough skill in jewelcrafting
+				uint32 item_prospectingskilllevel = m_targets.getItemTarget()->GetProto()->RequiredSkillRank;
+				if (item_prospectingskilllevel > p_caster->GetSkillValue(SKILL_JEWELCRAFTING))
+					return SPELL_FAILED_LOW_CASTLEVEL;
+				// make sure the player has the required ores in inventory
+				if (int32(m_targets.getItemTarget()->GetCount()) < CalculateDamage(SpellEffectIndex(i), m_caster))
+					return SPELL_FAILED_CANT_BE_PROSPECTED;
+
+				if (!LootTemplates_Prospecting.HaveLootFor(m_targets.getItemTargetEntry()))
+					return SPELL_FAILED_CANT_BE_PROSPECTED;
+
+				break;
+			}
             case SPELL_EFFECT_WEAPON_DAMAGE:
             case SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL:
             {

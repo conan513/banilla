@@ -7445,6 +7445,10 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, Player* pVictim)
                         loot->FillLoot(item->GetProto()->DisenchantID, LootTemplates_Disenchant, this, true);
                         item->SetLootState(ITEM_LOOT_TEMPORARY);
                         break;
+					case LOOT_PROSPECTING:
+						loot->FillLoot(item->GetEntry(), LootTemplates_Prospecting, this, true);
+						item->SetLootState(ITEM_LOOT_TEMPORARY);
+						break;
                     default:
                         loot->FillLoot(item->GetEntry(), LootTemplates_Item, this, true, item->GetProto()->MaxMoneyLoot == 0);
                         loot->generateMoneyLoot(item->GetProto()->MinMoneyLoot, item->GetProto()->MaxMoneyLoot);

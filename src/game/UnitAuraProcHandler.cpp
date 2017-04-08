@@ -2554,7 +2554,22 @@ SpellAuraProcResult Unit::HandleOverrideClassScriptAuraProc(Unit *pVictim, uint3
 		case 5024:                                          //Overheat
 		{
 			if (HasAura(54778))
-				RemoveAurasDueToSpell(54778);
+			{
+				float chance;
+				if (HasAura(12341))
+					chance = 50;
+				else if (HasAura(12340))
+					chance = 40;
+				else if (HasAura(12339))
+					chance = 30;
+				else if (HasAura(12338))
+					chance = 20;
+				else if (HasAura(11069))
+					chance = 10;
+
+				if (roll_chance_i(chance))
+					RemoveAurasDueToSpell(54778);
+			}
 
 			triggered_spell_id = 54777;
 
@@ -2563,8 +2578,22 @@ SpellAuraProcResult Unit::HandleOverrideClassScriptAuraProc(Unit *pVictim, uint3
 		case 5025:
 		{
 			if (HasAura(54777))
-				RemoveAurasDueToSpell(54777);
+			{
+				float chance;
+				if (HasAura(16766))
+					chance = 50;
+				else if (HasAura(16765))
+					chance = 40;
+				else if (HasAura(16763))
+					chance = 30;
+				else if (HasAura(12473))
+					chance = 20;
+				else if (HasAura(11070))
+					chance = 10;
 
+				if (roll_chance_i(chance))
+					RemoveAurasDueToSpell(54777);
+			}
 			triggered_spell_id = 54778;                     // Hypothermia
 			break;
 		}

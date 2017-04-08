@@ -42,6 +42,7 @@ LootStore LootTemplates_Gameobject("gameobject_loot_template",   "gameobject loo
 LootStore LootTemplates_Item("item_loot_template",         "item entry with ITEM_FLAG_LOOTABLE", true);
 LootStore LootTemplates_Mail("mail_loot_template",         "mail template id",               false);
 LootStore LootTemplates_Pickpocketing("pickpocketing_loot_template", "creature pickpocket lootid",     true);
+LootStore LootTemplates_Prospecting("prospecting_loot_template", "item entry (ore)", true);
 LootStore LootTemplates_Reference("reference_loot_template",    "reference id",                   false);
 LootStore LootTemplates_Skinning("skinning_loot_template",     "creature skinning id",           true);
 
@@ -1448,6 +1449,31 @@ void LoadLootTemplates_Pickpocketing()
     LootTemplates_Pickpocketing.ReportUnusedIds(ids_set);
 }
 
+void LoadLootTemplates_Prospecting()
+{
+	LootIdSet ids_set;
+	LootTemplates_Prospecting.LoadAndCollectLootIds(ids_set);
+
+	// remove real entries and check existence loot
+	for (uint32 i = 1; i < sItemStorage.GetMaxEntry(); ++i)
+	{
+		ItemPrototype const* proto = sItemStorage.LookupEntry<ItemPrototype>(i);
+		if (!proto)
+			continue;
+
+		if (!(proto->Flags & ITEM_FLAG_IS_PROSPECTABLE))
+			continue;
+
+		if (ids_set.find(proto->ItemId) != ids_set.end())
+			ids_set.erase(proto->ItemId);
+		// else -- exist some cases that possible can be prospected but not expected have any result loot
+		//    LootTemplates_Prospecting.ReportNotExistedId(proto->ItemId);
+	}
+
+	// output error for any still listed (not referenced from appropriate table) ids
+	LootTemplates_Prospecting.ReportUnusedIds(ids_set);
+}
+
 void LoadLootTemplates_Mail()
 {
     LootIdSet ids_set;
@@ -1499,6 +1525,7 @@ void LoadLootTemplates_Reference()
     LootTemplates_Gameobject.CheckLootRefs(&ids_set);
     LootTemplates_Item.CheckLootRefs(&ids_set);
     LootTemplates_Pickpocketing.CheckLootRefs(&ids_set);
+	LootTemplates_Prospecting.CheckLootRefs(&ids_set);
     LootTemplates_Skinning.CheckLootRefs(&ids_set);
     LootTemplates_Disenchant.CheckLootRefs(&ids_set);
     LootTemplates_Mail.CheckLootRefs(&ids_set);

@@ -113,12 +113,17 @@ enum ItemPrototypeFlags
     ITEM_FLAG_PARTY_LOOT                      = 0x00000800, // determines if item is party loot or not
     ITEM_FLAG_UNK12                           = 0x00001000, // not used in pre-3.x
     ITEM_FLAG_CHARTER                         = 0x00002000, // guild charter
-    ITEM_FLAG_UNK14                           = 0x00004000,
-    ITEM_FLAG_UNK15                           = 0x00008000, // a lot of items have this
-    ITEM_FLAG_UNK16                           = 0x00010000, // a lot of items have this
-    ITEM_FLAG_UNK17                           = 0x00020000, // last used flag in 1.12.1
+    ITEM_FLAG_HAS_TEXT                        = 0x00004000,
+	ITEM_FLAG_NO_DISENCHANT                   = 0x00008000, // a lot of items have this
+	ITEM_FLAG_REAL_DURATION                   = 0x00010000, // a lot of items have this
+	ITEM_FLAG_NO_CREATOR                      = 0x00020000, // last used flag in 1.12.1
+	ITEM_FLAG_IS_PROSPECTABLE = 0x00040000, // item can have prospecting loot (in fact some items expected have empty loot)
 
     ITEM_FLAG_UNIQUE_EQUIPPED                 = 0x00080000, // custom server side check, in client added in 2.x
+	ITEM_FLAG_IGNORE_FOR_AURAS                = 0x00100000,
+	ITEM_FLAG_IGNORE_DEFAULT_ARENA_RESTRICTIONS = 0x00200000,
+	ITEM_FLAG_NO_DURABILITY_LOSS               = 0x00400000, // Only items of ITEM_SUBCLASS_WEAPON_THROWN have it but not all, so can't be used as in game check
+	ITEM_FLAG_USE_WHEN_SHAPESHIFTED           = 0x00800000, // last used flag in 2.3.0
 };
 
 enum BagFamily

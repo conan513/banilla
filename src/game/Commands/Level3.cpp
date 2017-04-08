@@ -380,6 +380,15 @@ bool ChatHandler::HandleReloadLootTemplatesPickpocketingCommand(char* /*args*/)
     return true;
 }
 
+bool ChatHandler::HandleReloadLootTemplatesProspectingCommand(char* /*args*/)
+{
+	sLog.outString("Re-Loading Loot Tables... (`prospecting_loot_template`)");
+	LoadLootTemplates_Prospecting();
+	LootTemplates_Prospecting.CheckLootRefs();
+	SendGlobalSysMessage("DB table `prospecting_loot_template` reloaded.");
+	return true;
+}
+
 bool ChatHandler::HandleReloadLootTemplatesMailCommand(char* /*args*/)
 {
     sLog.outString("Re-Loading Loot Tables... (`mail_loot_template`)");

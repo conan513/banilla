@@ -382,6 +382,7 @@ extern LootStore LootTemplates_Gameobject;
 extern LootStore LootTemplates_Item;
 extern LootStore LootTemplates_Mail;
 extern LootStore LootTemplates_Pickpocketing;
+extern LootStore LootTemplates_Prospecting;
 extern LootStore LootTemplates_Skinning;
 extern LootStore LootTemplates_Disenchant;
 extern LootStore LootTemplates_Reference;
@@ -392,6 +393,7 @@ void LoadLootTemplates_Gameobject();
 void LoadLootTemplates_Item();
 void LoadLootTemplates_Mail();
 void LoadLootTemplates_Pickpocketing();
+void LoadLootTemplates_Prospecting();
 void LoadLootTemplates_Skinning();
 void LoadLootTemplates_Disenchant();
 
@@ -405,6 +407,7 @@ inline void LoadLootTables()
     LoadLootTemplates_Item();
     LoadLootTemplates_Mail();
     LoadLootTemplates_Pickpocketing();
+	LoadLootTemplates_Prospecting();
     LoadLootTemplates_Skinning();
     LoadLootTemplates_Disenchant();
 

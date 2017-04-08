@@ -629,7 +629,8 @@ class MANGOS_DLL_SPEC ChatHandler
         bool HandleReloadLootTemplatesDisenchantCommand(char* args);
         bool HandleReloadLootTemplatesFishingCommand(char* args);
         bool HandleReloadLootTemplatesGameobjectCommand(char* args);
-        bool HandleReloadLootTemplatesItemCommand(char* args);
+        bool HandleReloadLootTemplatesItemCommand(char* args); 
+		bool HandleReloadLootTemplatesProspectingCommand(char* args);
         bool HandleReloadLootTemplatesMailCommand(char* args);
         bool HandleReloadLootTemplatesPickpocketingCommand(char* args);
         bool HandleReloadLootTemplatesReferenceCommand(char* args);

@@ -7578,6 +7578,37 @@ uint32 Unit::MeleeDamageBonusDone(Unit* pVictim, uint32 pdamage, WeaponAttackTyp
 	if (HasAura(54554))
 		DonePercent *= 1.25f;
 
+	//Hunter 
+	if (attType == RANGED_ATTACK)
+	{
+		float distance = GetDistance(pVictim);
+		//Survalist
+		
+		if (distance <= 20 && HasAura(19259))
+			DonePercent *= 1.06f;
+		else if (distance <= 19 && HasAura(19258))
+			DonePercent *= 1.05f;
+		else if (distance <= 18 && HasAura(19257))
+			DonePercent *= 1.04f;
+		else if (distance <= 17 && HasAura(19256))
+			DonePercent *= 1.03f;
+		else if (distance <= 16 && HasAura(19255))
+			DonePercent *= 1.02f;
+
+		//Ranged Combat Specialization
+
+		if (distance >= 30 && HasAura(19511))
+			DonePercent *= 1.05f;
+		else if (distance >= 30 && HasAura(19510))
+			DonePercent *= 1.04f;
+		else if (distance >= 30 && HasAura(19509))
+			DonePercent *= 1.03f;
+		else if (distance >= 30 && HasAura(19508))
+			DonePercent *= 1.02f;
+		else if (distance >= 30 && HasAura(19507))
+			DonePercent *= 1.01f;
+	}
+
     // final calculation
     // =================
 
