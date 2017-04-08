@@ -107,7 +107,7 @@ namespace MaNGOS
         inline uint32 Gain(Player *pl, Unit *u)
         {
             if (u->GetTypeId()==TYPEID_UNIT && (
-                u->GetUInt32Value(UNIT_CREATED_BY_SPELL) ||
+                (u->GetUInt32Value(UNIT_CREATED_BY_SPELL) && !u->IsPet()) ||
                 (((Creature*)u)->GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_NO_XP_AT_KILL) ||
                 u->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NO_KILL_REWARD)))
                 return 0;
@@ -120,6 +120,8 @@ namespace MaNGOS
             {
                 if (crea->IsElite())
                     xp_gain *= 2;
+                if (u->IsPet())
+                    xp_gain *= 0.75f;
                 xp_gain *= crea->GetXPModifierDueToDamageOrigin();
             }
 
@@ -129,7 +131,7 @@ namespace MaNGOS
         inline uint32 PetGain(Pet *pet, Unit *u)
         {
             if(u->GetTypeId()==TYPEID_UNIT && (
-                u->GetUInt32Value(UNIT_CREATED_BY_SPELL) ||
+                (u->GetUInt32Value(UNIT_CREATED_BY_SPELL) && !u->IsPet()) ||
                 (((Creature*)u)->GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_NO_XP_AT_KILL) ||
                 u->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NO_KILL_REWARD)))
                 return 0;
@@ -140,6 +142,9 @@ namespace MaNGOS
 
             if(u->GetTypeId()==TYPEID_UNIT && ((Creature*)u)->IsElite())
                 xp_gain *= 2;
+
+            if(u->GetTypeId()==TYPEID_UNIT && u->IsPet())
+                xp_gain *= 0.75f;
 
             return (uint32)(xp_gain*sWorld.getConfig(CONFIG_FLOAT_RATE_XP_KILL));
         }
