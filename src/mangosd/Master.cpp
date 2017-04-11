@@ -279,7 +279,7 @@ int Master::Run()
         return 1;
     }
 
-	system("PAUSE");
+	//system("PAUSE");
     ///- Initialize the World
     sWorld.SetInitialWorldSettings();
 

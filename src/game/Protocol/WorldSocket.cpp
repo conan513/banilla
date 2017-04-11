@@ -225,7 +225,8 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
 
     delete result;
 
-    bool isBanned = fields[11].GetBool();
+	/*
+    bool isBanned = (bool)fields[11].GetUInt8();
     if (isBanned || sAccountMgr.IsIPBanned(GetRemoteAddress()))
     {
         packet.Initialize(SMSG_AUTH_RESPONSE, 1);
@@ -235,7 +236,7 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
         sLog.outError("WorldSocket::HandleAuthSession: Sent Auth Response (Account banned).");
         return -1;
     }
-
+	*/
     // Check locked state for server
     AccountTypes allowedAccountType = sWorld.GetPlayerSecurityLimit();
 
