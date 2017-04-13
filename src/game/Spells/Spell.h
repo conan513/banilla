@@ -37,7 +37,7 @@
 
 #include <memory>
 
-#define MAX_SPELL_ID 40000
+#define MAX_SPELL_ID 60000
 
 class WorldSession;
 class WorldPacket;

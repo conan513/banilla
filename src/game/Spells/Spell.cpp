@@ -1915,9 +1915,23 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
         }
         case TARGET_CHAIN_DAMAGE:
         {
+			Unit* pUnitTarget = nullptr;
+			// implement taunt redirect
+			if (m_caster->HasAuraType(SPELL_AURA_MOD_TAUNT))
+			{
+				if (Aura* tauntAura = m_caster->GetBestAuraType(SPELL_AURA_MOD_TAUNT))
+					if (tauntAura->GetCaster() && tauntAura->GetCaster()->GetTypeId() == TYPEID_PLAYER)
+						pUnitTarget = tauntAura->GetCaster();
+			}
+
             if (EffectChainTarget <= 1)
             {
-                if (Unit* pUnitTarget = m_caster->SelectMagnetTarget(m_targets.getUnitTarget(), this, effIndex))
+				if (pUnitTarget)
+				{
+					m_targets.setUnitTarget(pUnitTarget);
+					targetUnitMap.push_back(pUnitTarget);
+				}
+                else if (pUnitTarget = m_caster->SelectMagnetTarget(m_targets.getUnitTarget(), this, effIndex))
                 {
                     m_targets.setUnitTarget(pUnitTarget);
                     targetUnitMap.push_back(pUnitTarget);
@@ -1925,7 +1939,9 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
             }
             else
             {
-                Unit* pUnitTarget = m_targets.getUnitTarget();
+				if (!pUnitTarget)
+					pUnitTarget = m_targets.getUnitTarget();
+				
                 if (Unit* redirectTarget = m_caster->SelectMagnetTarget(m_targets.getUnitTarget(), this, effIndex))
                 {
                     if (redirectTarget != pUnitTarget)
@@ -4045,7 +4061,8 @@ void Spell::SendSpellStart()
     if (!IsNeedSendToClient())
         return;
 
-    DEBUG_FILTER_LOG(LOG_FILTER_SPELL_CAST, "Sending SMSG_SPELL_START id=%u", m_spellInfo->Id);
+	//if (m_caster->GetTypeId() == TYPEID_PLAYER)
+	DEBUG_FILTER_LOG(LOG_FILTER_SPELL_CAST, "Sending SMSG_SPELL_START id=%u", m_spellInfo->Id);
 
     uint32 castFlags = CAST_FLAG_UNKNOWN2;
     if (IsRangedSpell())

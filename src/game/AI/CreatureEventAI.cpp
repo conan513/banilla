@@ -134,6 +134,7 @@ bool CreatureEventAI::ProcessEvent(CreatureEventAIHolder& pHolder, Unit* pAction
         return false;
 
     CreatureEventAI_Event const& event = pHolder.Event;
+	//sLog.outErrorDb("CreatureEventAI: Creature %u process Event %u, Type(%u)", m_creature->GetEntry(), pHolder.Event.event_id, pHolder.Event.event_type);
 
     //Check event conditions based on the event type, also reset events
     switch (event.event_type)
@@ -558,12 +559,16 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
 								m_LastSpellMaxRange = spellRange->maxRange;
 						}
 					}
-					break;
 				}
 
-
-                if (castResult == CAST_FAIL_POWER || castResult == CAST_FAIL_TOO_FAR || castResult == CAST_FAIL_NOT_IN_LOS)
-                    bGoMelee = true;
+				if (castResult == CAST_FAIL_POWER || castResult == CAST_FAIL_TOO_FAR || castResult == CAST_FAIL_NOT_IN_LOS)
+				{
+					bGoMelee = true;
+					if (m_DynamicMovement)
+					{
+						m_LastSpellMaxRange = 0.0f;
+					}
+				}
                 if (castResult == CAST_FAIL_STATE && pSpell->PreventionType == SPELL_PREVENTION_TYPE_SILENCE)
                     bGoMelee = true;
             }
@@ -1327,22 +1332,28 @@ void CreatureEventAI::UpdateAI(const uint32 diff)
    // if (Combat && m_MeleeEnabled && m_creature->CanReachWithMeleeAttack(m_creature->getVictim()))
    //     DoMeleeAttackIfReady();
 
-	if (Combat && m_MeleeEnabled && m_creature->CanReachWithMeleeAttack(m_creature->getVictim()))
+	Unit* victim = m_creature->getVictim();
+	if (Combat && m_MeleeEnabled && victim)
 	{
-		        // Update creature dynamic movement position before doing anything else
+		// Update creature dynamic movement position before doing anything else
+		if (!m_creature->hasUnitState(UNIT_STAT_CAN_NOT_REACT) && !m_creature->IsNonMeleeSpellCasted(false))
+		{
 			if (m_DynamicMovement)
 			{
-			if (!m_creature->hasUnitState(UNIT_STAT_CAN_NOT_REACT) && !m_creature->IsNonMeleeSpellCasted(false))
+				if (m_creature->IsWithinLOSInMap(victim))
 				{
-				if (m_LastSpellMaxRange && m_creature->IsInRange(m_creature->getVictim(), 0, (m_LastSpellMaxRange / 1.5f)))
-					SetCombatMovement(false, true);
+					if (m_LastSpellMaxRange && m_creature->IsInRange(m_creature->getVictim(), 0, (m_LastSpellMaxRange / 1.5f)))
+						SetCombatMovement(false, true);
+					else
+						SetCombatMovement(true, true);
+				}
 				else
 					SetCombatMovement(true, true);
-				}
 			}
-		else if (m_MeleeEnabled)
-			DoMeleeAttackIfReady();
+			else if (m_MeleeEnabled && m_creature->CanReachWithMeleeAttack(m_creature->getVictim()) && !(m_creature->GetCreatureInfo()->flags_extra & CREATURE_EXTRA_FLAG_NO_MELEE))
+				DoMeleeAttackIfReady();
 		}
+	}
 }
 
 inline uint32 CreatureEventAI::GetRandActionParam(uint32 rnd, uint32 param1, uint32 param2, uint32 param3)
