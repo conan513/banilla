@@ -1270,6 +1270,14 @@ void Creature::SelectLevel(const CreatureInfo *cinfo, float percentHealth, float
     uint32 maxhealth = std::max(cinfo->maxhealth, cinfo->minhealth);
     uint32 health = uint32(healthmod * (minhealth + uint32(rellevel * (maxhealth - minhealth))));
 
+	if (cinfo->armormultiplier > 0)
+	{
+		// Use Creature Stats to calculate stat values
+
+		// health
+		health = health * cinfo->healthmultiplier;
+	}
+
     SetCreateHealth(health);
     SetMaxHealth(health);
 
@@ -1282,6 +1290,12 @@ void Creature::SelectLevel(const CreatureInfo *cinfo, float percentHealth, float
     uint32 minmana = std::min(cinfo->maxmana, cinfo->minmana);
     uint32 maxmana = std::max(cinfo->maxmana, cinfo->minmana);
     uint32 mana = minmana + uint32(rellevel * (maxmana - minmana));
+
+	if (cinfo->armormultiplier > 0)
+	{
+		// mana
+		mana = mana * cinfo->powermultiplier;
+	}
 
     SetCreateMana(mana);
     SetMaxPower(POWER_MANA, mana);                          //MAX Mana

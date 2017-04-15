@@ -113,6 +113,11 @@ namespace MaNGOS
                 return 0;
 
             uint32 xp_gain= BaseGain(pl->getLevel(), u->getLevel());
+
+			if (Creature* creatureUnit = dynamic_cast<Creature*>(u))
+				if (creatureUnit->GetCreatureInfo()->experiencemultiplier)
+					xp_gain *= creatureUnit->GetCreatureInfo()->experiencemultiplier;
+
             if (!xp_gain)
                 return 0;
 
