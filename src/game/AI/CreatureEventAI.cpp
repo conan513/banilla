@@ -134,7 +134,7 @@ bool CreatureEventAI::ProcessEvent(CreatureEventAIHolder& pHolder, Unit* pAction
         return false;
 
     CreatureEventAI_Event const& event = pHolder.Event;
-	//sLog.outErrorDb("CreatureEventAI: Creature %u process Event %u, Type(%u)", m_creature->GetEntry(), pHolder.Event.event_id, pHolder.Event.event_type);
+	sLog.outErrorDb("CreatureEventAI: Creature %u process Event %u, Type(%u)", m_creature->GetEntry(), pHolder.Event.event_id, pHolder.Event.event_type);
 
     //Check event conditions based on the event type, also reset events
     switch (event.event_type)
