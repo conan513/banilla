@@ -6284,8 +6284,9 @@ void Player::DismountCheck()
         for (auto& aura : auras)
         {
             Spell mountSpell(this, aura->GetSpellProto(), true);
+            SpellCastResult pCheck = mountSpell.CheckCast(true);
 
-            if (mountSpell.CheckCast(true) != SPELL_CAST_OK)
+            if (pCheck != SPELL_CAST_OK && pCheck != SPELL_FAILED_AFFECTING_COMBAT)
             {
                 RemoveSpellsCausingAura(SPELL_AURA_MOUNTED);
                 Unmount(true);
@@ -6461,7 +6462,7 @@ void Player::CheckDuelDistance(time_t currTime)
             CombatStopWithPets(true);
             if (duel->opponent)
                 duel->opponent->CombatStopWithPets(true);
-            
+
             DuelComplete(DUEL_FLED);
         }
     }
@@ -6592,7 +6593,7 @@ void Player::_ApplyItemMods(Item *item, uint8 slot, bool apply)
         _ApplyItemBonuses(proto, slot, false);
 
         if (slot == EQUIPMENT_SLOT_RANGED)
-            _ApplyAmmoBonuses(); 
+            _ApplyAmmoBonuses();
     }
 
     DEBUG_LOG("_ApplyItemMods complete.");
