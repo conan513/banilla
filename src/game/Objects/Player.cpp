@@ -12995,12 +12995,20 @@ void Player::RewardQuest(Quest const *pQuest, uint32 reward, WorldObject* questG
         {
             if (uint32 itemId = pQuest->RewItemId[i])
             {
+				uint32 noSpaceForCount = 0;
+				uint32 count = pQuest->RewItemCount[i];
+
                 ItemPosCountVec dest;
-                if (CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemId, pQuest->RewItemCount[i]) == EQUIP_ERR_OK)
+                if (CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemId, count, &noSpaceForCount) == EQUIP_ERR_OK)
                 {
                     Item* item = StoreNewItem(dest, itemId, true, Item::GenerateItemRandomPropertyId(itemId));
                     SendNewItem(item, pQuest->RewItemCount[i], true, false);
                 }
+				else
+					count = noSpaceForCount;
+				
+					if (count == 0 || dest.empty()) // can't add any
+						SendItemByMail(this, pQuest->RewItemId[i], count);
             }
         }
     }
@@ -21150,4 +21158,74 @@ bool Player::CanReforgeItem(Item* itemTarget)
 	}
 
 	return false;
+}
+
+void Player::SendItemByMail(Player *plr, uint32 item, uint32 count)
+{
+
+	ItemPrototype const* itemProto = ObjectMgr::GetItemPrototype(item);
+	if (!itemProto)
+		return;
+
+	if (Item* mailItem = Item::CreateItem(item, count, plr))
+	{
+		// save new item before send
+		mailItem->SaveToDB();                               // save for prevent lost at next mail load, if send fail then item will deleted
+
+		int loc_idx = plr->GetSession()->GetSessionDbLocaleIndex();
+
+		// subject: item name
+		std::string subject = itemProto->Name1;
+
+		ItemLocale const *il = sObjectMgr.GetItemLocale(itemProto->ItemId);
+		// text
+		std::stringstream mail_text;
+		mail_text << "There was not enough space in your bags to store the item.\n\n";
+		uint32 itemTextId = sObjectMgr.CreateItemText(mail_text.str());
+
+		MailDraft(subject, itemTextId)
+			.AddItem(mailItem)
+			.SendMailTo(plr, MailSender(this, MAIL_STATIONERY_GM));
+	}
+}
+
+void Player::CheckAndAnnounceServerFirst(Creature* creature)
+{
+	QueryResult *result = CharacterDatabase.PQuery("SELECT faction FROM server_first WHERE entry = %u", creature->GetEntry());
+	if (!result || (result->GetRowCount() == 1))
+	{
+		// Construct message
+		std::string msg = "Congratulations to ";
+		msg.append(GetName());
+		std::string guildName = sGuildMgr.GetGuildNameById(GetGuildId());
+		if (guildName != "")
+		{
+			msg.append(" from ");
+			msg.append(guildName);
+		}
+		msg.append(" for defeating ");
+		msg.append(creature->GetName());
+		msg.append("!");
+
+		if (result)
+		{
+			// Faction first
+			Field *fields = result->Fetch();
+			uint32 teamId = fields[0].GetUInt32();
+			if (GetTeamId() != teamId)
+			{
+				sWorld.SendWorldText(GetTeamId() == TEAM_ALLIANCE ? LANG_ALLIANCE_FIRST : LANG_HORDE_FIRST, 0, msg.c_str());
+				// Update database
+				CharacterDatabase.PExecute("INSERT INTO server_first (entry, faction, character_id, guild_id) VALUES (%i, %i, %i, %i)", creature->GetEntry(), GetTeamId(), GetGUIDLow(), GetGuildId());
+			}
+		}
+		else
+		{
+			// Server first
+			sWorld.SendWorldText(LANG_SERVER_FIRST, 0, msg.c_str());
+			sWorld.SendWorldText(GetTeamId() == TEAM_ALLIANCE ? LANG_ALLIANCE_FIRST : LANG_HORDE_FIRST, 0, msg.c_str());
+			// Update database
+			CharacterDatabase.PExecute("INSERT INTO server_first (entry, faction, character_id, guild_id) VALUES (%i, %i, %i, %i)", creature->GetEntry(), GetTeamId(), GetGUIDLow(), GetGuildId());
+		}
+	}
 }

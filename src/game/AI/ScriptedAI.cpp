@@ -525,3 +525,31 @@ uint32 ScriptedAI::RandomizeUp(uint32 interval, float multiplier)
 	else multiplier = GetAdventureCooldownMultiplier(m_creature->GetTargetGuid());
 	return int(interval + interval * multiplier);
 }
+
+void ScriptedAI::ServerFirst(Unit *killer)
+{
+	Player* player = NULL;
+	if (killer)
+	{
+		switch (killer->GetTypeId())
+		{
+		case TYPEID_UNIT:
+			if (((Creature*)killer)->IsPet() && ((Pet*)killer)->GetOwner()->GetTypeId() == TYPEID_PLAYER)
+			{
+				player = (Player*)((Pet*)killer)->GetOwner();
+			}
+			break;
+		case TYPEID_PLAYER:
+			player = (Player*)killer;
+			break;
+		default:
+			return;
+		}
+	}
+
+	if (player && !player->isGameMaster())
+	{
+		player->CheckAndAnnounceServerFirst(m_creature);
+	}
+
+}

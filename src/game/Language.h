@@ -1065,5 +1065,8 @@ enum MangosStrings
     // opvp si
     LANG_OPVP_SI_CAPTURE_H              = 10049,
     LANG_OPVP_SI_CAPTURE_A              = 10050,
+	LANG_SERVER_FIRST = 13001,
+	LANG_ALLIANCE_FIRST = 13002,
+	LANG_HORDE_FIRST = 13003
 };
 #endif

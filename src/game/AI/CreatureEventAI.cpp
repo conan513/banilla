@@ -124,6 +124,30 @@ CreatureEventAI::CreatureEventAI(Creature *c) : CreatureAI(c)
     Reset();
 }
 
+bool CreatureEventAI::IsTimerBasedEvent(EventAI_Type type) const
+{
+	switch (type)
+	{
+	case EVENT_T_TIMER:
+	case EVENT_T_TIMER_OOC:
+	case EVENT_T_TIMER_GENERIC:
+	case EVENT_T_MANA:
+	case EVENT_T_HP:
+	case EVENT_T_TARGET_HP:
+	case EVENT_T_TARGET_CASTING:
+	case EVENT_T_FRIENDLY_HP:
+	case EVENT_T_FRIENDLY_IS_CC:
+	case EVENT_T_AURA:
+	case EVENT_T_TARGET_AURA:
+	case EVENT_T_MISSING_AURA:
+	case EVENT_T_TARGET_MISSING_AURA:
+	case EVENT_T_RANGE:
+	case EVENT_T_ENERGY:
+		return true;
+	default:
+		return false;
+	}
+}
 bool CreatureEventAI::ProcessEvent(CreatureEventAIHolder& pHolder, Unit* pActionInvoker, Creature* pAIEventSender /*=nullptr*/)
 {
     if (!pHolder.Enabled || pHolder.Time)
@@ -131,10 +155,16 @@ bool CreatureEventAI::ProcessEvent(CreatureEventAIHolder& pHolder, Unit* pAction
 
     //Check the inverse phase mask (event doesn't trigger if current phase bit is set in mask)
     if (pHolder.Event.event_inverse_phase_mask & (1 << m_Phase))
-        return false;
+	{
+		if (!IsTimerBasedEvent(pHolder.Event.event_type))
+			sLog.outErrorDb("CreatureEventAI: Event %u skipped because of phasemask %u. Current phase %u", pHolder.Event.event_id, pHolder.Event.event_inverse_phase_mask, m_Phase);
+		return false;
+	}
 
-    CreatureEventAI_Event const& event = pHolder.Event;
-	sLog.outErrorDb("CreatureEventAI: Creature %u process Event %u, Type(%u)", m_creature->GetEntry(), pHolder.Event.event_id, pHolder.Event.event_type);
+	if (!IsTimerBasedEvent(pHolder.Event.event_type))
+		sLog.outErrorDb("CreatureEventAI: Creature %u process Event %u, Type(%u)", m_creature->GetEntry(), pHolder.Event.event_id, pHolder.Event.event_type);
+
+    CreatureEventAI_Event const& event = pHolder.Event;	
 
     //Check event conditions based on the event type, also reset events
     switch (event.event_type)
@@ -1300,10 +1330,12 @@ void CreatureEventAI::UpdateAI(const uint32 diff)
                     case EVENT_T_TARGET_HP:
                     case EVENT_T_TARGET_CASTING:
                     case EVENT_T_FRIENDLY_HP:
+					case EVENT_T_FRIENDLY_IS_CC:
                     case EVENT_T_AURA:
                     case EVENT_T_TARGET_AURA:
                     case EVENT_T_MISSING_AURA:
                     case EVENT_T_TARGET_MISSING_AURA:
+					case EVENT_T_ENERGY:
                         if (Combat)
                             ProcessEvent(*i);
                         break;

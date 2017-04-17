@@ -686,6 +686,8 @@ class MANGOS_DLL_SPEC CreatureEventAI : public CreatureAI
         void DoFindFriendlyCC(std::list<Creature*>& _list, float range);
 		void SetAttackDistance(float distance) { m_AttackDistance = distance; }
     protected:
+		bool IsTimerBasedEvent(EventAI_Type type) const;
+
         uint32 m_EventUpdateTime;                           //Time between event updates
         uint32 m_EventDiff;                                 //Time between the last event call
         bool   m_bEmptyList;

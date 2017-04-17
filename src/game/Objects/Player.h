@@ -902,6 +902,8 @@ class MANGOS_DLL_SPEC Player final: public Unit
         void SendInitialPacketsAfterAddToMap(bool login = true);
         void SendTransferAborted(uint32 mapid, uint8 reason, uint8 arg = 0);
         void SendInstanceResetWarning(uint32 mapid, uint32 time);
+		// Server First Announcement PvE
+		void CheckAndAnnounceServerFirst(Creature* creature);
 
         Creature* GetNPCIfCanInteractWith(ObjectGuid guid, uint32 npcflagmask);
         GameObject* GetGameObjectIfCanInteractWith(ObjectGuid guid, uint32 gameobject_type = MAX_GAMEOBJECT_TYPE) const;
@@ -1123,6 +1125,7 @@ class MANGOS_DLL_SPEC Player final: public Unit
         void DestroyItem( uint8 bag, uint8 slot, bool update );
         void DestroyItemCount( uint32 item, uint32 count, bool update, bool unequip_check = false);
         void DestroyItemCount( Item* item, uint32& count, bool update );
+		void SendItemByMail(Player *plr, uint32 item, uint32 count);
         /**
          * @brief Destroys equipped item $itemId and updates the Player
          * @param itemId
