@@ -53,6 +53,7 @@
 #include "MoveSplineInit.h"
 #include "MoveSpline.h"
 #include "Anticheat.h"
+#include "LuaEngine.h"
 
 // apply implementation of the singletons
 #include "Policies/SingletonImp.h"
@@ -176,6 +177,7 @@ Creature::Creature(CreatureSubtype subtype) :
 {
     m_regenTimer = 200;
     m_valuesCount = UNIT_END;
+	DisableReputationGain = false;
 
     for (int i = 0; i < CREATURE_MAX_SPELLS; ++i)
         m_spells[i] = 0;
@@ -204,12 +206,16 @@ void Creature::AddToWorld()
     sCreatureGroupsManager->LoadCreatureGroup(this, _creatureGroup);
     if (_creatureGroup && _creatureGroup->IsFormation())
         SetActiveObjectState(true);
+
     Unit::AddToWorld();
 
     if (!i_AI)
         AIM_Initialize();
     if (!bWasInWorld && m_zoneScript)
         m_zoneScript->OnCreatureCreate(this);
+
+	if (!bWasInWorld)
+		sEluna->OnAddToWorld(this);
 }
 
 void Creature::RemoveFromWorld()
@@ -217,6 +223,8 @@ void Creature::RemoveFromWorld()
     ///- Remove the creature from the accessor
     if (IsInWorld())
     {
+		sEluna->OnRemoveFromWorld(this);
+
         if (AI())
             AI()->OnRemoveFromWorld();
         if (GetObjectGuid().GetHigh() == HIGHGUID_UNIT)

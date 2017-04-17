@@ -61,6 +61,8 @@
 #include "packet_builder.h"
 #include "Chat.h"
 #include "Anticheat.h"
+#include "LuaEngine.h"
+#include "ElunaEventMgr.h"
 
 #include <math.h>
 #include <stdarg.h>
@@ -255,6 +257,8 @@ void Unit::Update(uint32 update_diff, uint32 p_time)
         }
         ++it;
     }
+
+	elunaEvents->Update(update_diff);
 
     // WARNING! Order of execution here is important, do not change.
     // Spells must be processed with event system BEFORE they go to _UpdateSpells.
@@ -1036,11 +1040,20 @@ void Unit::Kill(Unit* pVictim, SpellEntry const *spellProto, bool durabilityLoss
 
         if (group_tap)
             group_tap->RewardGroupAtKill(pVictim, player_tap);
-        else if (player_tap)
-            player_tap->RewardSinglePlayerAtKill(pVictim);
+		else if (player_tap)
+		{
+			player_tap->RewardSinglePlayerAtKill(pVictim);
+		}
+
+		// used by eluna
+		sEluna->OnCreatureKill(player_tap, creature);
     }
-    if (Player* playerVictim = pVictim->ToPlayer())
-        playerVictim->RewardHonorOnDeath();
+	if (Player* playerVictim = pVictim->ToPlayer())
+	{
+		playerVictim->RewardHonorOnDeath();
+		// used by eluna
+		sEluna->OnPVPKill(player_tap, playerVictim);
+	}
 
     // To be replaced if possible using ProcDamageAndSpell
     if (pVictim != this) // The one who has the fatal blow
@@ -1165,6 +1178,13 @@ void Unit::Kill(Unit* pVictim, SpellEntry const *spellProto, bool durabilityLoss
         // Call creature just died function
         if (creature->AI())
             creature->AI()->JustDied(this);
+
+		if (Creature* killer = ToCreature())
+		{
+			// used by eluna
+			if (Player* killed = pVictim->ToPlayer())
+				sEluna->OnPlayerKilledByCreature(killer, killed);
+		}
 
         if (creature->IsTemporarySummon())
         {
@@ -7966,6 +7986,10 @@ void Unit::SetInCombatState(bool PvP, Unit* enemy)
                 if (spell->m_spellInfo->ChannelInterruptFlags & CHANNEL_FLAG_ENTER_COMBAT)
                     InterruptSpell(CURRENT_CHANNELED_SPELL);
     }
+
+	// used by eluna
+	if (GetTypeId() == TYPEID_PLAYER)
+		sEluna->OnPlayerEnterCombat(ToPlayer(), enemy);
 }
 
 void Unit::ClearInCombat()
@@ -7973,16 +7997,24 @@ void Unit::ClearInCombat()
     m_CombatTimer = 0;
     RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
 
+	if (isCharmed() || (GetTypeId() != TYPEID_PLAYER && ((Creature*)this)->IsPet()))
+		RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT);
+
+	// used by eluna
+	if (GetTypeId() == TYPEID_PLAYER)
+		sEluna->OnPlayerLeaveCombat(ToPlayer());
+
     // Player's state will be cleared in Player::UpdateContestedPvP
     if (GetTypeId() != TYPEID_PLAYER)
     {
-        if (((Creature*)this)->GetCreatureInfo()->unit_flags & UNIT_FLAG_OOC_NOT_ATTACKABLE)
+		Creature* cThis = static_cast<Creature*>(this);
+        if (cThis->GetCreatureInfo()->unit_flags & UNIT_FLAG_OOC_NOT_ATTACKABLE && !(cThis->GetTemporaryFactionFlags() & TEMPFACTION_TOGGLE_OOC_NOT_ATTACK))
             SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
 
         clearUnitState(UNIT_STAT_ATTACK_PLAYER);
     }
 
-    RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT);
+  //  RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT);
 }
 
 bool Unit::isTargetableForAttack(bool inverseAlive /*=false*/) const
@@ -11806,6 +11838,15 @@ void Unit::SetFly(bool enable)
     else
         m_movementInfo.RemoveMovementFlag(MOVEFLAG_FLYING | MOVEFLAG_CAN_FLY);
 }
+
+void Unit::SetHover(bool enable)
+{
+	if (enable)
+		m_movementInfo.AddMovementFlag(MOVEFLAG_HOVER);
+	else
+		m_movementInfo.RemoveMovementFlag(MOVEFLAG_HOVER);
+}
+
 
 void Unit::DisableSpline()
 {

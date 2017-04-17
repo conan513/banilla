@@ -48,6 +48,7 @@
 #include "PathFinder.h"
 #include "CharacterDatabaseCache.h"
 #include "GameObjectAI.h"
+#include "LuaEngine.h"
 
 #define SPELL_CHANNEL_UPDATE_INTERVAL (1 * IN_MILLISECONDS)
 
@@ -3455,6 +3456,10 @@ void Spell::cast(bool skipCheck)
     // traded items have trade slot instead of guid in m_itemTargetGUID
     // set to real guid to be sent later to the client
     m_targets.updateTradeSlotItem();
+
+	// used by eluna
+	if (m_caster->GetTypeId() == TYPEID_PLAYER)
+		sEluna->OnSpellCast(m_caster->ToPlayer(), this, skipCheck);
 
     FillTargetMap();
     if (IsChanneledSpell(m_spellInfo))

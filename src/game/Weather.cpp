@@ -29,6 +29,7 @@
 #include "Log.h"
 #include "ObjectMgr.h"
 #include "Util.h"
+#include "LuaEngine.h"
 
 /// Weather sound defines ( only for 1.12 )
 enum WeatherSounds
@@ -267,6 +268,7 @@ bool Weather::UpdateWeather()
             break;
     }
 
+	sEluna->OnChange(this, m_zone, GetWeatherState(), m_grade);
     DETAIL_FILTER_LOG(LOG_FILTER_WEATHER, "Change the weather of zone %u to %s.", m_zone, wthstr);
 
     return true;
@@ -281,6 +283,41 @@ void Weather::SetWeather(WeatherType type, float grade)
     m_type = type;
     m_grade = grade;
     UpdateWeather();
+}
+
+// Get the sound number associated with the current weather
+WeatherState Weather::GetWeatherState() const
+{
+	if (m_grade < 0.27f)
+		return WEATHER_STATE_FINE;
+
+	switch (m_type)
+	{
+	case WEATHER_TYPE_RAIN:
+		if (m_grade < 0.40f)
+			return WEATHER_STATE_LIGHT_RAIN;
+		else if (m_grade < 0.70f)
+			return WEATHER_STATE_MEDIUM_RAIN;
+		else
+			return WEATHER_STATE_HEAVY_RAIN;
+	case WEATHER_TYPE_SNOW:
+		if (m_grade < 0.40f)
+			return WEATHER_STATE_LIGHT_SNOW;
+		else if (m_grade < 0.70f)
+			return WEATHER_STATE_MEDIUM_SNOW;
+		else
+			return WEATHER_STATE_HEAVY_SNOW;
+	case WEATHER_TYPE_STORM:
+		if (m_grade < 0.40f)
+			return WEATHER_STATE_LIGHT_SANDSTORM;
+		else if (m_grade < 0.70f)
+			return WEATHER_STATE_MEDIUM_SANDSTORM;
+		else
+			return WEATHER_STATE_HEAVY_SANDSTORM;
+	case WEATHER_TYPE_FINE:
+	default:
+		return WEATHER_STATE_FINE;
+	}
 }
 
 // Get the sound number associated with the current weather

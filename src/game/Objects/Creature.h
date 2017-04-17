@@ -522,6 +522,7 @@ class MANGOS_DLL_SPEC Creature : public Unit
         bool IsCorpse() const { return getDeathState() ==  CORPSE; }
         bool IsDespawned() const { return getDeathState() ==  DEAD; }
         void SetCorpseDelay(uint32 delay) { m_corpseDelay = delay; }
+		uint32 GetCorpseDelay() { return m_corpseDelay; }
         bool IsRacialLeader() const { return GetCreatureInfo()->RacialLeader; }
         bool IsCivilian() const { return GetCreatureInfo()->civilian; }
         bool IsTrigger() const { return GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_INVISIBLE; }
@@ -826,6 +827,9 @@ class MANGOS_DLL_SPEC Creature : public Unit
             return float(_playerDamageTaken) / (_playerDamageTaken + _nonPlayerDamageTaken);
         }
 
+		void SetDisableReputationGain(bool disable) { DisableReputationGain = disable; }
+		bool IsReputationGainDisabled() { return DisableReputationGain; }
+
     protected:
         bool MeetsSelectAttackingRequirement(Unit* pTarget, SpellEntry const* pSpellInfo, uint32 selectFlags) const;
 
@@ -893,6 +897,7 @@ class MANGOS_DLL_SPEC Creature : public Unit
         float m_CombatDistance;
         uint32 _lastDamageTakenForEvade;
         // Used to compute XP.
+		bool DisableReputationGain;
         uint32 _playerDamageTaken;
         uint32 _nonPlayerDamageTaken;
     private:

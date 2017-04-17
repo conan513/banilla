@@ -59,6 +59,8 @@ class Weather
         void SendWeatherUpdateToPlayer(Player *player);
         static void SendFineWeatherUpdateToPlayer(Player *player);
         void SetWeather(WeatherType type, float grade);
+		/// Calculate state based on type and grade
+		WeatherState GetWeatherState() const;
         /// For which zone is this weather?
         uint32 GetZone() { return m_zone; };
         bool Update(time_t diff);

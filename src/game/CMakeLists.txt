@@ -463,6 +463,7 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/AuctionHouse
   ${CMAKE_CURRENT_SOURCE_DIR}/AutoTesting
   ${CMAKE_CURRENT_SOURCE_DIR}/Battlegrounds
+  ${CMAKE_CURRENT_SOURCE_DIR}/LuaEngine
   ${CMAKE_CURRENT_SOURCE_DIR}/Chat
   ${CMAKE_CURRENT_SOURCE_DIR}/CinematicStuff
   ${CMAKE_CURRENT_SOURCE_DIR}/Commands
@@ -495,6 +496,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/dep/recastnavigation/Detour
   ${CMAKE_SOURCE_DIR}/dep/recastnavigation
   ${CMAKE_SOURCE_DIR}/dep/include
+  ${CMAKE_SOURCE_DIR}/dep/lualib
   ${CMAKE_SOURCE_DIR}/src/framework
   ${CMAKE_SOURCE_DIR}/src/framework/Network
   ${CMAKE_SOURCE_DIR}/src/shared
@@ -552,6 +554,7 @@ add_library(game STATIC
 target_link_libraries(game
   shared
   detour
+  lualib
 )
 
 #add_dependencies(game revision.h)

@@ -44,6 +44,7 @@
 #include "ZoneScript.h"
 #include "DynamicTree.h"
 #include "vmap/GameObjectModel.h"
+#include "LuaEngine.h"
 
 GameObject::GameObject() : WorldObject(),
     loot(this),
@@ -76,6 +77,8 @@ GameObject::~GameObject()
 
 void GameObject::AddToWorld()
 {
+	bool inWorld = IsInWorld();
+
     ///- Register the gameobject for guid lookup
     if (!IsInWorld())
     {
@@ -93,6 +96,9 @@ void GameObject::AddToWorld()
 
     if (!i_AI)
         AIM_Initialize();
+
+	if (!inWorld)
+		sEluna->OnAddToWorld(this);
 }
 
 void GameObject::AIM_Initialize()
@@ -107,6 +113,8 @@ void GameObject::RemoveFromWorld()
     ///- Remove the gameobject from the accessor
     if (IsInWorld())
     {
+		sEluna->OnRemoveFromWorld(this);
+
         if (m_zoneScript)
             m_zoneScript->OnGameObjectRemove(this);
 
@@ -188,6 +196,8 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map *map, float x, float
 
     SetGoAnimProgress(animprogress);
 
+	sEluna->OnSpawn(this);
+
     //Notify the map's instance data.
     //Only works if you create the object in it, not if it is moves to that map.
     //Normally non-players do not teleport to other maps.
@@ -231,6 +241,9 @@ void GameObject::Update(uint32 update_diff, uint32 /*p_time*/)
         //((Transport*)this)->Update(p_time);
         return;
     }
+
+	// used by eluna
+	sEluna->UpdateAI(this, update_diff);
 
     ///- UpdateAI
     if (i_AI)
@@ -1975,6 +1988,7 @@ bool GameObject::PlayerCanUse(Player* pl)
 void GameObject::SetLootState(LootState state)
 {
     m_lootState = state;
+	sEluna->OnLootStateChanged(this, state);
     UpdateCollisionState();
 }
 
@@ -1982,6 +1996,7 @@ void GameObject::SetGoState(GOState state)
 {
     //SetByteValue(GAMEOBJECT_BYTES_1, 0, state); // 3.3.5
     SetUInt32Value(GAMEOBJECT_STATE, state);
+	sEluna->OnGameObjectStateChanged(this, state);
     UpdateCollisionState();
 }
 

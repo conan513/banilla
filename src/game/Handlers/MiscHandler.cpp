@@ -46,6 +46,7 @@
 #include "Anticheat.h"
 #include "MasterPlayer.h"
 #include "GossipDef.h"
+#include "LuaEngine.h"
 
 void WorldSession::HandleRepopRequestOpcode(WorldPacket & /*recv_data*/)
 {
@@ -72,6 +73,9 @@ void WorldSession::HandleRepopRequestOpcode(WorldPacket & /*recv_data*/)
     // Waiting to Resurrect (probably redundant cast, yet to check thoroughly)
     if (player->InBattleGround())
         player->CastSpell(player, 2584, true);
+
+	// used by eluna
+	sEluna->OnRepop(GetPlayer());
 
     //this is spirit release confirm?
     player->RemovePet(PET_SAVE_REAGENTS);

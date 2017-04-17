@@ -1020,6 +1020,7 @@ class MANGOS_DLL_SPEC Player final: public Unit
         void Say(const std::string& text, const uint32 language);
         void Yell(const std::string& text, const uint32 language);
         void TextEmote(const std::string& text);
+		void Whisper(const std::string& text, const uint32 language, ObjectGuid receiver);
         void BuildPlayerChat(WorldPacket *data, uint8 msgtype, const std::string& text, uint32 language) const;
         static void BuildPlayerChat(ObjectGuid senderGuid, uint8 senderChatTag, WorldPacket *data, uint8 msgtype, const std::string& text, uint32 language);
 
@@ -1353,13 +1354,8 @@ class MANGOS_DLL_SPEC Player final: public Unit
 
         uint32 GetMoney() const { return GetUInt32Value (PLAYER_FIELD_COINAGE); }
         void LogModifyMoney(int32 d, const char* type, ObjectGuid fromGuid = ObjectGuid(), uint32 data = 0);
-        void ModifyMoney( int32 d )
-        {
-            if(d < 0)
-                SetMoney (GetMoney() > uint32(-d) ? GetMoney() + d : 0);
-            else
-                SetMoney (GetMoney() < uint32(MAX_MONEY_AMOUNT - d) ? GetMoney() + d : MAX_MONEY_AMOUNT);
-        }
+		void ModifyMoney(int32 d);
+
         void LootMoney(int32 g, Loot* loot);
         std::string GetShortDescription() const; // "player:guid [username:accountId@IP]"
 
@@ -1415,7 +1411,7 @@ class MANGOS_DLL_SPEC Player final: public Unit
         void learnSpellHighRank(uint32 spellid);
 
         uint32 GetFreeTalentPoints() const { return GetUInt32Value(PLAYER_CHARACTER_POINTS1); }
-        void SetFreeTalentPoints(uint32 points) { SetUInt32Value(PLAYER_CHARACTER_POINTS1,points); }
+		void SetFreeTalentPoints(uint32 points);
         void UpdateFreeTalentPoints(bool resetIfNeed = true);
         bool resetTalents(bool no_cost = false);
         uint32 resetTalentsCost() const;
@@ -1628,6 +1624,9 @@ class MANGOS_DLL_SPEC Player final: public Unit
             StopMirrorTimer(BREATH_TIMER);
             StopMirrorTimer(FIRE_TIMER);
         }
+		
+		void SetRoot(bool enable) override;
+		void SetWaterWalk(bool enable) override;
 
         void JoinedChannel(Channel *c);
         void LeftChannel(Channel *c);
@@ -2098,6 +2097,7 @@ class MANGOS_DLL_SPEC Player final: public Unit
         void SetAuraUpdateSlot(uint8 slot) { m_auraUpdateMask |= (uint64(1) << slot); }
         void SetAuraUpdateMask(uint64 mask) { m_auraUpdateMask = mask; }
         Player* GetNextRandomRaidMember(float radius);
+		PartyResult CanUninviteFromGroup() const;
 		Player* GetNextRaidMemberWithLowestLifePercentage(float radius, AuraType noAuraType);
         PartyResult CanUninviteFromGroup(ObjectGuid uninvitedGuid) const;
         void UpdateGroupLeaderFlag(const bool remove = false);

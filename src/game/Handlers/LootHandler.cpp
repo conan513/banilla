@@ -33,6 +33,7 @@
 #include "World.h"
 #include "Util.h"
 #include "Anticheat.h"
+#include "LuaEngine.h"
 
 void WorldSession::HandleAutostoreLootItemOpcode(WorldPacket & recv_data)
 {
@@ -275,10 +276,14 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket & /*recv_data*/)
                 WorldPacket data(SMSG_LOOT_MONEY_NOTIFY, 4);
                 data << uint32(money_per_player);
                 (*i)->GetSession()->SendPacket(&data);
+				sEluna->OnLootMoney((*i), money_per_player);
             }
         }
-        else
-            player->LootMoney(pLoot->gold, pLoot);
+		else
+		{
+			player->LootMoney(pLoot->gold, pLoot);
+			sEluna->OnLootMoney(player, pLoot->gold);
+		}
 
         pLoot->gold = 0;
 

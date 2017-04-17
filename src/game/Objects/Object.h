@@ -69,6 +69,7 @@ enum TempSummonType
 class WorldPacket;
 class UpdateData;
 class WorldSession;
+class GameObject;
 class Creature;
 class Player;
 class Unit;
@@ -78,6 +79,7 @@ class InstanceData;
 class TerrainInfo;
 class ZoneScript;
 class Transport;
+class ElunaEventProcessor;
 
 typedef UNORDERED_MAP<Player*, UpdateData> UpdateDataMapType;
 
@@ -681,9 +683,9 @@ class MANGOS_DLL_SPEC WorldObject : public Object
                 WorldObject * const m_obj;
         };
 
-        virtual ~WorldObject ( ) {}
+		virtual ~WorldObject();
 
-        virtual void Update(uint32 /*update_diff*/, uint32 /*time_diff*/);
+		virtual void Update(uint32 update_diff, uint32 /*time_diff*/);
 
         void _Create( uint32 guidlow, HighGuid guidhigh );
 
@@ -874,7 +876,7 @@ class MANGOS_DLL_SPEC WorldObject : public Object
         Map * FindMap() const { return m_currMap; }
 
         //used to check all object's GetMap() calls when object is not in world!
-        void ResetMap() { m_currMap = nullptr; }
+		void ResetMap();
 
         //obtain terrain data for map where this object belong...
         TerrainInfo const* GetTerrain() const;
@@ -920,6 +922,7 @@ class MANGOS_DLL_SPEC WorldObject : public Object
         //mapId/instanceId should be set in SetMap() function!
         void SetLocationMapId(uint32 _mapId) { m_mapId = _mapId; }
         void SetLocationInstanceId(uint32 _instanceId) { m_InstanceId = _instanceId; }
+		ElunaEventProcessor* elunaEvents;
 
     protected:
         explicit WorldObject();

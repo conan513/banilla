@@ -34,6 +34,7 @@
 #include "Util.h"
 #include "LootMgr.h"
 #include "SpellMgr.h"
+#include "LuaEngine.h"
 
 GroupMemberStatus GetGroupMemberStatus(const Player *member = nullptr)
 {
@@ -158,6 +159,7 @@ bool Group::Create(ObjectGuid guid, const char * name)
 
     _updateLeaderFlag();
 
+	sEluna->OnCreate(this, m_leaderGuid, m_groupType);
     return true;
 }
 
@@ -249,6 +251,9 @@ bool Group::AddInvite(Player *player)
 
     player->SetGroupInvite(this);
 
+	// used by eluna
+	sEluna->OnInviteMember(this, player->GetObjectGuid());
+
     return true;
 }
 
@@ -331,6 +336,9 @@ bool Group::AddMember(ObjectGuid guid, const char* name)
         if (Pet* pet = player->GetPet())
             pet->SetAuraUpdateMask(pet->GetAuraApplicationMask());
 
+		// used by eluna
+		sEluna->OnAddMember(this, player->GetObjectGuid());
+
         // quest related GO state dependent from raid membership
         if (isRaidGroup())
             player->UpdateForQuestWorldObjects();
@@ -396,6 +404,9 @@ uint32 Group::RemoveMember(ObjectGuid guid, uint8 method)
     else
         Disband(true);
 
+	// used by eluna
+	sEluna->OnRemoveMember(this, guid, method); // Kicker and Reason not a part of Mangos, implement?
+
     return m_memberSlots.size();
 }
 
@@ -404,6 +415,9 @@ void Group::ChangeLeader(ObjectGuid guid)
     member_citerator slot = _getMemberCSlot(guid);
     if (slot == m_memberSlots.end())
         return;
+
+	// used by eluna
+	sEluna->OnChangeLeader(this, guid, GetLeaderGuid());
 
     _setLeader(guid);
 
@@ -479,6 +493,8 @@ void Group::Disband(bool hideDestroy)
     _updateLeaderFlag(true);
     m_leaderGuid.Clear();
     m_leaderName = "";
+
+	sEluna->OnDisband(this);
 }
 
 /*********************************************************/

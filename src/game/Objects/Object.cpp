@@ -51,6 +51,8 @@
 #include "packet_builder.h"
 #include "MovementBroadcaster.h"
 #include "PlayerBroadcaster.h"
+#include "LuaEngine.h"
+#include "ElunaEventMgr.h"
 
 ////////////////////////////////////////////////////////////
 // Methods of class MovementInfo
@@ -1082,8 +1084,8 @@ void Object::ExecuteDelayedActions()
 }
 
 WorldObject::WorldObject()
-    : m_isActiveObject(false), m_currMap(nullptr), m_mapId(0), m_InstanceId(0)
-{
+    : elunaEvents(NULL), m_isActiveObject(false), m_currMap(nullptr), m_mapId(0), m_InstanceId(0)
+{	
     // Phasing
     worldMask = WORLD_DEFAULT_OBJECT;
     m_zoneScript = nullptr;
@@ -1091,12 +1093,24 @@ WorldObject::WorldObject()
     m_movementInfo.time = WorldTimer::getMSTime();
 }
 
+WorldObject::~WorldObject()
+{
+	delete elunaEvents;
+	elunaEvents = NULL;
+}
+
+
 void WorldObject::CleanupsBeforeDelete()
 {
     RemoveFromWorld();
 
     if (Transport* transport = GetTransport())
         transport->RemovePassenger(this);
+}
+
+void WorldObject::Update(uint32 update_diff, uint32 /*time_diff*/)
+{
+	elunaEvents->Update(update_diff);
 }
 
 void WorldObject::_Create(uint32 guidlow, HighGuid guidhigh)
@@ -1961,6 +1975,18 @@ void WorldObject::SetMap(Map * map)
     //lets save current map's Id/instanceId
     m_mapId = map->GetId();
     m_InstanceId = map->GetInstanceId();
+
+	delete elunaEvents;
+	// On multithread replace this with a pointer to map's Eluna pointer stored in a map
+	elunaEvents = new ElunaEventProcessor(&Eluna::GEluna, this);
+}
+
+void WorldObject::ResetMap()
+{
+	delete elunaEvents;
+	elunaEvents = NULL;
+
+	m_currMap = NULL;
 }
 
 TerrainInfo const* WorldObject::GetTerrain() const
@@ -2040,6 +2066,10 @@ Creature* WorldObject::SummonCreature(uint32 id, float x, float y, float z, floa
 
     if (GetTypeId() == TYPEID_UNIT && ((Creature*)this)->AI())
         ((Creature*)this)->AI()->JustSummoned(pCreature);
+
+	if (Unit* summoner = ToUnit())
+		sEluna->OnSummoned(pCreature, summoner);
+
     pCreature->SetWorldMask(GetWorldMask());
     // return the creature therewith the summoner has access to it
     return pCreature;

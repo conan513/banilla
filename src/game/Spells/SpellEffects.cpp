@@ -53,6 +53,7 @@
 #include "Util.h"
 #include "TemporarySummon.h"
 #include "MoveMapSharedDefines.h"
+#include "LuaEngine.h"
 
 #include "InstanceData.h"
 #include "ScriptMgr.h"
@@ -4255,6 +4256,14 @@ void Spell::EffectSummon(SpellEffectIndex eff_idx)
 
     if (m_caster->GetTypeId() == TYPEID_UNIT && ((Creature*)m_caster)->AI())
         ((Creature*)m_caster)->AI()->JustSummoned((Creature*)spawnCreature);
+
+	if (m_originalCaster && (m_originalCaster != m_caster))
+	{
+		if (Unit* summoner = m_originalCaster->ToUnit())
+			sEluna->OnSummoned(spawnCreature, summoner);
+	}
+	else if (Unit* summoner = m_caster->ToUnit())
+		sEluna->OnSummoned(spawnCreature, summoner);
 }
 
 void Spell::EffectLearnSpell(SpellEffectIndex eff_idx)
@@ -4590,6 +4599,16 @@ void Spell::EffectSummonWild(SpellEffectIndex eff_idx)
                     break;
             }
 
+			// Notify original caster if not done already
+			if (m_originalCaster && (m_originalCaster != m_caster) && (m_originalCaster->AI()))
+				m_originalCaster->AI()->JustSummoned(summon);
+			if (m_originalCaster && (m_originalCaster != m_caster))
+			{
+				if (Unit* summoner = m_originalCaster->ToUnit())
+					sEluna->OnSummoned(summon, summoner);
+			}
+			else if (Unit* summoner = m_caster->ToUnit())
+				sEluna->OnSummoned(summon, summoner);
             // UNIT_FIELD_CREATEDBY are not set for these kind of spells.
             // Does exceptions exist? If so, what are they?
             // summon->SetCreatorGuid(m_caster->GetObjectGuid());
@@ -4727,6 +4746,14 @@ void Spell::EffectSummonGuardian(SpellEffectIndex eff_idx)
                 spawnCreature->CastSpell(spawnCreature, 2585, true);
                 p->ModPossessPet(spawnCreature, true, AURA_REMOVE_BY_DEFAULT);
             }
+
+		if (m_originalCaster && (m_originalCaster != m_caster))
+		{
+			if (Unit* summoner = m_originalCaster->ToUnit())
+				sEluna->OnSummoned(spawnCreature, summoner);
+		}
+		else if (Unit* summoner = m_caster->ToUnit())
+			sEluna->OnSummoned(spawnCreature, summoner);
     }
 }
 
@@ -6335,6 +6362,9 @@ void Spell::EffectDuel(SpellEffectIndex eff_idx)
 
     caster->SetGuidValue(PLAYER_DUEL_ARBITER, pGameObj->GetObjectGuid());
     target->SetGuidValue(PLAYER_DUEL_ARBITER, pGameObj->GetObjectGuid());
+
+	// used by eluna
+	sEluna->OnDuelRequest(target, caster);
 }
 
 void Spell::EffectStuck(SpellEffectIndex /*eff_idx*/)

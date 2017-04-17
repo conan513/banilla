@@ -42,6 +42,7 @@
 #include "Anticheat.h"
 #include "MasterPlayer.h"
 #include "PlayerBroadcaster.h"
+#include "LuaEngine.h"
 
 // config option SkipCinematics supported values
 enum CinematicsSkipMode
@@ -363,6 +364,10 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket & recv_data)
     BASIC_LOG("Account: %d (IP: %s) Create Character:[%s] (guid: %u)", GetAccountId(), IP_str.c_str(), name.c_str(), pNewChar->GetGUIDLow());
     sLog.out(LOG_CHAR, "Account: %d (IP: %s) Create Character:[%s] (guid: %u)", GetAccountId(), IP_str.c_str(), name.c_str(), pNewChar->GetGUIDLow());
     sWorld.LogCharacter(pNewChar, "Create");
+
+	// used by eluna
+		sEluna->OnCreate(pNewChar);
+
     delete pNewChar;                                        // created only to call SaveToDB()
 }
 
@@ -407,6 +412,9 @@ void WorldSession::HandleCharDeleteOpcode(WorldPacket & recv_data)
     // If the character is online (ALT-F4 logout for example)
     if (Player* onlinePlayer = sObjectAccessor.FindPlayer(guid))
         onlinePlayer->GetSession()->LogoutPlayer(true);
+
+	// used by eluna
+	sEluna->OnDelete(lowguid);
 
     Player::DeleteFromDB(guid, GetAccountId());
 
@@ -730,6 +738,10 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder *holder)
         SendNotification(LANG_RESET_TALENTS);               // we can use SMSG_TALENTS_INVOLUNTARILY_RESET here
     }
 
+	// used by eluna
+	if (pCurrChar->HasAtLoginFlag(AT_LOGIN_FIRST))
+		sEluna->OnFirstLogin(pCurrChar);
+
     if (pCurrChar->HasAtLoginFlag(AT_LOGIN_FIRST))
         pCurrChar->RemoveAtLoginFlag(AT_LOGIN_FIRST);
 
@@ -756,6 +768,10 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder *holder)
 
     m_playerLoading = false;
     _clientMoverGuid = pCurrChar->GetObjectGuid();
+
+	// used by eluna
+	sEluna->OnLogin(pCurrChar);
+
     delete holder;
     if (alreadyOnline)
     {

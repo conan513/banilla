@@ -1365,6 +1365,7 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
 		bool IsCharmed() const { return !(GetCharmer() == nullptr); }
 		bool isSnared() const { return HasAuraType(SPELL_AURA_MOD_DECREASE_SPEED); }
 		bool IsImmobilized() const { return hasUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED); }
+		bool IsRooted() const { return m_movementInfo.HasMovementFlag(MOVEFLAG_ROOT); }
 
 		bool isAsleep() const { return HasAuraWithMechanic(MECHANIC_SLEEP); }
 		bool isSilenced()  const { return HasAuraWithMechanic(MECHANIC_SILENCE); }
@@ -1420,6 +1421,8 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         void SetWalk(bool enable, bool asDefault = true);
         void SetLevitate(bool enable);
 		void SetSwim(bool enable);
+		virtual void SetRoot(bool /*enabled*/) {}
+		virtual void SetWaterWalk(bool /*enabled*/) {}
 
         virtual bool CanWalk() const = 0;
         virtual bool CanFly() const = 0;
@@ -1428,6 +1431,7 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
 
         bool isAlive() const { return m_deathState == ALIVE; }
         bool isDead() const { return m_deathState == DEAD || m_deathState == CORPSE; }
+		bool isDying() const { return (m_deathState == JUST_DIED); }
         DeathState getDeathState() const { return m_deathState; }
         virtual void SetDeathState(DeathState s);           // overwritten in Creature/Player/Pet
 

@@ -62,6 +62,7 @@
 #include "GMTicketMgr.h"
 #include "Util.h"
 #include "CharacterDatabaseCleaner.h"
+#include "LuaEngine.h"
 
 #include "AutoBroadCastMgr.h"
 #include "AuctionHouseBotMgr.h"
@@ -586,6 +587,10 @@ void World::LoadConfigSettings(bool reload)
 	setConfig(CONFIG_UINT32_CUSTOM_REPAIR_CRITICAL_FAILURE_CHANCE, "RepairCriticalFailureChance", 0);
 	//Resistance Penaty
 	setConfig(CONFIG_BOOL_RESISTANCE_PENALTY, "Custom.ResistancePenalty", false);
+
+	setConfig(CONFIG_BOOL_ELUNA_ENABLED, "Eluna.Enabled", true);
+	if (reload)
+		sEluna->OnConfigLoad(reload);
 
     ///- Read other configuration items from the config file
     setConfigMinMax(CONFIG_UINT32_COMPRESSION, "Compression", 1, 1, 9);
@@ -1622,6 +1627,11 @@ void World::SetInitialWorldSettings()
 
     sAutoTestingMgr->Load();
 
+	// in multithread foreach: run scripts
+	sEluna->RunScripts();
+	sEluna->OnConfigLoad(false); // Must be done after Eluna is initialized and scripts have run
+	sLog.outString();
+
     m_broadcaster =
         std::make_unique<MovementBroadcaster>(sWorld.getConfig(CONFIG_UINT32_PACKET_BCAST_THREADS),
                                               std::chrono::milliseconds(sWorld.getConfig(CONFIG_UINT32_PACKET_BCAST_FREQUENCY)));
@@ -1779,6 +1789,8 @@ void World::Update(uint32 diff)
     sZoneScriptMgr.Update(diff);
     sAutoTestingMgr->Update(diff);
     sNodesMgr->OnWorldUpdate(diff);
+	///- used by eluna
+	sEluna->OnWorldUpdate(diff);
 
     ///- Update groups with offline leaders
     if (m_timers[WUPDATE_GROUPS].Passed())
@@ -2269,6 +2281,8 @@ void World::ShutdownServ(uint32 time, uint32 options, uint8 exitcode)
         m_ShutdownTimer = time;
         ShutdownMsg(true);
     }
+
+	sEluna->OnShutdownInitiate(ShutdownExitCode(exitcode), ShutdownMask(options));
 }
 
 /// Display a shutdown message to the user(s)
@@ -2316,6 +2330,8 @@ void World::ShutdownCancel()
     SendServerMessage(msgid);
 
     DEBUG_LOG("Server %s cancelled.", (m_ShutdownMask & SHUTDOWN_MASK_RESTART ? "restart" : "shutdown"));
+	///- Used by Eluna
+	sEluna->OnShutdownCancel();
 }
 
 /// Send a server message to the user(s)

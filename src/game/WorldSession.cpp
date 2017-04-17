@@ -50,6 +50,7 @@
 #include "NodeSession.h"
 #include "NodesOpcodes.h"
 #include "MasterPlayer.h"
+#include "LuaEngine.h"
 
 // select opcodes appropriate for processing in Map::Update context for current session state
 static bool MapSessionFilterHelper(WorldSession* session, OpcodeHandler const& opHandle)
@@ -226,6 +227,9 @@ void WorldSession::SendPacket(WorldPacket const* packet)
         m_masterSession->SendPacketToGameClient(GetAccountId(), packet);
         return;
     }
+
+	if (!sEluna->OnPacketSend(this, *packet))
+		return;
 
     if (m_Socket->SendPacket(*packet) == -1)
         m_Socket->CloseSocket();
@@ -790,6 +794,9 @@ void WorldSession::LogoutPlayer(bool Save)
             m_masterPlayer->SetSocial(nullptr);
         }
 
+		///- used by eluna
+		sEluna->OnLogout(_player);
+
         m_masterPlayer->SaveToDB();
         delete m_masterPlayer;
         m_masterPlayer = nullptr;
@@ -988,6 +995,9 @@ void WorldSession::SaveTutorialsData()
 
 void WorldSession::ExecuteOpcode(OpcodeHandler const& opHandle, WorldPacket* packet)
 {
+	if (!sEluna->OnPacketReceive(this, packet))
+		return;
+
     // need prevent do internal far teleports in handlers because some handlers do lot steps
     // or call code that can do far teleports in some conditions unexpectedly for generic way work code
     if (_player)

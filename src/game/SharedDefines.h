@@ -20,6 +20,9 @@
 #ifndef MANGOS_SHAREDDEFINES_H
 #define MANGOS_SHAREDDEFINES_H
 
+#define MANGOS
+#define CLASSIC
+
 #include "Platform/Define.h"
 #include <cassert>
 

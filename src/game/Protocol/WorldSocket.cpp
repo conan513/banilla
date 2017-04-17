@@ -27,6 +27,7 @@
 #include "WorldSocket.h"
 #include "WorldSocketMgr.h"
 #include "AddonHandler.h"
+#include "LuaEngine.h"
 
 #include "Opcodes.h"
 #include "MangosSocketImpl.h"
@@ -69,6 +70,9 @@ int WorldSocket::ProcessIncoming(WorldPacket* new_pct)
                     return -1;
                 }
 
+				if (!sEluna->OnPacketReceive(m_Session, new_pct))
+					return false;
+
                 return HandleAuthSession(*new_pct);
             default:
             {
@@ -78,6 +82,9 @@ int WorldSocket::ProcessIncoming(WorldPacket* new_pct)
                 {
                     // OK ,give the packet to WorldSession
                     aptr.release();
+
+					if (!sEluna->OnPacketReceive(m_Session, new_pct))
+						return false;
                     // WARNINIG here we call it with locks held.
                     // Its possible to cause deadlock if QueuePacket calls back
                     m_Session->QueuePacket(new_pct);

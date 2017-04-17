@@ -49,11 +49,13 @@
 #include "GridSearchers.h"
 #include "WaypointMovementGenerator.h"
 #include "Mail.h"
+#include "LuaEngine.h"
 
 #define MAX_GRID_LOAD_TIME      50
 
 Map::~Map()
 {
+	sEluna->OnDestroy(this);
     UnloadAll(true);
 
     if (!m_scriptSchedule.empty())
@@ -61,6 +63,9 @@ Map::~Map()
 
     if (m_persistentState)
         m_persistentState->SetUsedByMapState(NULL);         // field pointer can be deleted after this
+
+	if (Instanceable())
+		sEluna->FreeInstanceId(GetInstanceId());
 
     if (i_data)
     {
@@ -117,6 +122,8 @@ Map::Map(uint32 id, time_t expiry, uint32 InstanceId)
 
     m_persistentState = sMapPersistentStateMgr.AddPersistentState(i_mapEntry, GetInstanceId(), 0, IsDungeon());
     m_persistentState->SetUsedByMapState(this);
+
+	sEluna->OnCreate(this);
 }
 
 // Nostalrius
@@ -356,6 +363,9 @@ bool Map::Add(Player *player)
     NGridType* grid = getNGrid(cell.GridX(), cell.GridY());
     player->GetViewPoint().Event_AddedToWorld(&(*grid)(cell.CellX(), cell.CellY()));
     UpdateObjectVisibility(player, cell, p);
+
+	sEluna->OnMapChanged(player);
+	sEluna->OnPlayerEnter(this, player);
 
     if (i_data)
         i_data->OnPlayerEnter(player);
@@ -931,6 +941,8 @@ void Map::Update(uint32 t_diff)
     ///- Process necessary scripts
     ScriptsProcess();
 
+	sEluna->OnUpdate(this, t_diff);
+
     if (i_data)
         i_data->Update(t_diff);
 
@@ -978,6 +990,8 @@ void Map::Update(uint32 t_diff)
 
 void Map::Remove(Player *player, bool remove)
 {
+	sEluna->OnPlayerLeave(this, player);
+
     if (i_data)
         i_data->OnPlayerLeave(player);
 
@@ -1440,6 +1454,11 @@ void Map::AddObjectToRemoveList(WorldObject *obj)
 {
     MANGOS_ASSERT(obj->GetMapId() == GetId() && obj->GetInstanceId() == GetInstanceId());
 
+	if (Creature* creature = obj->ToCreature())
+		sEluna->OnRemove(creature);
+	else if (GameObject* gameobject = obj->ToGameObject())
+		sEluna->OnRemove(gameobject);
+
     obj->CleanupsBeforeDelete();                            // remove or simplify at least cross referenced links
     i_objectsToRemove_lock.acquire();
     i_objectsToRemove.insert(obj);
@@ -1611,6 +1630,10 @@ void Map::CreateInstanceData(bool load)
 {
     if (i_data)
         return;
+
+	InstanceData* el_i_data = sEluna->GetInstanceData(this);
+	if (el_i_data)
+		i_data = el_i_data;
 
     if (!i_mapEntry->scriptId)
         return;
