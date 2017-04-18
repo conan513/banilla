@@ -662,6 +662,10 @@ class MANGOS_DLL_SPEC GameObject : public WorldObject
 
         Loot        loot;
 
+		Player* GetLootRecipient() const;                   // use group cases as prefered
+		Group* GetGroupLootRecipient() const;
+		Player* GetOriginalLootRecipient() const;           // ignore group changes/etc, not for looting
+
         bool HasQuest(uint32 quest_id) const;
         bool HasInvolvedQuest(uint32 quest_id) const;
         bool ActivateToQuest(Player *pTarget) const;
@@ -712,7 +716,8 @@ class MANGOS_DLL_SPEC GameObject : public WorldObject
         LootState   m_lootState;
         bool        m_spawnedByDefault;
         time_t      m_cooldownTime;                         // used as internal reaction delay time store (not state change reaction).
-                                                            // For traps/goober this: spell casting cooldown, for doors/buttons: reset time.
+		ObjectGuid m_lootRecipientGuid;                     // player who will have rights for looting if m_lootGroupRecipient==0 or group disbanded
+		uint32 m_lootGroupRecipientId;                      // group who will have rights for looting if set and exist                                                   // For traps/goober this: spell casting cooldown, for doors/buttons: reset time.
 
         typedef std::set<ObjectGuid> GuidsSet;
 

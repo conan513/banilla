@@ -11839,15 +11839,6 @@ void Unit::SetFly(bool enable)
         m_movementInfo.RemoveMovementFlag(MOVEFLAG_FLYING | MOVEFLAG_CAN_FLY);
 }
 
-void Unit::SetHover(bool enable)
-{
-	if (enable)
-		m_movementInfo.AddMovementFlag(MOVEFLAG_HOVER);
-	else
-		m_movementInfo.RemoveMovementFlag(MOVEFLAG_HOVER);
-}
-
-
 void Unit::DisableSpline()
 {
     if (Player* me = ToPlayer())

@@ -2132,3 +2132,40 @@ void GameObject::Despawn()
     else
         AddObjectToRemoveList();
 }
+
+Player* GameObject::GetOriginalLootRecipient() const
+{
+	return m_lootRecipientGuid ? ObjectAccessor::FindPlayer(m_lootRecipientGuid) : nullptr;
+}
+
+Group* GameObject::GetGroupLootRecipient() const
+{
+	// original recipient group if set and not disbanded
+	return m_lootGroupRecipientId ? sObjectMgr.GetGroupById(m_lootGroupRecipientId) : nullptr;
+}
+
+Player* GameObject::GetLootRecipient() const
+{
+	// original recipient group if set and not disbanded
+	Group* group = GetGroupLootRecipient();
+
+	// original recipient player if online
+	Player* player = GetOriginalLootRecipient();
+
+	// if group not set or disbanded return original recipient player if any
+	if (!group)
+		return player;
+
+	// group case
+
+	// return player if it still be in original recipient group
+	if (player && player->GetGroup() == group)
+		return player;
+
+	// find any in group
+	for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
+		if (Player* newPlayer = itr->getSource())
+			return newPlayer;
+
+	return nullptr;
+}

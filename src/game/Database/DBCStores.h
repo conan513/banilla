@@ -38,6 +38,7 @@ uint32 GetTalentSpellCost(TalentSpellPos const* pos);
 TalentSpellPos const* GetTalentSpellPos(uint32 spellId);
 
 int32 GetAreaFlagByAreaID(uint32 area_id);                  // -1 if not found
+char const* GetAreaLocaleNameByAreaID(uint32 area_id, uint8 locale);
 //
 uint32 GetAreaIdByLocalizedName(const std::string& name);
 

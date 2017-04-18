@@ -16753,7 +16753,7 @@ void Player::Whisper(const std::string& text, uint32 language, ObjectGuid receiv
 	{
 		const ChatMsg msgtype = rPlayer->isAFK() ? CHAT_MSG_AFK : CHAT_MSG_DND;
 		data.clear();
-		ChatHandler::FillMessageData(&data, rPlayer->GetSession(), msgtype, LANG_UNIVERSAL,  rPlayer->GetObjectGuid(), autoReplyMsg.c_str());
+		ChatHandler::FillMessageData(&data, rPlayer->GetSession(), msgtype, LANG_UNIVERSAL,  rPlayer->GetObjectGuid(), afkMsg.c_str());
 		GetSession()->SendPacket(&data);
 	}
 }

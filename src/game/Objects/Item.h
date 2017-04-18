@@ -271,6 +271,9 @@ class MANGOS_DLL_SPEC Item : public Object
         }
 
         bool IsBag() const { return GetProto()->InventoryType == INVTYPE_BAG; }
+		Bag* ToBag() { if (IsBag()) return reinterpret_cast<Bag*>(this); else return NULL; }
+		bool IsNotEmptyBag();
+		bool IsLocked() const { return !HasFlag(ITEM_FIELD_FLAGS, ITEM_DYNFLAG_UNLOCKED); }
         bool IsBroken() const { return GetUInt32Value(ITEM_FIELD_MAXDURABILITY) > 0 && GetUInt32Value(ITEM_FIELD_DURABILITY) == 0; }
         bool CanBeTraded() const;
         void SetInTrade(bool b = true) { mb_in_trade = b; }

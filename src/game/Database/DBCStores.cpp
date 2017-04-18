@@ -553,6 +553,13 @@ int32 GetAreaFlagByAreaID(uint32 area_id)
     return AreaEntry->exploreFlag;
 }
 
+char const* GetAreaLocaleNameByAreaID(uint32 area_id, uint8 locale)
+{
+	AreaTableEntry const* AreaEntry = sAreaStore.LookupEntry(area_id);
+	if (locale <  MAX_DBC_LOCALE)
+		return AreaEntry ? AreaEntry->area_name[locale] : NULL;
+}
+
 uint32 GetAreaIdByLocalizedName(const std::string& name) // Channel name provided
 {
     AreaTableEntry const* aEntry = NULL;

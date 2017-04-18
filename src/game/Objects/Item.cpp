@@ -828,6 +828,13 @@ uint8 Item::GetBagSlot() const
     return m_container ? m_container->GetSlot() : uint8(INVENTORY_SLOT_BAG_0);
 }
 
+bool Item::IsNotEmptyBag()
+{
+	if (Bag* bag = ToBag())
+		return !bag->IsEmpty();
+	return false;
+}
+
 bool Item::IsEquipped() const
 {
     return !IsInBag() && m_slot < EQUIPMENT_SLOT_END;

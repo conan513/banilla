@@ -995,7 +995,7 @@ void WorldSession::SaveTutorialsData()
 
 void WorldSession::ExecuteOpcode(OpcodeHandler const& opHandle, WorldPacket* packet)
 {
-	if (!sEluna->OnPacketReceive(this, packet))
+	if (!sEluna->OnPacketReceive(this, *packet))
 		return;
 
     // need prevent do internal far teleports in handlers because some handlers do lot steps

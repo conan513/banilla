@@ -813,6 +813,14 @@ void Object::SetUInt32Value(uint16 index, uint32 value)
     }
 }
 
+void Object::UpdateUInt32Value(uint16 index, uint32 value)
+{
+	MANGOS_ASSERT(index < m_valuesCount || PrintIndexError(index, true));
+
+	m_uint32Values[index] = value;
+	MarkForClientUpdate();
+}
+
 void Object::SetUInt64Value(uint16 index, const uint64 &value)
 {
     MANGOS_ASSERT(index + 1 < m_valuesCount || PrintIndexError(index, true));
@@ -1106,11 +1114,6 @@ void WorldObject::CleanupsBeforeDelete()
 
     if (Transport* transport = GetTransport())
         transport->RemovePassenger(this);
-}
-
-void WorldObject::Update(uint32 update_diff, uint32 /*time_diff*/)
-{
-	elunaEvents->Update(update_diff);
 }
 
 void WorldObject::_Create(uint32 guidlow, HighGuid guidhigh)
@@ -2760,8 +2763,9 @@ void WorldObject::GetPosition(float &x, float &y, float &z, Transport* t) const
         t->CalculatePassengerOffset(x, y, z);
 }
 
-void WorldObject::Update(uint32 /*update_diff*/, uint32 /*time_diff*/)
+void WorldObject::Update(uint32 update_diff, uint32 /*time_diff*/)
 {
+	elunaEvents->Update(update_diff);
     ExecuteDelayedActions();
 }
 
