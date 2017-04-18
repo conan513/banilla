@@ -1554,6 +1554,11 @@ void World::SetInitialWorldSettings()
     sLog.outString("Starting Map System");
     sMapMgr.Initialize();
 
+	// in multithread foreach: run scripts
+	sEluna->RunScripts();
+	sEluna->OnConfigLoad(false); // Must be done after Eluna is initialized and scripts have run
+	sLog.outString();
+
     ///- Initialize Battlegrounds
     sLog.outString("Starting BattleGround System");
     sBattleGroundMgr.CreateInitialBattleGrounds();
@@ -1626,11 +1631,6 @@ void World::SetInitialWorldSettings()
     sSpellMgr.LoadSpellGroupStackRules();
 
     sAutoTestingMgr->Load();
-
-	// in multithread foreach: run scripts
-	sEluna->RunScripts();
-	sEluna->OnConfigLoad(false); // Must be done after Eluna is initialized and scripts have run
-	sLog.outString();
 
     m_broadcaster =
         std::make_unique<MovementBroadcaster>(sWorld.getConfig(CONFIG_UINT32_PACKET_BCAST_THREADS),
