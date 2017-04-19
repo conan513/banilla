@@ -54,7 +54,7 @@ patches-*
 bin/*
 win/*
 build/*
-
+src/game/LuaEngine/*
 #
 # VS temporary files
 #
