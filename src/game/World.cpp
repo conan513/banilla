@@ -1194,6 +1194,10 @@ void World::SetInitialWorldSettings()
     sObjectMgr.SetHighestGuids();                           // must be after packing instances
     sLog.outString();
 
+	///- Initialize Lua Engine
+    sLog.outString("Initialize Eluna Lua Engine...");
+    Eluna::Initialize();
+	
     sLog.outString("Loading Page Texts...");
     sObjectMgr.LoadPageTexts();
 
@@ -1554,12 +1558,7 @@ void World::SetInitialWorldSettings()
     sLog.outString("Starting Map System");
     sMapMgr.Initialize();
 
-	// in multithread foreach: run scripts
-	sEluna->RunScripts();
-	sEluna->OnConfigLoad(false); // Must be done after Eluna is initialized and scripts have run
-	sLog.outString();
-
-    ///- Initialize Battlegrounds
+	///- Initialize Battlegrounds
     sLog.outString("Starting BattleGround System");
     sBattleGroundMgr.CreateInitialBattleGrounds();
 
@@ -1618,6 +1617,11 @@ void World::SetInitialWorldSettings()
         sObjectMgr.LoadFactionChangeMounts();
     }
 
+	// in multithread foreach: run scripts
+	sEluna->RunScripts();
+	sEluna->OnConfigLoad(false); // Must be done after Eluna is initialized and scripts have run
+	sLog.outString();
+	
     sLog.outString("Loading loot-disabled map list");
     sObjectMgr.LoadMapLootDisabled();
 
