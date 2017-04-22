@@ -4915,36 +4915,36 @@ SpellCastResult Spell::CheckCast(bool strict)
     }
     // Fin Nostalrius
 
-	// Prevent casting while sitting unless the spell allows it
-	if (!m_IsTriggeredSpell && m_caster->IsSitState() && !(m_spellInfo->Attributes & SPELL_ATTR_CASTABLE_WHILE_SITTING))
-		return SPELL_FAILED_NOT_STANDING;
+    // Prevent casting while sitting unless the spell allows it
+    if (!m_IsTriggeredSpell && m_caster->IsSitState() && !(m_spellInfo->Attributes & SPELL_ATTR_CASTABLE_WHILE_SITTING))
+        return SPELL_FAILED_NOT_STANDING;
+    
+    /*  Check cooldowns to prevent cheating (ignore passive spells, that client side visual only)
 
-	/*  Check cooldowns to prevent cheating (ignore passive spells, that client side visual only)
+        If the cast is an item cast, check the spell proto on the item for the category
+        cooldown to check, rather than this spell's category. This is due to bad
+        categories in the default Spell DBC.
+     */
 
-	If the cast is an item cast, check the spell proto on the item for the category
-	cooldown to check, rather than this spell's category. This is due to bad
-	categories in the default Spell DBC.
-	*/
+    uint32 spellCat = m_spellInfo->Category;
+    if (m_IsCastByItem)
+    {
+        // Find correct item category matching the current spell on item
+        // used when item spells have custom categories due to wrong category
+        // on spell
+        ItemPrototype const* proto = m_CastItem->GetProto();
+        for (int i = 0; i < MAX_ITEM_PROTO_SPELLS; i++)
+        {
+            if (proto->Spells[i].SpellId == m_spellInfo->Id)
+            {
+                spellCat = proto->Spells[i].SpellCategory;
+                break;
+            }
+        }
+    }
 
-	uint32 spellCat = m_spellInfo->Category;
-	if (m_IsCastByItem)
-	{
-		// Find correct item category matching the current spell on item
-		// used when item spells have custom categories due to wrong category
-		// on spell
-		ItemPrototype const* proto = m_CastItem->GetProto();
-		for (int i = 0; i < MAX_ITEM_PROTO_SPELLS; i++)
-		{
-			if (proto->Spells[i].SpellId == m_spellInfo->Id)
-			{
-				spellCat = proto->Spells[i].SpellCategory;
-				break;
-			}
-		}
-	}
-
-	if (m_caster->GetTypeId() == TYPEID_PLAYER && !(m_spellInfo->Attributes & SPELL_ATTR_PASSIVE)
-		&& !m_IsTriggeredSpell && (m_caster->HasSpellCooldown(m_spellInfo->Id) || m_caster->HasSpellCategoryCooldown(spellCat)))
+    if (m_caster->GetTypeId() == TYPEID_PLAYER && !(m_spellInfo->Attributes & SPELL_ATTR_PASSIVE) &&
+            (m_caster->HasSpellCooldown(m_spellInfo->Id) || m_caster->HasSpellCategoryCooldown(spellCat)))
     {
         if (m_triggeredByAuraSpell)
             return SPELL_FAILED_DONT_REPORT;
