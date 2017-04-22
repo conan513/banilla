@@ -40,10 +40,14 @@ bool CreatureEventAIHolder::UpdateRepeatTimer(Creature* creature, uint32 repeatM
         Time = repeatMin;
 	else if (repeatMax > repeatMin)
 	{
-		if (creature && creature->GetAttacker() && creature->GetAttacker()->GetTypeId() == TYPEID_PLAYER)
-			Time = urand(repeatMin, repeatMax) * GetAdventureCooldownMultiplier(creature->GetAttacker()->GetGUID());			
-		else
-			Time = urand(repeatMin, repeatMax);
+		if (creature)
+		{
+			Unit* attacker = creature->GetAttacker();
+			if (attacker &&  attacker->GetTypeId() == TYPEID_PLAYER)
+				Time = urand(repeatMin, repeatMax) * GetAdventureCooldownMultiplier(creature->GetAttacker()->GetGUID());
+			else
+				Time = urand(repeatMin, repeatMax);
+		}
 	}
     else
     {
