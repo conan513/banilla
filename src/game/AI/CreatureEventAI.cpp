@@ -38,8 +38,13 @@ bool CreatureEventAIHolder::UpdateRepeatTimer(Creature* creature, uint32 repeatM
 {
     if (repeatMin == repeatMax)
         Time = repeatMin;
-    else if (repeatMax > repeatMin)
-        Time = urand(repeatMin, repeatMax);
+	else if (repeatMax > repeatMin)
+	{
+		if (creature && creature->GetAttacker() && creature->GetAttacker()->GetTypeId() == TYPEID_PLAYER)
+			Time = urand(repeatMin, repeatMax) * GetAdventureCooldownMultiplier(creature->GetAttacker()->GetGUID());			
+		else
+			Time = urand(repeatMin, repeatMax);
+	}
     else
     {
         sLog.outErrorDb("CreatureEventAI: Creature %u using Event %u (Type = %u) has RandomMax < RandomMin. Event repeating disabled.", creature->GetEntry(), Event.event_id, Event.event_type);
@@ -161,8 +166,8 @@ bool CreatureEventAI::ProcessEvent(CreatureEventAIHolder& pHolder, Unit* pAction
 		return false;
 	}
 
-	if (!IsTimerBasedEvent(pHolder.Event.event_type))
-		sLog.outErrorDb("CreatureEventAI: Creature %u process Event %u, Type(%u)", m_creature->GetEntry(), pHolder.Event.event_id, pHolder.Event.event_type);
+	//if (!IsTimerBasedEvent(pHolder.Event.event_type))
+	//	sLog.outErrorDb("CreatureEventAI: Creature %u process Event %u, Type(%u)", m_creature->GetEntry(), pHolder.Event.event_id, pHolder.Event.event_type);
 
     CreatureEventAI_Event const& event = pHolder.Event;	
 

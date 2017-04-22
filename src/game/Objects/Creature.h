@@ -479,6 +479,7 @@ class MANGOS_DLL_SPEC Creature : public Unit
         bool Create(uint32 guidlow, CreatureCreatePos& cPos, CreatureInfo const* cinfo, Team team = TEAM_NONE, const CreatureData *data = nullptr, GameEventCreatureData const* eventData = nullptr);
         bool LoadCreatureAddon(bool reload = false);
 
+		Unit* GetAttacker() { return m_attacker; };
         // CreatureGroups
         CreatureGroup* GetCreatureGroup() const { return _creatureGroup; }
         void SetCreatureGroup(CreatureGroup* group) { _creatureGroup = group; }
@@ -902,6 +903,7 @@ class MANGOS_DLL_SPEC Creature : public Unit
 		bool DisableReputationGain;
         uint32 _playerDamageTaken;
         uint32 _nonPlayerDamageTaken;
+		Unit* m_attacker;
     private:
         GridReference<Creature> m_gridRef;
         CreatureInfo const* m_creatureInfo;

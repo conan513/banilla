@@ -139,9 +139,11 @@ struct MANGOS_DLL_DECL GenericSpellMob : public ScriptedAI
                 it->timer = urand(0, 3000);
             else
             {
-                if (it->initialMinCD == it->initialMaxCD)
-                    it->timer = it->initialMinCD;
-                else
+				if (it->initialMinCD == it->initialMaxCD)
+					it->timer = it->initialMinCD;
+				else if (m_creature && m_creature->GetAttacker() && m_creature->GetAttacker()->GetTypeId() == TYPEID_PLAYER)
+					it->timer = urand(it->initialMinCD, it->initialMaxCD) * GetAdventureCooldownMultiplier(m_creature->GetAttacker()->GetGUID());
+				else
                     it->timer = urand(it->initialMinCD, it->initialMaxCD);
             }
             /*else

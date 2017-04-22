@@ -2984,6 +2984,8 @@ void Creature::OnLeaveCombat()
 {
     UpdateCombatState(false);
 
+	m_attacker = nullptr;
+
     if (_creatureGroup)
         _creatureGroup->OnLeaveCombat(this);
 
@@ -2998,6 +3000,8 @@ void Creature::OnEnterCombat(Unit* pWho, bool notInCombat)
 {
     if (!pWho)
         return;
+
+	m_attacker = pWho;
 
     if (i_AI && !hasUnitState(UNIT_STAT_CONFUSED | UNIT_STAT_FLEEING))
         i_AI->AttackedBy(pWho);
