@@ -923,6 +923,13 @@ class MANGOS_DLL_SPEC WorldObject : public Object
         //mapId/instanceId should be set in SetMap() function!
         void SetLocationMapId(uint32 _mapId) { m_mapId = _mapId; }
         void SetLocationInstanceId(uint32 _instanceId) { m_InstanceId = _instanceId; }
+
+		bool IsWithinLootXPDist(WorldObject const* objToLoot) const;
+		
+		// val is added to CONFIG_FLOAT_GROUP_XP_DISTANCE when calculating
+		// if player should be eligible for loot and XP from this object.
+		void SetLootAndXPModDist(float val);
+
 		ElunaEventProcessor* elunaEvents;
 
     protected:
@@ -942,6 +949,8 @@ class MANGOS_DLL_SPEC WorldObject : public Object
         ViewPoint m_viewPoint;
 
         WorldUpdateCounter m_updateTracker;
+
+		float m_lootAndXPRangeModifier;
 };
 
 #endif

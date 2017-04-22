@@ -978,7 +978,7 @@ void ScriptMgr::LoadCreatureMovementScripts()
 
 void ScriptMgr::LoadDbScriptStrings()
 {
-    sObjectMgr.LoadMangosStrings(WorldDatabase, "db_script_string", MIN_DB_SCRIPT_STRING_ID, MAX_DB_SCRIPT_STRING_ID);
+	sObjectMgr.LoadMangosStrings(WorldDatabase, "db_script_string", MIN_DB_SCRIPT_STRING_ID, MAX_DB_SCRIPT_STRING_ID, false);
 
     std::set<int32> ids;
 
@@ -1624,7 +1624,7 @@ void ScriptMgr::LoadDatabase()
 void ScriptMgr::LoadScriptTexts()
 {
     sLog.outString("Loading Script Texts...");
-    LoadMangosStrings(WorldDatabase, "script_texts", TEXT_SOURCE_TEXT_START, TEXT_SOURCE_TEXT_END);
+	LoadMangosStrings(WorldDatabase, "script_texts", TEXT_SOURCE_TEXT_START, TEXT_SOURCE_TEXT_END, true);
 
     QueryResult* result = WorldDatabase.PQuery("SELECT entry, sound, type, language, emote FROM script_texts WHERE entry BETWEEN %i AND %i", TEXT_SOURCE_GOSSIP_END, TEXT_SOURCE_TEXT_START);
 
@@ -1686,7 +1686,7 @@ void ScriptMgr::LoadScriptTexts()
 void ScriptMgr::LoadScriptTextsCustom()
 {
     sLog.outString("Loading Custom Texts...");
-    LoadMangosStrings(WorldDatabase, "custom_texts", TEXT_SOURCE_CUSTOM_START, TEXT_SOURCE_CUSTOM_END);
+	LoadMangosStrings(WorldDatabase, "custom_texts", TEXT_SOURCE_CUSTOM_START, TEXT_SOURCE_CUSTOM_END, true);
 
     QueryResult* result = WorldDatabase.PQuery("SELECT entry, sound, type, language, emote FROM custom_texts WHERE entry BETWEEN %i AND %i", TEXT_SOURCE_CUSTOM_END, TEXT_SOURCE_CUSTOM_START);
 

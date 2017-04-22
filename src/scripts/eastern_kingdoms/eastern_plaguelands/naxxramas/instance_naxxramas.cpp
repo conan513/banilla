@@ -121,6 +121,9 @@ void instance_naxxramas::OnCreatureCreate(Creature* pCreature)
         case NPC_SUB_BOSS_TRIGGER:
             m_lGothTriggerList.push_back(pCreature->GetGUID());
             break;
+        case NPC_TESLA_COIL:
+            m_lThadTeslaCoilList.push_back(pCreature->GetObjectGuid());
+            break;
     }
 }
 
@@ -211,6 +214,14 @@ void instance_naxxramas::OnObjectCreate(GameObject* pGo)
             if (m_auiEncounter[11] == DONE)
                 pGo->SetGoState(GO_STATE_ACTIVE);
             break;
+        case GO_CONS_NOX_TESLA_FEUGEN:
+            if (m_auiEncounter[TYPE_THADDIUS] == DONE)
+                pGo->SetGoState(GO_STATE_READY);
+            break;
+        case GO_CONS_NOX_TESLA_STALAGG:
+            if (m_auiEncounter[TYPE_THADDIUS] == DONE)
+                pGo->SetGoState(GO_STATE_READY);
+            break;
 
         case GO_KELTHUZAD_WATERFALL_DOOR:
             m_uiKelthuzadDoorGUID = pGo->GetGUID();
@@ -251,6 +262,21 @@ void instance_naxxramas::OnObjectCreate(GameObject* pGo)
         case GO_CONS_PORTAL:
             m_uiConsPortalGUID = pGo->GetGUID();
             break;
+        default:
+            // Heigan Traps - many different entries which are only required for sorting
+            if (pGo->GetGoType() == GAMEOBJECT_TYPE_TRAP)
+            {
+                uint32 uiGoEntry = pGo->GetEntry();
+
+                if ((uiGoEntry >= 181517 && uiGoEntry <= 181524) || uiGoEntry == 181678)
+                    m_alHeiganTrapGuids[0].push_back(pGo->GetObjectGuid());
+                else if ((uiGoEntry >= 181510 && uiGoEntry <= 181516) || (uiGoEntry >= 181525 && uiGoEntry <= 181531) || uiGoEntry == 181533 || uiGoEntry == 181676)
+                    m_alHeiganTrapGuids[1].push_back(pGo->GetObjectGuid());
+                else if ((uiGoEntry >= 181534 && uiGoEntry <= 181544) || uiGoEntry == 181532 || uiGoEntry == 181677)
+                    m_alHeiganTrapGuids[2].push_back(pGo->GetObjectGuid());
+                else if ((uiGoEntry >= 181545 && uiGoEntry <= 181552) || uiGoEntry == 181695)
+                    m_alHeiganTrapGuids[3].push_back(pGo->GetObjectGuid());
+            }
     }
 }
 
@@ -374,7 +400,8 @@ void instance_naxxramas::SetData(uint32 uiType, uint32 uiData)
             break;
         case TYPE_THADDIUS:
             m_auiEncounter[12] = uiData;
-            DoUseDoorOrButton(m_uiThadDoorGUID, uiData);
+            if (uiData != SPECIAL)
+                DoUseDoorOrButton(GO_CONS_THAD_DOOR, uiData);
             if (uiData == DONE)
             {
                 DoUseDoorOrButton(m_uiConsEyeRampGUID);
@@ -600,6 +627,18 @@ bool instance_naxxramas::IsInRightSideGothArea(Unit* pUnit)
 
     sLog.outError("left/right side check, Gothik combat area failed.");
     return true;
+}
+
+void instance_naxxramas::DoTriggerHeiganTraps(Creature* pHeigan, uint32 uiAreaIndex)
+{
+    if (uiAreaIndex >= MAX_HEIGAN_TRAP_AREAS)
+        return;
+
+    for (GuidList::const_iterator itr = m_alHeiganTrapGuids[uiAreaIndex].begin(); itr != m_alHeiganTrapGuids[uiAreaIndex].end(); ++itr)
+    {
+        if (GameObject* pTrap = instance->GetGameObject(*itr))
+            pTrap->Use(pHeigan);
+    }
 }
 
 void instance_naxxramas::SetChamberCenterCoords(float fX, float fY, float fZ)

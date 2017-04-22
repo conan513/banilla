@@ -525,48 +525,131 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                     triggered_spell_id = 25997;
                     break;
                 }
-				// Sweeping Strikes
-				case 12292:
+				//Sweeping strikes NPCS
 				case 18765:
 				{
-					// Prevent chain of triggered spell from same triggered spell
+					// prevent chain of triggered spell from same triggered spell
 					if (procSpell && procSpell->Id == 26654)
+					{
 						return SPELL_AURA_PROC_FAILED;
-
-					if (procSpell && procSpell->Id == 12723)
-						return SPELL_AURA_PROC_FAILED;
+					}
 
 					target = SelectRandomUnfriendlyTarget(pVictim);
 					if (!target)
+					{
+						return SPELL_AURA_PROC_FAILED;
+					}
+
+					triggered_spell_id = 26654;
+					break;
+				}
+				// Sweeping Strikes players
+				case 12292:
+				{
+					/*
+					Please note that UnitAuraProcHandler is not made to handle interactions like sweeping strike + Whirlwind/Cleave at all
+					reason being that UnitAuraProcHandler process the case for each hit and not per ability which results in a charge dropped per hit.
+					Instead modification to Spell.cpp has been made for whirlwind (SPELLFAMILY_WARRIOR) and cleave which handles the charge withdrawlas.
+					1 Charge is always withdrawn everytime you use whirlwind or cleave from spell.cpp which is why you will see +1 add charges in the prochandler here.
+					*/
+
+					// Spells
+					int sweepingStrikeProcAA = 26654;
+					int SweepingStrikeProc = 12723;
+					int SweepingStrikeAuraID = 12292;
+					int WhirlWind = 1680;
+					int CleaveRank1 = 845;
+					int CleaveRank2 = 7369;
+					int CleaveRank3 = 11608;
+					int CleaveRank4 = 11609;
+					int CleaveRank5 = 20569;
+					int Execute = 20647;
+					//
+
+					//Fetch sweeping strike aura for being able to get and modify the amount the charges.
+					Aura* sweepingStrikeAura = GetAura(SweepingStrikeAuraID, EFFECT_INDEX_0);
+					SpellAuraHolder* sweepingStrike = sweepingStrikeAura->GetHolder();
+					int CurrentCharges = sweepingStrike->GetAuraCharges();
+
+					// Prevent chain of triggered spell from same triggered spell
+					if (procSpell && procSpell->Id == sweepingStrikeProcAA)
+						return SPELL_AURA_PROC_FAILED;
+
+					if (procSpell && procSpell->Id == SweepingStrikeProc)
+						return SPELL_AURA_PROC_FAILED;
+
+					target = SelectRandomUnfriendlyTarget(pVictim);
+					//Adjusting sweeping strike range to the same as whirlwind range incase the procSpell is WW (yes this is really necessary)
+					//in Spell.cpp under SPELLFAMILY_WARRIOR(Whirlwind) a simmilar adjustment is made which decides the range of where SS will remove a charge 
+					if (procSpell && procSpell->Id == WhirlWind)
+					{
+						target = SelectRandomUnfriendlyTarget(pVictim, 7.7);
+					}
+
+
+					//This adds a charge to SS, also 1 charge is withdrawn in the spell.cpp case if no target B is nearby but whirlwind or cleave hits a target A only.
+					if (!target && procSpell && ((procSpell->Id == WhirlWind) || (procSpell->Id == CleaveRank1) || (procSpell->Id == CleaveRank2) || (procSpell->Id == CleaveRank3) || (procSpell->Id == CleaveRank4) || (procSpell->Id == CleaveRank5)))
+
+					{
+						sweepingStrike->SetAuraCharges(CurrentCharges + 1);
+						return SPELL_AURA_PROC_FAILED;
+					}
+					else if (!pVictim)
+					{
+						sweepingStrike->SetAuraCharges(CurrentCharges + 1);
+						return SPELL_AURA_PROC_FAILED;
+					}
+					else if (!target)
 						return SPELL_AURA_PROC_FAILED;
 
 					// Case for Execute. This will only run when procced by Execute
-					if (procSpell && procSpell->Id == 20647)
+					if (procSpell && procSpell->Id == Execute)
 					{
 
 						if (pVictim->GetHealthPercent() < 20.0f && target->GetHealthPercent() < 20.0f)  // If Both Target A and target B is sub 20% do full damage
 						{
 							basepoints[0] = damage * 100 / CalcArmorReducedDamage(pVictim, 100);
-							triggered_spell_id = 12723; //Note this SS id deals 1 damage by itself (Cannot crit)
+							triggered_spell_id = SweepingStrikeProc; //Note this SS id deals 1 damage by itself (Cannot crit)
+
 						}
 						else if (pVictim->GetHealthPercent() < 20.0f)	// If only Target A is sub 20% and target B is over 20% do Basic attack damage
 						{
-							triggered_spell_id = 26654;	// This SS deals damage equal to AA also this spell ID can crit ?? Maybe this explains the rumor of SS criting since it only scales with spell crit ? = 5% crit.
+							triggered_spell_id = sweepingStrikeProcAA;	// This SS deals damage equal to AA also this spell ID can crit ?? Maybe this explains the rumor of SS criting since it only scales with spell crit ? = 5% crit.
 						}
 						else // Full damage on anything else (Shouldn't really ever be used) since execute can only be used sub 20% anyway.                                             
 						{
 							basepoints[0] = damage * 100 / CalcArmorReducedDamage(pVictim, 100);
-							triggered_spell_id = 12723;	//Note this SS id deals 1 damage by itself (Cannot crit)
+							triggered_spell_id = SweepingStrikeProc;	//Note this SS id deals 1 damage by itself (Cannot crit)
 						}
+					}
+
+					// Case for Whirlwind and cleave. This will only run when procced by Whirlwind or cleave.
+					else if (procSpell && ((procSpell->Id == WhirlWind) || (procSpell->Id == CleaveRank1) || (procSpell->Id == CleaveRank2) || (procSpell->Id == CleaveRank3) || (procSpell->Id == CleaveRank4) || (procSpell->Id == CleaveRank5)))
+
+					{
+
+						basepoints[0] = damage * 100 / CalcArmorReducedDamage(pVictim, 100);
+						triggered_spell_id = SweepingStrikeProc;	//Note this SS id deals 1 damage by itself (Cannot crit)
+
+																	//Adding a charge to the aura since when the case reaches "break;" a charge will be withdrawn.
+						sweepingStrike->SetAuraCharges(CurrentCharges + 1);
+
+						//Remove aura when charges reaches 0
+						if (CurrentCharges == 0)
+						{
+							RemoveAura(SweepingStrikeAuraID, EFFECT_INDEX_0);
+						}
+
 					}
 					else // Full damage on anything else 
 					{
 						basepoints[0] = damage * 100 / CalcArmorReducedDamage(pVictim, 100);
-						triggered_spell_id = 12723;	//Note this SS id deals 1 damage by itself (Cannot crit)
+						triggered_spell_id = SweepingStrikeProc;	//Note this SS id deals 1 damage by itself (Cannot crit)
 					}
 
 					break;
 				}
+
                 // Retaliation
                 case 20230:
                 {
@@ -596,6 +679,7 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                     return SPELL_AURA_PROC_OK;
                 }
                 // Viscidus Frost Weakness
+				/*
                 case 25926:
                 {
                     if (!procSpell)
@@ -616,25 +700,27 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
 
                     break;
                 }
+				*/
                 // Viscidus Freeze
                 case 25937:
                 {
                     if (procSpell)
                     {
-                        if (GetSchoolMask(procSpell->School) != SPELL_SCHOOL_MASK_NORMAL)
+						// Wand spell entry marked as physical, we need to add an exception here
+						if (GetSchoolMask(procSpell->School) != SPELL_SCHOOL_MASK_NORMAL || procSpell->Id == 5019)
                             return SPELL_AURA_PROC_FAILED;
                     }
-                    else
-                        return SPELL_AURA_PROC_FAILED;
+                   // else
+                   //     return SPELL_AURA_PROC_FAILED;
 
                     ++triggeredByAura->GetModifier()->m_amount;
                     triggerAmount = triggeredByAura->GetModifier()->m_amount;
 
-                    if (triggerAmount == 25)
+					if (triggerAmount == 50)
                         MonsterTextEmote(-1531044, NULL); // Cracks
-                    else if (triggerAmount == 50)
+					else if (triggerAmount == 100)
                         MonsterTextEmote(-1531045, NULL); // Shatter
-                    else if (triggerAmount == 75)
+					else if (triggerAmount == 150)
                     {
                         RemoveAurasDueToSpell(25937);
                         triggered_spell_id = 25938; // Explode

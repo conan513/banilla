@@ -437,7 +437,7 @@ void WorldSession::HandleMoveNotActiveMoverOpcode(WorldPacket &recv_data)
     recv_data >> mi;
     _clientMoverGuid = ObjectGuid();
 
-    if (_player->GetMover()->GetObjectGuid() == old_mover_guid)
+    if (_player->GetMover() && _player->GetMover()->GetObjectGuid() == old_mover_guid)
     {
         DETAIL_LOG("HandleMoveNotActiveMover: incorrect mover guid: mover is %s and should be %s instead of %s",
                        _player->GetMover()->GetGuidStr().c_str(),
@@ -759,14 +759,14 @@ void WorldSession::HandleMoveUnRootAck(WorldPacket& recv_data)
     if (!_player->GetCheatData()->HandleAnticheatTests(movementInfo, this, &recv_data))
         return;
 
-    // Position change
+	// Update position if it has changed (possible on UNROOT ack?)
     HandleMoverRelocation(movementInfo);
     _player->UpdateFallInformationIfNeed(movementInfo, recv_data.GetOpcode());
 
-    WorldPacket data(MSG_MOVE_UNROOT, recv_data.size());
-    data << _player->GetPackGUID();
-    movementInfo.Write(data);
-    _player->SendMovementMessageToSet(std::move(data), true, _player);
+ //   WorldPacket data(MSG_MOVE_UNROOT, recv_data.size());
+  //  data << _player->GetPackGUID();
+ //   movementInfo.Write(data);
+ //   _player->SendMovementMessageToSet(std::move(data), true, _player);
     _player->clearUnitState(UNIT_STAT_CLIENT_ROOT);
 }
 
@@ -796,11 +796,11 @@ void WorldSession::HandleMoveRootAck(WorldPacket& recv_data)
     // Position change
     HandleMoverRelocation(movementInfo);
     _player->UpdateFallInformationIfNeed(movementInfo, recv_data.GetOpcode());
-
-    WorldPacket data(MSG_MOVE_ROOT, recv_data.size());
-    data << _player->GetPackGUID();
-    movementInfo.Write(data);
-    _player->SendMovementMessageToSet(std::move(data), true, _player);
+//
+//WorldPacket data(MSG_MOVE_ROOT, recv_data.size());
+//    data << _player->GetPackGUID();
+ //   movementInfo.Write(data);
+  //  _player->SendMovementMessageToSet(std::move(data), true, _player);
 }
 
 void WorldSession::HandleMoveSplineDoneOpcode(WorldPacket& recv_data)

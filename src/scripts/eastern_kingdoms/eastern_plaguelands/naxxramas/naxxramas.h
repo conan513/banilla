@@ -31,12 +31,15 @@ enum
     TYPE_SAPPHIRON              = 16,
     TYPE_KELTHUZAD              = 17,
 
+    MAX_HEIGAN_TRAP_AREAS = 4,
+
     NPC_ANUB_REKHAN             = 15956,
     NPC_FAERLINA                = 15953,
 
     NPC_THADDIUS                = 15928,
     NPC_STALAGG                 = 15929,
     NPC_FEUGEN                  = 15930,
+    NPC_TESLA_COIL              = 16218,
 
     NPC_ZELIEK                  = 16063,
     NPC_THANE                   = 16064,
@@ -87,9 +90,11 @@ enum
     GO_CHEST_HORSEMEN_HERO      = 193426,
 
     // Construct Quarter
-    GO_CONS_PATH_EXIT_DOOR      = 181123,
-    GO_CONS_GLUT_EXIT_DOOR      = 181120,
-    GO_CONS_THAD_DOOR           = 181121,                   // Thaddius enc door
+    GO_CONS_PATH_EXIT_DOOR = 181123,
+    GO_CONS_GLUT_EXIT_DOOR = 181120,
+    GO_CONS_THAD_DOOR = 181121,                   // Thaddius enc door
+    GO_CONS_NOX_TESLA_FEUGEN = 181477,
+    GO_CONS_NOX_TESLA_STALAGG = 181478,
 
     // Frostwyrm Lair
     GO_KELTHUZAD_WATERFALL_DOOR = 181225,                   // exit, open after sapphiron is dead
@@ -137,11 +142,19 @@ class instance_naxxramas : public ScriptedInstance
         const char* Save() { return strInstData.c_str(); }
         void Load(const char* chrIn);
 
+        // Heigan
+        void DoTriggerHeiganTraps(Creature* pHeigan, uint32 uiAreaIndex);
+        GuidList m_alHeiganTrapGuids[MAX_HEIGAN_TRAP_AREAS];
+
         // goth
         void SetGothTriggers();
         Creature* GetClosestAnchorForGoth(Creature* pSource, bool bRightSide);
         void GetGothSummonPointCreatures(std::list<Creature*> &lList, bool bRightSide);
         bool IsInRightSideGothArea(Unit* pUnit);
+
+        // thaddius
+        void GetThadTeslaCreatures(GuidList& lList) { lList = m_lThadTeslaCoilList; };
+        GuidList m_lThadTeslaCoilList;
 
         // kel
         void SetChamberCenterCoords(float fX, float fY, float fZ);

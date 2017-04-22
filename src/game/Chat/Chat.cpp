@@ -450,6 +450,8 @@ ChatCommand * ChatHandler::getCommandTable()
         { NODE, "drunk",          SEC_MODERATOR,      false, &ChatHandler::HandleModifyDrunkCommand,         "", nullptr },
         { NODE, "standstate",     SEC_GAMEMASTER,     false, &ChatHandler::HandleModifyStandStateCommand,    "", nullptr },
         { NODE, "morph",          SEC_GAMEMASTER,     false, &ChatHandler::HandleModifyMorphCommand,         "", nullptr },
+		{ NODE, "cr",             SEC_ADMINISTRATOR,  false, &ChatHandler::HandleModifyCrCommand,            "", nullptr },
+		{ NODE, "br",             SEC_ADMINISTRATOR,  false, &ChatHandler::HandleModifyBrCommand,            "", nullptr },
         { NODE, "gender",         SEC_GAMEMASTER,     false, &ChatHandler::HandleModifyGenderCommand,        "", nullptr },
         { NODE, "strength",       SEC_GAMEMASTER,     false, &ChatHandler::HandleModifyStrengthCommand,      "", nullptr },
         { NODE, "agility",        SEC_GAMEMASTER,     false, &ChatHandler::HandleModifyAgilityCommand,       "", nullptr },

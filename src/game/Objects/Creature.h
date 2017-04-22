@@ -640,7 +640,7 @@ class MANGOS_DLL_SPEC Creature : public Unit
         bool lootForBody;
         bool lootForSkin;
         uint32 skinningForOthersTimer; // If == 0, then everyone can skin
-        bool lootForCreator;
+        bool lootForCreator = false;
 
         ObjectGuid GetLootRecipientGuid() const { return m_lootRecipientGuid; }
         uint32 GetLootGroupRecipientId() const { return m_lootGroupRecipientId; }
@@ -672,6 +672,8 @@ class MANGOS_DLL_SPEC Creature : public Unit
         bool HasSearchedAssistance() const { return m_AlreadySearchedAssistance; }
         bool CanAssistTo(const Unit* u, const Unit* enemy, bool checkfaction = true) const;
         bool CanInitiateAttack();
+
+		void SetTauntImmunity(bool immune);
 
         MovementGeneratorType GetDefaultMovementType() const { return m_defaultMovementType; }
         void SetDefaultMovementType(MovementGeneratorType mgt) { m_defaultMovementType = mgt; }

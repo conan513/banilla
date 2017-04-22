@@ -117,7 +117,7 @@ int32 MoveSplineInit::Launch()
         return 0;
 
     unit.m_movementInfo.SetMovementFlags((MovementFlags)moveFlags);
-    unit.clearUnitState(UNIT_STAT_CLIENT_ROOT);
+   // unit.clearUnitState(UNIT_STAT_CLIENT_ROOT);
     move_spline.SetMovementOrigin(movementType);
     move_spline.Initialize(args);
 
@@ -148,7 +148,7 @@ int32 MoveSplineInit::Launch()
         compress = true;
     else if ((data.wpos() + 2) > 0x10)
         compress = true;
-    else if (unit.hasUnitState(UNIT_STAT_CLIENT_ROOT))
+	else if (oldMoveFlags & MOVEFLAG_ROOT)
         compress = true;
     // Since packet size is stored with an uint8, packet size is limited for compressed packets
     if ((data.wpos() + 2) > 0xFF)
@@ -159,12 +159,15 @@ int32 MoveSplineInit::Launch()
     // We need to fix this, in case of charges for example (if character has movement slowing effects)
     if (args.velocity > 4 * realSpeedRun && !args.flags.done) // From client
         mvtData.SetUnitSpeed(SMSG_SPLINE_SET_RUN_SPEED, unit.GetObjectGuid(), args.velocity);
-    if (unit.hasUnitState(UNIT_STAT_CLIENT_ROOT))
+	if (oldMoveFlags & MOVEFLAG_ROOT)
         mvtData.SetSplineOpcode(SMSG_SPLINE_MOVE_UNROOT, unit.GetObjectGuid());
     if (oldMoveFlags & MOVEFLAG_WALK_MODE && !(moveFlags & MOVEFLAG_WALK_MODE)) // Switch to run mode
         mvtData.SetSplineOpcode(SMSG_SPLINE_MOVE_SET_RUN_MODE, unit.GetObjectGuid());
     if (moveFlags & MOVEFLAG_WALK_MODE && !(oldMoveFlags & MOVEFLAG_WALK_MODE)) // Switch to walk mode
         mvtData.SetSplineOpcode(SMSG_SPLINE_MOVE_SET_WALK_MODE, unit.GetObjectGuid());
+
+	// Clear client root here, after we've added it to the packet - STATE SHOULD NOT BE USED
+	unit.clearUnitState(UNIT_STAT_CLIENT_ROOT);
 
     mvtData.AddPacket(data);
     // Do not forget to restore velocity after movement !
@@ -176,8 +179,16 @@ int32 MoveSplineInit::Launch()
     if (compress)
     {
         WorldPacket data2;
-        mvtData.BuildPacket(data2);
-        unit.SendMovementMessageToSet(std::move(data2), true);
+  //      mvtData.BuildPacket(data2);
+  //      unit.SendMovementMessageToSet(std::move(data2), true);
+		if (mvtData.BuildPacket(data2)) 
+		{
+			unit.SendMovementMessageToSet(std::move(data2), true);			
+		}
+		else 
+		{
+			sLog.outError("[MoveSplineInit] Unable to compress move packet, move spline not sent");			
+		}
     }
     return move_spline.Duration();
 }

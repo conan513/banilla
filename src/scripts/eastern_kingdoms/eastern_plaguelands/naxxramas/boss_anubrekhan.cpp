@@ -1,23 +1,23 @@
-/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- */
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
+* This program is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation; either version 2 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the Free Software
+* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*/
 
 /* ScriptData
 SDName: Boss_Anubrekhan
-SD%Complete: 70
-SDComment:
+SD%Complete: 95
+SDComment: Intro text usage is not very clear. Requires additional research.
 SDCategory: Naxxramas
 EndScriptData */
 
@@ -26,24 +26,35 @@ EndScriptData */
 
 enum
 {
-    SAY_GREET                   = -1533000,
-    SAY_AGGRO1                  = -1533001,
-    SAY_AGGRO2                  = -1533002,
-    SAY_AGGRO3                  = -1533003,
-    SAY_TAUNT1                  = -1533004,
-    SAY_TAUNT2                  = -1533005,
-    SAY_TAUNT3                  = -1533006,
-    SAY_TAUNT4                  = -1533007,
-    SAY_SLAY                    = -1533008,
+    SAY_GREET = -1533000,
+    SAY_AGGRO1 = -1533001,
+    SAY_AGGRO2 = -1533002,
+    SAY_AGGRO3 = -1533003,
+    SAY_TAUNT1 = -1533004,
+    SAY_TAUNT2 = -1533005,
+    SAY_TAUNT3 = -1533006,
+    SAY_TAUNT4 = -1533007,
+    SAY_SLAY = -1533008,
 
-    SPELL_IMPALE                = 28783,                    //May be wrong spell id. Causes more dmg than I expect
-    SPELL_LOCUSTSWARM           = 28785,                    //This is a self buff that triggers the dmg debuff
+    EMOTE_CRYPT_GUARD = -1533153,
+    EMOTE_INSECT_SWARM = -1533154,
+    EMOTE_CORPSE_SCARABS = -1533155,
 
-    SPELL_SELF_SPAWN_5          = 29105,                    //This spawns 5 corpse scarabs ontop of us (most likely the pPlayer casts this on death)
-    SPELL_SELF_SPAWN_10         = 28864,                    //This is used by the crypt guards when they die
+    SPELL_IMPALE = 28783,                    // May be wrong spell id. Causes more dmg than I expect
+    SPELL_LOCUSTSWARM = 28785,                    // This is a self buff that triggers the dmg debuff
 
-    MOB_CRYPT_GUARD             = 16573
+    SPELL_SUMMONGUARD = 29508,                   // Summons 1 crypt guard at targeted location - spell doesn't exist in 3.x.x
+
+    SPELL_SELF_SPAWN_5 = 29105,                    // This spawns 5 corpse scarabs ontop of us (most likely the pPlayer casts this on death)
+    SPELL_SELF_SPAWN_10 = 28864,                    // This is used by the crypt guards when they die
+    SPELL_ACID_SPIT = 28969,                    // Used by Crypt Guard
+    SPELL_CLEAVE = 15284,                       // Used by Crypt Guard
+    SPELL_WEB = 28991,                          // Used by Crypt Guard
+
+    NPC_CRYPT_GUARD = 16573
 };
+
+static const float aCryptGuardLoc[4] = { 3333.5f, -3475.9f, 287.1f, 3.17f };
 
 struct boss_anubrekhanAI : public ScriptedAI
 {
@@ -61,18 +72,18 @@ struct boss_anubrekhanAI : public ScriptedAI
     uint32 m_uiSummonTimer;
     bool   m_bHasTaunted;
 
-    void Reset()
+    void Reset() override
     {
-        m_uiImpaleTimer = 15000;                            // 15 seconds
-        m_uiLocustSwarmTimer = urand(80000, 120000);        // Random time between 80 seconds and 2 minutes for initial cast
-        m_uiSummonTimer = m_uiLocustSwarmTimer + 45000;     // 45 seconds after initial locust swarm
+        m_uiImpaleTimer = 15000;
+        m_uiLocustSwarmTimer = 90000;
+        m_uiSummonTimer = 9000000;
     }
 
-    void KilledUnit(Unit* pVictim)
+    void KilledUnit(Unit* pVictim) override
     {
-        //Force the player to spawn corpse scarabs via spell
+        // Force the player to spawn corpse scarabs via spell
         if (pVictim->GetTypeId() == TYPEID_PLAYER)
-            pVictim->CastSpell(pVictim, SPELL_SELF_SPAWN_5, true);
+            pVictim->CastSpell(pVictim, SPELL_SELF_SPAWN_5, true, NULL, NULL, m_creature->GetObjectGuid());
 
         if (urand(0, 4))
             return;
@@ -80,73 +91,80 @@ struct boss_anubrekhanAI : public ScriptedAI
         DoScriptText(SAY_SLAY, m_creature);
     }
 
-    void Aggro(Unit* pWho)
+    void Aggro(Unit* /*pWho*/) override
     {
         switch (urand(0, 2))
         {
-            case 0:
-                DoScriptText(SAY_AGGRO1, m_creature);
-                break;
-            case 1:
-                DoScriptText(SAY_AGGRO2, m_creature);
-                break;
-            case 2:
-                DoScriptText(SAY_AGGRO3, m_creature);
-                break;
+        case 0: DoScriptText(SAY_AGGRO1, m_creature); break;
+        case 1: DoScriptText(SAY_AGGRO2, m_creature); break;
+        case 2: DoScriptText(SAY_AGGRO3, m_creature); break;
         }
 
         if (m_pInstance)
             m_pInstance->SetData(TYPE_ANUB_REKHAN, IN_PROGRESS);
     }
 
-    void JustDied(Unit* pKiller)
+    void JustDied(Unit* /*pKiller*/) override
     {
         if (m_pInstance)
             m_pInstance->SetData(TYPE_ANUB_REKHAN, DONE);
     }
 
-    void MoveInLineOfSight(Unit* pWho)
+    void JustReachedHome() override
     {
-        if (!m_bHasTaunted && m_creature->IsWithinDistInMap(pWho, 60.0f))
+        if (m_pInstance)
+            m_pInstance->SetData(TYPE_ANUB_REKHAN, FAIL);
+    }
+
+    void MoveInLineOfSight(Unit* pWho) override
+    {
+        if (!m_bHasTaunted && pWho->GetTypeId() == TYPEID_PLAYER && m_creature->IsWithinDistInMap(pWho, 110.0f) && m_creature->IsWithinLOSInMap(pWho))
         {
-            switch (urand(0, 4))
-            {
-                case 0:
-                    DoScriptText(SAY_GREET, m_creature);
-                    break;
-                case 1:
-                    DoScriptText(SAY_TAUNT1, m_creature);
-                    break;
-                case 2:
-                    DoScriptText(SAY_TAUNT2, m_creature);
-                    break;
-                case 3:
-                    DoScriptText(SAY_TAUNT3, m_creature);
-                    break;
-                case 4:
-                    DoScriptText(SAY_TAUNT4, m_creature);
-                    break;
-            }
+            DoScriptText(SAY_GREET, m_creature);
+
             m_bHasTaunted = true;
         }
 
         ScriptedAI::MoveInLineOfSight(pWho);
     }
 
-    void UpdateAI(const uint32 uiDiff)
+    void JustSummoned(Creature* pSummoned) override
     {
+        if (pSummoned->GetEntry() == NPC_CRYPT_GUARD)
+            DoScriptText(EMOTE_CRYPT_GUARD, pSummoned);
+
+        if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
+            pSummoned->AI()->AttackStart(pTarget);
+    }
+
+    void SummonedCreatureDespawn(Creature* pSummoned) override
+    {
+        // If creature despawns on out of combat, skip this
+        if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
+            return;
+
+        if (pSummoned->GetEntry() == NPC_CRYPT_GUARD)
+        {
+            pSummoned->CastSpell(pSummoned, SPELL_SELF_SPAWN_10, true, NULL, NULL, m_creature->GetObjectGuid());
+            DoScriptText(EMOTE_CORPSE_SCARABS, pSummoned);
+        }
+    }
+
+    void UpdateAI(const uint32 uiDiff) override
+    {
+
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
 
         // Impale
         if (m_uiImpaleTimer < uiDiff)
         {
-            //Cast Impale on a random target
-            //Do NOT cast it when we are afflicted by locust swarm
+            // Cast Impale on a random target
+            // Do NOT cast it when we are afflicted by locust swarm
             if (!m_creature->HasAura(SPELL_LOCUSTSWARM))
             {
-                if (Unit* target = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
-                    DoCastSpellIfCan(target, SPELL_IMPALE);
+                if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
+                    DoCastSpellIfCan(pTarget, SPELL_IMPALE);
             }
 
             m_uiImpaleTimer = 15000;
@@ -157,17 +175,23 @@ struct boss_anubrekhanAI : public ScriptedAI
         // Locust Swarm
         if (m_uiLocustSwarmTimer < uiDiff)
         {
-            DoCastSpellIfCan(m_creature, SPELL_LOCUSTSWARM);
-            m_uiLocustSwarmTimer = 90000;
+            if (DoCastSpellIfCan(m_creature, SPELL_LOCUSTSWARM) == CAST_OK)
+            {
+                DoScriptText(EMOTE_INSECT_SWARM, m_creature);
+
+                // Summon a crypt guard
+                m_uiSummonTimer = 3000;
+                m_uiLocustSwarmTimer = 100000;
+            }
         }
         else
             m_uiLocustSwarmTimer -= uiDiff;
 
         // Summon
-        if (m_uiSummonTimer < uiDiff)
+        if (m_uiSummonTimer <= uiDiff)
         {
-            DoSpawnCreature(MOB_CRYPT_GUARD, 5, 5, 0, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000);
-            m_uiSummonTimer = 45000;
+            DoCastSpellIfCan(m_creature, SPELL_SUMMONGUARD);
+            m_uiSummonTimer = 60000;
         }
         else
             m_uiSummonTimer -= uiDiff;
@@ -181,8 +205,11 @@ struct mob_cryptguardsAI : public ScriptedAI
     mob_cryptguardsAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
     }
+    uint32 m_uiCryptGuardTimer;
+
     void Reset()
     {
+        m_uiCryptGuardTimer = 6000;
     }
 
     void KilledUnit(Unit* pVictim)
@@ -194,6 +221,30 @@ struct mob_cryptguardsAI : public ScriptedAI
 
     void UpdateAI(const uint32 uiDiff)
     {
+        if (m_uiCryptGuardTimer < uiDiff)
+        {
+            // Cast Impale on a random target
+            // Do NOT cast it when we are afflicted by locust swarm
+            if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_TOPAGGRO, 0))
+            {
+                if (pTarget->IsMoving())
+                    DoCastSpellIfCan(pTarget, SPELL_WEB);
+                else
+                {
+                    if (urand(0, 1)==0)
+                        DoCastSpellIfCan(pTarget, SPELL_ACID_SPIT);
+                    else
+                        DoCastSpellIfCan(pTarget, SPELL_CLEAVE);
+                }
+
+            }
+
+            m_uiCryptGuardTimer = 6000;
+        }
+        else
+            m_uiCryptGuardTimer -= uiDiff;
+
+        DoMeleeAttackIfReady();
     }
     void JustDied(Unit* pKiller)
     {

@@ -1171,7 +1171,10 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
                 ((Player*)m_caster)->CastItemCombatSpell(unitTarget, m_attackType);
             // trigger mainhand weapon procs for shield attacks (Shield Bash, Shield Slam) NOTE: vanilla only mechanic, patched out in 2.0.1
             else if (m_spellInfo->EquippedItemClass == ITEM_CLASS_ARMOR && m_spellInfo->EquippedItemSubClassMask & (1 << ITEM_SUBCLASS_ARMOR_SHIELD)
-              && m_spellInfo->SpellIconID == 280)
+				&& (m_spellInfo->SpellIconID == 280 || m_spellInfo->SpellIconID == 413))
+				((Player*)m_caster)->CastItemCombatSpell(unitTarget, BASE_ATTACK);
+			            // special case for Execute - it triggers another spell which does the actual damage
+			else if (m_spellInfo->Id == 20647)
                 ((Player*)m_caster)->CastItemCombatSpell(unitTarget, BASE_ATTACK);
             // special Paladin cases - trigger weapon procs despite not having EquippedItemClass
             else if (m_spellInfo->SpellFamilyName == SPELLFAMILY_PALADIN)
@@ -1744,9 +1747,6 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                 case 28796:                                 // Poison Bolt Volley (Naxx, Faerlina)
                     unMaxTargets = 10;
                     break;
-                case 25991:                                 // Poison Bolt Volley (AQ40, Pincess Huhuran)
-                    unMaxTargets = 15;
-                    break;
             }
             break;
         }
@@ -1775,6 +1775,35 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
         default:
             break;
     }
+
+	bool SelectClosestTargets = false;
+	
+	// custom selection cases
+	switch (m_spellInfo->SpellFamilyName)
+	{
+		case SPELLFAMILY_GENERIC:
+		{
+				switch (m_spellInfo->Id)
+				{
+					case 26052:                                 // Poison Bolt Volley (AQ40, Princess Huhuran)
+						SelectClosestTargets = true;
+						break;
+						}
+				break;
+		}
+		case SPELLFAMILY_HUNTER:
+		{
+					switch (m_spellInfo->Id)
+					{
+						case 26180:                                 // Wyvern Sting (AQ40, Princess Huhuran)
+							SelectClosestTargets = true;
+							break;
+							}
+					break;
+				}
+			default:
+					break;
+		}
 
     switch (targetMode)
     {
@@ -2029,7 +2058,15 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                     if ((*itr)->IsWithinDist(m_caster, minDist))
                         targetUnitMap.erase(itr);
                 }
-            }
+			}
+			if (SelectClosestTargets && unMaxTargets && targetUnitMap.size() > unMaxTargets)
+			{
+				targetUnitMap.sort(TargetDistanceOrderNear(m_caster));
+				UnitList::iterator itr = targetUnitMap.begin();
+				advance(itr, unMaxTargets);
+				targetUnitMap.erase(itr, targetUnitMap.end());
+			}
+
             break;
         }
         case TARGET_AREAEFFECT_INSTANT:
@@ -3408,8 +3445,64 @@ void Spell::cast(bool skipCheck)
 
             break;
         }
-        case SPELLFAMILY_WARRIOR:
-            break;
+		case SPELLFAMILY_WARRIOR:
+		{
+			int WhirlWind = 1680;
+			int SweepingStrikeAuraID = 12292;
+			int CleaveRank1 = 845;
+			int CleaveRank2 = 7369;
+			int CleaveRank3 = 11608;
+			int CleaveRank4 = 11609;
+			int CleaveRank5 = 20569;
+
+			if (m_spellInfo->Id == WhirlWind)                   //Whirlwind
+			{
+				if (m_caster->GetAura(SweepingStrikeAuraID, EFFECT_INDEX_0)) //Sweeping Strike
+				{
+
+					//This handles removal of one stack and makes sure it doesn't remove a stack if whirlwind doesn't hit anything.
+
+					Aura* sweepingStrikeAura = m_caster->GetAura(SweepingStrikeAuraID, EFFECT_INDEX_0);
+					SpellAuraHolder* sweepingStrikeHolder = sweepingStrikeAura->GetHolder();
+					int32 CurrentCharges = sweepingStrikeHolder->GetAuraCharges();
+
+					Unit* pVictim;
+					Unit* target = pVictim;
+
+					//Adjusting range for the range of whirlwind to remove a charge (not litterly the range of whirlwind, just for how far the target can be away to drop a charge).
+					target = m_caster->SelectRandomUnfriendlyTarget(pVictim, 8);
+
+					if (target)
+					{
+						sweepingStrikeHolder->SetAuraCharges(CurrentCharges - 1);
+					}
+
+
+				}
+				break;
+			}
+
+
+
+			if (m_spellInfo->Id == CleaveRank1 || m_spellInfo->Id == CleaveRank2 || m_spellInfo->Id == CleaveRank3 || m_spellInfo->Id == CleaveRank4 || m_spellInfo->Id == CleaveRank5)  //Cleave all ranks
+
+			{
+				if (m_caster->GetAura(SweepingStrikeAuraID, EFFECT_INDEX_0)) //Sweeping Strike
+				{
+					//This handles removal of one charge for sweepingstrike
+
+					Aura* sweepingStrikeAura = m_caster->GetAura(SweepingStrikeAuraID, EFFECT_INDEX_0);
+					SpellAuraHolder* sweepingStrikeHolder = sweepingStrikeAura->GetHolder();
+					int32 CurrentCharges = sweepingStrikeHolder->GetAuraCharges();
+
+					sweepingStrikeHolder->SetAuraCharges(CurrentCharges - 1);
+
+
+				}
+
+			}
+			break;
+		}
         case SPELLFAMILY_PRIEST:
         {
             // Power Word: Shield
@@ -4822,32 +4915,36 @@ SpellCastResult Spell::CheckCast(bool strict)
     }
     // Fin Nostalrius
 
-    /*  Check cooldowns to prevent cheating (ignore passive spells, that client side visual only)
+	// Prevent casting while sitting unless the spell allows it
+	if (!m_IsTriggeredSpell && m_caster->IsSitState() && !(m_spellInfo->Attributes & SPELL_ATTR_CASTABLE_WHILE_SITTING))
+		return SPELL_FAILED_NOT_STANDING;
 
-        If the cast is an item cast, check the spell proto on the item for the category
-        cooldown to check, rather than this spell's category. This is due to bad
-        categories in the default Spell DBC.
-     */
+	/*  Check cooldowns to prevent cheating (ignore passive spells, that client side visual only)
 
-    uint32 spellCat = m_spellInfo->Category;
-    if (m_IsCastByItem)
-    {
-        // Find correct item category matching the current spell on item
-        // used when item spells have custom categories due to wrong category
-        // on spell
-        ItemPrototype const* proto = m_CastItem->GetProto();
-        for (int i = 0; i < MAX_ITEM_PROTO_SPELLS; i++)
-        {
-            if (proto->Spells[i].SpellId == m_spellInfo->Id)
-            {
-                spellCat = proto->Spells[i].SpellCategory;
-                break;
-            }
-        }
-    }
+	If the cast is an item cast, check the spell proto on the item for the category
+	cooldown to check, rather than this spell's category. This is due to bad
+	categories in the default Spell DBC.
+	*/
 
-    if (m_caster->GetTypeId() == TYPEID_PLAYER && !(m_spellInfo->Attributes & SPELL_ATTR_PASSIVE) &&
-            (m_caster->HasSpellCooldown(m_spellInfo->Id) || m_caster->HasSpellCategoryCooldown(spellCat)))
+	uint32 spellCat = m_spellInfo->Category;
+	if (m_IsCastByItem)
+	{
+		// Find correct item category matching the current spell on item
+		// used when item spells have custom categories due to wrong category
+		// on spell
+		ItemPrototype const* proto = m_CastItem->GetProto();
+		for (int i = 0; i < MAX_ITEM_PROTO_SPELLS; i++)
+		{
+			if (proto->Spells[i].SpellId == m_spellInfo->Id)
+			{
+				spellCat = proto->Spells[i].SpellCategory;
+				break;
+			}
+		}
+	}
+
+	if (m_caster->GetTypeId() == TYPEID_PLAYER && !(m_spellInfo->Attributes & SPELL_ATTR_PASSIVE)
+		&& !m_IsTriggeredSpell && (m_caster->HasSpellCooldown(m_spellInfo->Id) || m_caster->HasSpellCategoryCooldown(spellCat)))
     {
         if (m_triggeredByAuraSpell)
             return SPELL_FAILED_DONT_REPORT;
@@ -4896,11 +4993,11 @@ SpellCastResult Spell::CheckCast(bool strict)
     {
         if (m_spellInfo->Attributes & SPELL_ATTR_OUTDOORS_ONLY &&
                 !m_caster->GetTerrain()->IsOutdoors(m_caster->GetPositionX(), m_caster->GetPositionY(), m_caster->GetPositionZ()))
-            return m_IsTriggeredSpell ? SPELL_FAILED_DONT_REPORT : SPELL_FAILED_ONLY_OUTDOORS;
+			return SPELL_FAILED_ONLY_OUTDOORS;
 
         if (m_spellInfo->Attributes & SPELL_ATTR_INDOORS_ONLY &&
                 m_caster->GetTerrain()->IsOutdoors(m_caster->GetPositionX(), m_caster->GetPositionY(), m_caster->GetPositionZ()))
-            return m_IsTriggeredSpell ? SPELL_FAILED_DONT_REPORT : SPELL_FAILED_ONLY_INDOORS;
+			return SPELL_FAILED_ONLY_INDOORS;
     }
 
     // caster state requirements
@@ -6095,13 +6192,7 @@ SpellCastResult Spell::CheckCast(bool strict)
 
                 switch (m_spellInfo->Id)
                 {
-                    case 25863:    // spell used by ingame item for Black Qiraji mount (legendary reward)
-                    case 26655:    // spells also related to Black Qiraji mount but use/trigger unknown
-                    case 26656:
-                    case 31700:
-                        if (m_caster->GetMapId() == 531)
-                            isAQ40Mount = true;
-                        break;
+					case 25863:    // spell used by the Black Qiraji Crystal script when mounting inside AQ40
                     case 25953:    // spells of the 4 regular AQ40 mounts
                     case 26054:
                     case 26055:
@@ -6114,6 +6205,8 @@ SpellCastResult Spell::CheckCast(bool strict)
                         else
                             return SPELL_FAILED_NOT_HERE;
                     default:
+						if ((m_caster->GetMapId() == 531 && m_caster->GetTerrain()->IsOutdoors(m_caster->GetPositionX(), m_caster->GetPositionY(), m_caster->GetPositionZ())))
+							isAQ40Mount = true;
                         break;
                 }
 

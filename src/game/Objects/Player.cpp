@@ -4427,6 +4427,7 @@ void Player::BuildPlayerRepop()
     // convert player body to ghost
     SetHealth(1);
 
+	m_movementInfo.AddMovementFlag(MOVEFLAG_WATERWALKING);
     SetMovement(MOVE_WATER_WALK);
     if (!GetSession()->isLogingOut())
         SetMovement(MOVE_UNROOT);
@@ -4456,6 +4457,7 @@ void Player::ResurrectPlayer(float restore_percent, bool applySickness)
         RemoveAurasDueToSpell(20584);                       // speed bonuses
     RemoveAurasDueToSpell(8326);                            // SPELL_AURA_GHOST
 
+	m_movementInfo.RemoveMovementFlag(MOVEFLAG_WATERWALKING);
     SetMovement(MOVE_LAND_WALK);
     SetMovement(MOVE_UNROOT);
 
@@ -18943,7 +18945,8 @@ bool Player::IsAtGroupRewardDistance(WorldObject const* pRewardSource) const
     if (!pRewardSource)
         return false;
 
-    if (pRewardSource->IsWithinDistInMap(this, sWorld.getConfig(CONFIG_FLOAT_GROUP_XP_DISTANCE)))
+    //if (pRewardSource->IsWithinDistInMap(this, sWorld.getConfig(CONFIG_FLOAT_GROUP_XP_DISTANCE)))
+	if (IsWithinLootXPDist(pRewardSource))
         return true;
 
     if (isAlive())
@@ -18953,7 +18956,8 @@ bool Player::IsAtGroupRewardDistance(WorldObject const* pRewardSource) const
     if (!corpse)
         return false;
 
-    return pRewardSource->IsWithinDistInMap(corpse, sWorld.getConfig(CONFIG_FLOAT_GROUP_XP_DISTANCE));
+   // return pRewardSource->IsWithinDistInMap(corpse, sWorld.getConfig(CONFIG_FLOAT_GROUP_XP_DISTANCE));
+	return IsWithinLootXPDist(pRewardSource); // pRewardSource->IsWithinDistInMap(corpse, sWorld.getConfig(CONFIG_FLOAT_GROUP_XP_DISTANCE));
 }
 
 uint32 Player::GetBaseWeaponSkillValue(WeaponAttackType attType) const

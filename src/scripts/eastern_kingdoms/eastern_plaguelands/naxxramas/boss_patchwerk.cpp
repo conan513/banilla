@@ -1,23 +1,23 @@
-/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- */
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
+* This program is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation; either version 2 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the Free Software
+* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*/
 
 /* ScriptData
 SDName: Boss_Patchwerk
-SD%Complete: 80
-SDComment: TODO: confirm how hateful strike work
+SD%Complete: 100
+SDComment:
 SDCategory: Naxxramas
 EndScriptData */
 
@@ -26,22 +26,19 @@ EndScriptData */
 
 enum
 {
-    SAY_AGGRO1            = -1533017,
-    SAY_AGGRO2            = -1533018,
-    SAY_SLAY              = -1533019,
-    SAY_DEATH             = -1533020,
+    SAY_AGGRO1 = -1533017,
+    SAY_AGGRO2 = -1533018,
+    SAY_SLAY = -1533019,
+    SAY_DEATH = -1533020,
 
-    EMOTE_BERSERK         = -1533021,
-    EMOTE_ENRAGE          = -1533022,
+    EMOTE_GENERIC_BERSERK = -1000004,
+    EMOTE_GENERIC_ENRAGED = -1000003,
 
-    SPELL_HATEFULSTRIKE   = 28308,
-    SPELL_HATEFULSTRIKE_H = 59192,
-    SPELL_ENRAGE          = 28131,
-    SPELL_BERSERK         = 26662,
-    SPELL_SLIMEBOLT       = 32309
+    SPELL_HATEFULSTRIKE = 28308,
+    SPELL_ENRAGE = 28131,
+    SPELL_BERSERK = 26662,
+    SPELL_SLIMEBOLT = 32309
 };
-
-const float MELEE_DISTANCE = 5.0;
 
 struct boss_patchwerkAI : public ScriptedAI
 {
@@ -59,16 +56,16 @@ struct boss_patchwerkAI : public ScriptedAI
     bool   m_bEnraged;
     bool   m_bBerserk;
 
-    void Reset()
+    void Reset() override
     {
-        m_uiHatefulStrikeTimer = 1000;                      //1 second
-        m_uiBerserkTimer = MINUTE * 6 * IN_MILLISECONDS;     //6 minutes
+        m_uiHatefulStrikeTimer = 1000;                      // 1 second
+        m_uiBerserkTimer = MINUTE * 6 * IN_MILLISECONDS;    // 6 minutes
         m_uiSlimeboltTimer = 10000;
         m_bEnraged = false;
         m_bBerserk = false;
     }
 
-    void KilledUnit(Unit* pVictim)
+    void KilledUnit(Unit* /*pVictim*/) override
     {
         if (urand(0, 4))
             return;
@@ -76,7 +73,7 @@ struct boss_patchwerkAI : public ScriptedAI
         DoScriptText(SAY_SLAY, m_creature);
     }
 
-    void JustDied(Unit* pKiller)
+    void JustDied(Unit* /*pKiller*/) override
     {
         DoScriptText(SAY_DEATH, m_creature);
 
@@ -84,12 +81,18 @@ struct boss_patchwerkAI : public ScriptedAI
             m_pInstance->SetData(TYPE_PATCHWERK, DONE);
     }
 
-    void Aggro(Unit* pWho)
+    void Aggro(Unit* /*pWho*/) override
     {
         DoScriptText(urand(0, 1) ? SAY_AGGRO1 : SAY_AGGRO2, m_creature);
 
         if (m_pInstance)
             m_pInstance->SetData(TYPE_PATCHWERK, IN_PROGRESS);
+    }
+
+    void JustReachedHome() override
+    {
+        if (m_pInstance)
+            m_pInstance->SetData(TYPE_PATCHWERK, FAIL);
     }
 
     void DoHatefulStrike()
@@ -100,28 +103,37 @@ struct boss_patchwerkAI : public ScriptedAI
         uint32 uiTargets = 2;
 
         ThreatList const& tList = m_creature->getThreatManager().getThreatList();
-        for (ThreatList::const_iterator iter = tList.begin(); iter != tList.end(); ++iter)
+        if (tList.size() > 1)                               // Check if more than two targets, and start loop with second-most aggro
         {
-            if (!uiTargets)
-                break;
-
-            if (Unit* pTempTarget = m_creature->GetMap()->GetUnit((*iter)->getUnitGuid()))
+            ThreatList::const_iterator iter = tList.begin();
+            std::advance(iter, 1);
+            for (; iter != tList.end(); ++iter)
             {
-                if (pTempTarget->GetHealth() > uiHighestHP && m_creature->IsWithinDistInMap(pTempTarget, MELEE_DISTANCE))
+                if (!uiTargets)
+                    break;
+
+                if (Unit* pTempTarget = m_creature->GetMap()->GetUnit((*iter)->getUnitGuid()))
                 {
-                    uiHighestHP = pTempTarget->GetHealth();
-                    pTarget = pTempTarget;
+                    if (m_creature->CanReachWithMeleeAttack(pTempTarget))
+                    {
+                        if (pTempTarget->GetHealth() > uiHighestHP)
+                        {
+                            uiHighestHP = pTempTarget->GetHealth();
+                            pTarget = pTempTarget;
+                        }
+                        --uiTargets;
+                    }
                 }
             }
-
-            --uiTargets;
         }
 
-        if (pTarget)
-            DoCastSpellIfCan(pTarget, SPELL_HATEFULSTRIKE);
+        if (!pTarget)
+            pTarget = m_creature->getVictim();
+
+        DoCastSpellIfCan(pTarget, SPELL_HATEFULSTRIKE);
     }
 
-    void UpdateAI(const uint32 uiDiff)
+    void UpdateAI(const uint32 uiDiff) override
     {
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
@@ -140,9 +152,11 @@ struct boss_patchwerkAI : public ScriptedAI
         {
             if (m_creature->GetHealthPercent() < 5.0f)
             {
-                DoCastSpellIfCan(m_creature, SPELL_ENRAGE);
-                DoScriptText(EMOTE_ENRAGE, m_creature);
-                m_bEnraged = true;
+                if (DoCastSpellIfCan(m_creature, SPELL_ENRAGE) == CAST_OK)
+                {
+                    DoScriptText(EMOTE_GENERIC_ENRAGED, m_creature);
+                    m_bEnraged = true;
+                }
             }
         }
 
@@ -151,9 +165,11 @@ struct boss_patchwerkAI : public ScriptedAI
         {
             if (m_uiBerserkTimer < uiDiff)
             {
-                DoCastSpellIfCan(m_creature, SPELL_BERSERK);
-                DoScriptText(EMOTE_BERSERK, m_creature);
-                m_bBerserk = true;
+                if (DoCastSpellIfCan(m_creature, SPELL_BERSERK) == CAST_OK)
+                {
+                    DoScriptText(EMOTE_GENERIC_BERSERK, m_creature);
+                    m_bBerserk = true;
+                }
             }
             else
                 m_uiBerserkTimer -= uiDiff;
@@ -181,9 +197,10 @@ CreatureAI* GetAI_boss_patchwerk(Creature* pCreature)
 
 void AddSC_boss_patchwerk()
 {
-    Script* NewScript;
-    NewScript = new Script;
-    NewScript->Name = "boss_patchwerk";
-    NewScript->GetAI = &GetAI_boss_patchwerk;
-    NewScript->RegisterSelf();
+    Script* pNewScript;
+
+    pNewScript = new Script;
+    pNewScript->Name = "boss_patchwerk";
+    pNewScript->GetAI = &GetAI_boss_patchwerk;
+    pNewScript->RegisterSelf();
 }

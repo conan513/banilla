@@ -116,7 +116,7 @@ public:
 	void StartNextDialogueText(int32 iTextEntry);
 
 	void DialogueUpdate(uint32 uiDiff);
-
+	ScriptedInstance* GetInstance() {return m_pInstance;}
 protected:
 	/// Will be called when a dialogue step was done
 	virtual void JustDidDialogueStep(int32 /*iEntry*/) {}

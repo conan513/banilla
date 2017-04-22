@@ -1,18 +1,18 @@
-/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- */
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
+* This program is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation; either version 2 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the Free Software
+* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*/
 
 /* ScriptData
 SDName: Boss_Loatheb
@@ -26,23 +26,19 @@ EndScriptData */
 
 enum
 {
-    SPELL_CORRUPTED_MIND  = 29198,
-    SPELL_POISON_AURA     = 29865,
+    // EMOTE_AURA_BLOCKING   = -1533143,
+    // EMOTE_AURA_WANE       = -1533144,
+    // EMOTE_AURA_FADING     = -1533145,
+
+    SPELL_CORRUPTED_MIND = 29201,            // this triggers the following spells on targets (based on class): 29185, 29194, 29196, 29198
+    SPELL_POISON_AURA = 29865,
     SPELL_INEVITABLE_DOOM = 29204,
-    SPELL_REMOVE_CURSE    = 30281
+    SPELL_SUMMON_SPORE = 29234,
+    SPELL_REMOVE_CURSE = 30281,
+    SPELL_BERSERK         = 26662,
+
+    NPC_SPORE = 16286
 };
-
-#define ADD_1X 2957.040f
-#define ADD_1Y -3997.590f
-#define ADD_1Z 274.280f
-
-#define ADD_2X 2909.130f
-#define ADD_2Y -4042.970f
-#define ADD_2Z 274.280f
-
-#define ADD_3X 2861.102f
-#define ADD_3Y -3997.901f
-#define ADD_3Z 274.280f
 
 struct boss_loathebAI : public ScriptedAI
 {
@@ -54,107 +50,118 @@ struct boss_loathebAI : public ScriptedAI
 
     instance_naxxramas* m_pInstance;
 
-    uint32 m_uiCorruptedMindTimer;
     uint32 m_uiPoisonAuraTimer;
+    uint32 m_uiCorruptedMindTimer;
     uint32 m_uiInevitableDoomTimer;
-    uint32 m_uiInevitableDoom5minsTimer;
     uint32 m_uiRemoveCurseTimer;
     uint32 m_uiSummonTimer;
+    uint32 m_uiBerserkTimer;
+    uint8 m_uiCorruptedMindCount;
 
-    void Reset()
+    void Reset() override
     {
+        m_uiPoisonAuraTimer = 5000;
         m_uiCorruptedMindTimer = 4000;
-        m_uiPoisonAuraTimer = 2500;
-        m_uiInevitableDoomTimer = 120000;
-        m_uiInevitableDoom5minsTimer = 300000;
-        m_uiRemoveCurseTimer = 30000;
-        m_uiSummonTimer = 8000;
+        m_uiRemoveCurseTimer = 2000;
+        m_uiInevitableDoomTimer = MINUTE * 2 * IN_MILLISECONDS;
+        m_uiSummonTimer = urand(10000, 15000);              // first seen in vid after approx 12s
+        m_uiBerserkTimer = MINUTE*12*IN_MILLISECONDS;
+        m_uiCorruptedMindCount = 0;
     }
 
-    void Aggro(Unit* pWho)
+    void Aggro(Unit* /*pWho*/) override
     {
         if (m_pInstance)
             m_pInstance->SetData(TYPE_LOATHEB, IN_PROGRESS);
     }
 
-    void JustDied(Unit* pKiller)
+    void JustDied(Unit* /*pKiller*/) override
     {
         if (m_pInstance)
             m_pInstance->SetData(TYPE_LOATHEB, DONE);
     }
 
-    void UpdateAI(const uint32 uiDiff)
+    void JustReachedHome() override
+    {
+        if (m_pInstance)
+            m_pInstance->SetData(TYPE_LOATHEB, NOT_STARTED);
+    }
+
+    void JustSummoned(Creature* pSummoned) override
+    {
+        if (pSummoned->GetEntry() != NPC_SPORE)
+            return;
+
+        if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
+            pSummoned->AddThreat(pTarget);
+    }
+
+    void UpdateAI(const uint32 uiDiff) override
     {
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
 
-        // Corrupted Mind
-        if (m_uiCorruptedMindTimer < uiDiff)
+        // Berserk - not used
+        if (m_uiBerserkTimer < uiDiff)
         {
-            DoCastSpellIfCan(m_creature->getVictim(), SPELL_CORRUPTED_MIND);
-            m_uiCorruptedMindTimer = 62000;
+        DoCastSpellIfCan(m_creature, SPELL_BERSERK);
+        m_uiBerserkTimer = 300000;
         }
         else
-            m_uiCorruptedMindTimer -= uiDiff;
-
-        // Poison Aura
-        if (m_uiPoisonAuraTimer < uiDiff)
-        {
-            DoCastSpellIfCan(m_creature->getVictim(), SPELL_POISON_AURA);
-            m_uiPoisonAuraTimer = 60000;
-        }
-        else
-            m_uiPoisonAuraTimer -= uiDiff;
+        m_uiBerserkTimer -= uiDiff;
 
         // Inevitable Doom
         if (m_uiInevitableDoomTimer < uiDiff)
         {
-            DoCastSpellIfCan(m_creature->getVictim(), SPELL_INEVITABLE_DOOM);
-            m_uiInevitableDoomTimer = 120000;
+            if (DoCastSpellIfCan(m_creature, SPELL_INEVITABLE_DOOM) == CAST_OK)
+                m_uiInevitableDoomTimer = (m_uiCorruptedMindCount <= 5) ? 30000 : 15000;
         }
         else
             m_uiInevitableDoomTimer -= uiDiff;
 
-        // Inevitable Doom 5mins
-        if (m_uiInevitableDoom5minsTimer < uiDiff)
+        // Corrupted Mind
+        if (m_uiCorruptedMindTimer < uiDiff)
         {
-            DoCastSpellIfCan(m_creature->getVictim(), SPELL_INEVITABLE_DOOM);
-            m_uiInevitableDoom5minsTimer = 15000;
+            if (DoCastSpellIfCan(m_creature, SPELL_CORRUPTED_MIND) == CAST_OK)
+            {
+                ++m_uiCorruptedMindCount;
+                m_uiCorruptedMindTimer = 60000;
+            }
         }
         else
-            m_uiInevitableDoom5minsTimer -= uiDiff;
-
-        // Remove Curse
-        if (m_uiRemoveCurseTimer < uiDiff)
-        {
-            DoCastSpellIfCan(m_creature, SPELL_REMOVE_CURSE);
-            m_uiRemoveCurseTimer = 30000;
-        }
-        else
-            m_uiRemoveCurseTimer -= uiDiff;
+            m_uiCorruptedMindTimer -= uiDiff;
 
         // Summon
         if (m_uiSummonTimer < uiDiff)
         {
-            Unit* pSummonedSpores = NULL;
-
-            pSummonedSpores = m_creature->SummonCreature(16286, ADD_1X, ADD_1Y, ADD_1Z, 0.0f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 80000);
-            pSummonedSpores = m_creature->SummonCreature(16286, ADD_2X, ADD_2Y, ADD_2Z, 0.0f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 80000);
-            pSummonedSpores = m_creature->SummonCreature(16286, ADD_3X, ADD_3Y, ADD_3Z, 0.0f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 80000);
-            if (pSummonedSpores)
-            {
-                if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
-                    pSummonedSpores->AddThreat(pTarget);
-            }
-
-            m_uiSummonTimer = 28000;
+            if (DoCastSpellIfCan(m_creature, SPELL_SUMMON_SPORE) == CAST_OK)
+                m_uiSummonTimer = 13000;
         }
         else
             m_uiSummonTimer -= uiDiff;
 
+        // Poison Aura
+        if (m_uiPoisonAuraTimer < uiDiff)
+        {
+            if (DoCastSpellIfCan(m_creature, SPELL_POISON_AURA) == CAST_OK)
+                m_uiPoisonAuraTimer = 12000;
+        }
+        else
+            m_uiPoisonAuraTimer -= uiDiff;
+
+        // Remove Curse
+        if (m_uiRemoveCurseTimer < uiDiff)
+        {
+            if (DoCastSpellIfCan(m_creature, SPELL_REMOVE_CURSE) == CAST_OK)
+                m_uiRemoveCurseTimer = 30000;
+        }
+        else
+            m_uiRemoveCurseTimer -= uiDiff;
+
         DoMeleeAttackIfReady();
     }
 };
+
 CreatureAI* GetAI_boss_loatheb(Creature* pCreature)
 {
     return new boss_loathebAI(pCreature);
@@ -162,9 +169,10 @@ CreatureAI* GetAI_boss_loatheb(Creature* pCreature)
 
 void AddSC_boss_loatheb()
 {
-    Script* NewScript;
-    NewScript = new Script;
-    NewScript->Name = "boss_loatheb";
-    NewScript->GetAI = &GetAI_boss_loatheb;
-    NewScript->RegisterSelf();
+    Script* pNewScript;
+
+    pNewScript = new Script;
+    pNewScript->Name = "boss_loatheb";
+    pNewScript->GetAI = &GetAI_boss_loatheb;
+    pNewScript->RegisterSelf();
 }
