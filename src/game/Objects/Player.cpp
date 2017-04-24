@@ -1239,8 +1239,6 @@ void Player::Update(uint32 update_diff, uint32 p_time)
         }
     }
 
-    m_regenTimer -= update_diff;
-
     if (m_weaponChangeTimer > 0)
     {
         if (update_diff >= m_weaponChangeTimer)
@@ -1274,6 +1272,7 @@ void Player::Update(uint32 update_diff, uint32 p_time)
     if (m_cannotBeDetectedTimer > 0)
         m_cannotBeDetectedTimer -= update_diff;
 
+<<<<<<< HEAD
 	if (isAlive())
 	{
 		//custom
@@ -1372,6 +1371,17 @@ void Player::Update(uint32 update_diff, uint32 p_time)
 
 		RegenerateAll();
 	}
+=======
+    if (isAlive())
+    {
+        m_regenTimer -= update_diff;
+        RegenerateAll();
+    }
+    else
+    {
+        m_regenTimer = 0;
+    }
+>>>>>>> 9a9b736... Fix HP regeneration when reviving
 
     if (m_deathState == JUST_DIED)
         KillPlayer();
@@ -2289,7 +2299,6 @@ void Player::RegenerateAll()
     }
 
     Regenerate(POWER_ENERGY);
-
     Regenerate(POWER_MANA);
 
     m_regenTimer += REGEN_TIME_FULL;
