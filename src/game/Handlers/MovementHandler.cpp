@@ -437,6 +437,7 @@ void WorldSession::HandleMoveNotActiveMoverOpcode(WorldPacket &recv_data)
     recv_data >> mi;
     _clientMoverGuid = ObjectGuid();
 
+	// Client sent not active mover, but maybe the mover is actually set?
     if (_player->GetMover() && _player->GetMover()->GetObjectGuid() == old_mover_guid)
     {
         DETAIL_LOG("HandleMoveNotActiveMover: incorrect mover guid: mover is %s and should be %s instead of %s",
@@ -767,6 +768,7 @@ void WorldSession::HandleMoveUnRootAck(WorldPacket& recv_data)
   //  data << _player->GetPackGUID();
  //   movementInfo.Write(data);
  //   _player->SendMovementMessageToSet(std::move(data), true, _player);
+ // Clear unit client state for brevity, though it should not be used
     _player->clearUnitState(UNIT_STAT_CLIENT_ROOT);
 }
 
@@ -801,6 +803,8 @@ void WorldSession::HandleMoveRootAck(WorldPacket& recv_data)
 //    data << _player->GetPackGUID();
  //   movementInfo.Write(data);
   //  _player->SendMovementMessageToSet(std::move(data), true, _player);
+  // Set unit client state for brevity, though it should not be used
+	_player->addUnitState(UNIT_STAT_CLIENT_ROOT);
 }
 
 void WorldSession::HandleMoveSplineDoneOpcode(WorldPacket& recv_data)
