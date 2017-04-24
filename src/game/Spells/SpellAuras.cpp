@@ -3208,8 +3208,9 @@ void Aura::HandleModCharm(bool apply, bool Real)
 
     if (apply)
     {
-		if (!caster)
-			return;
+        if (!caster)
+            return;
+
         // is it really need after spell check checks?
         target->RemoveSpellsCausingAura(SPELL_AURA_MOD_CHARM, GetHolder());
         target->RemoveSpellsCausingAura(SPELL_AURA_MOD_POSSESS, GetHolder());
@@ -3314,12 +3315,12 @@ void Aura::HandleModCharm(bool apply, bool Real)
             }
         }
 
-		if (caster)
-		{
-			caster->SetCharm(nullptr);
-			if (caster->GetTypeId() == TYPEID_PLAYER)
-				((Player*)caster)->RemovePetActionBar();
-		}
+        if (caster)
+        {
+            caster->SetCharm(nullptr);
+            if (caster->GetTypeId() == TYPEID_PLAYER)
+                ((Player*)caster)->RemovePetActionBar();
+        }
 
         target->UpdateControl();
         target->CombatStop(true);
@@ -3335,8 +3336,8 @@ void Aura::HandleModCharm(bool apply, bool Real)
         {
             if (pTargetCrea->AI() && pTargetCrea->AI()->SwitchAiAtControl())
                 pTargetCrea->AIM_Initialize();
-			if (caster)
-				pTargetCrea->AttackedBy(caster);
+            if (caster)
+                pTargetCrea->AttackedBy(caster);
         }
         else if (Player* pPlayer = target->ToPlayer())
             pPlayer->RemoveAI();
