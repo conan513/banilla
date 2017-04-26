@@ -2020,16 +2020,16 @@ void Group::UpdateLooterGuid(WorldObject* pLootedObject, bool ifneed)
         SendUpdate();
     }
 
-	// SendUpdate clears the target icons, send an icon update
-	if (!isRaidGroup())
-	{
-		for (member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr)
-		{
-			Player *player = sObjectMgr.GetPlayer(citr->guid);
-			if (!player || !player->GetSession() || player->GetGroup() != this)
-				continue;
-			
-				SendTargetIconList(player->GetSession());
-			}
-		}
+    // SendUpdate clears the target icons, send an icon update
+    if (!isRaidGroup()) 
+    {
+        for (member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr)
+        {
+            Player *player = sObjectMgr.GetPlayer(citr->guid);
+            if (!player || !player->GetSession() || player->GetGroup() != this)
+                continue;
+
+            SendTargetIconList(player->GetSession());
+        }
+    }
 }
