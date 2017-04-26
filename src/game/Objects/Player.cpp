@@ -1362,8 +1362,7 @@ void Player::Update(uint32 update_diff, uint32 p_time)
 			else if (HasAura(55007))
 			{
 				RemoveAurasDueToSpell(55007);
-				if (health > 25)
-					SetDrunkValue(0);
+				SetDrunkValue(0);
 			}
 		}
 		//Custom
