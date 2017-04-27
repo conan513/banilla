@@ -478,6 +478,7 @@ class MANGOS_DLL_SPEC Creature : public Unit
 
         bool Create(uint32 guidlow, CreatureCreatePos& cPos, CreatureInfo const* cinfo, Team team = TEAM_NONE, const CreatureData *data = nullptr, GameEventCreatureData const* eventData = nullptr);
         bool LoadCreatureAddon(bool reload = false);
+        void Creature::UnloadCreatureAddon(const CreatureDataAddon* data);
 
 		Unit* GetAttacker() { return m_attacker; };
         // CreatureGroups
