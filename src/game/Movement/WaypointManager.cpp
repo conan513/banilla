@@ -143,8 +143,8 @@ void WaypointManager::Load()
             {
                 QueryResult *result1 = WorldDatabase.PQuery("SELECT id, map FROM creature WHERE guid = '%u'", id);
                 if (result1)
-                    sLog.outErrorDb("Creature (guidlow %d, entry %d) have invalid coordinates in his waypoint %d (X: %f, Y: %f).",
-                                    id, result1->Fetch()[0].GetUInt32(), point, node.x, node.y);
+                    sLog.outErrorDb("Creature (guidlow %d, entry %d) have invalid coordinates in his waypoint %d (map: %d, X: %f, Y: %f).",
+                                    id, result1->Fetch()[0].GetUInt32(), point, result1->Fetch()[1].GetUInt32(), node.x, node.y);
                 else
                     sLog.outErrorDb("Waypoint path %d, have invalid coordinates in his waypoint %d (X: %f, Y: %f).",
                                     id, point, node.x, node.y);

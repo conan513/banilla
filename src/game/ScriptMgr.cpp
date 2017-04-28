@@ -295,6 +295,11 @@ void ScriptMgr::LoadScripts(ScriptMapMap& scripts, const char* tablename)
                 }
                 break;
             }
+			case SCRIPT_COMMAND_FIELD_SET:                  // 2
+			case SCRIPT_COMMAND_MOVE_TO:                    // 3
+			case SCRIPT_COMMAND_FLAG_SET:                   // 4
+			case SCRIPT_COMMAND_FLAG_REMOVE:                // 5
+				break;
             case SCRIPT_COMMAND_TELEPORT_TO:
             {
                 if (!sMapStorage.LookupEntry<MapEntry>(tmp.teleportTo.mapId))
@@ -450,6 +455,8 @@ void ScriptMgr::LoadScripts(ScriptMapMap& scripts, const char* tablename)
 
                 break;
             }
+			case SCRIPT_COMMAND_ACTIVATE_OBJECT:            // 13
+				break;
             case SCRIPT_COMMAND_REMOVE_AURA:
             {
                 if (!sSpellMgr.GetSpellEntry(tmp.removeAura.spellId))
@@ -482,6 +489,21 @@ void ScriptMgr::LoadScripts(ScriptMapMap& scripts, const char* tablename)
                 }
                 break;
             }
+			case SCRIPT_COMMAND_PLAY_SOUND:                 // 16
+			{
+				if (!sSoundEntriesStore.LookupEntry(tmp.playSound.soundId))
+				{
+					sLog.outErrorDb("Table `%s` using nonexistent sound (id: %u) in SCRIPT_COMMAND_PLAY_SOUND for script id %u",
+						tablename, tmp.playSound.soundId, tmp.id);
+					continue;
+				}
+				// bitmask: 0/1=target-player, 0/2=with distance dependent, 0/4=map wide, 0/8=zone wide
+				if (tmp.playSound.flags & ~(1 | 2 | 4 | 8))
+					sLog.outErrorDb("Table `%s` using unsupported sound flags (datalong2: %u) in SCRIPT_COMMAND_PLAY_SOUND for script id %u, unsupported flags will be ignored", tablename, tmp.playSound.flags, tmp.id);
+				if ((tmp.playSound.flags & (1 | 2)) > 0 && (tmp.playSound.flags & (4 | 8)) > 0)
+					sLog.outErrorDb("Table `%s` uses sound flags (datalong2: %u) in SCRIPT_COMMAND_PLAY_SOUND for script id %u, combining (1|2) with (4|8) makes no sense", tablename, tmp.playSound.flags, tmp.id);
+				break;
+			}
             case SCRIPT_COMMAND_CREATE_ITEM:
             {
                 if (!ObjectMgr::GetItemPrototype(tmp.createItem.itemEntry))
@@ -830,7 +852,7 @@ void ScriptMgr::LoadScripts(ScriptMapMap& scripts, const char* tablename)
 			}
 			default:
 			{
-				sLog.outErrorDb("Table `%s` unknown command %u, skipping.", tablename, tmp.command);
+				sLog.outErrorDb("Table `%s` unknown command %u for script id %u, skipping.", tablename, tmp.command, tmp.id);
 				continue;
 			}
         }

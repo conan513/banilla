@@ -1547,6 +1547,10 @@ void Player::SetWorldMask(uint32 newMask)
 
 void Player::UpdateCinematic(uint32 diff)
 {
+	//not BC camera
+	if (watching_cinematic_entry >= 240)
+		return;
+
     cinematic_elapsed_time += diff;
     // On check une nouvelle position toutes les secondes.
     if ((cinematic_last_check + 1000) > cinematic_elapsed_time)
@@ -1575,6 +1579,10 @@ void Player::UpdateCinematic(uint32 diff)
 
 void Player::CinematicStart(uint32 id)
 {
+	//not BC camera
+	if (watching_cinematic_entry >= 240)
+		return;
+
     cinematic_start.x = GetPositionX();
     cinematic_start.y = GetPositionY();
     cinematic_start.z = GetPositionZ();
@@ -1589,6 +1597,10 @@ void Player::CinematicStart(uint32 id)
 }
 void Player::CinematicEnd()
 {
+	//not BC camera
+	if (watching_cinematic_entry >= 240)
+		return;
+
     GetCamera().ResetView();
 
     watching_cinematic_entry = 0;
@@ -5898,8 +5910,6 @@ void Player::SendCinematicStart(uint32 CinematicSequenceId)
     WorldPacket data(SMSG_TRIGGER_CINEMATIC, 4);
     data << uint32(CinematicSequenceId);
     SendDirectMessage(&data);
-
-    CinematicStart(CinematicSequenceId);
 }
 
 void Player::CheckAreaExploreAndOutdoor()
