@@ -132,6 +132,38 @@ class MANGOS_DLL_SPEC SpellAuraHolder
         uint32 spellFirstHitTargetProcFlags;
         // FIN NOSTALRIUS
 
+		bool StackNotByCaster()
+		{
+			return (GetId() == 22959 ||     // Improved Scorch
+				GetId() == 12579 ||     // Winter's Chill
+				GetId() == 15258 ||     // Shadow Weaving
+				GetId() == 25225 ||     // Sunder Armor
+				GetId() == 36478 ||     // Magic Disruption
+				GetId() == 36482 ||     // Armor Disruption
+				GetId() == 27189
+				);
+		}
+
+		bool DiffPerCaster()
+		{
+			if (GetSpellProto()->SpellFamilyName == SPELLFAMILY_PRIEST && GetSpellProto()->SpellFamilyFlags & 0x800000LL) // Mind Flay
+				return true;
+
+			if (GetSpellProto()->Id == 34456 || GetSpellProto()->Id == 41083) // Ferocious Inspiration && Paralyze from shadow demon
+				return true;
+
+			if (GetSpellProto()->SpellFamilyName == SPELLFAMILY_PRIEST && GetSpellProto()->SpellFamilyFlags & 0x40000000000LL) // Vampiric Touch
+				return true;
+
+			if (GetSpellProto()->Id == 15286) // Vampiric Embrance
+				return true;
+
+			if (GetSpellProto()->SpellFamilyName == SPELLFAMILY_SHAMAN && this->GetSpellProto()->SpellIconID == 1677) // Grounding Totem
+				return true;
+
+			return (GetSpellProto()->AttributesEx3 & SPELL_ATTR_EX3_STACK_FOR_DIFF_CASTERS);
+		}
+
         bool IsPermanent() const { return m_permanent; }
         void SetPermanent(bool permanent) { m_permanent = permanent; }
         bool IsPassive() const { return m_isPassive; }

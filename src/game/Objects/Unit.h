@@ -1529,7 +1529,7 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         void RemoveSingleAuraFromSpellAuraHolder(uint32 id, SpellEffectIndex index, ObjectGuid casterGuid, AuraRemoveMode mode = AURA_REMOVE_BY_DEFAULT);
 		void RemoveSingleAuraDueToItemSet(uint32 spellId, AuraRemoveMode mode = AURA_REMOVE_BY_DEFAULT);
 
-        // Limit debuffs a 16
+        // Limit debuffs a 16 // custom
         uint32 GetNegativeAurasCount();
         // Returns true if we remove 'currentAura'
         bool RemoveAuraDueToDebuffLimit(SpellAuraHolder* currentAura);

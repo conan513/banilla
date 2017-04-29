@@ -231,6 +231,22 @@ void PathInfo::BuildPolyPath(const Vector3 &startPos, const Vector3 &endPos)
 
     // *** poly path generating logic ***
 
+	// start and end are on same polygon
+	// just need to move in straight line
+	if (startPoly == endPoly)
+	{
+		//DEBUG_FILTER_LOG(LOG_FILTER_PATHFINDING, "++ BuildPolyPath :: (startPoly == endPoly)\n");
+
+		BuildShortcut();
+
+		m_pathPolyRefs[0] = startPoly;
+		m_polyLength = 1;
+
+		m_type = farFromPoly ? PATHFIND_INCOMPLETE : PATHFIND_NORMAL;
+		//DEBUG_FILTER_LOG(LOG_FILTER_PATHFINDING, "++ BuildPolyPath :: path type %d\n", m_type);
+		return;
+	}
+
     // look for startPoly/endPoly in current path
     // TODO: we can merge it with getPathPolyByPosition() loop
     bool startPolyFound = false;
@@ -420,6 +436,62 @@ void PathInfo::BuildPointPath(const float *startPoint, const float *endPoint, fl
         m_type = PATHFIND_NOPATH;
         return;
     }
+	else if (pointCount == m_pointPathLimit)
+	{
+		BuildShortcut();
+		m_type = PATHFIND_SHORT;
+		return;
+	}
+
+	if (m_pathPoints.size() > 2 && m_sourceUnit->GetTypeId() == TYPEID_UNIT)
+	{
+		uint32 count = 0;
+		PointsArray    temp_pathPoints;
+		temp_pathPoints.resize(pointCount);
+		temp_pathPoints[0] = m_pathPoints[0];
+
+		for (uint32 i = 1; i < m_pathPoints.size() - 1; ++i)
+		{
+			float dx = m_pathPoints[i].x - temp_pathPoints[count].x;
+			float dy = m_pathPoints[i].y - temp_pathPoints[count].y;
+			float dist = sqrt((dx*dx) + (dy*dy));
+			if (dist > SMOOTH_PATH_SLOP)
+			{
+				count++;
+				temp_pathPoints[count] = m_pathPoints[i];
+			}
+		}
+
+		float dx = m_pathPoints[pointCount].x - temp_pathPoints[count].x;
+		float dy = m_pathPoints[pointCount].y - temp_pathPoints[count].y;
+		float dist = sqrt((dx*dx) + (dy*dy));
+		if (dist > SMOOTH_PATH_SLOP)
+		{
+			count++;
+			temp_pathPoints[count] = m_pathPoints[pointCount];
+		}
+		else
+			temp_pathPoints[count] = m_pathPoints[pointCount];
+
+		if (count > 2)
+		{
+			if (count != m_pathPoints.size())
+			{
+				m_pathPoints.resize(count);
+				for (uint32 i = 1; i < count; ++i)
+				{
+					m_pathPoints[i] = temp_pathPoints[i];
+				}
+				pointCount = count;
+			}
+		}
+		else
+		{
+			m_pathPoints[1] = m_pathPoints[pointCount];
+			m_pathPoints.resize(2);
+			pointCount = 2;
+		}
+	}
 
     m_pathPoints.resize(pointCount);
     for (uint32 i = 0; i < pointCount; ++i)
@@ -432,6 +504,7 @@ void PathInfo::BuildPointPath(const float *startPoint, const float *endPoint, fl
     bool forceDestination = (m_forceDestination && (!(m_type & PATHFIND_NORMAL) || !inRange(getEndPosition(), getActualEndPosition(), 1.0f, 1.0f)));
     if (forceDestination)
     {
+		/*
         // we may want to keep partial subpath
         if (dist3DSqr(getActualEndPosition(), getEndPosition()) <
                 0.3f * dist3DSqr(getStartPosition(), getEndPosition()))
@@ -444,8 +517,13 @@ void PathInfo::BuildPointPath(const float *startPoint, const float *endPoint, fl
             setActualEndPosition(getEndPosition());
             BuildShortcut();
         }
+		*/
+		setActualEndPosition(getEndPosition());
+		m_pathPoints[m_pathPoints.size() - 1] = getEndPosition();
 
-        m_type = PathType(PATHFIND_NORMAL | PATHFIND_NOT_USING_PATH | PATHFIND_DEST_FORCED);
+        //m_type = PathType(PATHFIND_NORMAL | PATHFIND_NOT_USING_PATH | PATHFIND_DEST_FORCED);
+		m_type = PathType(PATHFIND_INCOMPLETE | PATHFIND_DEST_FORCED);
+
         if (m_sourceUnit->CanFly())
             m_type |= PATHFIND_FLYPATH;
     }

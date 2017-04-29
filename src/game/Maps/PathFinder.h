@@ -54,6 +54,7 @@ enum PathType
     PATHFIND_FLYPATH        = 0x0040,
     PATHFIND_UNDERWATER     = 0x0080,
     PATHFIND_CASTER         = 0x0100,
+	PATHFIND_SHORT = 0x0200    // too long path, truncating
 };
 
 class PathInfo
