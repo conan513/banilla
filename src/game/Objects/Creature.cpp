@@ -3119,6 +3119,9 @@ void Creature::OnEnterCombat(Unit* pWho, bool notInCombat)
         if (m_zoneScript)
             m_zoneScript->OnCreatureEnterCombat(this);
 
+        if (IsMounted())
+            Unmount();
+
         if (i_AI)
             i_AI->EnterCombat(pWho);
     }
