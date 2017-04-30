@@ -896,7 +896,7 @@ void AddSC_custom_creatures()
     newscript->RegisterSelf(true);
 
 	newscript = new Script;
-	newscript->Name = "barber";
+	newscript->Name = "custom_barber";
 	newscript->pGossipHello = &GossipHello_barber;
 	newscript->pGossipSelect = &GossipSelect_barber;
 	newscript->RegisterSelf();

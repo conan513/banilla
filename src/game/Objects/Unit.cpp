@@ -4950,7 +4950,8 @@ void Unit::RemoveSpellAuraHolder(SpellAuraHolder *holder, AuraRemoveMode mode)
 		// No break
 	default:
 	{
-		if (IsChanneledSpell(AurSpellInfo) && caster)
+		if (caster && IsChanneledSpell(AurSpellInfo) &&
+			(mode != AURA_REMOVE_BY_EXPIRE || caster->IsControlledByPlayer()))   // Player pets need to be interrupted on channel expire or else they get stuck channeling
 		{
 			Spell *channeled = caster->GetCurrentSpell(CURRENT_CHANNELED_SPELL);
 			if (channeled && channeled->m_spellInfo->Id == auraSpellId && channeled->m_targets.getUnitTarget() == this)
@@ -4968,7 +4969,6 @@ void Unit::RemoveSpellAuraHolder(SpellAuraHolder *holder, AuraRemoveMode mode)
 		else
 			CastSpell(this, uiTriggeredSpell, true);
 	}
-
 }
 
 void Unit::RemoveSingleAuraFromSpellAuraHolder(SpellAuraHolder *holder, SpellEffectIndex index, AuraRemoveMode mode)
