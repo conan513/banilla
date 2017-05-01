@@ -74,7 +74,7 @@ struct MANGOS_DLL_DECL npc_escortAI : ScriptedAI
         void MovementInform(uint32, uint32) override;
 
         // EscortAI functions
-        //void AddWaypoint(uint32 id, float x, float y, float z, uint32 WaitTimeMs = 0);
+        void AddWaypoint(uint32 id, float x, float y, float z, uint32 WaitTimeMs = 0);
 
         virtual void WaypointReached(uint32 uiPointId) = 0;
         virtual void WaypointStart(uint32 /*uiPointId*/) {}

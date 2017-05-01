@@ -152,6 +152,63 @@ bool QuestAccept_npc_ranger_lilatha(Player* pPlayer, Creature* pCreature, const 
     return true;
 }
 
+
+/*######
+## npc_budd_nedreck
+######*/
+
+#define GOSSIP_HBN "You gave the crew disguises?"
+
+bool GossipHello_npc_budd_nedreck(Player *player, Creature *_Creature)
+{
+	if (_Creature->isQuestGiver())
+		player->PrepareQuestMenu(_Creature->GetGUID());
+
+	if (player->GetQuestStatus(11166) == QUEST_STATUS_INCOMPLETE)
+		player->ADD_GOSSIP_ITEM(0, GOSSIP_HBN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+
+	player->SEND_GOSSIP_MENU(player->GetGossipTextId(_Creature), _Creature->GetGUID());
+	return true;
+}
+
+bool GossipSelect_npc_budd_nedreck(Player *player, Creature *_Creature, uint32 sender, uint32 action)
+{
+	if (action == GOSSIP_ACTION_INFO_DEF)
+	{
+		player->CLOSE_GOSSIP_MENU();
+		_Creature->CastSpell(player, 42540, false);
+	}
+	return true;
+}
+
+/*######
+## npc_rathis_tomber
+######*/
+
+bool GossipHello_npc_rathis_tomber(Player *player, Creature *_Creature)
+{
+	if (_Creature->isQuestGiver())
+		player->PrepareQuestMenu(_Creature->GetGUID());
+
+	if (_Creature->isVendor() && player->GetQuestRewardStatus(9152))
+	{
+		player->ADD_GOSSIP_ITEM(1, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+		player->SEND_GOSSIP_MENU(8432, _Creature->GetGUID());
+	}
+	else
+		player->SEND_GOSSIP_MENU(8431, _Creature->GetGUID());
+
+	return true;
+}
+
+bool GossipSelect_npc_rathis_tomber(Player *player, Creature *_Creature, uint32 sender, uint32 action)
+{
+	if (action == GOSSIP_ACTION_TRADE)
+		player->SEND_VENDORLIST(_Creature->GetGUID());
+	return true;
+}
+
+
 void AddSC_ghostlands()
 {
     Script* pNewScript;
@@ -161,4 +218,16 @@ void AddSC_ghostlands()
     pNewScript->GetAI = &GetAI_npc_ranger_lilathaAI;
     pNewScript->pQuestAcceptNPC = &QuestAccept_npc_ranger_lilatha;
     pNewScript->RegisterSelf();
+
+	pNewScript = new Script;
+	pNewScript->Name = "npc_budd_nedreck";
+	pNewScript->pGossipHello = &GossipHello_npc_budd_nedreck;
+	pNewScript->pGossipSelect = &GossipSelect_npc_budd_nedreck;
+	pNewScript->RegisterSelf();
+
+	pNewScript = new Script;
+	pNewScript->Name = "npc_rathis_tomber";
+	pNewScript->pGossipHello = &GossipHello_npc_rathis_tomber;
+	pNewScript->pGossipSelect = &GossipSelect_npc_rathis_tomber;
+	pNewScript->RegisterSelf();
 }

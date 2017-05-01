@@ -487,7 +487,7 @@ void PathInfo::BuildPointPath(const float *startPoint, const float *endPoint, fl
 		}
 		else
 		{
-			m_pathPoints[1] = m_pathPoints[pointCount];
+			m_pathPoints[1] = m_pathPoints[pointCount - 1];
 			m_pathPoints.resize(2);
 			pointCount = 2;
 		}
@@ -496,6 +496,8 @@ void PathInfo::BuildPointPath(const float *startPoint, const float *endPoint, fl
     m_pathPoints.resize(pointCount);
     for (uint32 i = 0; i < pointCount; ++i)
         m_pathPoints[i] = Vector3(pathPoints[i * VERTEX_SIZE + 2], pathPoints[i * VERTEX_SIZE], pathPoints[i * VERTEX_SIZE + 1]);
+
+	NormalizePath();
 
     // first point is always our current location - we need the next one
     setActualEndPosition(m_pathPoints[pointCount - 1]);
@@ -531,6 +533,12 @@ void PathInfo::BuildPointPath(const float *startPoint, const float *endPoint, fl
     //DEBUG_FILTER_LOG(LOG_FILTER_PATHFINDING, "++ PathFinder::BuildPointPath path type %d size %d poly-size %d\n", m_type, pointCount, m_polyLength);
 }
 
+void PathInfo::NormalizePath()
+{
+	for (uint32 i = 0; i < m_pathPoints.size(); ++i)
+		m_sourceUnit->UpdateAllowedPositionZ(m_pathPoints[i].x, m_pathPoints[i].y, m_pathPoints[i].z);
+}
+
 void PathInfo::BuildShortcut()
 {
     clear();
@@ -541,6 +549,8 @@ void PathInfo::BuildShortcut()
     // set start and a default next position
     m_pathPoints[0] = getStartPosition();
     m_pathPoints[1] = getActualEndPosition();
+
+	NormalizePath();
 
     m_type = PATHFIND_SHORTCUT;
     if (m_sourceUnit->CanFly())

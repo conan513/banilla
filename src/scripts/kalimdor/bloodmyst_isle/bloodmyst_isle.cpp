@@ -428,6 +428,144 @@ bool QuestAccept_npc_demolitionist_legoso(Player* pPlayer, Creature* pCreature, 
     return true;
 }
 
+
+/*######
+## npc_captured_sunhawk_agent
+######*/
+
+#define C_SUNHAWK_TRIGGER 17974
+
+#define GOSSIP_ITEM1 "I'm a prisoner, what does it look like? The draenei filth captured me as I exited the sun gate. They killed our portal controllers and destroyed the gate. The Sun King will be most displeased with this turn of events."
+
+#define GOSSIP_ITEM2 "Ah yes, Sironas. I had nearly forgoten that Sironas was here. I served under Sironas back on Outland. I hadn't heard of this abomination though; those damnable draenei captured me before I even fully materialized on this world."
+#define GOSSIP_ITEM3 "Incredible. How did Sironas accomplish such a thing?"
+#define GOSSIP_ITEM4 "Sironas is an eredar... I mean, yes, obviously."
+#define GOSSIP_ITEM5 "The Vector Coil is massive. I hope we have more than one abomination guarding the numerous weak points."
+#define GOSSIP_ITEM6 "I did and you believed me. Thank you for the information, blood elf. You have helped us more than you could know."
+#define say_captured_sunhawk_agent "Treacherous whelp! Sironas will destroy you and your people!"
+
+bool GossipHello_npc_captured_sunhawk_agent(Player *player, Creature *_Creature)
+{
+	if (player->HasAura(31609) && player->GetQuestStatus(9756) == QUEST_STATUS_INCOMPLETE)
+	{
+		player->ADD_GOSSIP_ITEM(0, GOSSIP_ITEM1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+		player->SEND_GOSSIP_MENU(9136, _Creature->GetGUID());
+	}
+	else
+		player->SEND_GOSSIP_MENU(9134, _Creature->GetGUID());
+
+	return true;
+}
+
+bool GossipSelect_npc_captured_sunhawk_agent(Player *player, Creature *_Creature, uint32 sender, uint32 action)
+{
+	switch (action)
+	{
+	case GOSSIP_ACTION_INFO_DEF + 1:
+		player->ADD_GOSSIP_ITEM(0, GOSSIP_ITEM2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+		player->SEND_GOSSIP_MENU(9137, _Creature->GetGUID());
+		break;
+	case GOSSIP_ACTION_INFO_DEF + 2:
+		player->ADD_GOSSIP_ITEM(0, GOSSIP_ITEM3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+		player->SEND_GOSSIP_MENU(9138, _Creature->GetGUID());
+		break;
+	case GOSSIP_ACTION_INFO_DEF + 3:
+		player->ADD_GOSSIP_ITEM(0, GOSSIP_ITEM4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
+		player->SEND_GOSSIP_MENU(9139, _Creature->GetGUID());
+		break;
+	case GOSSIP_ACTION_INFO_DEF + 4:
+		player->ADD_GOSSIP_ITEM(0, GOSSIP_ITEM5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
+		player->SEND_GOSSIP_MENU(9140, _Creature->GetGUID());
+		break;
+	case GOSSIP_ACTION_INFO_DEF + 5:
+		player->ADD_GOSSIP_ITEM(0, GOSSIP_ITEM6, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);
+		player->SEND_GOSSIP_MENU(9141, _Creature->GetGUID());
+		break;
+	case GOSSIP_ACTION_INFO_DEF + 6:
+		player->CLOSE_GOSSIP_MENU();
+		_Creature->MonsterSay(say_captured_sunhawk_agent, LANG_UNIVERSAL);
+		player->TalkedToCreature(C_SUNHAWK_TRIGGER, _Creature->GetGUID());
+		break;
+	}
+	return true;
+}
+
+/*######
+## npc_exarch_admetius
+######*/
+
+#define GOSSIP_ITEM_EXARCH "Create bloodelf disguise."
+
+bool GossipHello_npc_exarch_admetius(Player *player, Creature *_Creature)
+{
+	if (_Creature->isQuestGiver())
+		player->PrepareQuestMenu(_Creature->GetGUID());
+
+	if (player->GetQuestStatus(9756) == QUEST_STATUS_INCOMPLETE)
+		player->ADD_GOSSIP_ITEM(0, GOSSIP_ITEM_EXARCH, GOSSIP_SENDER_MAIN, GOSSIP_SENDER_INFO);
+
+	player->SEND_GOSSIP_MENU(player->GetGossipTextId(_Creature), _Creature->GetGUID());
+
+	return true;
+}
+
+bool GossipSelect_npc_exarch_admetius(Player *player, Creature *_Creature, uint32 sender, uint32 action)
+{
+	if (action == GOSSIP_SENDER_INFO)
+	{
+		player->CastSpell(player, 31609, false);
+		player->AddAura(31609);
+	}
+	return true;
+}
+
+/*########
+## Quest: Saving Princess Stillpine
+########*/
+struct npc_princess_stillpineAI : public ScriptedAI
+{
+	npc_princess_stillpineAI(Creature *c) : ScriptedAI(c) {}
+
+	uint32 FleeTimer;
+
+	void Reset()
+	{
+		FleeTimer = 0;
+	}
+
+	void UpdateAI(const uint32 diff)
+	{
+		if (FleeTimer)
+		{
+			if (FleeTimer <= diff)
+				m_creature->ForcedDespawn();
+			else FleeTimer -= diff;
+		}
+	}
+};
+
+CreatureAI* GetAI_npc_princess_stillpineAI(Creature *_Creature)
+{
+	return new npc_princess_stillpineAI(_Creature);
+}
+
+bool GOUse_go_princess_stillpine_cage(Player* pPlayer, GameObject* pGO)
+{
+	Unit *Prisoner = pGO->FindNearestCreature(17682, 4.0f, pPlayer);
+	if (!Prisoner)
+		return true;
+
+	if (pGO->GetGoType() == GAMEOBJECT_TYPE_DOOR)
+	{
+		DoScriptText(-1230010 - urand(0, 2), Prisoner, pPlayer);
+		pPlayer->CastedCreatureOrGO(17682, Prisoner->GetGUID(), 31003);
+		((Creature*)Prisoner)->GetMotionMaster()->MoveFleeing(pPlayer, 4000);
+		CAST_AI(npc_princess_stillpineAI, ((Creature*)Prisoner)->AI())->FleeTimer = 4000;
+	}
+
+	return false;
+}
+
 void AddSC_bloodmyst_isle()
 {
     Script* pNewScript;
@@ -442,4 +580,26 @@ void AddSC_bloodmyst_isle()
     pNewScript->GetAI = &GetAI_npc_demolitionist_legoso;
     pNewScript->pQuestAcceptNPC = &QuestAccept_npc_demolitionist_legoso;
     pNewScript->RegisterSelf();
+
+	pNewScript = new Script;
+	pNewScript->Name = "npc_captured_sunhawk_agent";
+	pNewScript->pGossipHello = &GossipHello_npc_captured_sunhawk_agent;
+	pNewScript->pGossipSelect = &GossipSelect_npc_captured_sunhawk_agent;
+	pNewScript->RegisterSelf();
+
+	pNewScript = new Script;
+	pNewScript->Name = "npc_exarch_admetius";
+	pNewScript->pGossipHello = &GossipHello_npc_exarch_admetius;
+	pNewScript->pGossipSelect = &GossipSelect_npc_exarch_admetius;
+	pNewScript->RegisterSelf();
+
+	pNewScript = new Script;
+	pNewScript->Name = "npc_princess_stillpine";
+	pNewScript->GetAI = &GetAI_npc_princess_stillpineAI;
+	pNewScript->RegisterSelf();
+
+	pNewScript = new Script;
+	pNewScript->Name = "go_princess_stillpine_cage";
+	pNewScript->pGOUse = &GOUse_go_princess_stillpine_cage;
+	pNewScript->RegisterSelf();
 }

@@ -18,6 +18,152 @@
  // Zerix: Select a random target (used in many scripts) at position 0.
 #define SELECT_RANDOM_TARGET_POS_0 me->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0)
 
+#define GET_SPELL(a)    (const_cast<SpellEntry*>(GetSpellStore()->LookupEntry(a)))
+
+class ScriptedInstance;
+
+struct PointMovement
+{
+	uint32 m_uiCreatureEntry;
+	uint32 m_uiPointId;
+	float m_fX;
+	float m_fY;
+	float m_fZ;
+	uint32 m_uiWaitTime;
+};
+
+enum interruptSpell
+{
+	DONT_INTERRUPT = 0,
+	INTERRUPT_AND_CAST = 1,   //cast when CastNextSpellIfAnyAndReady() is called
+	INTERRUPT_AND_CAST_INSTANTLY = 2    //cast instantly (CastSpell())
+};
+
+enum castTargetMode
+{
+	CAST_TANK = 0,    //cast on GetVictim() target
+	CAST_NULL = 1,    //cast on (Unit*)NULL target
+	CAST_RANDOM = 2,    //cast on SelectUnit(SELECT_TARGET_RANDOM) target (needs additionals: range, only player)
+	CAST_RANDOM_WITHOUT_TANK = 3,    //same as AUTOCAST_RANDOM but without tank
+	CAST_SELF = 4,    //target is m_creature
+	CAST_LOWEST_HP_FRIENDLY = 5,    //cast on SelectLowestHpFriendly
+	CAST_THREAT_SECOND = 6     //cast on target in second place in threatlist
+};
+
+enum movementCheckType
+{
+	CHECK_TYPE_NONE = 0,
+	CHECK_TYPE_CASTER = 1,    // move only when outranged or not in LoS
+	CHECK_TYPE_SHOOTER = 2     // chase when in 5yd distance, move when outranged or not in LoS
+};
+
+enum SpecialThing
+{
+	DO_SPEED_UPDATE = 0x01,
+	DO_EVADE_CHECK = 0x02,
+	DO_PULSE_COMBAT = 0x04,
+	DO_COMBAT_N_SPEED = (DO_PULSE_COMBAT | DO_SPEED_UPDATE),
+	DO_COMBAT_N_EVADE = (DO_PULSE_COMBAT | DO_EVADE_CHECK),
+	DO_EVERYTHING = (DO_COMBAT_N_SPEED | DO_EVADE_CHECK),
+};
+
+class SpellToCast
+{
+public:
+	float castDest[3];
+	int32 damage[3];
+	uint64 targetGUID;
+	uint32 spellId;
+	bool triggered;
+	bool isDestCast;
+	bool hasCustomValues;
+	bool setAsTarget;
+	int32 scriptTextEntry;
+
+	SpellToCast(Unit* target, uint32 spellId, bool triggered, int32 scriptTextEntry, bool visualTarget)
+	{
+
+		if (target)
+			this->targetGUID = target->GetGUID();
+		else
+			this->targetGUID = 0;
+
+		this->isDestCast = false;
+		this->hasCustomValues = false;
+		this->spellId = spellId;
+		this->triggered = triggered;
+		this->scriptTextEntry = scriptTextEntry;
+		this->setAsTarget = visualTarget;
+	}
+
+	SpellToCast(uint64 target, uint32 spellId, bool triggered, int32 scriptTextEntry, bool visualTarget)
+	{
+		this->isDestCast = false;
+		this->hasCustomValues = false;
+		this->targetGUID = target;
+		this->spellId = spellId;
+		this->triggered = triggered;
+		this->scriptTextEntry = scriptTextEntry;
+		this->setAsTarget = visualTarget;
+	}
+
+	SpellToCast(float x, float y, float z, uint32 spellId, bool triggered, int32 scriptTextEntry, bool visualTarget)
+	{
+		this->isDestCast = true;
+		this->hasCustomValues = false;
+		this->castDest[0] = x;
+		this->castDest[1] = y;
+		this->castDest[2] = z;
+		this->spellId = spellId;
+		this->triggered = triggered;
+		this->scriptTextEntry = scriptTextEntry;
+		this->setAsTarget = visualTarget;
+	}
+
+	SpellToCast(uint64 target, uint32 spellId, int32 dmg0, int32 dmg1, int32 dmg2, bool triggered, int32 scriptTextEntry, bool visualTarget)
+	{
+		this->isDestCast = false;
+		this->hasCustomValues = true;
+		this->damage[0] = dmg0;
+		this->damage[1] = dmg1;
+		this->damage[2] = dmg2;
+		this->targetGUID = target;
+		this->spellId = spellId;
+		this->triggered = triggered;
+		this->scriptTextEntry = scriptTextEntry;
+		this->setAsTarget = visualTarget;
+	}
+
+	SpellToCast()
+	{
+		this->targetGUID = 0;
+		this->spellId = 0;
+		this->triggered = false;
+		this->scriptTextEntry = 0;
+		this->setAsTarget = false;
+		this->isDestCast = false;
+		for (uint8 i = 0; i<3; ++i)
+		{
+			this->castDest[i] = 0;
+			this->damage[i] = 0;
+		}
+	}
+
+	~SpellToCast()
+	{
+		this->targetGUID = 0;
+		this->spellId = 0;
+		this->triggered = false;
+		this->scriptTextEntry = 0;
+		this->setAsTarget = false;
+		this->isDestCast = false;
+		for (uint8 i = 0; i<3; ++i)
+		{
+			this->castDest[i] = 0;
+			this->damage[i] = 0;
+		}
+	}
+};
 enum SCEquip
 {
     EQUIP_NO_CHANGE = -1,

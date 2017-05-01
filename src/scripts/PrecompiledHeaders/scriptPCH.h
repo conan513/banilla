@@ -14,6 +14,7 @@
 #include "Spell.h"
 #include "Creature.h"
 #include "CreatureAI.h"
+#include "CreatureAIIMpl.h"
 #include "GameObject.h"
 #include "GameEventMgr.h"
 #include "ScriptedAI.h"

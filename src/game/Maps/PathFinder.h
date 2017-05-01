@@ -134,6 +134,8 @@ class PathInfo
         void BuildShortcut();
         void BuildUnderwaterPath();
 
+		void NormalizePath();
+
         void createFilter();
         void updateFilter();
 
