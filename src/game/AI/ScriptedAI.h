@@ -22,6 +22,22 @@
 
 class ScriptedInstance;
 
+class SummonList : std::list<uint64>
+{
+public:
+	SummonList(Creature* creature) : m_creature(creature) {}
+	void Summon(Creature *summon) { push_back(summon->GetGUID()); }
+	void Despawn(Creature *summon);
+	void DespawnEntry(uint32 entry);
+	void DespawnAll();
+	bool isEmpty();
+	void AuraOnEntry(uint32 entry, uint32 spellId, bool apply);
+	void DoAction(uint32 entry, uint32 info);
+	void Cast(uint32 entry, uint32 spell, Unit* target);
+private:
+	Creature *m_creature;
+};
+
 struct PointMovement
 {
 	uint32 m_uiCreatureEntry;

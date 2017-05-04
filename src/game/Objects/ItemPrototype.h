@@ -138,6 +138,7 @@ enum BagFamily
     BAG_FAMILY_ENCHANTING_SUPP                  = 7,
     BAG_FAMILY_ENGINEERING_SUPP                 = 8,
     BAG_FAMILY_KEYS                             = 9,
+	BAG_FAMILY_GEMS                             = 10,
 };
 
 enum InventoryType

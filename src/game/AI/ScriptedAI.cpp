@@ -10,6 +10,98 @@
 #include "ScriptedAI.h"
 #include "GridSearchers.h"
 
+void SummonList::DoAction(uint32 entry, uint32 info)
+{
+	for (iterator i = begin(); i != end(); )
+	{
+		Creature *summon = Unit::GetCreature(*m_creature, *i);
+		i++;
+		if (summon && summon->AI() && (!entry || summon->GetEntry() == entry))
+			summon->AI()->DoAction(info);
+	}
+}
+
+void SummonList::Cast(uint32 entry, uint32 spell, Unit* target)
+{
+	for (iterator i = begin(); i != end(); )
+	{
+		Creature *summon = Unit::GetCreature(*m_creature, *i);
+		i++;
+		if (summon && (!entry || summon->GetEntry() == entry))
+			summon->CastSpell(target, spell, true);
+	}
+}
+
+void SummonList::Despawn(Creature *summon)
+{
+	uint64 guid = summon->GetGUID();
+	for (iterator i = begin(); i != end(); ++i)
+	{
+		if (*i == guid)
+		{
+			erase(i);
+			return;
+		}
+	}
+}
+
+void SummonList::DespawnEntry(uint32 entry)
+{
+	for (iterator i = begin(); i != end(); ++i)
+	{
+		if (Creature *summon = Unit::GetCreature(*m_creature, *i))
+		{
+			if (summon->GetEntry() == entry)
+			{
+				summon->SetDeathState(JUST_DIED);
+				summon->RemoveCorpse();
+				i = erase(i);
+				--i;
+			}
+		}
+		else
+		{
+			i = erase(i);
+			--i;
+		}
+	}
+}
+
+void SummonList::AuraOnEntry(uint32 entry, uint32 spellId, bool apply)
+{
+	for (iterator i = begin(); i != end(); ++i)
+	{
+		if (Creature *summon = Unit::GetCreature(*m_creature, *i))
+		{
+			if (summon->GetEntry() == entry)
+			{
+				if (apply)
+					summon->AddAura(spellId, 0, summon);
+				else
+					summon->RemoveAurasDueToSpell(spellId);
+			}
+		}
+	}
+}
+
+void SummonList::DespawnAll()
+{
+	for (iterator i = begin(); i != end(); ++i)
+	{
+		if (Creature *summon = Unit::GetCreature(*m_creature, *i))
+		{
+			summon->SetDeathState(JUST_DIED);
+			summon->RemoveCorpse();
+		}
+	}
+	clear();
+}
+
+bool SummonList::isEmpty()
+{
+	return empty();
+}
+
 ScriptedAI::ScriptedAI(Creature* pCreature) : CreatureAI(pCreature),
     me(pCreature),
     m_bCombatMovement(true),

@@ -653,7 +653,7 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
     {
         if (cleanDamage)
         {
-            //sLog.outString("[ABSORB] Deal Damage sur %s (Dam%u|Absorb%u|Resist%u)", pVictim->GetName(), cleanDamage->damage, cleanDamage->absorb, cleanDamage->resist);
+            sLog.outString("[ABSORB] Deal Damage sur %s (Dam%u|Absorb%u|Resist%u)", pVictim->GetName(), cleanDamage->damage, cleanDamage->absorb, cleanDamage->resist);
 
             // Rage on outgoing parry/dodge
             if (cleanDamage->hitOutCome == MELEE_HIT_PARRY || cleanDamage->hitOutCome == MELEE_HIT_DODGE)
@@ -12577,4 +12577,39 @@ uint32 Unit::GetCombatRatingDamageReduction(CombatRating cr, float rate, float c
 		percent = cap;
 
 	return uint32(percent * damage / 100.0f);
+}
+
+Unit* Unit::GetUnit(WorldObject& object, uint64 guid)
+{
+	return object.GetMap()->GetUnit(guid);
+}
+
+Unit* Unit::GetUnit(const Unit& unit, uint64 guid)
+{
+	return unit.GetMap()->GetUnit(guid);
+}
+
+Unit* Unit::GetUnit(uint64 guid)
+{
+	return GetMap()->GetUnit(guid);
+}
+
+Player* Unit::GetPlayer(uint64 guid)
+{
+	return ObjectAccessor::FindPlayer(guid);
+}
+
+Creature* Unit::GetCreature(WorldObject& object, uint64 guid)
+{
+	return object.GetMap()->GetCreature(guid);
+}
+
+Creature* Unit::GetCreature(uint64 guid)
+{
+	return GetMap()->GetCreature(guid);
+}
+
+Player* Unit::GetPlayerByName(const char *name)
+{
+	return sObjectMgr.GetPlayer(name);
 }

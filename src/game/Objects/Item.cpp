@@ -194,6 +194,10 @@ bool ItemCanGoIntoBag(ItemPrototype const* pProto, ItemPrototype const* pBagProt
                     if (pProto->BagFamily != BAG_FAMILY_ENGINEERING_SUPP)
                         return false;
                     return true;
+				case ITEM_SUBCLASS_GEM_CONTAINER:
+					if (pProto->BagFamily != BAG_FAMILY_GEMS)
+						return false;
+					return true;
             }
             return false;
         case ITEM_CLASS_QUIVER:

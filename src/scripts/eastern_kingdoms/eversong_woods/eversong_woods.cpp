@@ -336,101 +336,128 @@ bool GossipSelect_npc_prospector_anvilward(Player* pPlayer, Creature* pCreature,
 ## npc_apprentice_mirveda
 ######*/
 
+/*######
+## npc_apprentice_mirveda
+######*/
+
 enum
 {
-    QUEST_UNEXPECTED_RESULT = 8488,
+	QUEST_UNEXPECTED_RESULT = 8488,
 
-    SPELL_FIREBALL          = 20811,
+	SPELL_FIREBALL = 20811,
 
-    NPC_GHARSUL             = 15958,
-    NPC_ANGERSHADE          = 15656
+	MOB_GHARZUL = 15958,
+	MOB_ANGERSHADE = 15656
 };
 
 struct npc_apprentice_mirvedaAI : public ScriptedAI
 {
-    npc_apprentice_mirvedaAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+	npc_apprentice_mirvedaAI(Creature* c) : ScriptedAI(c), summons(m_creature) {}
 
-    uint8 m_uiMobCount;
-    uint32 m_uiFireballTimer;
-    ObjectGuid m_playerGuid;
+	uint32 mobCount;
+	uint32 fireballTimer;
+	uint64 playerGUID;
+	SummonList summons;
 
-    void Reset() override
-    {
-        m_uiMobCount      = 0;
-        m_playerGuid.Clear();
-        m_uiFireballTimer = 0;
-    }
+	void Reset()
+	{
+		mobCount = 0;
+		fireballTimer = 0;
+		playerGUID = 0;
+		summons.DespawnAll();
+	}
 
-    void JustDied(Unit* /*pKiller*/) override
-    {
-        Player* pPlayer = m_creature->GetMap()->GetPlayer(m_playerGuid);
+	void JustSummoned(Creature *summoned)
+	{
+		summoned->AI()->AttackStart(m_creature);
 
-        if (pPlayer && pPlayer->GetQuestStatus(QUEST_UNEXPECTED_RESULT) == QUEST_STATUS_INCOMPLETE)
-            pPlayer->SendQuestFailed(QUEST_UNEXPECTED_RESULT);
-    }
+		summons.Summon(summoned);
+		++mobCount;
+	}
 
-    void JustSummoned(Creature* pSummoned) override
-    {
-        pSummoned->AI()->AttackStart(m_creature);
-        ++m_uiMobCount;
-    }
+	void SummonedCreatureDespawn(Creature* summoned)
+	{
+		summons.Despawn(summoned);
 
-    void SummonedCreatureJustDied(Creature* /*pKilled*/) override
-    {
-        --m_uiMobCount;
+		--mobCount;
 
-        if (m_uiMobCount)
-            return;
+		if (mobCount)
+			return;
 
-        Player* pPlayer = m_creature->GetMap()->GetPlayer(m_playerGuid);
+		if (m_creature->isDead())
+			return;
 
-        if (pPlayer && pPlayer->GetQuestStatus(QUEST_UNEXPECTED_RESULT) == QUEST_STATUS_INCOMPLETE)
-            pPlayer->GroupEventHappens(QUEST_UNEXPECTED_RESULT, m_creature);
+		// All adds killed. Proceed to give quest credit
+		if (playerGUID)
+		{
+			Player* player = Unit::GetPlayer(playerGUID);
 
-        m_playerGuid.Clear();
-        m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
-    }
+			if (player && player->GetQuestStatus(QUEST_UNEXPECTED_RESULT) == QUEST_STATUS_INCOMPLETE)
+				player->GroupEventHappens(QUEST_UNEXPECTED_RESULT, m_creature);
 
-    void StartEvent(Player* pPlayer)
-    {
-        m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
-        m_playerGuid = pPlayer->GetObjectGuid();
+			playerGUID = 0;
+		}
 
-        m_creature->SummonCreature(NPC_GHARSUL,    8745.0f, -7134.32f, 35.22f, 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 4000);
-        m_creature->SummonCreature(NPC_ANGERSHADE, 8745.0f, -7134.32f, 35.22f, 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 4000);
-        m_creature->SummonCreature(NPC_ANGERSHADE, 8745.0f, -7134.32f, 35.22f, 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 4000);
-    }
+		m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
 
-    void UpdateAI(const uint32 uiDiff) override
-    {
-        // Return since we have no target
-        if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
-            return;
+		summons.DespawnAll();
+	}
 
-        if (m_uiFireballTimer < uiDiff)
-        {
-            if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_FIREBALL) == CAST_OK)
-                m_uiFireballTimer = urand(4000, 6000);
-        }
-        else
-            m_uiFireballTimer -= uiDiff;
+	void JustDied(Unit* killer)
+	{
+		if (playerGUID)
+		{
+			Player* player = Unit::GetPlayer(playerGUID);
 
-        DoMeleeAttackIfReady();
-    }
+			if (player && player->GetQuestStatus(QUEST_UNEXPECTED_RESULT) == QUEST_STATUS_INCOMPLETE)
+				player->FailQuest(QUEST_UNEXPECTED_RESULT);
+		}
+
+		summons.DespawnAll();
+	}
+
+	void StartEvent(Player* player)
+	{
+		m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+
+		playerGUID = player->GetGUID();
+
+		// Actual spawn should be 8745, -7134.32, 35.22 but that means they are not able to AttackStart(m_creature)
+		m_creature->SummonCreature(MOB_GHARZUL, 8726, -7148.23f, 35.22f, 0, TEMPSUMMON_CORPSE_DESPAWN, 4000);
+		m_creature->SummonCreature(MOB_ANGERSHADE, 8726, -7148.23f, 35.22f, 0, TEMPSUMMON_CORPSE_DESPAWN, 4000);
+		m_creature->SummonCreature(MOB_ANGERSHADE, 8726, -7148.23f, 35.22f, 0, TEMPSUMMON_CORPSE_DESPAWN, 4000);
+	}
+
+	void UpdateAI(const uint32 diff)
+	{
+		if (!UpdateVictim())
+			return;
+
+		if (fireballTimer < diff)
+		{
+			DoCast(m_creature->getVictim(), SPELL_FIREBALL);
+			fireballTimer = urand(4000, 6000);
+		}
+		else
+			fireballTimer -= diff;
+
+		DoMeleeAttackIfReady();
+	}
 };
 
-bool QuestAccept_unexpected_results(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
+bool QuestAccept_npc_apprentice_mirveda(Player* player, Creature* creature, Quest const* quest)
 {
-    if (pQuest->GetQuestId() == QUEST_UNEXPECTED_RESULT)
-        if (npc_apprentice_mirvedaAI* pMirvedaAI = dynamic_cast<npc_apprentice_mirvedaAI*>(pCreature->AI()))
-            pMirvedaAI->StartEvent(pPlayer);
-    return true;
+	if (quest->GetQuestId() == QUEST_UNEXPECTED_RESULT)
+		((npc_apprentice_mirvedaAI*)creature->AI())->StartEvent(player);
+
+	return true;
 }
 
-CreatureAI* GetAI_npc_apprentice_mirvedaAI(Creature* pCreature)
+CreatureAI* GetAI_npc_apprentice_mirvedaAI(Creature *_Creature)
 {
-    return new npc_apprentice_mirvedaAI(pCreature);
+	return new npc_apprentice_mirvedaAI(_Creature);
 }
+
 
 /*######
 ## npc_infused_crystal
@@ -556,11 +583,11 @@ void AddSC_eversong_woods()
     pNewScript->pGossipSelect = &GossipSelect_npc_prospector_anvilward;
     pNewScript->RegisterSelf();
 
-    pNewScript = new Script;
-    pNewScript->Name = "npc_apprentice_mirveda";
-    pNewScript->GetAI = &GetAI_npc_apprentice_mirvedaAI;
-    pNewScript->pQuestAcceptNPC = &QuestAccept_unexpected_results;
-    pNewScript->RegisterSelf();
+	pNewScript = new Script;
+	pNewScript->Name = "npc_apprentice_mirveda";
+	pNewScript->GetAI = &GetAI_npc_apprentice_mirvedaAI;
+	pNewScript->pQuestAcceptNPC = &QuestAccept_npc_apprentice_mirveda;
+	pNewScript->RegisterSelf();
 
     pNewScript = new Script;
     pNewScript->Name = "npc_infused_crystal";
