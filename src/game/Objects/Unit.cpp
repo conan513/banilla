@@ -653,7 +653,8 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
     {
         if (cleanDamage)
         {
-            sLog.outString("[ABSORB] Deal Damage sur %s (Dam%u|Absorb%u|Resist%u)", pVictim->GetName(), cleanDamage->damage, cleanDamage->absorb, cleanDamage->resist);
+			if (pVictim->GetTypeId() == TYPEID_PLAYER)
+				sLog.outString("[Deal Damage %s (Dam%u|Absorb%u|Resist%u)", pVictim->GetName(), cleanDamage->damage, cleanDamage->absorb, cleanDamage->resist);
 
             // Rage on outgoing parry/dodge
             if (cleanDamage->hitOutCome == MELEE_HIT_PARRY || cleanDamage->hitOutCome == MELEE_HIT_DODGE)
@@ -694,6 +695,9 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
     }
     //else if (cleanDamage)
     //    sLog.outString("[NORMAL] Deal Damage sur %s (Dam%u|Absorb%u|Resist%u)", pVictim->GetName(), cleanDamage->damage, cleanDamage->absorb, cleanDamage->resist);
+
+	if (pVictim->GetTypeId() == TYPEID_PLAYER)
+		sLog.outString("[Deal Damage %s (Dam%u|Absorb%u|Resist%u)", pVictim->GetName(), cleanDamage->damage, cleanDamage->absorb, cleanDamage->resist);
 
     if (!spellProto || !spellProto->IsAuraAddedBySpell(SPELL_AURA_MOD_FEAR))
     {
@@ -1143,6 +1147,13 @@ void Unit::Kill(Unit* pVictim, SpellEntry const *spellProto, bool durabilityLoss
     if (GetTypeId() == TYPEID_UNIT && ((Creature*)this)->AI())
         ((Creature*)this)->AI()->KilledUnit(pVictim);
 
+	if (Creature* killer = ToCreature())
+	{
+		// used by eluna
+		if (Player* killed = pVictim->ToPlayer())
+			sEluna->OnPlayerKilledByCreature(killer, killed);
+	}
+
     // Call AI OwnerKilledUnit (for any current summoned minipet/guardian/protector)
     PetOwnerKilledUnit(pVictim);
 
@@ -1215,6 +1226,7 @@ void Unit::Kill(Unit* pVictim, SpellEntry const *spellProto, bool durabilityLoss
         Player *killed = ((Player*)pVictim);
         if (BattleGround *bg = killed->GetBattleGround())
             bg->HandleKillPlayer(killed, player_tap);
+
     }
     else if (pVictim->GetTypeId() == TYPEID_UNIT)
     {
