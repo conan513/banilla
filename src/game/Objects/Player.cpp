@@ -5986,7 +5986,7 @@ void Player::CheckAreaExploreAndOutdoor()
         const auto *p = AreaEntry::GetByAreaFlagAndMap(areaFlag, GetMapId());
         if (!p)
             sLog.outError("PLAYER: Player %u discovered unknown area (x: %f y: %f map: %u", GetGUIDLow(), GetPositionX(), GetPositionY(), GetMapId());
-        else if (p->AreaLevel > 0)
+        else if ((p->AreaLevel > 0) && (sWorld.getConfig(CONFIG_FLOAT_RATE_XP_EXPLORE) > 0))
         {
             GetCheatData()->OnExplore(p);
             uint32 area = p->Id;

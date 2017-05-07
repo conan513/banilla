@@ -709,7 +709,9 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
                         if (action.cast.castFlags & CAST_FORCE_TARGET_SELF)
                             action.cast.castFlags |= CAST_TRIGGERED;
 
-						IsValidTargetType(temp.event_type, action.type, action.cast.target, i, j + 1);
+				//		IsValidTargetType(temp.event_type, action.type, action.cast.target, i, j + 1);
+			if (action.cast.target >= TARGET_T_END)
+                            sLog.outErrorDb("CreatureEventAI:  Event %u Action %u uses incorrect Target type", i, j + 1);
                         break;
                     }
                     case ACTION_T_SUMMON:
