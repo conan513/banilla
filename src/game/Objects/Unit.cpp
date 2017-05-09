@@ -6542,6 +6542,9 @@ uint32 Unit::SpellDamageBonusDone(Unit *pVictim, SpellEntry const *spellProto, u
 	// Some spells don't benefit from done mods
 	if (spellProto->HasAttribute(SPELL_ATTR_EX3_NO_DONE_BONUS))
 		return pdamage;
+    // Ignite damage already includes modifiers
+    if (spellProto->IsFitToFamily<SPELLFAMILY_MAGE, CF_MAGE_IGNITE>())
+        return pdamage;
 
     // For totems get damage bonus from owner (statue isn't totem in fact)
     if (GetTypeId() == TYPEID_UNIT && ((Creature*)this)->IsTotem() && ((Totem*)this)->GetTotemType() != TOTEM_STATUE)
