@@ -2995,6 +2995,13 @@ AuraList const& ignore = GetAurasByType(SPELL_AURA_IGNORE_COMBAT_RESULT);
             canParry = false;
     }
 
+    // Check if the player can parry
+    if (pVictim->GetTypeId() == TYPEID_PLAYER)
+    {
+        if (!((Player*)pVictim)->CanParry())
+            canParry = false;
+    }
+
     if (canDodge)
     {
         // Roll dodge
