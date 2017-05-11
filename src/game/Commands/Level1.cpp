@@ -2224,7 +2224,8 @@ bool ChatHandler::HandleGoldRemoval(char* args)
 
     for (auto i = matches.begin() + 2; i != matches.end(); i += 2)
     {
-        try {
+        try
+        {
             auto type = (i + 1)->str();
 
             if (type == "g" && !gold)
