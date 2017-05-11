@@ -2763,27 +2763,13 @@ void Aura::HandleAuraTransform(bool apply, bool Real)
                     ((Creature*)target)->LoadEquipment(ci->equipmentId, true);
             }
 
-<<<<<<< HEAD
-            //fix tauren scaling
-            if (!target->getTransForm() && target->GetShapeshiftForm() == FORM_NONE && target->getRace() == RACE_TAUREN)
-            {
-                float mod_x = 0;
-                if (target->getGender() == GENDER_MALE)
-                    mod_x = -25.9f; // 0.741 * 1.35 ~= 1.0
-                else
-                    mod_x = -20.0f; // 0.8 * 1.25    = 1.0
-                target->ApplyPercentModFloatValue(OBJECT_FIELD_SCALE_X, mod_x, apply);
-            }
-            
-            target->SetDisplayId(model_id);
-=======
             std::pair<unsigned int, float> info = getShapeshiftModelInfo(target->GetShapeshiftForm(), target);
             if (target->GetDisplayId() == info.first)
                 mod_x /= info.second;
 
             if (model_id)
                 target->SetDisplayId(model_id);
->>>>>>> 27b0c6d... Shapeshifting fixes 2 (#565)
+
             target->setTransForm(GetId());
         }
     }
@@ -2799,10 +2785,6 @@ void Aura::HandleAuraTransform(bool apply, bool Real)
             if (target->GetTypeId() == TYPEID_UNIT)
                 ((Creature*)target)->LoadEquipment(((Creature*)target)->GetCreatureInfo()->equipmentId, true);
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 27b0c6d... Shapeshifting fixes 2 (#565)
             // re-apply some from still active with preference negative cases
             Unit::AuraList const& otherTransforms = target->GetAurasByType(SPELL_AURA_TRANSFORM);
             if (!otherTransforms.empty())
@@ -2833,27 +2815,10 @@ void Aura::HandleAuraTransform(bool apply, bool Real)
             }
             else //reapply shapeshifting, there should be only one.
             {
-<<<<<<< HEAD
-                //fix tauren scaling
-                if (target->getRace() == RACE_TAUREN)
-                {
-                    float mod_x = 0;
-                    if (target->getGender() == GENDER_MALE)
-                        mod_x = -25.9f; // 0.741 * 1.35 ~= 1.0
-                    else
-                        mod_x = -20.0f; // 0.8 * 1.25    = 1.0
-                    target->ApplyPercentModFloatValue(OBJECT_FIELD_SCALE_X, mod_x, apply);
-                }
-                
-                Unit::AuraList const& shapeshift = target->GetAurasByType(SPELL_AURA_MOD_SHAPESHIFT);
-                if (!shapeshift.empty() && !shapeshift.front()->IsInUse())
-                    shapeshift.front()->HandleAuraModShapeshift(true,false);
-=======
                 std::pair<unsigned int, float> info = getShapeshiftModelInfo(target->GetShapeshiftForm(), target);
                 mod_x /= info.second;
                 if (info.first)
                     target->SetDisplayId(info.first);
->>>>>>> 27b0c6d... Shapeshifting fixes 2 (#565)
             }
         }
     }
