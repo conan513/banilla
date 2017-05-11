@@ -2516,12 +2516,12 @@ void Aura::HandleAuraModShapeshift(bool apply, bool Real)
         case FORM_STEALTH:
         case FORM_TREE:
         case FORM_SPIRITOFREDEMPTION:
-            break;
+            break;*/
         case FORM_BATTLESTANCE:
         case FORM_BERSERKERSTANCE:
         case FORM_DEFENSIVESTANCE:
             PowerType = POWER_RAGE;
-            break;*/
+            break;
         default:
             break;
         }
