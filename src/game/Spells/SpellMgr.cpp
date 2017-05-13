@@ -806,7 +806,6 @@ bool IsPositiveEffect(SpellEntry const *spellproto, SpellEffectIndex effIndex, U
                         return true;                        // some expected positive spells have unclear target modes // maybe don't need this at all now that we don't check for what was SPELL_ATTR_EX_NEGATIVE
                     break;
                 case SPELL_AURA_ADD_TARGET_TRIGGER:
-                case SPELL_AURA_MOD_DETECT_RANGE:
                     return true;
                 case SPELL_AURA_PERIODIC_TRIGGER_SPELL:
                     if (spellproto->Id != spellproto->EffectTriggerSpell[effIndex])
@@ -850,6 +849,7 @@ bool IsPositiveEffect(SpellEntry const *spellproto, SpellEffectIndex effIndex, U
                 case SPELL_AURA_PERIODIC_LEECH:
                 case SPELL_AURA_MOD_STALKED:
                 case SPELL_AURA_PERIODIC_DAMAGE_PERCENT:
+                case SPELL_AURA_MOD_DETECT_RANGE:
                     return false;
                 case SPELL_AURA_PERIODIC_DAMAGE:            // used in positive spells also.
                     // part of negative spell if casted at self (prevent cancel)
@@ -2080,7 +2080,9 @@ bool SpellMgr::IsRankSpellDueToSpell(SpellEntry const *spellInfo_1, uint32 spell
             spellInfo_1->SpellFamilyName != SPELLFAMILY_GENERIC &&
             spellInfo_1->Effect[0] == spellInfo_2->Effect[0] &&
             spellInfo_1->EffectApplyAuraName[0] == spellInfo_2->EffectApplyAuraName[0] &&
-            spellInfo_1->SpellIconID > 1)
+            spellInfo_1->SpellIconID > 1 &&
+            (spellInfo_1->EffectApplyAuraName[0] != SPELL_AURA_ADD_FLAT_MODIFIER ||
+             spellInfo_1->EffectMiscValue[0] == spellInfo_2->EffectMiscValue[0]))
         return true;
     return GetFirstSpellInChain(spellInfo_1->Id) == GetFirstSpellInChain(spellId_2);
 }

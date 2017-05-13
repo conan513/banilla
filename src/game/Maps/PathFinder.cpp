@@ -91,7 +91,7 @@ bool PathInfo::calculate(float destX, float destY, float destZ, bool forceDest, 
             !HaveTiles(start) || !HaveTiles(dest))
     {
         BuildShortcut();
-        m_type = PathType(PATHFIND_NORMAL | PATHFIND_NOT_USING_PATH);
+        m_type = PathType(PATHFIND_SHORTCUT | PATHFIND_NOT_USING_PATH);
         return true;
     }
 
@@ -136,11 +136,31 @@ dtPolyRef PathInfo::FindWalkPoly(dtNavMeshQuery const* query, float const* point
 
 dtPolyRef PathInfo::getPolyByLocation(const float* point, float *distance, uint32 allowedFlags)
 {
+/*
     float closestPoint[VERTEX_SIZE] = {0.0f, 0.0f, 0.0f};
     dtQueryFilter filter;
     filter.setIncludeFlags(m_filter.getIncludeFlags() | allowedFlags);
     dtPolyRef polyRef = FindWalkPoly(m_navMeshQuery, point, filter, closestPoint);
     if (polyRef != INVALID_POLYREF)
+*/
+
+    float closestPoint[VERTEX_SIZE] = {0.0f, 0.0f, 0.0f};
+    dtStatus result = m_navMeshQuery->findNearestPoly(point, extents, &m_filter, &polyRef, closestPoint);
+    if(DT_SUCCESS == result && polyRef != INVALID_POLYREF)
+    {
+        *distance = dtVdist(closestPoint, point);
+        return polyRef;
+    }
+
+    // still nothing ..
+    // try with bigger search box
+    // From dtNavMeshQuery::findNearestPoly: "If the search extents overlaps more than
+    // 128 polygons it may return an invalid result". So use about 45 yards on Y.
+    extents[1] = DEFAULT_VISIBILITY_DISTANCE / 2.0f;
+
+    result = m_navMeshQuery->findNearestPoly(point, extents, &m_filter, &polyRef, closestPoint);
+    if(DT_SUCCESS == result && polyRef != INVALID_POLYREF)
+
     {
         *distance = dtVdist(closestPoint, point);
         return polyRef;
@@ -167,7 +187,7 @@ void PathInfo::BuildPolyPath(const Vector3 &startPos, const Vector3 &endPos)
             else
             {
                 BuildShortcut();
-                m_type = PathType(PATHFIND_NORMAL | PATHFIND_NOT_USING_PATH);
+                m_type = PathType(PATHFIND_SHORTCUT | PATHFIND_NOT_USING_PATH);
                 if (m_sourceUnit->CanFly())
                     m_type |= PATHFIND_FLYPATH;
             }
@@ -213,7 +233,7 @@ void PathInfo::BuildPolyPath(const Vector3 &startPos, const Vector3 &endPos)
         if (buildShortcut)
         {
             BuildShortcut();
-            m_type = PathType(PATHFIND_NORMAL | PATHFIND_NOT_USING_PATH);
+            m_type = PathType(PATHFIND_SHORTCUT | PATHFIND_NOT_USING_PATH);
             return;
         }
         else
@@ -242,7 +262,7 @@ void PathInfo::BuildPolyPath(const Vector3 &startPos, const Vector3 &endPos)
 		m_pathPolyRefs[0] = startPoly;
 		m_polyLength = 1;
 
-		m_type = farFromPoly ? PATHFIND_INCOMPLETE : PATHFIND_NORMAL;
+		m_type = farFromPoly ? PATHFIND_INCOMPLETE : PATHFIND_SHORTCUT;
 		//DEBUG_FILTER_LOG(LOG_FILTER_PATHFINDING, "++ BuildPolyPath :: path type %d\n", m_type);
 		return;
 	}
