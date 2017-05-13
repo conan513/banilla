@@ -1058,6 +1058,8 @@ void World::LoadNostalriusConfig(bool reload)
     setConfig(CONFIG_UINT32_PACKET_BCAST_THREADS,                       "Network.PacketBroadcast.Threads", 0);
     setConfig(CONFIG_UINT32_PACKET_BCAST_FREQUENCY,                     "Network.PacketBroadcast.Frequency", 50);
     setConfig(CONFIG_UINT32_PBCAST_DIFF_LOWER_VISIBILITY_DISTANCE,      "Network.PacketBroadcast.ReduceVisDistance.DiffAbove", 0);
+	setConfig(CONFIG_BOOL_CUSTOM_TALENT_RESET_TOKEN, "Custom.TalentResetToken", false);
+	setConfig(CONFIG_UINT32_CUSTOM_TALENT_RESET_TOKEN_COST, "Custom.TalentResetTokenCost", 2000000);
 
     if (getConfig(CONFIG_BOOL_ALLOW_TWO_SIDE_INTERACTION_CHAT))
         setConfig(CONFIG_BOOL_GM_JOIN_OPPOSITE_FACTION_CHANNELS, false);

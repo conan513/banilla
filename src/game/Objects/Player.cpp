@@ -12062,6 +12062,14 @@ void Player::PrepareGossipMenu(WorldObject *pSource, uint32 menuId)
                     if (getClass() != CLASS_HUNTER)
                         hasMenuItem = false;
                     break;
+				case GOSSIP_OPTION_UNLEARNTALENTS_C :
+					if (!pCreature->CanTrainAndResetTalentsOf(this) || !sWorld.getConfig(CONFIG_BOOL_CUSTOM_TALENT_RESET_TOKEN) || !HasItemCount(1000021, 1)) // If player is not allowed to reset talents (below lvl 10 or at the wrong class trainer) or if player doesn't own the token
+						hasMenuItem = false;
+						break;
+				case GOSSIP_OPTION_UNLEARNTALENTS_CB:
+					if (!pCreature->CanTrainAndResetTalentsOf(this) || !sWorld.getConfig(CONFIG_BOOL_CUSTOM_TALENT_RESET_TOKEN) || HasItemCount(1000021, 1)) // Don't allow the player to buy two tokens
+						hasMenuItem = false;
+						break;
                 case GOSSIP_OPTION_SPIRITGUIDE:
                 case GOSSIP_OPTION_INNKEEPER:
                 case GOSSIP_OPTION_BANKER:
@@ -12292,6 +12300,26 @@ void Player::OnGossipSelect(WorldObject* pSource, uint32 gossipListId)
             PrepareGossipMenu(pSource);
             SendPreparedGossip(pSource);
             break;
+		case GOSSIP_OPTION_UNLEARNTALENTS_C:
+			PlayerTalkClass->CloseGossip();
+			resetTalents(true);
+			CastSpell(this, 14867, true); // Talent reset visual
+			break;
+		case GOSSIP_OPTION_UNLEARNTALENTS_CB:
+		{
+			if (!(GetMoney() >= sWorld.getConfig(CONFIG_UINT32_CUSTOM_TALENT_RESET_TOKEN_COST)))
+			{
+				SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, 0, 0, 0);
+			}
+			else
+			{
+				AddItem(1000021, 1);
+				ModifyMoney(-int32(sWorld.getConfig(CONFIG_UINT32_CUSTOM_TALENT_RESET_TOKEN_COST)));
+			}
+					
+			PlayerTalkClass->CloseGossip();
+			break;
+		}
         case GOSSIP_OPTION_BATTLEFIELD:
         {
             BattleGroundTypeId bgTypeId = sBattleGroundMgr.GetBattleMasterBG(pSource->GetEntry());
