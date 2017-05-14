@@ -27,6 +27,7 @@
 #include "Dynamic/FactoryHolder.h"
 #include "ObjectGuid.h"
 #include "Utilities/EventMap.h"
+#include "Creature.h"
 
 class WorldObject;
 class GameObject;

@@ -256,6 +256,8 @@ bool IsValidTargetType(EventAI_Type eventType, EventAI_ActionType actionType, ui
 			sLog.outErrorDb("CreatureEventAI: Event %u Action%u uses incorrect Target type %u for event-type %u (must target player)", eventId, action, targetType, eventType);
 			return false;
 		}
+		else
+			return true;
 	case TARGET_T_HOSTILE_RANDOM:
 	case TARGET_T_HOSTILE_RANDOM_NOT_TOP:
 		if (actionType == ACTION_T_QUEST_EVENT || actionType == ACTION_T_CAST_EVENT || actionType == ACTION_T_QUEST_EVENT_ALL || actionType == ACTION_T_KILLED_MONSTER)
@@ -709,8 +711,8 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
                         if (action.cast.castFlags & CAST_FORCE_TARGET_SELF)
                             action.cast.castFlags |= CAST_TRIGGERED;
 
-				//		IsValidTargetType(temp.event_type, action.type, action.cast.target, i, j + 1);
-			if (action.cast.target >= TARGET_T_END)
+						IsValidTargetType(temp.event_type, action.type, action.cast.target, i, j + 1);
+						if (action.cast.target >= TARGET_T_END)
                             sLog.outErrorDb("CreatureEventAI:  Event %u Action %u uses incorrect Target type", i, j + 1);
                         break;
                     }
@@ -718,10 +720,10 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
                         if (!sCreatureStorage.LookupEntry<CreatureInfo>(action.summon.creatureId))
                             sLog.outErrorDb("CreatureEventAI:  Event %u Action %u uses nonexistent creature entry %u.", i, j + 1, action.summon.creatureId);
 
-                        //if (action.summon.target >= TARGET_T_END)
-                        //    sLog.outErrorDb("CreatureEventAI:  Event %u Action %u uses incorrect Target type", i, j + 1);
+                        if (action.summon.target >= TARGET_T_END)
+                            sLog.outErrorDb("CreatureEventAI:  Event %u Action %u uses incorrect Target type", i, j + 1);
 
-						IsValidTargetType(temp.event_type, action.type, action.summon.target, i, j + 1);
+						//IsValidTargetType(temp.event_type, action.type, action.summon.target, i, j + 1);
                         break;
                     case ACTION_T_THREAT_SINGLE_PCT:
                         if (std::abs(action.threat_single_pct.percent) > 100)

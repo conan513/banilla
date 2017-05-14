@@ -1040,7 +1040,7 @@ ChatCommand * ChatHandler::getCommandTable()
         { NODE, "die",            SEC_ADMINISTRATOR,  false, &ChatHandler::HandleDieCommand,                 "", nullptr },
         { NODE, "revive",         SEC_ADMINISTRATOR,  true,  &ChatHandler::HandleReviveCommand,              "", nullptr },
         { NODE, "dismount",       SEC_PLAYER,         false, &ChatHandler::HandleDismountCommand,            "", nullptr },
-        { NODE, "gps",            SEC_MODERATOR,      false, &ChatHandler::HandleGPSCommand,                 "", nullptr },
+        { NODE, "gps",            SEC_PLAYER,      false, &ChatHandler::HandleGPSCommand,                 "", nullptr },
         { NODE, "guid",           SEC_GAMEMASTER,     false, &ChatHandler::HandleGUIDCommand,                "", nullptr },
         { NODE, "help",           SEC_PLAYER,         true,  &ChatHandler::HandleHelpCommand,                "", nullptr },
         { NODE, "itemmove",       SEC_GAMEMASTER,     false, &ChatHandler::HandleItemMoveCommand,            "", nullptr },
