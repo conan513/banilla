@@ -32,7 +32,7 @@
 //#ifdef USE_STANDARD_MALLOC
 //#include <vector>
 //#else
-#include "concurrent_vector.h"
+#include <concurrent_vector.h>
 //#endif
 
 #include <memory>
