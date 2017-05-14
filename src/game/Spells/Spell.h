@@ -32,7 +32,7 @@
 //#ifdef USE_STANDARD_MALLOC
 //#include <vector>
 //#else
-#include <concurrent_vector.h>
+#include "tbb/concurrent_vector.h"
 //#endif
 
 #include <memory>
@@ -606,9 +606,9 @@ class Spell
         bool m_destroyed;
 
 //#ifndef USE_STANDARD_MALLOC
-        typedef concurrency::concurrent_vector<TargetInfo>     TargetList;
-        typedef concurrency::concurrent_vector<GOTargetInfo>   GOTargetList;
-        typedef concurrency::concurrent_vector<ItemTargetInfo> ItemTargetList;
+        typedef tbb::concurrent_vector<TargetInfo>     TargetList;
+        typedef tbb::concurrent_vector<GOTargetInfo>   GOTargetList;
+        typedef tbb::concurrent_vector<ItemTargetInfo> ItemTargetList;
 #//else
  //       typedef std::vector<TargetInfo> TargetList;
  //       typedef std::vector<GOTargetInfo> GOTargetList;
