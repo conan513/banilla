@@ -9428,7 +9428,7 @@ void ObjectMgr::LoadAreaTemplate()
     sAreaStorage.Load();
 
     for (auto itr = sAreaStorage.begin<AreaEntry>(); itr != sAreaStorage.end<AreaEntry>() ; ++itr)
-        if (itr->IsZone() && itr->MapId != 0 && itr->MapId != 1)
+        if (itr->IsZone() && itr->MapId != 0 && itr->MapId != 1 && itr->MapId != 530)
             sAreaFlagByMapId.insert(AreaFlagByMapId::value_type(itr->MapId, itr->ExploreFlag));
 }
 

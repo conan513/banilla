@@ -5989,6 +5989,7 @@ void Player::CheckAreaExploreAndOutdoor()
 
     if (!(currFields & val))
     {
+		sLog.outString("[NORMAL] Explore zone flag %u in map data for (X: %f Y: %f). Save to field PLAYER_EXPLORED_ZONES_1 + %u ( %u must be < %u ).", areaFlag, GetPositionX(), GetPositionY(), offset, offset, PLAYER_EXPLORED_ZONES_SIZE);
         SetUInt32Value(PLAYER_EXPLORED_ZONES_1 + offset, (uint32)(currFields | val));
 
         const auto *p = AreaEntry::GetByAreaFlagAndMap(areaFlag, GetMapId());

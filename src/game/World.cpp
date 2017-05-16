@@ -461,7 +461,7 @@ void World::LoadConfigSettings(bool reload)
         }
     }
 
-	system("PAUSE");
+	//system("PAUSE");
 
     ///- Read the version of the configuration file and warn the user in case of emptiness or mismatch
     uint32 confVersion = sConfig.GetIntDefault("ConfVersion", 0);

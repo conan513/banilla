@@ -306,6 +306,9 @@ class MANGOS_DLL_SPEC Object
 
             m_inWorld = true;
 
+			sLog.outError("%s enters grid", GetObjectGuid().GetString().c_str());
+			//Sleep(1000);
+
             // synchronize values mirror with values array (changes will send in updatecreate opcode any way
             ClearUpdateMask(false);                         // false - we can't have update data in update queue before adding to world
         }

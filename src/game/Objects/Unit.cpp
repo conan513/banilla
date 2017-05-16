@@ -653,10 +653,7 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
     {
         if (cleanDamage)
         {
-			if (pVictim->GetTypeId() == TYPEID_PLAYER)
-				sLog.outString("[Deal Damage %s (Dam%u|Absorb%u|Resist%u)", pVictim->GetName(), cleanDamage->damage, cleanDamage->absorb, cleanDamage->resist);
-
-            // Rage on outgoing parry/dodge
+		   // Rage on outgoing parry/dodge
             if (cleanDamage->hitOutCome == MELEE_HIT_PARRY || cleanDamage->hitOutCome == MELEE_HIT_DODGE)
             {
                 if (cleanDamage->damage && damagetype == DIRECT_DAMAGE && this != pVictim && GetTypeId() == TYPEID_PLAYER && (getPowerType() == POWER_RAGE))
@@ -2241,6 +2238,9 @@ void Unit::CalculateDamageAbsorbAndResist(Unit *pCaster, SpellSchoolMask schoolM
 
 		// Handle custom absorb auras
 		// TODO: try find better way
+
+		if (!spellProto)
+			continue;
 
 		switch (spellProto->SpellFamilyName)
 		{
