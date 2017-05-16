@@ -306,7 +306,7 @@ class MANGOS_DLL_SPEC Object
 
             m_inWorld = true;
 
-			sLog.outError("%s enters grid", GetObjectGuid().GetString().c_str());
+		//	sLog.outError("%s enters grid", GetObjectGuid().GetString().c_str());
 			//Sleep(1000);
 
             // synchronize values mirror with values array (changes will send in updatecreate opcode any way
