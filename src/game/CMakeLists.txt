@@ -67,6 +67,23 @@ set (game_SRCS
 	AI/ScriptedPetAI.cpp
 	AI/TotemAI.cpp
 	Anticheat/Anticheat.cpp
+      Anticheat/libanticheat.cpp
+      Anticheat/libanticheat.h
+      Anticheat/Antispam/Antispam.cpp
+      Anticheat/Antispam/Antispam.h
+      Anticheat/MovementAnticheat/Cheat.cpp
+      Anticheat/MovementAnticheat/Cheat.h
+      Anticheat/WardenAnticheat/Warden.cpp
+      Anticheat/WardenAnticheat/Warden.h
+      Anticheat/WardenAnticheat/WardenMac.cpp
+      Anticheat/WardenAnticheat/WardenMac.h
+      Anticheat/WardenAnticheat/WardenWin.cpp
+      Anticheat/WardenAnticheat/WardenWin.h
+      Anticheat/WardenAnticheat/WardenStorageMgr.cpp
+      Anticheat/WardenAnticheat/WardenStorageMgr.h
+      Anticheat/WardenAnticheat/WardenModuleMac.h
+      Anticheat/WardenAnticheat/WardenModuleWin.h
+      Anticheat/WardenAnticheat/WardenKeyGeneration.h
 	AuctionHouse/AuctionHouseBotMgr.cpp
 	AuctionHouse/AuctionHouseMgr.cpp
 	AutoTesting/AutoTestingMgr.cpp
@@ -131,6 +148,24 @@ set (game_SRCS
 	Handlers/SpellHandler.cpp
 	Handlers/TaxiHandler.cpp
 	Handlers/TradeHandler.cpp
+	LuaEngine/BattleGroundHooks.cpp
+	LuaEngine/CreatureHooks.cpp
+	LuaEngine/ElunaEventMgr.cpp
+	LuaEngine/ElunaInstanceAI.cpp
+	LuaEngine/ElunaUtility.cpp
+	LuaEngine/GameObjectHooks.cpp
+	LuaEngine/GossipHooks.cpp
+	LuaEngine/GroupHooks.cpp
+	LuaEngine/GuildHooks.cpp
+	LuaEngine/InstanceHooks.cpp
+	LuaEngine/ItemHooks.cpp
+	LuaEngine/lmarshal.cpp
+	LuaEngine/LuaEngine.cpp
+	LuaEngine/LuaFunctions.cpp
+	LuaEngine/PacketHooks.cpp
+	LuaEngine/PlayerHooks.cpp
+	LuaEngine/ServerHooks.cpp
+	LuaEngine/VehicleHooks.cpp
 	Mail/Mail.cpp
 	Mail/MassMailMgr.cpp
 	MapNodes/AbstractPlayer.cpp
@@ -303,6 +338,36 @@ set (game_SRCS
 	Guild/GuildMgr.h
 	Handlers/AddonHandler.h
 	Handlers/NPCHandler.h
+        LuaEngine/AuraMethods.h
+	LuaEngine/BattleGroundMethods.h
+	LuaEngine/BindingMap.h
+	LuaEngine/CorpseMethods.h
+	LuaEngine/CreatureMethods.h
+	LuaEngine/ElunaCreatureAI.h
+	LuaEngine/ElunaEventMgr.h
+	LuaEngine/ElunaIncludes.h
+	LuaEngine/ElunaInstanceAI.h
+	LuaEngine/ElunaQueryMethods.h
+	LuaEngine/ElunaTemplate.h
+	LuaEngine/ElunaUtility.h
+	LuaEngine/GameObjectMethods.h
+	LuaEngine/GlobalMethods.h
+	LuaEngine/GroupMethods.h
+	LuaEngine/GuildMethods.h
+	LuaEngine/HookHelpers.h
+	LuaEngine/Hooks.h
+	LuaEngine/ItemMethods.h
+	LuaEngine/lmarshal.h
+	LuaEngine/LuaEngine.h
+	LuaEngine/MapMethods.h
+	LuaEngine/ObjectMethods.h
+	LuaEngine/PlayerMethods.h
+	LuaEngine/QuestMethods.h
+	LuaEngine/SpellMethods.h
+	LuaEngine/UnitMethods.h
+	LuaEngine/VehicleMethods.h
+	LuaEngine/WorldObjectMethods.h
+	LuaEngine/WorldPacketMethods.h
 	Mail/Mail.h
 	Mail/MassMailMgr.h
 	MapNodes/AbstractPlayer.h
@@ -435,23 +500,6 @@ endif()
 
 if(USE_ANTICHEAT)
   list(APPEND game_SRCS
-      Anticheat/module/libanticheat.cpp
-      Anticheat/module/libanticheat.h
-      Anticheat/module/Antispam/Antispam.cpp
-      Anticheat/module/Antispam/Antispam.h
-      Anticheat/module/MovementAnticheat/Cheat.cpp
-      Anticheat/module/MovementAnticheat/Cheat.h
-      Anticheat/module/WardenAnticheat/Warden.cpp
-      Anticheat/module/WardenAnticheat/Warden.h
-      Anticheat/module/WardenAnticheat/WardenMac.cpp
-      Anticheat/module/WardenAnticheat/WardenMac.h
-      Anticheat/module/WardenAnticheat/WardenWin.cpp
-      Anticheat/module/WardenAnticheat/WardenWin.h
-      Anticheat/module/WardenAnticheat/WardenStorageMgr.cpp
-      Anticheat/module/WardenAnticheat/WardenStorageMgr.h
-      Anticheat/module/WardenAnticheat/WardenModuleMac.h
-      Anticheat/module/WardenAnticheat/WardenModuleWin.h
-      Anticheat/module/WardenAnticheat/WardenKeyGeneration.h
   )
 endif()
 
@@ -471,6 +519,7 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/Group
   ${CMAKE_CURRENT_SOURCE_DIR}/Guild
   ${CMAKE_CURRENT_SOURCE_DIR}/Handlers
+  ${CMAKE_CURRENT_SOURCE_DIR}/LuaEngine
   ${CMAKE_CURRENT_SOURCE_DIR}/Mail
   ${CMAKE_CURRENT_SOURCE_DIR}/MapNodes
   ${CMAKE_CURRENT_SOURCE_DIR}/MapNodes/Handlers

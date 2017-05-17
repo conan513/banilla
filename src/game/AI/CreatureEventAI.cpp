@@ -474,18 +474,30 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
     switch (action.type)
     {
         case ACTION_T_TEXT:
+		case ACTION_T_CHANCED_TEXT:
         {
             if (!action.text.TextId[0])
                 return;
 
             int32 temp = 0;
 
-            if (action.text.TextId[1] && action.text.TextId[2])
-                temp = action.text.TextId[rand() % 3];
-            else if (action.text.TextId[1] && urand(0, 1))
-                temp = action.text.TextId[1];
-            else
-                temp = action.text.TextId[0];
+			if (action.type == ACTION_T_TEXT)
+			{
+				if (action.text.TextId[1] && action.text.TextId[2])
+					temp = action.text.TextId[rand() % 3];
+				else if (action.text.TextId[1] && urand(0, 1))
+					temp = action.text.TextId[1];
+				else
+					temp = action.text.TextId[0];
+				// ACTION_T_CHANCED_TEXT, chance hits
+			}
+			else if ((rnd % 100) < action.chanced_text.chance)
+				{
+					if (action.chanced_text.TextId[0] && action.chanced_text.TextId[1])
+						temp = action.chanced_text.TextId[rnd % 2];
+					else
+						temp = action.chanced_text.TextId[0];
+				}				
 
             if (temp)
             {
@@ -987,6 +999,16 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
             }
             break;
         }
+		case ACTION_T_THROW_AI_EVENT:
+		{
+			SendAIEventAround(AIEventType(action.throwEvent.eventType), pActionInvoker, 0, action.throwEvent.radius);
+			break;
+		}
+		case ACTION_T_SET_THROW_MASK:
+		{
+			m_throwAIEventMask = action.setThrowMask.eventTypeMask;
+			break;
+		}
 		case ACTION_T_DYNAMIC_MOVEMENT:
 		{
 			if ((!!action.dynamicMovement.state) == m_DynamicMovement)

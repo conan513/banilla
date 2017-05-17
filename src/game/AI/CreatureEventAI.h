@@ -118,6 +118,8 @@ enum EventAI_ActionType
     ACTION_T_SET_INVINCIBILITY_HP_LEVEL = 42,               // MinHpValue, format(0-flat,1-percent from max health)
     ACTION_T_MOUNT_TO_ENTRY_OR_MODEL    = 43,               // Creature_template entry(param1) OR ModelId (param2) (or 0 for both to unmount)
     ACTION_T_SET_GAME_EVENT             = 44,               // EventID, Start/stop [NOSTALRIUS]
+	ACTION_T_THROW_AI_EVENT = 45,               // EventType, Radius, unused
+	ACTION_T_SET_THROW_MASK = 46,               // EventTypeMask, unused, unused
     ACTION_T_SET_STAND_STATE            = 47,               // StandState, unused, unused
     ACTION_T_CHANGE_MOVEMENT            = 48,               // MovementType, WanderDistance, unused
 	ACTION_T_DYNAMIC_MOVEMENT = 49,               // EnableDynamicMovement (1 = on; 0 = off)
@@ -125,6 +127,7 @@ enum EventAI_ActionType
 	ACTION_T_PAUSE_WAYPOINTS = 51,               // DoPause 0: unpause waypoint 1: pause waypoint, unused, unused
 	ACTION_T_INTERRUPT_SPELL = 52,               // SpellType enum CurrentSpellTypes, unused, unused
     ACTION_T_SET_VARIABLE               = 53,               // VariableEntry, Value, unused
+	ACTION_T_CHANCED_TEXT = 54,               // Chance to display the text, TextId1, optionally TextId2. If more than just -TextId1 is defined, randomize. Negative values.
     ACTION_T_END,
 };
 
@@ -408,6 +411,20 @@ struct CreatureEventAI_Action
             uint32 eventStart;      // 0 = false, 1 = true
             uint32 eventOverwrite;  // 0 = false, 1 = true
         } set_game_event;
+		// ACTION_T_THROW_AI_EVENT                          = 45
+		struct
+		{
+			uint32 eventType;
+			uint32 radius;
+			uint32 unused;
+		} throwEvent;
+		// ACTION_T_SET_THROW_MASK                          = 46
+		struct
+		{
+			uint32 eventTypeMask;
+			uint32 unused1;
+			uint32 unused2;
+		} setThrowMask;
         // ACTION_T_SET_STAND_STATE                         = 47
         struct
         {
@@ -457,6 +474,12 @@ struct CreatureEventAI_Action
             uint32 value;
             uint32 unused1;
         } setVariable;
+		// ACTION_T_CHANCED_TEXT                            = 54
+		struct
+		{
+			uint32 chance;
+			int32 TextId[2];
+		} chanced_text;
         // RAW
         struct
         {

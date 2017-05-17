@@ -18,6 +18,7 @@
  */
 
 #include "Common.h"
+#include "World.h"
 #include "Database/DatabaseEnv.h"
 #include "SQLStorages.h"
 #include "CreatureEventAI.h"
@@ -603,9 +604,11 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
                     case ACTION_T_NONE:
                         break;
                     case ACTION_T_TEXT:
+					case ACTION_T_CHANCED_TEXT:
                     {
                         bool not_set = false;
-                        for (int k = 0; k < 3; ++k)
+						int k = action.type == ACTION_T_TEXT ? 0 : 1;
+                        for (; k < 3; ++k)
                         {
                             if (action.text.TextId[k])
                             {
@@ -900,7 +903,29 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
                     case ACTION_T_RANDOM_TEXTEMOTE:
                         sLog.outErrorDb("CreatureEventAI:  Event %u Action %u currently unused ACTION type. Did you forget to update database?", i, j + 1);
                         break;
+					case ACTION_T_THROW_AI_EVENT:
+						if (action.throwEvent.eventType >= MAXIMAL_AI_EVENT_EVENTAI)
+						{
+							sLog.outErrorDb("Event %u Action %u uses invalid event type %u (must be less than %u), skipping", i, j + 1, action.throwEvent.eventType, MAXIMAL_AI_EVENT_EVENTAI);
+							continue;
+						}
+						if (action.throwEvent.radius > SIZE_OF_GRIDS)
+							sLog.outErrorDb("Event %u Action %u uses unexpectedly huge radius %u (expected to be less than %f)", i, j + 1, action.throwEvent.radius, SIZE_OF_GRIDS);
 
+						if (action.throwEvent.radius == 0)
+						{
+							sLog.outErrorDb("Event %u Action %u uses unexpected radius 0 (set to %f of CONFIG_FLOAT_CREATURE_FAMILY_ASSISTANCE_RADIUS)", i, j + 1, sWorld.getConfig(CONFIG_FLOAT_CREATURE_FAMILY_ASSISTANCE_RADIUS));
+							action.throwEvent.radius = uint32(sWorld.getConfig(CONFIG_FLOAT_CREATURE_FAMILY_ASSISTANCE_RADIUS));
+						}
+
+						break;
+					case ACTION_T_SET_THROW_MASK:
+						if (action.setThrowMask.eventTypeMask & ~((1 << MAXIMAL_AI_EVENT_EVENTAI) - 1))
+						{
+							sLog.outErrorDb("Event %u Action %u uses invalid AIEvent-typemask %u (must be smaller than %u)", i, j + 1, action.setThrowMask.eventTypeMask, MAXIMAL_AI_EVENT_EVENTAI << 1);
+							continue;
+						}
+						break;
                     case ACTION_T_SET_STAND_STATE:
                         if (action.setStandState.standState >= MAX_UNIT_STAND_STATE)
                         {
