@@ -420,6 +420,7 @@ class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>, public MaNGOS::Obj
 
         // GameObjectCollision
         float GetHeight(float x, float y, float z, bool vmap = true, float maxSearchDist = DEFAULT_HEIGHT_SEARCH) const;
+		bool GetHeightInRange(float x, float y, float& z, float maxSearchDist = 4.0f) const;
         bool isInLineOfSight(float x1, float y1, float z1, float x2, float y2, float z2, bool checkDynLos = true) const;
         // First collision with object
         bool GetLosHitPosition(float srcX, float srcY, float srcZ, float& destX, float& destY, float& destZ, float modifyDist) const;
@@ -484,6 +485,12 @@ class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>, public MaNGOS::Obj
         void TeleportAllPlayersToHomeBind();
 
         void SetMapUpdateIndex(int idx) { _updateIdx = idx; }
+
+		// Random on map generation
+		bool GetReachableRandomPosition(Unit* unit, float& x, float& y, float& z, float radius) const;
+		bool GetReachableRandomPointOnGround(float& x, float& y, float& z, float radius) const;
+		bool GetRandomPointInTheAir(float& x, float& y, float& z, float radius) const;
+		bool GetRandomPointUnderWater(float& x, float& y, float& z, float radius, GridMapLiquidData& liquid_status) const;
 
     private:
         void LoadMapAndVMap(int gx, int gy);

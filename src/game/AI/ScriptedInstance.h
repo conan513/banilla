@@ -28,6 +28,9 @@ enum EncounterState
 class MANGOS_DLL_DECL ScriptedInstance : public InstanceData
 {
     public:
+		// Storage for GO-Guids and NPC-Guids
+		typedef std::map<uint32, ObjectGuid> EntryGuidMap;
+		typedef std::multimap<uint32, ObjectGuid> EntryGuidSet;
 
         explicit ScriptedInstance(Map* pMap) : InstanceData(pMap) {}
         ~ScriptedInstance() {}
@@ -35,6 +38,7 @@ class MANGOS_DLL_DECL ScriptedInstance : public InstanceData
         // Default accessor functions
         GameObject* GetSingleGameObjectFromStorage(uint32 uiEntry);
         Creature* GetSingleCreatureFromStorage(uint32 uiEntry, bool bSkipDebugLog = false);
+		void GetCreatureGuidMapFromStorage(uint32 uiEntry, EntryGuidSet &uiEntryGuidSet, bool bSkipDebugLog = false);
 
         //change active state of doors or buttons
         void DoUseDoorOrButton(uint64 uiGuid, uint32 uiWithRestoreTime = 0, bool bUseAlternativeState = false);
@@ -66,9 +70,10 @@ class MANGOS_DLL_DECL ScriptedInstance : public InstanceData
 
     protected:
         // Storage for GO-Guids and NPC-Guids
-        typedef std::map<uint32, ObjectGuid> EntryGuidMap;
+        //typedef std::map<uint32, ObjectGuid> EntryGuidMap;
         EntryGuidMap m_mGoEntryGuidStore;                   ///< Store unique GO-Guids by entry
         EntryGuidMap m_mNpcEntryGuidStore;                  ///< Store unique NPC-Guids by entry
+		EntryGuidSet m_mNpcEntryGuidCollection;             ///< Store all Guids by entry
 };
 
 class MANGOS_DLL_DECL ScriptedInstance_PTR : public ScriptedInstance
@@ -79,6 +84,13 @@ public:
     void Update(uint32 diff) override;
 protected:
     std::map<ObjectGuid, time_t> boss_expirations; // For PTR testes
+};
+
+// Class for world maps (May need additional zone-wide functions later on)
+class ScriptedMap : public ScriptedInstance
+{
+public:
+	ScriptedMap(Map* pMap) : ScriptedInstance(pMap) {}
 };
 
 /// A static const array of this structure must be handled to DialogueHelper

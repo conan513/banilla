@@ -779,6 +779,15 @@ bool IsPositiveEffect(SpellEntry const *spellproto, SpellEffectIndex effIndex, U
                         case 27202:
                         case 27203:
                             return true;
+						case 44877:                         // Living Flare Master
+							return false;
+						case 39834:                         // Vimgol population tester
+						case 39851:                         // Vimgol population tester
+						case 39852:                         // Vimgol population tester
+						case 39853:                         // Vimgol population tester
+						case 39854:                         // Vimgol population tester
+						case 39921:                         // Vimgol Pentagram Beam
+							return true;
                         default:
                             break;
                     }

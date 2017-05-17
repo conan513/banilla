@@ -194,6 +194,9 @@ class MANGOS_DLL_SPEC CreatureAI
         virtual void OwnerAttackedBy(Unit* /*attacker*/) {}
         virtual void OwnerAttacked(Unit* /*target*/) {}
 
+		///== Data Fetch bind ==============================
+		virtual uint32 GetScriptData() { return 0; }
+
         ///== Triggered Actions Requested ==================
 
         // Called when creature attack expected (if creature can and no have current victim)
