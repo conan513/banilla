@@ -6407,7 +6407,7 @@ int32 Unit::DealHeal(Unit *pVictim, uint32 addhealth, SpellEntry const *spellPro
 
 	// Script Event HealedBy
 	if (pVictim->AI())
-		pVictim->AI()->HealBy(this, addhealth);
+		pVictim->AI()->HealedBy(this, addhealth);
 
     return gain;
 }

@@ -1702,7 +1702,7 @@ void CreatureEventAI::DamageTaken(Unit* done_by, uint32& damage)
 	}
 }
 
-void CreatureEventAI::HealBy(Unit* healer, uint32 healedAmount)
+void CreatureEventAI::HealedBy(Unit* healer, uint32 healedAmount)
 {
 	if (m_throwAIEventStep == 100)
 		return;
