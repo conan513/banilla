@@ -50,6 +50,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/shared
   ${CMAKE_SOURCE_DIR}/dep/include/gsoap
   ${CMAKE_SOURCE_DIR}/dep/include/g3dlite
+  ${CMAKE_SOURCE_DIR}/dep/lualib
   ${CMAKE_SOURCE_DIR}/src/framework
   ${CMAKE_SOURCE_DIR}/src/framework/Network
   ${CMAKE_SOURCE_DIR}/src/game
@@ -64,7 +65,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/game/Group
   ${CMAKE_SOURCE_DIR}/src/game/Guild
   ${CMAKE_SOURCE_DIR}/src/game/Handlers
-  ${CMAKE_SOURCE_DIR}/src/game/LuaEngine
+  ${CMAKE_SOURCE_DIR}/src/game/Lua
   ${CMAKE_SOURCE_DIR}/src/game/Mail
   ${CMAKE_SOURCE_DIR}/src/game/MapNodes
   ${CMAKE_SOURCE_DIR}/src/game/Maps

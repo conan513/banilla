@@ -3,6 +3,7 @@
 #include "ScriptedAI.h"
 #include "ScriptedInstance.h"
 #include "Util.h"
+#include "ObjectMgr.h"
 
 #define DEFAULT_MIN_CD 5000
 #define DEFAULT_MAX_CD 15000
