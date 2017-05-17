@@ -148,24 +148,24 @@ set (game_SRCS
 	Handlers/SpellHandler.cpp
 	Handlers/TaxiHandler.cpp
 	Handlers/TradeHandler.cpp
-	LuaEngine/BattleGroundHooks.cpp
-	LuaEngine/CreatureHooks.cpp
-	LuaEngine/ElunaEventMgr.cpp
-	LuaEngine/ElunaInstanceAI.cpp
-	LuaEngine/ElunaUtility.cpp
-	LuaEngine/GameObjectHooks.cpp
-	LuaEngine/GossipHooks.cpp
-	LuaEngine/GroupHooks.cpp
-	LuaEngine/GuildHooks.cpp
-	LuaEngine/InstanceHooks.cpp
-	LuaEngine/ItemHooks.cpp
-	LuaEngine/lmarshal.cpp
-	LuaEngine/LuaEngine.cpp
-	LuaEngine/LuaFunctions.cpp
-	LuaEngine/PacketHooks.cpp
-	LuaEngine/PlayerHooks.cpp
-	LuaEngine/ServerHooks.cpp
-	LuaEngine/VehicleHooks.cpp
+	Lua/BattleGroundHooks.cpp
+	Lua/CreatureHooks.cpp
+	Lua/ElunaEventMgr.cpp
+	Lua/ElunaInstanceAI.cpp
+	Lua/ElunaUtility.cpp
+	Lua/GameObjectHooks.cpp
+	Lua/GossipHooks.cpp
+	Lua/GroupHooks.cpp
+	Lua/GuildHooks.cpp
+	Lua/InstanceHooks.cpp
+	Lua/ItemHooks.cpp
+	Lua/lmarshal.cpp
+	Lua/LuaEngine.cpp
+	Lua/LuaFunctions.cpp
+	Lua/PacketHooks.cpp
+	Lua/PlayerHooks.cpp
+	Lua/ServerHooks.cpp
+	Lua/VehicleHooks.cpp
 	Mail/Mail.cpp
 	Mail/MassMailMgr.cpp
 	MapNodes/AbstractPlayer.cpp
@@ -338,36 +338,36 @@ set (game_SRCS
 	Guild/GuildMgr.h
 	Handlers/AddonHandler.h
 	Handlers/NPCHandler.h
-        LuaEngine/AuraMethods.h
-	LuaEngine/BattleGroundMethods.h
-	LuaEngine/BindingMap.h
-	LuaEngine/CorpseMethods.h
-	LuaEngine/CreatureMethods.h
-	LuaEngine/ElunaCreatureAI.h
-	LuaEngine/ElunaEventMgr.h
-	LuaEngine/ElunaIncludes.h
-	LuaEngine/ElunaInstanceAI.h
-	LuaEngine/ElunaQueryMethods.h
-	LuaEngine/ElunaTemplate.h
-	LuaEngine/ElunaUtility.h
-	LuaEngine/GameObjectMethods.h
-	LuaEngine/GlobalMethods.h
-	LuaEngine/GroupMethods.h
-	LuaEngine/GuildMethods.h
-	LuaEngine/HookHelpers.h
-	LuaEngine/Hooks.h
-	LuaEngine/ItemMethods.h
-	LuaEngine/lmarshal.h
-	LuaEngine/LuaEngine.h
-	LuaEngine/MapMethods.h
-	LuaEngine/ObjectMethods.h
-	LuaEngine/PlayerMethods.h
-	LuaEngine/QuestMethods.h
-	LuaEngine/SpellMethods.h
-	LuaEngine/UnitMethods.h
-	LuaEngine/VehicleMethods.h
-	LuaEngine/WorldObjectMethods.h
-	LuaEngine/WorldPacketMethods.h
+    Lua/AuraMethods.h
+	Lua/BattleGroundMethods.h
+	Lua/BindingMap.h
+	Lua/CorpseMethods.h
+	Lua/CreatureMethods.h
+	Lua/ElunaCreatureAI.h
+	Lua/ElunaEventMgr.h
+	Lua/ElunaIncludes.h
+	Lua/ElunaInstanceAI.h
+	Lua/ElunaQueryMethods.h
+	Lua/ElunaTemplate.h
+	Lua/ElunaUtility.h
+	Lua/GameObjectMethods.h
+	Lua/GlobalMethods.h
+	Lua/GroupMethods.h
+	Lua/GuildMethods.h
+	Lua/HookHelpers.h
+	Lua/Hooks.h
+	Lua/ItemMethods.h
+	Lua/lmarshal.h
+	Lua/LuaEngine.h
+	Lua/MapMethods.h
+	Lua/ObjectMethods.h
+	Lua/PlayerMethods.h
+	Lua/QuestMethods.h
+	Lua/SpellMethods.h
+	Lua/UnitMethods.h
+	Lua/VehicleMethods.h
+	Lua/WorldObjectMethods.h
+	Lua/WorldPacketMethods.h
 	Mail/Mail.h
 	Mail/MassMailMgr.h
 	MapNodes/AbstractPlayer.h
@@ -511,7 +511,6 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/AuctionHouse
   ${CMAKE_CURRENT_SOURCE_DIR}/AutoTesting
   ${CMAKE_CURRENT_SOURCE_DIR}/Battlegrounds
-  ${CMAKE_CURRENT_SOURCE_DIR}/LuaEngine
   ${CMAKE_CURRENT_SOURCE_DIR}/Chat
   ${CMAKE_CURRENT_SOURCE_DIR}/CinematicStuff
   ${CMAKE_CURRENT_SOURCE_DIR}/Commands
@@ -519,7 +518,7 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/Group
   ${CMAKE_CURRENT_SOURCE_DIR}/Guild
   ${CMAKE_CURRENT_SOURCE_DIR}/Handlers
-  ${CMAKE_CURRENT_SOURCE_DIR}/LuaEngine
+  ${CMAKE_CURRENT_SOURCE_DIR}/Lua
   ${CMAKE_CURRENT_SOURCE_DIR}/Mail
   ${CMAKE_CURRENT_SOURCE_DIR}/MapNodes
   ${CMAKE_CURRENT_SOURCE_DIR}/MapNodes/Handlers
