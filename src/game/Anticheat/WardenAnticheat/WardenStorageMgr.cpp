@@ -68,6 +68,18 @@ void WardenStorageMgr::LoadWardenChecks()
         sLog.outString();
         return;
     }
+	else
+	{
+		Field* fields = result->Fetch();
+		uint16 id = fields[0].GetUInt16();
+
+		if (id == 0)
+		{
+			sLog.outString(">> Loaded 0 Warden checks. DB table `warden_checks` is empty!");
+			sLog.outString();
+			return;
+		}
+	}
 
     checkStore.clear();
     checkResultStore.clear();
@@ -161,7 +173,7 @@ void WardenStorageMgr::LoadWardenPenalty()
         sLog.outString();
         return;
     }
-
+	
     uint32 count = 0;
 
     ACE_WRITE_GUARD(ACE_RW_Mutex, g, _checkStoreLock);
