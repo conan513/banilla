@@ -276,6 +276,8 @@ void WardenWin::RequestData()
         _currentChecks.push_back(id);
 
         wd = _wardenStorage.GetCheckDataById(id, clientBuild);
+		if (!wd)
+			return;
 
         if (wd->type == MPQ_CHECK)
         {
@@ -301,6 +303,8 @@ void WardenWin::RequestData()
         _currentChecks.push_back(id);
 
         wd = _wardenStorage.GetCheckDataById(id, clientBuild);
+		if (!wd)
+			return;
 
         switch (wd->type)
         {
@@ -324,6 +328,9 @@ void WardenWin::RequestData()
 
     // header
     wd = _wardenStorage.GetCheckDataById(1, clientBuild, true);
+
+	if (!wd)
+		return;
 
     buff << uint8(MEM_CHECK ^ xorByte);
     buff << uint8(0x00);
@@ -349,6 +356,9 @@ void WardenWin::RequestData()
     for (std::list<uint16>::iterator itr = _currentChecks.begin(); itr != _currentChecks.end(); ++itr)
     {
         wd = _wardenStorage.GetCheckDataById(*itr, clientBuild);
+
+		if (!wd)
+			return;
 
         type = wd->type;
         buff << uint8(type ^ xorByte);
@@ -442,6 +452,9 @@ void WardenWin::RequestData2()
     // header
     WardenCheck* wd = _wardenStorage.GetCheckDataById(2, clientBuild, true);
 
+	if (!wd)
+		return;
+
     buff << uint8(MEM_CHECK ^ xorByte);
     buff << uint8(0x00);
     buff << uint32(wd->address);
@@ -457,6 +470,9 @@ void WardenWin::RequestData2()
     if (playerBase == 0x00 && offset == 0x00 && playerMovementBase == 0x00)
     {
         wd = _wardenStorage.GetCheckDataById(3, clientBuild, true);
+		if (!wd)
+			return;
+
         buff << uint32(wd->address);
         buff << uint8(wd->length);
         dataCreate = true;
@@ -465,6 +481,9 @@ void WardenWin::RequestData2()
     else if (playerBase != 0x00 && offset == 0x00 && playerMovementBase == 0x00)
     {
         wd = _wardenStorage.GetCheckDataById(4, clientBuild, true);
+		if (!wd)
+			return;
+
         playerBase += wd->address;
         buff << uint32(playerBase);
         buff << uint8(wd->length);
@@ -474,6 +493,9 @@ void WardenWin::RequestData2()
     else if (playerBase != 0x00 && offset != 0x00 && playerMovementBase == 0x00)
     {
         wd = _wardenStorage.GetCheckDataById(5, clientBuild, true);
+		if (!wd)
+			return;
+
         offset += wd->address;
         buff << uint32(offset);
         buff << uint8(wd->length);
