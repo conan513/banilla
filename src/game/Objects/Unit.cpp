@@ -10608,6 +10608,9 @@ Unit* Unit::SelectRandomUnfriendlyTarget(Unit* except /*= NULL*/, float radius /
     if (except)
         targets.remove(except);
 
+	// remove self
+	targets.remove((Unit *) this);
+
     // remove not LoS targets
     for (std::list<Unit *>::iterator tIter = targets.begin(); tIter != targets.end();)
     {
