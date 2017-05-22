@@ -10026,7 +10026,16 @@ InventoryResult Player::CanUseItem(ItemPrototype const *pProto, bool not_loading
         if (pProto->RequiredSpell != 0 && !HasSpell(pProto->RequiredSpell))
             return EQUIP_ERR_NO_REQUIRED_PROFICIENCY;
 
-        if (not_loading && m_honorMgr.GetHighestRank().rank < (uint8)pProto->RequiredHonorRank)
+        
+        auto playerRank = m_honorMgr.GetHighestRank().rank;
+        
+        if (sWorld.getConfig(CONFIG_BOOL_ACCURATE_PVP_EQUIP_REQUIREMENTS)
+            && sWorld.GetWowPatch() < WOW_PATCH_106)
+        {
+            playerRank = m_honorMgr.GetRank().rank;
+        }
+
+        if (not_loading && playerRank < (uint8)pProto->RequiredHonorRank)
             return EQUIP_ERR_CANT_EQUIP_RANK;
 
         if (getLevel() < pProto->RequiredLevel)
@@ -17644,8 +17653,11 @@ bool Player::BuyItemFromVendor(ObjectGuid vendorGuid, uint32 item, uint8 count, 
         return false;
     }
 
+    auto playerRank = sWorld.getConfig(CONFIG_BOOL_ACCURATE_PVP_PURCHASE_REQUIREMENTS) ?
+        m_honorMgr.GetRank().rank: m_honorMgr.GetHighestRank().rank;
+
     // not check level requiremnt for normal items (PvP related bonus items is another case)
-    if (pProto->RequiredHonorRank && (m_honorMgr.GetHighestRank().rank < (uint8)pProto->RequiredHonorRank || getLevel() < pProto->RequiredLevel))
+    if (pProto->RequiredHonorRank && (playerRank < (uint8)pProto->RequiredHonorRank || getLevel() < pProto->RequiredLevel))
     {
         SendBuyError(BUY_ERR_RANK_REQUIRE, pCreature, item, 0);
         return false;
@@ -18552,7 +18564,7 @@ float Player::GetReputationPriceDiscount(Creature const* pCreature) const
         case 81: // Thunder Bluff
         case 530: // Darkspear
             // Reduction si grade >= 3
-            if (m_honorMgr.GetHighestRank().visualRank >= 3)
+            if (m_honorMgr.GetRank().visualRank >= 3)
                 mod -= 0.1f;
             break;
     }
@@ -19008,15 +19020,12 @@ void Player::RewardSinglePlayerAtKill(Unit* pVictim)
 				multiplier = 5;
 
 			if (pCreature->IsWorldBoss())
-				multiplier = 40;
+				multiplier = 20;
 
 			if (sWorld.getConfig(CONFIG_UINT32_CUSTOM_ADVENTURE_BOSSONLYXP) < adventure_level && !pCreature->IsWorldBoss())
 				multiplier = 0;
 
-			if ((victim_level + 3 - attacker_level) > 0)
-				multiplier = victim_level * multiplier;
-			else
-				multiplier = (-0.5f)*victim_level * multiplier;
+			multiplier = (victim_level / 2) * (victim_level - attacker_level + 2) * multiplier;
 
 			int newxp = (int)(sWorld.getConfig(CONFIG_FLOAT_CUSTOM_ADVENTURE_KILLXP)*multiplier);
 			AddAdventureXP(newxp);

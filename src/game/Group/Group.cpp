@@ -1797,20 +1797,16 @@ static void RewardGroupAtKill_helper(Player* pGroupGuy, Unit* pVictim, uint32 co
 			Creature * pCreature = (Creature*)(pVictim);
 
 			if (pCreature->IsElite())
-				multiplier = 5;
+				multiplier = 3;
 
 			if (pCreature->IsWorldBoss())
-				multiplier = 40;
+				multiplier = 20;
 
 			if (sWorld.getConfig(CONFIG_UINT32_CUSTOM_ADVENTURE_BOSSONLYXP) < pGroupGuy->GetAdventureLevel() && !pCreature->IsWorldBoss())
 				multiplier = 0;
 
-			if ((victim_level + 3 - attacker_level) > 0)
-				multiplier = victim_level * multiplier;
-			else
-				multiplier = (-0.5f)*victim_level * multiplier;
-
-
+			multiplier = (victim_level/2) * (victim_level - attacker_level + 2) * multiplier;
+			
 			int newxp = (int)(sWorld.getConfig(CONFIG_FLOAT_CUSTOM_ADVENTURE_KILLXP)*multiplier);
 			pGroupGuy->AddAdventureXP(newxp);
 
