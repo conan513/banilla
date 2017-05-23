@@ -435,10 +435,6 @@ SpellSpecific GetSpellSpecific(uint32 spellId)
 			else if (spellInfo->Id == 30074)
 				return SPELL_ASPECT;
 
-            // Shadow Vulnerability
-            if (spellInfo->SpellIconID == 213 && spellInfo->EffectApplyAuraName[0] == SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN)
-                return SPELL_SHADOW_VULN;
-
             // Food / Drinks (mostly)
             if (spellInfo->AuraInterruptFlags & AURA_INTERRUPT_FLAG_NOT_SEATED)
             {
@@ -612,7 +608,6 @@ bool IsSingleFromSpellSpecificSpellRanksPerTarget(SpellSpecific spellSpec1, Spel
         case SPELL_AURA:
         case SPELL_CURSE:
         case SPELL_ASPECT:
-        case SPELL_SHADOW_VULN:
             return spellSpec1 == spellSpec2;
         default:
             return false;
