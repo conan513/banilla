@@ -285,7 +285,7 @@ void WorldSession::HandlePetAction(WorldPacket& recv_data)
                     }
                 }
 
-                spell->prepare(&(spell->m_targets));
+                spell->prepare();
             }
             else
             {
@@ -705,7 +705,7 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
                 pet->SendPetAIReaction();
         }
 
-        spell->prepare(&(spell->m_targets));
+        spell->prepare();
     }
     else
     {
