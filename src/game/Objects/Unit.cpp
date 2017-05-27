@@ -7570,8 +7570,9 @@ uint32 Unit::MeleeDamageBonusDone(Unit* pVictim, uint32 pdamage, WeaponAttackTyp
     // ..done flat (by creature type mask)
     DoneFlat += GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_DAMAGE_DONE_CREATURE, creatureTypeMask);
 
-    // ..done flat (base at attack power for marked target and base at attack power for creature type)
-    if (attType == RANGED_ATTACK)
+	//Raptor Strike uses ranged attack
+	// ..done flat (base at attack power for marked target and base at attack power for creature type)
+    if (attType == RANGED_ATTACK || spellProto->IsFitToFamily<SPELLFAMILY_HUNTER, CF_HUNTER_MONGOOSE_RAPTOR>())
     {
         APbonus += pVictim->GetTotalAuraModifier(SPELL_AURA_RANGED_ATTACK_POWER_ATTACKER_BONUS);
         APbonus += GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_RANGED_ATTACK_POWER_VERSUS, creatureTypeMask);
