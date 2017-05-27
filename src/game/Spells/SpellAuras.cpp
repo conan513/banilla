@@ -2367,15 +2367,15 @@ std::pair<unsigned int, float> getShapeshiftModelInfo(ShapeshiftForm form, Unit 
             modelid = 892;
         else
             modelid = 8571;
-        mod = 0.80;
+        mod = 0.80f;
         break;
     case FORM_TRAVEL:
         modelid = 632;
-        mod = 0.80;
+        mod = 0.80f;
         break;
     case FORM_AQUA:
         modelid = 2428;
-        mod = 0.80;
+        mod = 0.80f;
         break;
     case FORM_BEAR:
         if (Player::TeamForRace(target->getRace()) == ALLIANCE)
@@ -2398,7 +2398,7 @@ std::pair<unsigned int, float> getShapeshiftModelInfo(ShapeshiftForm form, Unit 
         break;
     case FORM_GHOSTWOLF:
         modelid = 4613;
-        mod = 0.80;
+        mod = 0.80f;
         break;
     case FORM_MOONKIN:
         if (Player::TeamForRace(target->getRace()) == ALLIANCE)
@@ -2852,6 +2852,14 @@ void Aura::HandleAuraModSkill(bool apply, bool /*Real*/)
 	//custom for Anticipation and similar spells;
 	//float basePointsPerLevel = GetSpellProto()->EffectRealPointsPerLevel[m_effIndex];
 	//points += int32(((Player*)GetTarget())->getLevel() * basePointsPerLevel);
+
+    // Can't modify an unknown skill
+    if (!GetTarget()->ToPlayer()->HasSkill(prot))
+    {
+        // Revert m_applied assigned in Aura::ApplyModidier
+        m_applied = !apply;
+        return;
+    }
 
     ((Player*)GetTarget())->ModifySkillBonus(prot, (apply ? points : -points), m_modifier.m_auraname == SPELL_AURA_MOD_SKILL_TALENT);
     if (prot == SKILL_DEFENSE)
@@ -4758,7 +4766,6 @@ void Aura::HandleAuraModResistenceOfStatPercent(bool /*apply*/, bool /*Real*/)
 	Stats usedStat;
 	float value = 0;
 
-	/*
 	if (m_modifier.m_miscvalue & uint64(0x00000100))
 		usedStat = STAT_STRENGTH;
 	else if (m_modifier.m_miscvalue & uint64(0x00000200))
@@ -4782,7 +4789,7 @@ void Aura::HandleAuraModResistenceOfStatPercent(bool /*apply*/, bool /*Real*/)
 			GetTarget()->SetResistance(SpellSchools(i), int32(res_value + value));
 		}
 	}
-		*/
+		
     // Recalculate Armor
     GetTarget()->UpdateArmor();	
 }
