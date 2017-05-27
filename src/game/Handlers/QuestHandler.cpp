@@ -79,6 +79,13 @@ void WorldSession::HandleQuestgiverStatusQueryOpcode(WorldPacket & recv_data)
     _player->PlayerTalkClass->SendQuestGiverStatus(dialogStatus, guid);
 }
 
+void WorldSession::HandleQuestgiverStatusMultipleQuery(WorldPacket& /*recvPacket*/)
+{
+	DEBUG_LOG("WORLD: Received opcode CMSG_QUESTGIVER_STATUS_MULTIPLE_QUERY");
+
+	_player->SendQuestGiverStatusMultiple();
+}
+
 void WorldSession::HandleQuestgiverHelloOpcode(WorldPacket & recv_data)
 {
     ObjectGuid guid;

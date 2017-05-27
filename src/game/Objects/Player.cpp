@@ -14397,6 +14397,60 @@ void Player::SendQuestUpdateAddCreatureOrGo(Quest const* pQuest, ObjectGuid guid
     ALL_SESSION_SCRIPTS(GetSession(), OnQuestKillUpdated(guid));
 }
 
+void Player::SendQuestGiverStatusMultiple() const
+{
+	uint32 count = 0;
+
+	WorldPacket data(SMSG_QUESTGIVER_STATUS_MULTIPLE, 4);
+	data << uint32(count);                                  // placeholder
+
+	for (ObjectGuidSet::const_iterator itr = m_visibleGUIDs.begin(); itr != m_visibleGUIDs.end(); ++itr)
+	{
+		if (itr->IsAnyTypeCreature())
+		{
+			// need also pet quests case support
+			Creature* questgiver = GetMap()->GetAnyTypeCreature(*itr);
+
+			if (!questgiver || questgiver->IsHostileTo(this))
+				continue;
+
+			if (!questgiver->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER))
+				continue;
+
+			uint8 dialogStatus = sScriptMgr.GetDialogStatus(const_cast<Player*>(this), questgiver);
+
+			if (dialogStatus == DIALOG_STATUS_UNDEFINED)
+				dialogStatus = GetSession()->getDialogStatus(const_cast<Player*>(this), questgiver, DIALOG_STATUS_NONE);
+
+			data << questgiver->GetObjectGuid();
+			data << uint8(dialogStatus);
+			++count;
+		}
+		else if (itr->IsGameObject())
+		{
+			GameObject* questgiver = GetMap()->GetGameObject(*itr);
+
+			if (!questgiver)
+				continue;
+
+			if (questgiver->GetGoType() != GAMEOBJECT_TYPE_QUESTGIVER)
+				continue;
+
+			uint8 dialogStatus = sScriptMgr.GetDialogStatus(const_cast<Player*>(this), questgiver);
+
+			if (dialogStatus == DIALOG_STATUS_UNDEFINED)
+				dialogStatus = GetSession()->getDialogStatus(const_cast<Player*>(this), questgiver, DIALOG_STATUS_NONE);
+
+			data << questgiver->GetObjectGuid();
+			data << uint8(dialogStatus);
+			++count;
+		}
+	}
+
+	data.put<uint32>(0, count);                             // write real count
+	GetSession()->SendPacket(&data);
+}
+
 /*********************************************************/
 /***                   LOAD SYSTEM                     ***/
 /*********************************************************/
@@ -16646,6 +16700,9 @@ void Player::SendExplorationExperience(uint32 Area, uint32 Experience)
 
 void Player::SendResetFailedNotify(uint32 mapid)
 {
+	WorldPacket data(SMSG_RESET_FAILED_NOTIFY, 4);
+	data << uint32(mapid);
+	GetSession()->SendPacket(&data);
 }
 
 /// Reset all solo instances and optionally send a message on success for each

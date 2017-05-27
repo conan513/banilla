@@ -816,7 +816,7 @@ enum AuraState
     AURA_STATE_FROZEN                       = 4,            //     | frozen target (but not used for any spells in 1.12.1 at client side)
     AURA_STATE_JUDGEMENT                    = 5,            // C   |
     //AURA_STATE_UNKNOWN6                   = 6,            //     | not used
-    AURA_STATE_HUNTER_PARRY                 = 7,            // C   |
+    AURA_STATE_PARRY                 = 7,            // C   |
     AURA_STATE_ROGUE_ATTACK_FROM_STEALTH    = 7,            // C   | FIX ME: not implemented yet!
 	AURA_STATE_WARRIOR_VICTORY_RUSH = 10,           // C   | warrior victory rush
 	AURA_STATE_HUNTER_CRIT_STRIKE = 10,           // C   | hunter crit strike

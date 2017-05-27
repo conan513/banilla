@@ -932,7 +932,7 @@ enum ControlledUnitMask
 enum ReactiveType
 {
     REACTIVE_DEFENSE      = 1,
-    REACTIVE_HUNTER_PARRY = 2,
+    REACTIVE_PARRY = 2,
     REACTIVE_CRIT         = 3,
     REACTIVE_HUNTER_CRIT  = 4,
     REACTIVE_OVERPOWER    = 5

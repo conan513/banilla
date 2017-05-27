@@ -1189,6 +1189,10 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
         // Add bonuses and fill damageInfo struct
         else
         {
+			//Raptor Strike uses ranged attack
+			if (m_spellInfo && m_spellInfo->IsFitToFamily<SPELLFAMILY_HUNTER, CF_HUNTER_MONGOOSE_RAPTOR>())
+				m_attackType = RANGED_ATTACK;
+
             caster->CalculateSpellDamage(&damageInfo, m_damage, m_spellInfo, m_attackType, this);
             // Judgement of Command
             if (m_spellInfo->SpellIconID == 561)
@@ -5118,11 +5122,13 @@ SpellCastResult Spell::CheckCast(bool strict)
                 if (m_targets.getUnitTargetGuid() != m_caster->GetReactiveTraget(REACTIVE_DEFENSE))
                     return SPELL_FAILED_BAD_TARGETS;
                 break;
-            // Contre-attaque
+            // Counterattack
             case 19306:
             case 20909:
             case 20910:
-                if (m_targets.getUnitTargetGuid() != m_caster->GetReactiveTraget(REACTIVE_HUNTER_PARRY))
+			// Counterstrike
+			case 54476:
+                if (m_targets.getUnitTargetGuid() != m_caster->GetReactiveTraget(REACTIVE_PARRY))
                     return SPELL_FAILED_BAD_TARGETS;
                 break;
         }

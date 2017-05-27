@@ -7570,9 +7570,8 @@ uint32 Unit::MeleeDamageBonusDone(Unit* pVictim, uint32 pdamage, WeaponAttackTyp
     // ..done flat (by creature type mask)
     DoneFlat += GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_DAMAGE_DONE_CREATURE, creatureTypeMask);
 
-	//Raptor Strike uses ranged attack
 	// ..done flat (base at attack power for marked target and base at attack power for creature type)
-    if (attType == RANGED_ATTACK || spellProto->IsFitToFamily<SPELLFAMILY_HUNTER, CF_HUNTER_MONGOOSE_RAPTOR>())
+    if (attType == RANGED_ATTACK)
     {
         APbonus += pVictim->GetTotalAuraModifier(SPELL_AURA_RANGED_ATTACK_POWER_ATTACKER_BONUS);
         APbonus += GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_RANGED_ATTACK_POWER_VERSUS, creatureTypeMask);
@@ -10074,6 +10073,7 @@ uint32 createProcExtendMask(SpellNonMeleeDamage *damageInfo, SpellMissInfo missC
 
 void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* pTarget, uint32 procFlag, uint32 procExtra, WeaponAttackType attType, SpellEntry const* procSpell, uint32 damage, ProcTriggeredList& triggeredList, Spell* spell)
 {
+	//sLog.outError("PROC: Flags 0x%.5x Ex 0x%.3x Spell %5u %s", procFlag, procExtra, procSpell ? procSpell->Id : 0, isVictim ? "[victim]" : "");
     // For melee/ranged based attack need update skills and set some Aura states
     if (procFlag & MELEE_BASED_TRIGGER_MASK && pTarget)
     {
@@ -10109,12 +10109,12 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* pTarget, uint32 procFlag, 
                 // if victim and parry attack
                 if (procExtra & PROC_EX_PARRY)
                 {
-                    // For Hunters only Counterattack (skip Mongoose bite)
-                    if (getClass() == CLASS_HUNTER)
+                    // For Hunters only Counterattack (skip Mongoose bite) and Warriors Counterstrike
+                    if (getClass() == CLASS_HUNTER || getClass() == CLASS_WARRIOR)
                     {
-                        ModifyAuraState(AURA_STATE_HUNTER_PARRY, true);
-                        StartReactiveTimer(REACTIVE_HUNTER_PARRY, pTarget->GetObjectGuid());
-                        ((Player*)this)->AddComboPoints(pTarget, 1);
+                        ModifyAuraState(AURA_STATE_PARRY, true);
+                        StartReactiveTimer(REACTIVE_PARRY, pTarget->GetObjectGuid());
+                       // ((Player*)this)->AddComboPoints(pTarget, 1);
                     }
                     else
                     {
@@ -10531,8 +10531,8 @@ void Unit::ClearAllReactives()
 
     if (HasAuraState(AURA_STATE_DEFENSE))
         ModifyAuraState(AURA_STATE_DEFENSE, false);
-    if (getClass() == CLASS_HUNTER && HasAuraState(AURA_STATE_HUNTER_PARRY))
-        ModifyAuraState(AURA_STATE_HUNTER_PARRY, false);
+    if ((getClass() == CLASS_HUNTER || getClass() == CLASS_WARRIOR) && HasAuraState(AURA_STATE_PARRY))
+        ModifyAuraState(AURA_STATE_PARRY, false);
 
 	if (HasAuraState(AURA_STATE_CRIT))
 		ModifyAuraState(AURA_STATE_CRIT, false);
@@ -10563,9 +10563,9 @@ void Unit::UpdateReactives(uint32 p_time)
                     if (HasAuraState(AURA_STATE_DEFENSE))
                         ModifyAuraState(AURA_STATE_DEFENSE, false);
                     break;
-                case REACTIVE_HUNTER_PARRY:
-                    if (getClass() == CLASS_HUNTER && HasAuraState(AURA_STATE_HUNTER_PARRY))
-                        ModifyAuraState(AURA_STATE_HUNTER_PARRY, false);
+                case REACTIVE_PARRY:
+                    if ((getClass() == CLASS_HUNTER || getClass() == CLASS_WARRIOR) && HasAuraState(AURA_STATE_PARRY))
+                        ModifyAuraState(AURA_STATE_PARRY, false);
                     break;
 				case REACTIVE_CRIT:
 					if (HasAuraState(AURA_STATE_CRIT))

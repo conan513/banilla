@@ -794,6 +794,7 @@ class MANGOS_DLL_SPEC WorldSession
         void HandleUnlearnSkillOpcode(WorldPacket& recvPacket);
 
         void HandleQuestgiverStatusQueryOpcode(WorldPacket& recvPacket);
+		void HandleQuestgiverStatusMultipleQuery(WorldPacket& recvPacket);
         void HandleQuestgiverHelloOpcode(WorldPacket& recvPacket);
         void HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvPacket);
         void HandleQuestgiverQueryQuestOpcode(WorldPacket& recvPacket);
@@ -838,6 +839,9 @@ class MANGOS_DLL_SPEC WorldSession
         void HandleChannelUnbanOpcode(WorldPacket& recvPacket);
         void HandleChannelAnnouncementsOpcode(WorldPacket& recvPacket);
         void HandleChannelModerateOpcode(WorldPacket& recvPacket);
+		void HandleChannelDisplayListQueryOpcode(WorldPacket& recvPacket);
+		void HandleGetChannelMemberCountOpcode(WorldPacket& recvPacket);
+		void HandleSetChannelWatchOpcode(WorldPacket& recvPacket);
 
         void HandleCompleteCinematic(WorldPacket& recvPacket);
         void HandleNextCinematicCamera(WorldPacket& recvPacket);
