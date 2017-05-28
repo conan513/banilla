@@ -928,6 +928,9 @@ enum ControlledUnitMask
 
 // for clearing special attacks
 #define REACTIVE_TIMER_START 4000
+#define REACTIVE_TIMER_START_MOVEMENT 300000
+#define STANDING_STILL_LIMIT 8000
+#define STANDING_STILL2_LIMIT 15000
 
 enum ReactiveType
 {
@@ -935,10 +938,13 @@ enum ReactiveType
     REACTIVE_PARRY = 2,
     REACTIVE_CRIT         = 3,
     REACTIVE_HUNTER_CRIT  = 4,
-    REACTIVE_OVERPOWER    = 5
+    REACTIVE_OVERPOWER    = 5,
+	REACTIVE_STAND_STILL = 6,
+	REACTIVE_DOUBLE_CRIT = 7,
+	REACTIVE_LUCKY = 8
 };
 
-#define MAX_REACTIVE 6
+#define MAX_REACTIVE 9
 
 typedef std::set<ObjectGuid> GuardianPetList;
 
@@ -1882,10 +1888,15 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
 
         // reactive attacks
         void ClearAllReactives();
-        void StartReactiveTimer(ReactiveType reactive, ObjectGuid target) { m_reactiveTimer[reactive] = REACTIVE_TIMER_START; m_reactiveTarget[reactive] = target; }
+        void StartReactiveTimer(ReactiveType reactive, ObjectGuid target) { 
+			if (reactive == REACTIVE_STAND_STILL) 
+				m_reactiveTimer[reactive] = REACTIVE_TIMER_START_MOVEMENT;
+			else m_reactiveTimer[reactive] = REACTIVE_TIMER_START; 
+			m_reactiveTarget[reactive] = target; }
         ObjectGuid const& GetReactiveTraget(ReactiveType reactive) const { return m_reactiveTarget[reactive]; }
         void UpdateReactives(uint32 p_time);
-
+		void ClearMovementReactive();
+		uint32 GetMovementReactiveTime();
         // group updates
         void UpdateAuraForGroup(uint8 slot);
 

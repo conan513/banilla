@@ -1276,6 +1276,25 @@ void Player::Update(uint32 update_diff, uint32 p_time)
 	{
 		//custom
 
+		if (IsMoving())
+		{
+			ClearMovementReactive();
+			ModifyAuraState(AURA_STATE_STANDING_STILL, false);
+			ModifyAuraState(AURA_STATE_STANDING_STILL2, false);
+			StartReactiveTimer(REACTIVE_STAND_STILL, GetObjectGuid());
+		}
+		else
+		{
+			if (GetMovementReactiveTime() > STANDING_STILL_LIMIT)
+			{
+				ModifyAuraState(AURA_STATE_STANDING_STILL, true);
+			}
+			else if (GetMovementReactiveTime() > STANDING_STILL2_LIMIT)
+			{
+				ModifyAuraState(AURA_STATE_STANDING_STILL2, true);
+			}
+		}
+
 		if (sWorld.getConfig(CONFIG_BOOL_CUSTOM_ADVENTURE_MODE))
 			SetAdventureLevel(adventure_level);
 
@@ -2323,6 +2342,24 @@ void Player::RegenerateAll()
 {
     if (m_regenTimer > 0)
         return;
+
+	if (isInCombat())
+	{
+		int luck;
+		if (HasAura(55010)) // Loaded Dice
+			luck = 1;
+		else
+			luck = 4;
+	
+
+		if (roll_chance_i(luck))
+		{
+			// Lucky buff
+			ModifyAuraState(AURA_STATE_LUCKY, true);
+			StartReactiveTimer(REACTIVE_LUCKY, GetObjectGuid());
+			_CreateCustomAura(55009);
+		}
+	}
 
     // Not in combat or they have regeneration
     if (!isInCombat() || HasAuraType(SPELL_AURA_MOD_REGEN_DURING_COMBAT) ||

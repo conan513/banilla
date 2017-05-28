@@ -828,7 +828,11 @@ enum AuraState
 	AURA_STATE_DEADLY_POISON = 16,           //   T |
 	AURA_STATE_FORBEARANCE = 17,           //  c t|
 	AURA_STATE_WEAKENED_SOUL = 18,           //    t|
-	AURA_STATE_HYPOTHERMIA = 19            //  c  |
+	AURA_STATE_HYPOTHERMIA = 19,            //  c  |
+	AURA_STATE_STANDING_STILL = 20,
+	AURA_STATE_STANDING_STILL2 = 21,
+	AURA_STATE_DOUBLE_CRIT = 22,
+	AURA_STATE_LUCKY = 23,
 };
 
 // Spell mechanics

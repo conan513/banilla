@@ -10114,7 +10114,9 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* pTarget, uint32 procFlag, 
                     {
                         ModifyAuraState(AURA_STATE_PARRY, true);
                         StartReactiveTimer(REACTIVE_PARRY, pTarget->GetObjectGuid());
-                       // ((Player*)this)->AddComboPoints(pTarget, 1);
+
+						if (GetTypeId() == TYPEID_PLAYER)
+							((Player*)this)->AddComboPoints(pTarget, 1);
                     }
                     else
                     {
@@ -10137,6 +10139,27 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* pTarget, uint32 procFlag, 
                     ((Player*)this)->AddComboPoints(pTarget, 1);
                     StartReactiveTimer(REACTIVE_OVERPOWER, pTarget->GetObjectGuid());
                 }
+				// Must check double crit before seting crit aura_state
+				if (procExtra & PROC_EX_CRITICAL_HIT)
+				{
+					if (HasAuraState(AURA_STATE_CRIT))
+					{
+						ModifyAuraState(AURA_STATE_DOUBLE_CRIT, true);
+						StartReactiveTimer(REACTIVE_DOUBLE_CRIT, pTarget->GetObjectGuid());
+					}
+				}
+
+				// Enable AURA_STATE_CRIT on crit
+				if (procExtra & PROC_EX_CRITICAL_HIT)
+				{
+					ModifyAuraState(AURA_STATE_CRIT, true);
+					StartReactiveTimer(REACTIVE_CRIT, pTarget->GetObjectGuid());
+					if (getClass() == CLASS_HUNTER)
+					{
+						ModifyAuraState(AURA_STATE_HUNTER_CRIT_STRIKE, true);
+						StartReactiveTimer(REACTIVE_HUNTER_CRIT, pTarget->GetObjectGuid());
+					}
+				}
             }
         }
     }
@@ -10541,6 +10564,35 @@ void Unit::ClearAllReactives()
 
     if (getClass() == CLASS_WARRIOR && GetTypeId() == TYPEID_PLAYER)
         ((Player*)this)->ClearComboPoints();
+
+	if (HasAuraState(AURA_STATE_STANDING_STILL))
+		ModifyAuraState(AURA_STATE_STANDING_STILL, false);
+
+	if (HasAuraState(AURA_STATE_STANDING_STILL2))
+		ModifyAuraState(AURA_STATE_STANDING_STILL2, false);
+
+	if (HasAuraState(AURA_STATE_DOUBLE_CRIT))
+		ModifyAuraState(AURA_STATE_DOUBLE_CRIT, false);
+
+	if (HasAuraState(AURA_STATE_LUCKY))
+		ModifyAuraState(AURA_STATE_LUCKY, false);
+}
+
+void Unit::ClearMovementReactive()
+{
+	m_reactiveTimer[REACTIVE_STAND_STILL] = 0;
+	m_reactiveTarget[REACTIVE_STAND_STILL].Clear();
+	
+	if (HasAuraState(AURA_STATE_STANDING_STILL))
+		ModifyAuraState(AURA_STATE_STANDING_STILL, false);
+
+	if (HasAuraState(AURA_STATE_STANDING_STILL2))
+		ModifyAuraState(AURA_STATE_STANDING_STILL2, false);
+}
+
+uint32 Unit::GetMovementReactiveTime()
+{
+	return m_reactiveTimer[REACTIVE_STAND_STILL];
 }
 
 void Unit::UpdateReactives(uint32 p_time)
@@ -10579,6 +10631,18 @@ void Unit::UpdateReactives(uint32 p_time)
                     if (getClass() == CLASS_WARRIOR && GetTypeId() == TYPEID_PLAYER)
                         ((Player*)this)->ClearComboPoints();
                     break;
+			//	case REACTIVE_STAND_STILL:
+			//		if (HasAuraState(AURA_STATE_STANDING_STILL))
+			//			ModifyAuraState(AURA_STATE_STANDING_STILL, false);
+			//		break;
+				case REACTIVE_DOUBLE_CRIT:
+					if (HasAuraState(AURA_STATE_DOUBLE_CRIT))
+						ModifyAuraState(AURA_STATE_DOUBLE_CRIT, false);
+					break;
+				case REACTIVE_LUCKY:
+					if (HasAuraState(AURA_STATE_LUCKY))
+						ModifyAuraState(AURA_STATE_LUCKY, false);
+					break;
                 default:
                     break;
             }
