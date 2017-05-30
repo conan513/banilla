@@ -782,9 +782,20 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
     if (damage && damagetype == DIRECT_DAMAGE && this != pVictim && GetTypeId() == TYPEID_PLAYER && (getPowerType() == POWER_RAGE))
         ((Player*)this)->RewardRage(damage, true);
 
-    if (Creature* creaVictim = pVictim->ToCreature())
-        if (!creaVictim->IsPet() && !creaVictim->HasLootRecipient())
-            creaVictim->SetLootRecipient(this);
+	if (Creature* creaVictim = pVictim->ToCreature())
+	{
+		if (!creaVictim->IsPet() && !creaVictim->HasLootRecipient())
+			creaVictim->SetLootRecipient(this);
+		//add damage scaling for adventure mode
+		if (!creaVictim->IsPet() && sWorld.getConfig(CONFIG_BOOL_CUSTOM_ADVENTURE_MODE))
+		{
+			if (GetTypeId() == TYPEID_PLAYER)
+			{
+				int level = ((Player*)this)->GetAttackersLevel(creaVictim);
+				creaVictim->UpdatePower(1.f + level*0.1f);
+			}
+		}
+	}
     if (health <= damage)
     {
         // Can't kill gods

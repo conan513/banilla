@@ -1494,6 +1494,26 @@ float Creature::GetSpellDamageMod(int32 Rank)
     }
 }
 
+void Creature::UpdatePower(float scale)
+{
+	const CreatureInfo *cinfo = GetCreatureInfo();
+	uint32 rank = IsPet() ? 0 : cinfo->rank;
+
+	// damage
+	float damagemod = _GetDamageMod(rank)*scale;
+
+	SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, cinfo->mindmg * damagemod);
+	SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, cinfo->maxdmg * damagemod);
+
+	SetBaseWeaponDamage(OFF_ATTACK, MINDAMAGE, cinfo->mindmg * damagemod);
+	SetBaseWeaponDamage(OFF_ATTACK, MAXDAMAGE, cinfo->maxdmg * damagemod);
+
+	SetFloatValue(UNIT_FIELD_MINRANGEDDAMAGE, cinfo->minrangedmg * damagemod);
+	SetFloatValue(UNIT_FIELD_MAXRANGEDDAMAGE, cinfo->maxrangedmg * damagemod);
+
+	SetModifierValue(UNIT_MOD_ATTACK_POWER, BASE_VALUE, cinfo->attackpower * damagemod);
+}
+
 bool Creature::CreateFromProto(uint32 guidlow, CreatureInfo const* cinfo, Team team, const CreatureData *data /*=NULL*/, GameEventCreatureData const* eventData /*=NULL*/)
 {
     SetZoneScript();

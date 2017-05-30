@@ -21287,6 +21287,26 @@ uint32 Player::GetAdventureLevelGroup()
 	return level;
 }
 
+uint32 Player::GetAttackersLevel(Unit* target)
+{
+	uint32 level = 0;
+	uint32 counter = 0;
+
+	if (!target)
+		return 0;
+	
+	Unit::AttackerSet attackers = target->getAttackers();
+	for (Unit::AttackerSet::iterator itr = attackers.begin(); itr != attackers.end(); ++itr)
+	{
+		if ((*itr)->IsPlayer())
+		{
+			int level = ((Player*)(*itr))->GetAdventureLevel();
+			counter++;
+		}
+	}
+
+	return ceil(level/counter);
+}
 float Player::GetRatingMultiplier(CombatRating cr) const
 {
 	uint32 level = getLevel();
