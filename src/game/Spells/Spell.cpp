@@ -5131,6 +5131,10 @@ SpellCastResult Spell::CheckCast(bool strict)
                 if (m_targets.getUnitTargetGuid() != m_caster->GetReactiveTraget(REACTIVE_PARRY))
                     return SPELL_FAILED_BAD_TARGETS;
                 break;
+			case 54477:
+				if (m_targets.getUnitTargetGuid() != m_caster->GetReactiveTraget(REACTIVE_CRIT))
+					return SPELL_FAILED_BAD_TARGETS;
+				break;
         }
     }
 
