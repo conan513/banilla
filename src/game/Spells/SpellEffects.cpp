@@ -7647,7 +7647,7 @@ void Spell::EffectPlayMusic(SpellEffectIndex eff_idx)
 		return;
 	}
 
-	m_caster->PlayMusic(soundId, (Player*)unitTarget);
+	m_caster->PlayDirectMusic(soundId, (Player*)unitTarget);
 }
 
 void Spell::EffectRedirectThreat(SpellEffectIndex /*eff_idx*/)

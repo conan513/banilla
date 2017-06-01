@@ -5782,6 +5782,7 @@ ReputationRank Unit::GetReactionTo(Unit const* target) const
 			&& target->GetByteValue(UNIT_FIELD_BYTES_2, 1) & UNIT_BYTE2_FLAG_FFA_PVP)
 			return REP_HOSTILE;
 			*/
+		}
 
 			if (selfPlayerOwner)
 			{
@@ -5808,7 +5809,6 @@ ReputationRank Unit::GetReactionTo(Unit const* target) const
 				}
 			}
 		}
-	}
 
 	// do checks dependant only on our faction
 	return GetFactionReactionTo(getFactionTemplateEntry(), target);
