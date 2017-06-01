@@ -852,7 +852,7 @@ class MANGOS_DLL_SPEC WorldObject : public Object
 
         void PlayDistanceSound(uint32 sound_id, Player* target = nullptr);
         void PlayDirectSound(uint32 sound_id, Player* target = nullptr);
-		void PlayMusic(uint32 sound_id, Player* target = nullptr);
+        void PlayDirectMusic(uint32 music_id, Player* target = nullptr);
 
         void SendObjectDeSpawnAnim(ObjectGuid guid);
         void SendGameObjectCustomAnim(ObjectGuid guid, uint32 animId = 0);

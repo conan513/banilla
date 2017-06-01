@@ -2385,14 +2385,14 @@ void WorldObject::PlayDirectSound(uint32 sound_id, Player* target /*= NULL*/)
         SendMessageToSet(&data, true);
 }
 
-void WorldObject::PlayMusic(uint32 sound_id, Player* target /*= nullptr*/)
+void WorldObject::PlayDirectMusic(uint32 music_id, Player* target /*= NULL*/)
 {
-	WorldPacket data(SMSG_PLAY_MUSIC, 4);
-	data << uint32(sound_id);
-	if (target)
-		target->SendDirectMessage(&data);
-	else
-		SendMessageToSet(&data, true);
+    WorldPacket data(SMSG_PLAY_MUSIC, 4);
+    data << uint32(music_id);
+    if (target)
+        target->SendDirectMessage(&data);
+    else
+        SendMessageToSet(&data, true);
 }
 
 void WorldObject::UpdateVisibilityAndView()
