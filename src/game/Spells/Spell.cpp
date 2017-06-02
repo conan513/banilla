@@ -1785,6 +1785,32 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
 
     if (Unit* realCaster = GetAffectiveCaster())
     {
+		// Lucky for Hunter
+		if (realCaster->HasAura(HUNTER_LUCKY) && m_spellInfo->IsFitToFamily<SPELLFAMILY_HUNTER, CF_HUNTER_ARCANE_SHOT, CF_HUNTER_AIMED_SHOT>())
+		{
+			radius = 35;
+			targetMode = TARGET_FRONTAL_LINE;
+		}
+
+		// Lucky for Druid (Balance)
+		if (realCaster->HasAura(DRUID_LUCKY) && m_spellInfo->IsFitToFamily<SPELLFAMILY_DRUID, CF_DRUID_WRATH>())
+		{
+			radius = 35;
+			targetMode = TARGET_FRONTAL_LINE;
+		}
+
+		// Lucky for Druid (Feral, Resto)
+		if (realCaster->HasAura(DRUID_LUCKY) && m_spellInfo->IsFitToFamily<SPELLFAMILY_DRUID, CF_DRUID_MAUL_SWIPE, CF_DRUID_RAKE_CLAW, CF_DRUID_REGROWTH>())
+		{
+			EffectChainTarget += 1;
+		}
+
+		// Lucky for Warrior
+		if (realCaster->HasAura(WARRIOR_LUCKY) && m_spellInfo->IsFitToFamily<SPELLFAMILY_WARRIOR, CF_WARRIOR_HEROIC_STRIKE, CF_WARRIOR_REVENGE, CF_WARRIOR_OVERPOWER, CF_WARRIOR_CLEAVE>())
+		{
+			EffectChainTarget += 1;
+		}
+
         if (Player* modOwner = realCaster->GetSpellModOwner())
         {
             modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_RADIUS, radius, this);
@@ -3590,7 +3616,7 @@ void Spell::cast(bool skipCheck)
         {
             // Power Word: Shield
             // Nostalrius : Ivina : removed 27779 from cases = priest T0/T0.5 shield proc.
-            if (m_spellInfo->IsFitToFamily<SPELLFAMILY_PRIEST, CF_PRIEST_POWER_WORD_SHIELD>() && (m_spellInfo->Id != 27779))
+            if (m_spellInfo->IsFitToFamily<SPELLFAMILY_PRIEST, CF_PRIEST_POWER_WORD_SHIELD>() && (m_spellInfo->Id != 27779) && !m_caster->HasAura(PRIEST_LUCKY))
                 AddPrecastSpell(6788);                      // Weakened Soul
 
             switch (m_spellInfo->Id)

@@ -514,6 +514,8 @@ Player::Player(WorldSession *session) : Unit(),
 
     m_temporaryUnsummonedPetNumber = 0;
 
+	lucky_counter = 1;
+
     ////////////////////Rest System/////////////////////
     time_inn_enter = 0;
     inn_trigger_id = 0;
@@ -2352,12 +2354,44 @@ void Player::RegenerateAll()
 			luck = 4;
 	
 
-		if (roll_chance_i(luck))
+		if (roll_chance_i(luck + lucky_counter))
 		{
 			// Lucky buff
 			ModifyAuraState(AURA_STATE_LUCKY, true);
 			StartReactiveTimer(REACTIVE_LUCKY, GetObjectGuid());
-			_CreateCustomAura(55009);
+
+			switch (getClass())
+			{
+			case CLASS_MAGE:
+				_CreateCustomAura(MAGE_LUCKY);
+				break;
+			case CLASS_WARRIOR:
+				_CreateCustomAura(WARRIOR_LUCKY);
+				break;
+			case CLASS_WARLOCK:
+				_CreateCustomAura(WARLOCK_LUCKY);
+				break;
+			case CLASS_PRIEST:
+				_CreateCustomAura(PRIEST_LUCKY);
+				break;
+			case CLASS_DRUID:
+				_CreateCustomAura(DRUID_LUCKY);
+				break;
+			case CLASS_ROGUE:
+				_CreateCustomAura(ROGUE_LUCKY);
+				break;
+			case CLASS_HUNTER:
+				_CreateCustomAura(HUNTER_LUCKY);
+				break;
+			case CLASS_PALADIN:
+				_CreateCustomAura(PALADIN_LUCKY);
+				break;
+			case CLASS_SHAMAN:
+				_CreateCustomAura(SHAMAN_LUCKY);
+				break;
+			}
+
+			lucky_counter = 1;
 		}
 	}
 

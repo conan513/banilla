@@ -6949,10 +6949,18 @@ bool Unit::IsSpellCrit(Unit *pVictim, SpellEntry const *spellProto, SpellSchoolM
 
     if (IsPlayer() && ToPlayer()->HasOption(PLAYER_CHEAT_ALWAYS_CRIT))
         return true;
-
+	
     // not critting spell
     if ((spellProto->AttributesEx2 & SPELL_ATTR_EX2_CANT_CRIT))
         return false;
+
+	// Mage Lucky
+	if (HasAura(MAGE_LUCKY) && spellProto->IsFitToFamily<SPELLFAMILY_MAGE, CF_MAGE_FIRE_BLAST>())
+		return (roll_chance_i(50));
+
+	// Lucky for Priest
+	if (HasAura(PRIEST_LUCKY) && spellProto->IsFitToFamily<SPELLFAMILY_PRIEST, CF_PRIEST_SMITE, CF_PRIEST_HOLY_NOVA2, CF_PRIEST_MIND_BLAST>())
+		return true;
 
     float crit_chance = 0.0f;
     // Les potions/pierres de soin peuvent critiquer avec un pourcentage de chance constant

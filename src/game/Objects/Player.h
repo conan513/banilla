@@ -647,6 +647,16 @@ enum ReputationSource
 #define ADVENTURE_AURA           55000
 #define GROUP_ADVENTURE_AURA     55001
 
+#define DRUID_LUCKY				55011
+#define HUNTER_LUCKY			55012
+#define MAGE_LUCKY				55013
+#define PALADIN_LUCKY			55014
+#define PRIEST_LUCKY			55015
+#define ROGUE_LUCKY				55016
+#define SHAMAN_LUCKY			55017
+#define WARLOCK_LUCKY			55018
+#define WARRIOR_LUCKY			55019
+
 struct InstancePlayerBind
 {
     DungeonPersistentState *state;
@@ -2461,6 +2471,7 @@ class MANGOS_DLL_SPEC Player final: public Unit
 
         uint32 m_bNextRelocationsIgnored;
 
+		uint32 lucky_counter;
 public:
         /**
          * @brief Handles serialization / unserialization of the Object.
