@@ -220,7 +220,8 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket & recv_data)
                 if (Channel *chn = cMgr->GetChannel(channel, playerPointer, IsMaster()))
                 {
                     // Level channels restrictions
-                    if (chn->IsLevelRestricted() && playerPointer->getLevel() < sWorld.getConfig(CONFIG_UINT32_WORLD_CHAN_MIN_LEVEL))
+                    if (chn->IsLevelRestricted() && playerPointer->getLevel() < sWorld.getConfig(CONFIG_UINT32_WORLD_CHAN_MIN_LEVEL)
+                        && GetAccountMaxLevel() < sWorld.getConfig(CONFIG_UINT32_PUB_CHANS_MUTE_VANISH_LEVEL))
                     {
                         ChatHandler(this).SendSysMessage("You cannot use this channel yet.");
                         return;
@@ -278,14 +279,57 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket & recv_data)
         break;
 
         case CHAT_MSG_SAY:
-        case CHAT_MSG_EMOTE:
-        case CHAT_MSG_YELL:
-        {
-            ForwardPacketToNode();
-            ASSERT(GetPlayer());
+            if (GetPlayer()->getLevel() < sWorld.getConfig(CONFIG_UINT32_SAY_MIN_LEVEL)
+                && GetAccountMaxLevel() < sWorld.getConfig(CONFIG_UINT32_PUB_CHANS_MUTE_VANISH_LEVEL))
+            {
+                ChatHandler(this).SendSysMessage("You cannot speak yet (too low level).");
+                return;
+            }
+
+            GetPlayer()->Say(msg, lang);
+
             if (lang != LANG_ADDON)
             {
                 sWorld.LogChat(this, "Say", msg);
+
+                if (AntispamInterface *a = sAnticheatLib->GetAntispam())
+                    a->addMessage(msg, type, GetPlayerPointer(), nullptr);
+            }
+
+            break;
+        case CHAT_MSG_EMOTE:
+            if (GetPlayer()->getLevel() < sWorld.getConfig(CONFIG_UINT32_SAY_EMOTE_MIN_LEVEL)
+                && GetAccountMaxLevel() < sWorld.getConfig(CONFIG_UINT32_PUB_CHANS_MUTE_VANISH_LEVEL))
+            {
+                ChatHandler(this).SendSysMessage("You cannot use emotes yet (too low level).");
+                return;
+            }
+
+            GetPlayer()->TextEmote(msg);
+
+            if (lang != LANG_ADDON)
+            {
+                sWorld.LogChat(this, "Emote", msg);
+
+                if (AntispamInterface *a = sAnticheatLib->GetAntispam())
+                    a->addMessage(msg, type, GetPlayerPointer(), nullptr);
+            }
+
+            break;
+        case CHAT_MSG_YELL:
+        {
+            if (GetPlayer()->getLevel() < sWorld.getConfig(CONFIG_UINT32_YELL_MIN_LEVEL)
+                && GetAccountMaxLevel() < sWorld.getConfig(CONFIG_UINT32_PUB_CHANS_MUTE_VANISH_LEVEL))
+            {
+                ChatHandler(this).SendSysMessage("You cannot yell yet (too low level).");
+                return;
+            }
+
+            GetPlayer()->Yell(msg, lang);
+
+            if (lang != LANG_ADDON)
+            {
+                sWorld.LogChat(this, "Yell", msg);
 
                 if (AntispamInterface *a = sAnticheatLib->GetAntispam())
                     a->addMessage(msg, type, GetPlayerPointer(), nullptr);
