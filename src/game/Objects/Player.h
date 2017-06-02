@@ -1439,7 +1439,8 @@ class MANGOS_DLL_SPEC Player final: public Unit
 		void SetFreeTalentPoints(uint32 points);
         void UpdateFreeTalentPoints(bool resetIfNeed = true);
         bool resetTalents(bool no_cost = false);
-        uint32 resetTalentsCost() const;
+        uint32 resetTalentsCost();
+        void updateResetTalentsMultiplier();
         void InitTalentForLevel();
         void LearnTalent(uint32 talentId, uint32 talentRank);
         uint32 CalculateTalentsPoints() const;
@@ -2380,6 +2381,7 @@ class MANGOS_DLL_SPEC Player final: public Unit
 
 
         uint32 m_resetTalentsCost;
+        uint32 m_resetTalentsMultiplier;
         time_t m_resetTalentsTime;
         uint32 m_usedTalentCount;
 
