@@ -2572,6 +2572,12 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
         case TARGET_NARROW_FRONTAL_CONE:
             FillAreaTargets(targetUnitMap, radius, PUSH_IN_FRONT_15, SPELL_TARGETS_AOE_DAMAGE);
             break;
+		case TARGET_MEDIUM_FRONTAL_CONE:
+			FillAreaTargets(targetUnitMap, radius, PUSH_IN_FRONT_30, SPELL_TARGETS_AOE_DAMAGE);
+			break;
+		case TARGET_FRONTAL_LINE:
+			FillAreaTargets(targetUnitMap, radius, PUSH_IN_FRONT_5, SPELL_TARGETS_AOE_DAMAGE);
+			break;
         case TARGET_UNIT_TARGET_ANY:
         {
             Unit *target = m_targets.getUnitTarget();
@@ -7858,7 +7864,9 @@ public:
         {
             case PUSH_IN_FRONT:
             case PUSH_IN_FRONT_90:
-            case PUSH_IN_FRONT_15:
+			case PUSH_IN_FRONT_30:
+			case PUSH_IN_FRONT_15:
+            case PUSH_IN_FRONT_5:
             case PUSH_IN_BACK:
             case PUSH_SELF_CENTER:
                 if (i_castingObject)
@@ -7976,10 +7984,18 @@ public:
                     if (i_castingObject->isInFront((Unit*)(itr->getSource()), i_radius, M_PI_F / 2))
                         i_data->push_back(itr->getSource());
                     break;
+				case PUSH_IN_FRONT_30:
+					if (i_castingObject->isInFront((Unit*)(itr->getSource()), i_radius, M_PI_F / 6))
+						i_data->push_back(itr->getSource());
+					break;
                 case PUSH_IN_FRONT_15:
                     if (i_castingObject->isInFront((Unit*)(itr->getSource()), i_radius, M_PI_F / 12))
                         i_data->push_back(itr->getSource());
                     break;
+				case PUSH_IN_FRONT_5:
+					if (i_castingObject->isInFront((Unit*)(itr->getSource()), i_radius, M_PI_F / 36))
+						i_data->push_back(itr->getSource());
+					break;
                 case PUSH_IN_BACK: // 75
                     if (i_castingObject->isInBack((Unit*)(itr->getSource()), i_radius, 5 * M_PI_F / 12))
                         i_data->push_back(itr->getSource());
