@@ -7058,8 +7058,10 @@ void Spell::EffectKnockBack(SpellEffectIndex eff_idx)
     // remove Dream Fog Sleep aura to let target be launched
     // ugly and barely working solution untill proper pending states handling implemented
     unitTarget->RemoveAurasDueToSpell(24778);
-	
-	if (!((Creature*)unitTarget)->IsWorldBoss() || !((Creature*)unitTarget)->IsElite())
+
+	if (unitTarget->GetTypeId() == TYPEID_PLAYER)
+		unitTarget->KnockBackFrom(m_caster, float(m_spellInfo->EffectMiscValue[eff_idx]) / 10, float(damage) / 10);
+	if ((unitTarget->GetTypeId() == TYPEID_UNIT) && !((Creature*)unitTarget)->IsWorldBoss() || !((Creature*)unitTarget)->IsElite())
 		unitTarget->KnockBackFrom(m_caster, float(m_spellInfo->EffectMiscValue[eff_idx]) / 10, float(damage) / 10);
 }
 

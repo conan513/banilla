@@ -562,6 +562,9 @@ class MANGOS_DLL_SPEC Creature : public Unit
             if(IsPet())
                 return false;
 
+			if (!GetCreatureInfo())
+				return false;
+
             uint32 rank = GetCreatureInfo()->rank;
             return rank != CREATURE_ELITE_NORMAL && rank != CREATURE_ELITE_RARE;
         }
@@ -570,6 +573,8 @@ class MANGOS_DLL_SPEC Creature : public Unit
         {
             if(IsPet())
                 return false;
+			if (!GetCreatureInfo())
+				return false;
 
             return GetCreatureInfo()->rank == CREATURE_ELITE_WORLDBOSS;
         }

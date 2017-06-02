@@ -576,6 +576,7 @@ void World::LoadConfigSettings(bool reload)
 	setConfig(CONFIG_FLOAT_CUSTOM_ADVENTURE_ITEMXP, "Custom.AdventureItemXP", 10);
 	setConfig(CONFIG_FLOAT_CUSTOM_ADVENTURE_LEVELXP, "Custom.AdventureLevelXP", 25);
 	setConfig(CONFIG_UINT32_CUSTOM_ADVENTURE_BOSSONLYXP, "Custom.AdventureBossOnlyXP", 5);
+	setConfig(CONFIG_FLOAT_CUSTOM_ADVENTURE_CREATURE_POWER_INCR, "Custom.AdventureCreaturePower", 0.5);
 
 	setConfig(CONFIG_BOOL_CUSTOM_RULES, "Custom.CustomRules", false);
 	setConfig(CONFIG_BOOL_CUSTOM_RANDOMIZE_ITEM, "Custom.RandomizeItem", false);

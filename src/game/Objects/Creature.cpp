@@ -3629,13 +3629,13 @@ void Creature::JoinCreatureGroup(Creature* leader, float dist, float angle, uint
 
 uint32 Creature::RandomizeCooldown(uint32 cooldown)
 {
-	if (!sWorld.getConfig(CONFIG_FLOAT_CUSTOM_ADVENTURE_ENEMY_COOLDOWN))
+	if (!sWorld.getConfig(CONFIG_BOOL_CUSTOM_ADVENTURE_MODE))
 		return cooldown;
 
 	Player* player = sObjectMgr.GetPlayer(GetTargetGuid());
 
 	if (player)
-		return (uint32)((1.f - (player->GetAdventureLevel()*0.1f))*cooldown);
+		return (uint32)((1.f - (player->GetAdventureLevel()*sWorld.getConfig(CONFIG_FLOAT_CUSTOM_ADVENTURE_ENEMY_COOLDOWN)))*cooldown);
 	else
 		return cooldown;
 }

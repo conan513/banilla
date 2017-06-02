@@ -21305,8 +21305,11 @@ uint32 Player::GetAttackersLevel(Unit* target)
 		}
 	}
 
-	return ceil(level/counter);
+	if (counter > 0)
+		return ceil(level/counter);
+	else return GetAdventureLevel();
 }
+
 float Player::GetRatingMultiplier(CombatRating cr) const
 {
 	uint32 level = getLevel();
