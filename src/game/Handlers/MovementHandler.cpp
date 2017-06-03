@@ -104,8 +104,6 @@ void WorldSession::HandleMoveWorldportAckOpcode()
     if (GetPlayer()->m_InstanceValid == false && !mEntry->IsDungeon())
         GetPlayer()->m_InstanceValid = true;
 
-    GetPlayer()->SetSemaphoreTeleportFar(false);
-
     // relocate the player to the teleport destination
     if (!map)
     {
@@ -125,6 +123,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
     // while the player is in transit, for example the map may get full
     if (!GetPlayer()->GetMap()->Add(GetPlayer()))
     {
+        GetPlayer()->SetSemaphoreTeleportFar(false);
         // if player wasn't added to map, reset his map pointer!
         GetPlayer()->ResetMap();
 
@@ -141,6 +140,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
         }
         return;
     }
+    GetPlayer()->SetSemaphoreTeleportFar(false);
 
     // battleground state prepare (in case join to BG), at relogin/tele player not invited
     // only add to bg group and object, if the player was invited (else he entered through command)
