@@ -335,6 +335,9 @@ void Unit::Update(uint32 update_diff, uint32 p_time)
     // update abilities available only for fraction of time
     UpdateReactives(update_diff);
 
+	ModifyAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, (GetHealth() < GetMaxHealth() * 0.35f));
+	ModifyAuraState(AURA_STATE_HEALTH_ABOVE_75_PERCENT, GetHealth() > GetMaxHealth() * 0.75f);
+
     if (isAlive())
         //ModifyAuraState(AURA_STATE_HEALTHLESS_20_PERCENT, GetHealth() < GetMaxHealth() * 0.20f);
 		if (HasAura(54781) || HasAura(54782) || HasAura(54783)) //sudden death
@@ -7106,6 +7109,17 @@ bool Unit::IsSpellCrit(Unit *pVictim, SpellEntry const *spellProto, SpellSchoolM
 
     crit_chance = crit_chance > 0.0f ? crit_chance : 0.0f;
 
+	// Lucky for Paladin (Holy)
+	if (HasAura(PALADIN_LUCKY) && (schoolMask & SPELL_SCHOOL_MASK_HOLY) && IsPositiveSpell(spellProto->Id))
+	{
+		crit_chance * 2;
+	}
+
+	if (HasAura(MAGE_LUCKY) && (schoolMask & SPELL_SCHOOL_MASK_FROST) && !isInFront(pVictim,5 * M_PI_F / 12))
+	{
+		crit_chance * 2;
+	}
+
     DEBUG_UNIT(this, DEBUG_SPELL_COMPUTE_RESISTS, "%s [ID:%u] Crit chance %f.", spellProto->SpellName[2], spellProto->Id, crit_chance);
 
     if ((IsPlayer() && ToPlayer()->HasOption(PLAYER_CHEAT_UNRANDOMIZE)) ||
@@ -7692,6 +7706,14 @@ uint32 Unit::MeleeDamageBonusDone(Unit* pVictim, uint32 pdamage, WeaponAttackTyp
 					((((Player*)this)->getClass() == CLASS_DRUID && (((Player*)this)->HasAuraType(SPELL_AURA_MOD_SHAPESHIFT))))) || ((Player*)this)->HasAuraType(SPELL_AURA_UNTRACKABLE))
 					APbonus = huntersMarkAura->GetModifier()->m_amount * (*i)->GetModifier()->m_amount / 100;
 		}
+		// Dirty Deeds
+		case 6427:
+		case 6428:
+			if (pVictim->HasAuraState(AURA_STATE_HEALTHLESS_35_PERCENT))
+			{		
+				if (NeedsComboPoints(spellProto))
+					DonePercent *= ((*i)->GetModifier()->m_amount + 100.0f) / 100.0f;
+			}
 		}
 	}
 
@@ -8793,6 +8815,7 @@ void Unit::SetDeathState(DeathState s)
         StopMoving(true);
 
         ModifyAuraState(AURA_STATE_HEALTHLESS_20_PERCENT, false);
+		ModifyAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, false);
         // remove aurastates allowing special moves
         ClearAllReactives();
         ClearDiminishings();

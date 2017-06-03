@@ -279,7 +279,7 @@ enum ClassFlag
     CF_PALADIN_REPENTANCE                   = 2,    // CM0 00000004
     CF_PALADIN_RETRIBUTION_AURA             = 3,    // CM0 00000008
     CF_PALADIN_BLESSING_OF_FREEDOM          = 4,    // CM0 00000010
-    CF_PALADIN_CONSECRATION                 = 5,    // CM0 00000020
+    CF_PALADIN_CONSECRATION_HOLY_STRIKE     = 5,    // CM0 00000020	
     CF_PALADIN_DEVOTION_AURA                = 6,    // CM0 00000040
     CF_PALADIN_BLESSING_OF_PROTECTION       = 7,    // CM0 00000080
     CF_PALADIN_BLESSING_OF_SALVATION1       = 8,    // CM0 00000100
@@ -309,7 +309,7 @@ enum ClassFlag
 
     CF_PALADIN_UNK32                        = 32,   // CM1 00000001
     CF_PALADIN_PURIFY_CLEANSE               = 33,   // CM1 00000002 Purify & Cleanse
-
+	
     // -- Shaman (11)
     CF_SHAMAN_LIGHTNING_BOLT                = 0,    // CM0 00000001
     CF_SHAMAN_CHAIN_LIGHTNING               = 1,    // CM0 00000002

@@ -833,6 +833,9 @@ enum AuraState
 	AURA_STATE_STANDING_STILL2 = 21,
 	AURA_STATE_DOUBLE_CRIT = 22,
 	AURA_STATE_LUCKY = 23,
+	AURA_STATE_HEALTH_ABOVE_75_PERCENT = 24,
+	AURA_STATE_ENRAGE = 25,           // C   |
+	AURA_STATE_BLEEDING = 26,           // C  t|
 };
 
 // Spell mechanics

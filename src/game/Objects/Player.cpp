@@ -1284,16 +1284,22 @@ void Player::Update(uint32 update_diff, uint32 p_time)
 			ModifyAuraState(AURA_STATE_STANDING_STILL, false);
 			ModifyAuraState(AURA_STATE_STANDING_STILL2, false);
 			StartReactiveTimer(REACTIVE_STAND_STILL, GetObjectGuid());
+			if (HasAura(STANDING_STILL))
+				RemoveAurasDueToSpell(STANDING_STILL);
 		}
 		else
 		{
 			if (GetMovementReactiveTime() > STANDING_STILL_LIMIT)
 			{
 				ModifyAuraState(AURA_STATE_STANDING_STILL, true);
+				if (!HasAura(STANDING_STILL))
+					_CreateCustomAura(STANDING_STILL);
 			}
 			else if (GetMovementReactiveTime() > STANDING_STILL2_LIMIT)
 			{
 				ModifyAuraState(AURA_STATE_STANDING_STILL2, true);
+				if (!HasAura(STANDING_STILL))
+					_CreateCustomAura(STANDING_STILL);
 			}
 		}
 

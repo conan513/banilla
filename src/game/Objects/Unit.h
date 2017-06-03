@@ -1358,7 +1358,9 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         bool IsPolymorphed() const;
 		bool isPossessed() const { return hasUnitState(UNIT_STAT_CONTROLLED); }
 		bool isConfused() { return hasUnitState(UNIT_STAT_CONFUSED); }
-		bool isBleeding() { return HasAuraWithMechanic(MECHANIC_BLEED); }
+		bool isEnraged() { return hasUnitState(AURA_STATE_ENRAGE); }
+		//bool isBleeding() { return HasAuraWithMechanic(MECHANIC_BLEED); }
+		bool isBleeding() { return HasAuraState(AURA_STATE_BLEEDING); }
 		bool hasReducedArmor() { return (GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_RESISTANCE, 1) < 0); }
 
         bool IsImmuneToSchoolMask(uint32 schoolMask) const;

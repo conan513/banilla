@@ -1799,6 +1799,12 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
 			targetMode = TARGET_FRONTAL_LINE;
 		}
 
+		// Lucky for Paladin (Protection and Retribution)
+		if (realCaster->HasAura(PALADIN_LUCKY) && m_spellInfo->IsFitToFamily<SPELLFAMILY_PALADIN, CF_PALADIN_CONSECRATION_HOLY_STRIKE>() && m_spellInfo->SpellIconID == 3027)
+		{
+			EffectChainTarget += 1;
+		}
+
 		// Lucky for Druid (Feral, Resto)
 		if (realCaster->HasAura(DRUID_LUCKY) && m_spellInfo->IsFitToFamily<SPELLFAMILY_DRUID, CF_DRUID_MAUL_SWIPE, CF_DRUID_RAKE_CLAW, CF_DRUID_REGROWTH>())
 		{
@@ -1809,6 +1815,13 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
 		if (realCaster->HasAura(WARRIOR_LUCKY) && m_spellInfo->IsFitToFamily<SPELLFAMILY_WARRIOR, CF_WARRIOR_HEROIC_STRIKE, CF_WARRIOR_REVENGE, CF_WARRIOR_OVERPOWER, CF_WARRIOR_CLEAVE>())
 		{
 			EffectChainTarget += 1;
+		}
+
+		//Lucky for Rogue
+		if (realCaster->HasAura(ROGUE_LUCKY) && NeedsComboPoints(m_spellInfo))
+		{
+			radius = 6;
+			targetMode = TARGET_FRONTAL_LINE;
 		}
 
         if (Player* modOwner = realCaster->GetSpellModOwner())

@@ -657,6 +657,9 @@ enum ReputationSource
 #define WARLOCK_LUCKY			55018
 #define WARRIOR_LUCKY			55019
 
+#define STANDING_STILL			55020
+#define HOT_STREAK				55021
+
 struct InstancePlayerBind
 {
     DungeonPersistentState *state;

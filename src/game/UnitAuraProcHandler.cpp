@@ -1377,26 +1377,6 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
 						CastSpell(target, 54650, true, nullptr, triggeredByAura);
 					break;
 				}
-				// Light's Grace
-				case 54438:
-				case 54439:
-				case 54440:
-				case 54441:
-				{
-					switch (dummySpell->Id)
-					{
-					case 54438: basepoints[0] = int32(0.05f * damage); break;
-					case 54439: basepoints[0] = int32(0.1f * damage); break;
-					case 54440: basepoints[0] = int32(0.15f * damage); break;
-					case 54441: basepoints[0] = int32(0.2f * damage); break;
-					default:
-						sLog.outError("Unit::HandleDummyAuraProc: non handled spell id: %u (IG)", dummySpell->Id);
-						return SPELL_AURA_PROC_FAILED;
-					}
-
-					triggered_spell_id = 54442;
-					break;
-				}
             }
             break;
         }
@@ -1530,18 +1510,12 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
 				case 54910:
 				{
 					if (procEx & PROC_EX_CRITICAL_HIT)
-					{
-					
+					{				
 						int32 critical_chance = int32(pVictim->GetUnitCriticalChance(procSpell, GetSchoolMask(SPELL_SCHOOL_NATURE)));
-
-						pVictim->CastCustomSpell(pVictim, 54911, &critical_chance, nullptr, nullptr, true, castItem, triggeredByAura);
-						
-					}
-
-					
+						pVictim->CastCustomSpell(pVictim, 54911, &critical_chance, nullptr, nullptr, true, castItem, triggeredByAura);						
+					}					
 					return SPELL_AURA_PROC_OK;
 				}
-
             }
             break;
         }
@@ -2062,12 +2036,9 @@ SpellAuraProcResult Unit::HandleProcTriggerSpellAuraProc(Unit *pVictim, uint32 d
 				uint32 originalSpellId = procSpell->Id;
 
 				SpellEntry const* originalSpell = sSpellMgr.GetSpellEntry(originalSpellId);
-				if (!originalSpell)
-				{
-					sLog.outError("Unit::HandleProcTriggerSpellAuraProc: Spell %u unknown but selected as original in Illu", originalSpellId);
+				if (!originalSpell || originalSpell->SpellIconID != 13) //only concecration				
 					return SPELL_AURA_PROC_FAILED;
-				}
-
+				
 				switch (auraSpellInfo->Id)
 				{
 				case 54305: basepoints[0] = int32(originalSpell->EffectBasePoints[0] * 0.33f);

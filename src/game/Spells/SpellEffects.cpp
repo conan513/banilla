@@ -648,6 +648,7 @@ void Spell::EffectSchoolDMG(SpellEffectIndex effect_idx)
 					else
 						damage *= stacks;
 				}
+
                 // Hammer of Wrath - receive bonus from spell damage
                 if (m_spellInfo->SpellIconID == 42)
                 {
@@ -660,6 +661,33 @@ void Spell::EffectSchoolDMG(SpellEffectIndex effect_idx)
                     damage = m_caster->SpellDamageBonusDone(unitTarget, m_spellInfo, damage, SPELL_DIRECT_DAMAGE);
                     damage = unitTarget->SpellDamageBonusTaken(m_caster, m_spellInfo, damage, SPELL_DIRECT_DAMAGE);
                 }
+
+				if (m_spellInfo->School == SPELL_SCHOOL_HOLY && m_spellInfo->SpellIconID == 3027)  //Holy Strike
+				{
+					int32 damagePoints;
+					// Holy Attacks
+					if (m_caster->HasAura(54438))
+					{
+						damagePoints = int32(damage*0.05);
+						m_caster->CastCustomSpell(m_caster, 54442, &damagePoints, nullptr, nullptr, true);
+					}
+					if (m_caster->HasAura(54439))
+					{
+						damagePoints = int32(damage*0.1);
+						m_caster->CastCustomSpell(m_caster, 54442, &damagePoints, nullptr, nullptr, true);
+					}
+					if (m_caster->HasAura(54440))
+					{
+						damagePoints = int32(damage*0.15);
+						m_caster->CastCustomSpell(m_caster, 54442, &damagePoints, nullptr, nullptr, true);
+					}
+					if (m_caster->HasAura(54441))
+					{
+						damagePoints = int32(damage*0.2);
+						m_caster->CastCustomSpell(m_caster, 54442, &damagePoints, nullptr, nullptr, true);
+					}
+				}
+
                 break;
             }
         }

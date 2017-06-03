@@ -6572,6 +6572,14 @@ void SpellAuraHolder::_AddSpellAuraHolder()
 	// Deadly poison aura state
 	if (m_spellProto->IsFitToFamily(SPELLFAMILY_ROGUE, uint64(0x0000000000010000)))
 		m_target->ModifyAuraState(AURA_STATE_DEADLY_POISON, true);
+
+	// Enrage aura state
+	if (m_spellProto->Dispel == DISPEL_ENRAGE)
+		m_target->ModifyAuraState(AURA_STATE_ENRAGE, true);
+
+	// Bleeding aura state
+	if (GetAllSpellMechanicMask(m_spellProto) & (1 << (MECHANIC_BLEED - 1)))
+		m_target->ModifyAuraState(AURA_STATE_BLEEDING, true);
 }
 
 void SpellAuraHolder::_RemoveSpellAuraHolder()
@@ -6623,6 +6631,29 @@ void SpellAuraHolder::_RemoveSpellAuraHolder()
         //*****************************************************
         // Update target aura state flag (at last aura remove)
         //*****************************************************
+		// Enrage aura state
+		if (m_spellProto->Dispel == DISPEL_ENRAGE)
+			m_target->ModifyAuraState(AURA_STATE_ENRAGE, false);
+
+		// Bleeding aura state
+		if (GetAllSpellMechanicMask(m_spellProto) & (1 << (MECHANIC_BLEED - 1)))
+		{
+			bool found = false;
+
+			Unit::SpellAuraHolderMap const& holders = m_target->GetSpellAuraHolderMap();
+			for (Unit::SpellAuraHolderMap::const_iterator itr = holders.begin(); itr != holders.end(); ++itr)
+			{
+				if (GetAllSpellMechanicMask(itr->second->GetSpellProto()) & (1 << (MECHANIC_BLEED - 1)))
+				{
+					found = true;
+					break;
+				}
+			}
+
+			if (!found)
+				m_target->ModifyAuraState(AURA_STATE_BLEEDING, false);
+		}
+
         uint32 removeState = 0;
         ClassFamilyMask removeFamilyFlag = m_spellProto->SpellFamilyFlags;
         switch (m_spellProto->SpellFamilyName)
