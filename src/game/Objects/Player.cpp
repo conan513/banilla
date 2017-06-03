@@ -1313,71 +1313,71 @@ void Player::Update(uint32 update_diff, uint32 p_time)
 			if (health >= 90)
 			{
 				//Remove Wounded Auras
-				if (HasAura(54601))
-					RemoveAurasDueToSpell(54601);
-				if (HasAura(54602))
-					RemoveAurasDueToSpell(54602);
-				if (HasAura(54603))
-					RemoveAurasDueToSpell(54603);
+				if (HasAura(WOUNDED ))
+					RemoveAurasDueToSpell(WOUNDED);
+				if (HasAura(INJURED))
+					RemoveAurasDueToSpell(INJURED);
+				if (HasAura(GREVIOUS_WOUNDED))
+					RemoveAurasDueToSpell(GREVIOUS_WOUNDED);
 				//Add Heartened Aura
-				if (!HasAura(54600))
-					_CreateCustomAura(54600);
+				if (!HasAura(HEARTENED))
+					_CreateCustomAura(HEARTENED);
 			}
 			else if (health >= 60 && getClass() != CLASS_WARLOCK)
 			{
 				//Remove Wounded Auras
-				if (HasAura(54602))
-					RemoveAurasDueToSpell(54602);
-				if (HasAura(54603))
-					RemoveAurasDueToSpell(54603);
+				if (HasAura(INJURED))
+					RemoveAurasDueToSpell(INJURED);
+				if (HasAura(GREVIOUS_WOUNDED))
+					RemoveAurasDueToSpell(GREVIOUS_WOUNDED);
 				//Remove Heartened Aura
-				if (HasAura(54600))
-					RemoveAurasDueToSpell(54600);
+				if (HasAura(HEARTENED))
+					RemoveAurasDueToSpell(HEARTENED);
 				//Add injured Aura
-				if (!HasAura(54601))
-					_CreateCustomAura(54601);
+				if (!HasAura(WOUNDED))
+					_CreateCustomAura(WOUNDED);
 			}
 			else if (health >= 40 && getClass() == CLASS_WARLOCK)
 			{
 				//Remove Wounded Auras
-				if (HasAura(54602))
-					RemoveAurasDueToSpell(54602);
-				if (HasAura(54603))
-					RemoveAurasDueToSpell(54603);
+				if (HasAura(INJURED))
+					RemoveAurasDueToSpell(INJURED);
+				if (HasAura(GREVIOUS_WOUNDED))
+					RemoveAurasDueToSpell(GREVIOUS_WOUNDED);
 				//Remove Heartened Aura
-				if (HasAura(54600))
-					RemoveAurasDueToSpell(54600);
+				if (HasAura(HEARTENED))
+					RemoveAurasDueToSpell(HEARTENED);
 				//Add injured Aura
-				if (!HasAura(54601))
-					_CreateCustomAura(54601);
+				if (!HasAura(WOUNDED))
+					_CreateCustomAura(WOUNDED );
 			}
 			else if (health >= 20)
 			{
 				//Remove Wounded Auras
-				if (HasAura(54601))
-					RemoveAurasDueToSpell(54601);
-				if (HasAura(54603))
-					RemoveAurasDueToSpell(54603);
+				if (HasAura(WOUNDED))
+					RemoveAurasDueToSpell(WOUNDED);
+				if (HasAura(GREVIOUS_WOUNDED))
+					RemoveAurasDueToSpell(GREVIOUS_WOUNDED);
 				//Remove Heartened Aura
-				if (HasAura(54600))
-					RemoveAurasDueToSpell(54600);
+				if (HasAura(HEARTENED))
+					RemoveAurasDueToSpell(HEARTENED);
 				//Add wounded Aura
-				if (!HasAura(54602))
-					_CreateCustomAura(54602);
+				if (!HasAura(INJURED))
+					_CreateCustomAura(INJURED);
 			}
 			else if (health < 20)
 			{
 				//Remove Wounded Auras
-				if (HasAura(54601))
-					RemoveAurasDueToSpell(54601);
-				if (HasAura(54602))
-					RemoveAurasDueToSpell(54602);
+				if (HasAura(WOUNDED))
+					RemoveAurasDueToSpell(WOUNDED);
+				if (HasAura(INJURED))
+					RemoveAurasDueToSpell(INJURED);
 				//Remove Heartened Aura
-				if (HasAura(54600))
-					RemoveAurasDueToSpell(54600);
+				if (HasAura(HEARTENED))
+					RemoveAurasDueToSpell(HEARTENED);
 				//Add Grevious wounded Aura
-				if (!HasAura(54603))
-					_CreateCustomAura(54603);
+				if (!HasAura(GREVIOUS_WOUNDED))
+					_CreateCustomAura(GREVIOUS_WOUNDED);
 			}
 
 			//Dizzyness effect
