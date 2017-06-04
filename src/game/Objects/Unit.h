@@ -928,9 +928,8 @@ enum ControlledUnitMask
 
 // for clearing special attacks
 #define REACTIVE_TIMER_START 4000
-#define REACTIVE_TIMER_START_MOVEMENT 300000
-#define STANDING_STILL_LIMIT 8000
-#define STANDING_STILL2_LIMIT 15000
+#define REACTIVE_TIMER_START_MOVEMENT 6000
+#define STANDING_STILL_LIMIT 6000
 
 enum ReactiveType
 {
@@ -939,7 +938,7 @@ enum ReactiveType
     REACTIVE_CRIT         = 3,
     REACTIVE_HUNTER_CRIT  = 4,
     REACTIVE_OVERPOWER    = 5,
-	REACTIVE_STAND_STILL = 6,
+	REACTIVE_MOVING = 6,
 	REACTIVE_DOUBLE_CRIT = 7,
 	REACTIVE_LUCKY = 8
 };
@@ -1891,7 +1890,7 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         // reactive attacks
         void ClearAllReactives();
         void StartReactiveTimer(ReactiveType reactive, ObjectGuid target) { 
-			if (reactive == REACTIVE_STAND_STILL) 
+			if (reactive == REACTIVE_MOVING) 
 				m_reactiveTimer[reactive] = REACTIVE_TIMER_START_MOVEMENT;
 			else m_reactiveTimer[reactive] = REACTIVE_TIMER_START; 
 			m_reactiveTarget[reactive] = target; }

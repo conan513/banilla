@@ -657,8 +657,11 @@ enum ReputationSource
 #define WARLOCK_LUCKY			55018
 #define WARRIOR_LUCKY			55019
 
+#define LOADED_DICE				55010
 #define STANDING_STILL			55020
 #define HOT_STREAK				55021
+#define FURIOUS					55024
+#define MARTYR					55025
 
 #define HEARTENED				54600
 #define WOUNDED					54601

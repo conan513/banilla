@@ -6809,6 +6809,14 @@ uint32 Unit::SpellDamageBonusDone(Unit *pVictim, SpellEntry const *spellProto, u
     if (Player* modOwner = GetSpellModOwner())
         modOwner->ApplySpellMod(spellProto->Id, damagetype == DOT ? SPELLMOD_DOT : SPELLMOD_DAMAGE, tmpDamage, spell);
 
+	if (GetTypeId() == TYPEID_PLAYER && HasAura(SHAMAN_LUCKY))
+	{
+		int32 amount;
+		amount = int32(tmpDamage / GetMaxHealth());
+		CastCustomSpell(this, 55023, &amount, &amount, nullptr, true);
+		RemoveAurasDueToSpell(SHAMAN_LUCKY);
+	}
+
     DEBUG_UNIT(this, DEBUG_SPELLS_DAMAGE, "SpellDmgBonus[spell=%u]: (base=%u + %i) * %f. SP=%i", spellProto->Id, pdamage, DoneTotal, DoneTotalMod, DoneAdvertisedBenefit);
     return tmpDamage > 0 ? uint32(tmpDamage) : 0;
 }
@@ -6862,6 +6870,17 @@ uint32 Unit::SpellDamageBonusTaken(Unit *pCaster, SpellEntry const *spellProto, 
 		}
 		}
 	}
+
+	if (owner->HasAura(WARLOCK_LUCKY))
+	{
+		TakenTotalMod *= 0.85f;
+	}
+
+	if (owner->HasAura(SHAMAN_LUCKY))
+	{
+		TakenTotalMod *= 0.8f;
+	}
+
     // ..taken
     TakenTotalMod *= GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, schoolMask);
 
@@ -6876,6 +6895,14 @@ uint32 Unit::SpellDamageBonusTaken(Unit *pCaster, SpellEntry const *spellProto, 
     TakenTotal = SpellBonusWithCoeffs(spellProto, TakenTotal, TakenAdvertisedBenefit, 0, damagetype, false, pCaster, spell);
 
     float tmpDamage = (int32(pdamage) + TakenTotal * int32(stack)) * TakenTotalMod;
+
+	if (GetTypeId() == TYPEID_PLAYER && HasAura(WARLOCK_LUCKY))
+	{
+		int32 amount;
+		amount = int32(tmpDamage / GetMaxHealth());
+		CastCustomSpell(this, 55022, &amount, nullptr, nullptr, true); 
+		RemoveAurasDueToSpell(WARLOCK_LUCKY);
+	}
 
     return tmpDamage > 0 ? uint32(tmpDamage) : 0;
 }
@@ -6925,6 +6952,13 @@ int32 Unit::SpellBaseDamageBonusDone(SpellSchoolMask schoolMask)
 				DoneAdvertisedBenefit += int32(GetTotalAttackPowerValue(BASE_ATTACK) * (*i)->GetModifierAmount(getLevel()) / 100.0f);
 		}
     }
+
+	//Lucky for Arcane (Frost)
+	if (HasAura(MAGE_LUCKY) && (schoolMask & SPELL_SCHOOL_MASK_ARCANE) && (GetPower(POWER_MANA)/GetMaxPower(POWER_MANA) > 50))
+	{
+		DoneAdvertisedBenefit *= 2;
+	}
+
     return DoneAdvertisedBenefit;
 }
 
@@ -7092,8 +7126,11 @@ bool Unit::IsSpellCrit(Unit *pVictim, SpellEntry const *spellProto, SpellSchoolM
             case SPELL_DAMAGE_CLASS_RANGED:
             {
                 // Joueurs assis = critique obligatoire.
-                if (pVictim->GetTypeId() == TYPEID_PLAYER && pVictim->IsSitState())
-                    return true;
+				if (pVictim->GetTypeId() == TYPEID_PLAYER && pVictim->IsSitState())
+			// Custom 
+					if (!(sWorld.getConfig(CONFIG_BOOL_CUSTOM_RULES) && GetTypeId() == TYPEID_PLAYER))
+						return true;				
+
                 crit_chance = GetUnitCriticalChance(attackType, pVictim);
                 crit_chance += GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_SPELL_CRIT_CHANCE_SCHOOL, schoolMask);
                 break;
@@ -7112,12 +7149,12 @@ bool Unit::IsSpellCrit(Unit *pVictim, SpellEntry const *spellProto, SpellSchoolM
 	// Lucky for Paladin (Holy)
 	if (HasAura(PALADIN_LUCKY) && (schoolMask & SPELL_SCHOOL_MASK_HOLY) && IsPositiveSpell(spellProto->Id))
 	{
-		crit_chance * 2;
+		crit_chance *= 2;
 	}
-
+	//Lucky for Mage (Frost)
 	if (HasAura(MAGE_LUCKY) && (schoolMask & SPELL_SCHOOL_MASK_FROST) && !isInFront(pVictim,5 * M_PI_F / 12))
 	{
-		crit_chance * 2;
+		crit_chance *= 2;
 	}
 
     DEBUG_UNIT(this, DEBUG_SPELL_COMPUTE_RESISTS, "%s [ID:%u] Crit chance %f.", spellProto->SpellName[2], spellProto->Id, crit_chance);
@@ -7895,6 +7932,17 @@ uint32 Unit::MeleeDamageBonusTaken(Unit* pCaster, uint32 pdamage, WeaponAttackTy
 			break;
 		}
 	}
+
+	if (owner->HasAura(WARLOCK_LUCKY))
+	{
+		TakenPercent *= 0.85f;
+	}
+
+	if (owner->HasAura(SHAMAN_LUCKY))
+	{
+		TakenPercent *= 0.80f;
+	}
+
     // final calculation
     // =================
 
@@ -10607,11 +10655,8 @@ void Unit::ClearAllReactives()
     if (getClass() == CLASS_WARRIOR && GetTypeId() == TYPEID_PLAYER)
         ((Player*)this)->ClearComboPoints();
 
-	if (HasAuraState(AURA_STATE_STANDING_STILL))
-		ModifyAuraState(AURA_STATE_STANDING_STILL, false);
-
-	if (HasAuraState(AURA_STATE_STANDING_STILL2))
-		ModifyAuraState(AURA_STATE_STANDING_STILL2, false);
+	if (HasAuraState(AURA_STATE_MOVING))
+		ModifyAuraState(AURA_STATE_MOVING, false);
 
 	if (HasAuraState(AURA_STATE_DOUBLE_CRIT))
 		ModifyAuraState(AURA_STATE_DOUBLE_CRIT, false);
@@ -10622,19 +10667,16 @@ void Unit::ClearAllReactives()
 
 void Unit::ClearMovementReactive()
 {
-	m_reactiveTimer[REACTIVE_STAND_STILL] = 0;
-	m_reactiveTarget[REACTIVE_STAND_STILL].Clear();
+	m_reactiveTimer[REACTIVE_MOVING] = 0;
+	m_reactiveTarget[REACTIVE_MOVING].Clear();
 	
-	if (HasAuraState(AURA_STATE_STANDING_STILL))
-		ModifyAuraState(AURA_STATE_STANDING_STILL, false);
-
-	if (HasAuraState(AURA_STATE_STANDING_STILL2))
-		ModifyAuraState(AURA_STATE_STANDING_STILL2, false);
+	if (HasAuraState(AURA_STATE_MOVING))
+		ModifyAuraState(AURA_STATE_MOVING, false);
 }
 
 uint32 Unit::GetMovementReactiveTime()
 {
-	return m_reactiveTimer[REACTIVE_STAND_STILL];
+	return m_reactiveTimer[REACTIVE_MOVING];
 }
 
 void Unit::UpdateReactives(uint32 p_time)
@@ -10673,10 +10715,9 @@ void Unit::UpdateReactives(uint32 p_time)
                     if (getClass() == CLASS_WARRIOR && GetTypeId() == TYPEID_PLAYER)
                         ((Player*)this)->ClearComboPoints();
                     break;
-			//	case REACTIVE_STAND_STILL:
-			//		if (HasAuraState(AURA_STATE_STANDING_STILL))
-			//			ModifyAuraState(AURA_STATE_STANDING_STILL, false);
-			//		break;
+				case REACTIVE_MOVING:
+						ModifyAuraState(AURA_STATE_MOVING, false);
+					break;
 				case REACTIVE_DOUBLE_CRIT:
 					if (HasAuraState(AURA_STATE_DOUBLE_CRIT))
 						ModifyAuraState(AURA_STATE_DOUBLE_CRIT, false);

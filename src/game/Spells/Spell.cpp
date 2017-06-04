@@ -1793,7 +1793,7 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
 		}
 
 		// Lucky for Druid (Balance)
-		if (realCaster->HasAura(DRUID_LUCKY) && m_spellInfo->IsFitToFamily<SPELLFAMILY_DRUID, CF_DRUID_WRATH>())
+		if (realCaster->HasAura(DRUID_LUCKY) && m_spellInfo->IsFitToFamily<SPELLFAMILY_DRUID, CF_DRUID_WRATH, CF_DRUID_MOONFIRE>())
 		{
 			radius = 35;
 			targetMode = TARGET_FRONTAL_LINE;
