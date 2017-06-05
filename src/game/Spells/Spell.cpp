@@ -1788,14 +1788,12 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
 		// Lucky for Hunter
 		if (realCaster->HasAura(HUNTER_LUCKY) && m_spellInfo->IsFitToFamily<SPELLFAMILY_HUNTER, CF_HUNTER_ARCANE_SHOT, CF_HUNTER_AIMED_SHOT>())
 		{
-			radius = 35;
 			targetMode = TARGET_FRONTAL_LINE;
 		}
 
 		// Lucky for Druid (Balance)
 		if (realCaster->HasAura(DRUID_LUCKY) && m_spellInfo->IsFitToFamily<SPELLFAMILY_DRUID, CF_DRUID_WRATH, CF_DRUID_MOONFIRE>())
 		{
-			radius = 35;
 			targetMode = TARGET_FRONTAL_LINE;
 		}
 
@@ -1820,8 +1818,7 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
 		//Lucky for Rogue
 		if (realCaster->HasAura(ROGUE_LUCKY) && NeedsComboPoints(m_spellInfo))
 		{
-			radius = 6;
-			targetMode = TARGET_FRONTAL_LINE;
+			targetMode = TARGET_NARROW_FRONTAL_CONE;
 		}
 
         if (Player* modOwner = realCaster->GetSpellModOwner())
@@ -2615,8 +2612,24 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
 			FillAreaTargets(targetUnitMap, radius, PUSH_IN_FRONT_30, SPELL_TARGETS_AOE_DAMAGE);
 			break;
 		case TARGET_FRONTAL_LINE:
+		{
+			Unit* pUnitTarget = nullptr;
+			if (pUnitTarget)
+			{
+				m_targets.setUnitTarget(pUnitTarget);
+				targetUnitMap.push_back(pUnitTarget);
+			}
+			else if (pUnitTarget = m_caster->SelectMagnetTarget(m_targets.getUnitTarget(), this, effIndex))
+			{
+				m_targets.setUnitTarget(pUnitTarget);
+				targetUnitMap.push_back(pUnitTarget);
+			}
+
+			radius = m_caster->GetDistance2d(pUnitTarget);
+
 			FillAreaTargets(targetUnitMap, radius, PUSH_IN_FRONT_5, SPELL_TARGETS_AOE_DAMAGE);
 			break;
+		}
         case TARGET_UNIT_TARGET_ANY:
         {
             Unit *target = m_targets.getUnitTarget();
