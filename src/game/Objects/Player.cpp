@@ -1301,11 +1301,14 @@ void Player::Update(uint32 update_diff, uint32 p_time)
 				{
 					//sLog.outError("Moving timer: %u for player %u", GetMovementReactiveTime(), GetObjectGuid());
 
-					if (!HasAuraState(AURA_STATE_MOVING)) {
-						if (!HasAura(STANDING_STILL))
+					if (!HasAuraState(AURA_STATE_MOVING)) 
+					{
+						if (getClass() == CLASS_DRUID || (getClass() == CLASS_SHAMAN) || (getClass() == CLASS_HUNTER))
 						{
-							if (getClass() == CLASS_DRUID || (getClass() == CLASS_SHAMAN) || (getClass() == CLASS_HUNTER))
-								_CreateCustomAura(STANDING_STILL);
+							CastSpell(this, STANDING_STILL, false);
+							ClearMovementReactive();
+							ModifyAuraState(AURA_STATE_MOVING, true);
+							StartReactiveTimer(REACTIVE_MOVING, GetObjectGuid());
 						}
 					}
 				}
