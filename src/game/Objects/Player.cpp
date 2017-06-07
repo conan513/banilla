@@ -13980,6 +13980,23 @@ void Player::GroupEventHappens(uint32 questId, WorldObject const* pEventObject)
         AreaExploredOrEventHappens(questId);
 }
 
+void Player::GroupEventFailHappens(uint32 questId)
+{
+    if (Group* pGroup = GetGroup())
+    {
+        for (GroupReference* itr = pGroup->GetFirstMember(); itr != nullptr; itr = itr->next())
+        {
+            Player* pGroupGuy = itr->getSource();
+            
+            // Fail regardless of distance
+            if (pGroupGuy && pGroupGuy->GetQuestStatus(questId) == QUEST_STATUS_INCOMPLETE)
+                pGroupGuy->FailQuest(questId);
+        }
+    }
+    else if (GetQuestStatus(questId) == QUEST_STATUS_INCOMPLETE)
+        FailQuest(questId);
+}
+
 void Player::ItemAddedQuestCheck(uint32 entry, uint32 count)
 {
     for (int i = 0; i < MAX_QUEST_LOG_SIZE; ++i)
@@ -19308,8 +19325,7 @@ bool Player::IsAtGroupRewardDistance(WorldObject const* pRewardSource) const
     if (!corpse)
         return false;
 
-   // return pRewardSource->IsWithinDistInMap(corpse, sWorld.getConfig(CONFIG_FLOAT_GROUP_XP_DISTANCE));
-	return IsWithinLootXPDist(pRewardSource); // pRewardSource->IsWithinDistInMap(corpse, sWorld.getConfig(CONFIG_FLOAT_GROUP_XP_DISTANCE));
+    return corpse->IsWithinLootXPDist(pRewardSource); // pRewardSource->IsWithinDistInMap(corpse, sWorld.getConfig(CONFIG_FLOAT_GROUP_XP_DISTANCE));
 }
 
 uint32 Player::GetBaseWeaponSkillValue(WeaponAttackType attType) const
