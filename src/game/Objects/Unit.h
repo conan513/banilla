@@ -1890,6 +1890,7 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         // reactive attacks
         void ClearAllReactives();
         void StartReactiveTimer(ReactiveType reactive, ObjectGuid target) { 
+			// sLog.outError("Start reactive for unit %u, type %u.", GetObjectGuid(), reactive);
 			if (reactive == REACTIVE_MOVING) 
 				m_reactiveTimer[reactive] = REACTIVE_TIMER_START_MOVEMENT;
 			else m_reactiveTimer[reactive] = REACTIVE_TIMER_START; 
@@ -2090,7 +2091,7 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         typedef std::map<ObjectGuid /*attackerGuid*/, uint32 /*damage*/ > DamageTakenHistoryMap;
         DamageTakenHistoryMap   _damageTakenHistory;
         uint32                  _lastDamageTaken;
-
+		WorldLocation			_old_pos;
     private:
         void CleanupDeletedAuras();
         void UpdateSplineMovement(uint32 t_diff);

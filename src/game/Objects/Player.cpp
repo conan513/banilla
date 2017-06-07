@@ -1282,8 +1282,10 @@ void Player::Update(uint32 update_diff, uint32 p_time)
 
 			if (isInCombat())
 			{
-				if (IsMoving())
+				if (GetDistance(_old_pos.coord_x, _old_pos.coord_y, _old_pos.coord_z) > 0.01)
 				{
+					//sLog.outError("Player %u has moved.", GetObjectGuid());
+
 					ClearMovementReactive();
 					ModifyAuraState(AURA_STATE_MOVING, true);
 					StartReactiveTimer(REACTIVE_MOVING, GetObjectGuid());
@@ -1292,9 +1294,13 @@ void Player::Update(uint32 update_diff, uint32 p_time)
 						if (getClass() == CLASS_DRUID || (getClass() == CLASS_SHAMAN) || (getClass() == CLASS_HUNTER))
 							RemoveAurasDueToSpell(STANDING_STILL);
 					}
+
+					GetPosition(_old_pos);
 				}
 				else
 				{
+					//sLog.outError("Moving timer: %u for player %u", GetMovementReactiveTime(), GetObjectGuid());
+
 					if (!HasAuraState(AURA_STATE_MOVING)) {
 						if (!HasAura(STANDING_STILL))
 						{
@@ -1307,115 +1313,117 @@ void Player::Update(uint32 update_diff, uint32 p_time)
 				//Hot Steak
 				if (getClass() == CLASS_MAGE)
 				{
-					if (HasAuraState(AURA_STATE_DOUBLE_CRIT) && !HasAura(HOT_STREAK))
+					if (ToUnit()->HasAuraState(AURA_STATE_DOUBLE_CRIT) && !HasAura(HOT_STREAK))
 						_CreateCustomAura(HOT_STREAK);
 				}
 				else if (getClass() == CLASS_ROGUE || (getClass() == CLASS_WARLOCK))
 				{
-					if (HasAuraState(AURA_STATE_DOUBLE_CRIT) && !HasAura(LOADED_DICE))
+					if (ToUnit()->HasAuraState(AURA_STATE_DOUBLE_CRIT) && !HasAura(LOADED_DICE))
 						_CreateCustomAura(LOADED_DICE);
 				}
 
 				if (getClass() == CLASS_WARRIOR || getClass() == CLASS_DRUID)
 				{
-					if (HasAuraState(AURA_STATE_ENRAGE) && !HasAura(FURIOUS))
+					if (ToUnit()->HasAuraState(AURA_STATE_ENRAGE) && !HasAura(FURIOUS))
 						_CreateCustomAura(FURIOUS);
 				}
-				
+
 				if (getClass() == CLASS_PALADIN || getClass() == CLASS_PRIEST)
-					if (!HasAuraState(AURA_STATE_HEALTH_ABOVE_75_PERCENT))
+					if (!ToUnit()->HasAuraState(AURA_STATE_HEALTH_ABOVE_75_PERCENT))
 						_CreateCustomAura(MARTYR);
-						
-				if (sWorld.getConfig(CONFIG_BOOL_CUSTOM_ADVENTURE_MODE))
-					SetAdventureLevel(adventure_level);
-
-				uint8 health = GetHealthPercent();
-
-				if (health >= 90)
-				{
-					//Remove Wounded Auras
-					if (HasAura(WOUNDED))
-						RemoveAurasDueToSpell(WOUNDED);
-					if (HasAura(INJURED))
-						RemoveAurasDueToSpell(INJURED);
-					if (HasAura(GREVIOUS_WOUNDED))
-						RemoveAurasDueToSpell(GREVIOUS_WOUNDED);
-					//Add Heartened Aura
-					if (!HasAura(HEARTENED))
-						_CreateCustomAura(HEARTENED);
-				}
-				else if (health >= 60 && getClass() != CLASS_WARLOCK)
-				{
-					//Remove Wounded Auras
-					if (HasAura(INJURED))
-						RemoveAurasDueToSpell(INJURED);
-					if (HasAura(GREVIOUS_WOUNDED))
-						RemoveAurasDueToSpell(GREVIOUS_WOUNDED);
-					//Remove Heartened Aura
-					if (HasAura(HEARTENED))
-						RemoveAurasDueToSpell(HEARTENED);
-					//Add injured Aura
-					if (!HasAura(WOUNDED))
-						_CreateCustomAura(WOUNDED);
-				}
-				else if (health >= 40 && getClass() == CLASS_WARLOCK)
-				{
-					//Remove Wounded Auras
-					if (HasAura(INJURED))
-						RemoveAurasDueToSpell(INJURED);
-					if (HasAura(GREVIOUS_WOUNDED))
-						RemoveAurasDueToSpell(GREVIOUS_WOUNDED);
-					//Remove Heartened Aura
-					if (HasAura(HEARTENED))
-						RemoveAurasDueToSpell(HEARTENED);
-					//Add injured Aura
-					if (!HasAura(WOUNDED))
-						_CreateCustomAura(WOUNDED);
-				}
-				else if (health >= 20)
-				{
-					//Remove Wounded Auras
-					if (HasAura(WOUNDED))
-						RemoveAurasDueToSpell(WOUNDED);
-					if (HasAura(GREVIOUS_WOUNDED))
-						RemoveAurasDueToSpell(GREVIOUS_WOUNDED);
-					//Remove Heartened Aura
-					if (HasAura(HEARTENED))
-						RemoveAurasDueToSpell(HEARTENED);
-					//Add wounded Aura
-					if (!HasAura(INJURED))
-						_CreateCustomAura(INJURED);
-				}
-				else if (health < 20)
-				{
-					//Remove Wounded Auras
-					if (HasAura(WOUNDED))
-						RemoveAurasDueToSpell(WOUNDED);
-					if (HasAura(INJURED))
-						RemoveAurasDueToSpell(INJURED);
-					//Remove Heartened Aura
-					if (HasAura(HEARTENED))
-						RemoveAurasDueToSpell(HEARTENED);
-					//Add Grevious wounded Aura
-					if (!HasAura(GREVIOUS_WOUNDED))
-						_CreateCustomAura(GREVIOUS_WOUNDED);
-				}
-
-				//Dizzyness effect
-				if (health < 15)
-				{
-					if (!HasAura(55007))
-						_CreateCustomAura(55007);
-				}
-				else if (HasAura(55007))
-				{
-					RemoveAurasDueToSpell(55007);
-					SetDrunkValue(0);
-				}
 			}
+
 			else
 			{
+				ModifyAuraState(AURA_STATE_MOVING, false);
 				RemoveAurasDueToSpell(STANDING_STILL);
+			}
+
+			if (sWorld.getConfig(CONFIG_BOOL_CUSTOM_ADVENTURE_MODE))
+				SetAdventureLevel(adventure_level);
+
+			uint8 health = GetHealthPercent();
+
+			if (health >= 90)
+			{
+				//Remove Wounded Auras
+				if (HasAura(WOUNDED))
+					RemoveAurasDueToSpell(WOUNDED);
+				if (HasAura(INJURED))
+					RemoveAurasDueToSpell(INJURED);
+				if (HasAura(GREVIOUS_WOUNDED))
+					RemoveAurasDueToSpell(GREVIOUS_WOUNDED);
+				//Add Heartened Aura
+				if (!HasAura(HEARTENED))
+					_CreateCustomAura(HEARTENED);
+			}
+			else if (health >= 60 && getClass() != CLASS_WARLOCK)
+			{
+				//Remove Wounded Auras
+				if (HasAura(INJURED))
+					RemoveAurasDueToSpell(INJURED);
+				if (HasAura(GREVIOUS_WOUNDED))
+					RemoveAurasDueToSpell(GREVIOUS_WOUNDED);
+				//Remove Heartened Aura
+				if (HasAura(HEARTENED))
+					RemoveAurasDueToSpell(HEARTENED);
+				//Add injured Aura
+				if (!HasAura(WOUNDED))
+					_CreateCustomAura(WOUNDED);
+			}
+			else if (health >= 40 && getClass() == CLASS_WARLOCK)
+			{
+				//Remove Wounded Auras
+				if (HasAura(INJURED))
+					RemoveAurasDueToSpell(INJURED);
+				if (HasAura(GREVIOUS_WOUNDED))
+					RemoveAurasDueToSpell(GREVIOUS_WOUNDED);
+				//Remove Heartened Aura
+				if (HasAura(HEARTENED))
+					RemoveAurasDueToSpell(HEARTENED);
+				//Add injured Aura
+				if (!HasAura(WOUNDED))
+					_CreateCustomAura(WOUNDED);
+			}
+			else if (health >= 20)
+			{
+				//Remove Wounded Auras
+				if (HasAura(WOUNDED))
+					RemoveAurasDueToSpell(WOUNDED);
+				if (HasAura(GREVIOUS_WOUNDED))
+					RemoveAurasDueToSpell(GREVIOUS_WOUNDED);
+				//Remove Heartened Aura
+				if (HasAura(HEARTENED))
+					RemoveAurasDueToSpell(HEARTENED);
+				//Add wounded Aura
+				if (!HasAura(INJURED))
+					_CreateCustomAura(INJURED);
+			}
+			else if (health < 20)
+			{
+				//Remove Wounded Auras
+				if (HasAura(WOUNDED))
+					RemoveAurasDueToSpell(WOUNDED);
+				if (HasAura(INJURED))
+					RemoveAurasDueToSpell(INJURED);
+				//Remove Heartened Aura
+				if (HasAura(HEARTENED))
+					RemoveAurasDueToSpell(HEARTENED);
+				//Add Grevious wounded Aura
+				if (!HasAura(GREVIOUS_WOUNDED))
+					_CreateCustomAura(GREVIOUS_WOUNDED);
+			}
+
+			//Dizzyness effect
+			if (health < 15)
+			{
+				if (!HasAura(55007))
+					_CreateCustomAura(55007);
+			}
+			else if (HasAura(55007))
+			{
+				RemoveAurasDueToSpell(55007);
+				SetDrunkValue(0);
 			}
 		}
 		//Custom

@@ -815,10 +815,11 @@ enum AuraState
     AURA_STATE_BERSERKING                   = 3,            // C   |
     AURA_STATE_FROZEN                       = 4,            //     | frozen target (but not used for any spells in 1.12.1 at client side)
     AURA_STATE_JUDGEMENT                    = 5,            // C   |
-    //AURA_STATE_UNKNOWN6                   = 6,            //     | not used
+	AURA_STATE_MOVING                       = 6,                      //     | not used
     AURA_STATE_PARRY                 = 7,            // C   |
     AURA_STATE_ROGUE_ATTACK_FROM_STEALTH    = 7,            // C   | FIX ME: not implemented yet!
-	AURA_STATE_WARRIOR_VICTORY_RUSH = 10,           // C   | warrior victory rush
+	AURA_STATE_WARRIOR_VICTORY_RUSH = 8,           // C   | warrior victory rush
+	AURA_STATE_DOUBLE_CRIT = 9,
 	AURA_STATE_HUNTER_CRIT_STRIKE = 10,           // C   | hunter crit strike
 	AURA_STATE_CRIT = 11,           // C   |
 	AURA_STATE_FAERIE_FIRE = 12,           //  c t|
@@ -828,13 +829,11 @@ enum AuraState
 	AURA_STATE_DEADLY_POISON = 16,           //   T |
 	AURA_STATE_FORBEARANCE = 17,           //  c t|
 	AURA_STATE_WEAKENED_SOUL = 18,           //    t|
-	AURA_STATE_HYPOTHERMIA = 19,            //  c  |
-	AURA_STATE_MOVING = 20,
-	AURA_STATE_DOUBLE_CRIT = 21,
-	AURA_STATE_LUCKY = 22,
-	AURA_STATE_HEALTH_ABOVE_75_PERCENT = 23,
-	AURA_STATE_ENRAGE = 24,           // C   |
-	AURA_STATE_BLEEDING = 25,           // C  t|
+	AURA_STATE_HYPOTHERMIA = 19,            //  c  |	
+	AURA_STATE_LUCKY = 20,
+	AURA_STATE_HEALTH_ABOVE_75_PERCENT = 21,
+	AURA_STATE_ENRAGE = 22,           // C   |
+	AURA_STATE_BLEEDING = 23,           // C  t|
 };
 
 // Spell mechanics

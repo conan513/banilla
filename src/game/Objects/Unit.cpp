@@ -8147,7 +8147,17 @@ void Unit::SetInCombatState(bool PvP, Unit* enemy)
 
 	// used by eluna
 	if (GetTypeId() == TYPEID_PLAYER)
+	{
 		sEluna->OnPlayerEnterCombat(ToPlayer(), enemy);
+		//custom for movement
+		if (!wasInCombat)
+		{
+			ClearMovementReactive();
+			ModifyAuraState(AURA_STATE_MOVING, true);
+			StartReactiveTimer(REACTIVE_MOVING, GetObjectGuid());
+			GetPosition(_old_pos);
+		}
+	}
 }
 
 void Unit::ClearInCombat()
@@ -10717,6 +10727,7 @@ void Unit::UpdateReactives(uint32 p_time)
                         ((Player*)this)->ClearComboPoints();
                     break;
 				case REACTIVE_MOVING:
+					if (HasAuraState(AURA_STATE_MOVING))
 						ModifyAuraState(AURA_STATE_MOVING, false);
 					break;
 				case REACTIVE_DOUBLE_CRIT:
