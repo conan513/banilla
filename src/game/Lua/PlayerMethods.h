@@ -3808,7 +3808,8 @@ namespace LuaPlayer
     int RemovedInsignia(lua_State* L, Player* player)
     {
         Player* looter = Eluna::CHECKOBJ<Player>(L, 2);
-        player->RemovedInsignia(looter);
+		Corpse *corpse = player->GetCorpse();
+        player->RemovedInsignia(looter,corpse);
         return 0;
     }
 
