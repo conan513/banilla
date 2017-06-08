@@ -499,6 +499,10 @@ class Spell
 
         // Stryg
         uint8 GetTargetNum() const { return m_targetNum; }
+
+        // For summoning ritual helpers visual spell
+        void SetChannelingVisual(bool value) { m_isChannelingVisual = value; }
+        bool IsChannelingVisual() const { return m_isChannelingVisual; }
     protected:
         bool HasGlobalCooldown() const;
         void TriggerGlobalCooldown();
@@ -525,6 +529,8 @@ class Spell
         bool m_autoRepeat;
         bool m_delayed;
         bool m_successCast;
+        bool m_isChannelingVisual;                          // For summoning ritual helpers visual spell
+                                                            // no effect handled, only channel start/update is sent
 
         uint8 m_delayAtDamageCount;
         int32 GetNextDelayAtDamageMsTime() { return m_delayAtDamageCount < 5 ? 1000 - (m_delayAtDamageCount++)* 200 : 200; }
