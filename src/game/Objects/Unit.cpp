@@ -2494,6 +2494,10 @@ void Unit::CalculateAbsorbResistBlock(Unit *pCaster, SpellNonMeleeDamage *damage
     if (blocked)
     {
         damageInfo->blocked = GetShieldBlockValue();
+		//Shaman lucky
+		if (HasAura(SHAMAN_LUCKY))
+			damageInfo->blocked *= 2;
+
         if (damageInfo->damage < damageInfo->blocked)
             damageInfo->blocked = damageInfo->damage;
         damageInfo->damage -= damageInfo->blocked;
@@ -6879,7 +6883,7 @@ uint32 Unit::SpellDamageBonusTaken(Unit *pCaster, SpellEntry const *spellProto, 
 
 	if (owner->HasAura(SHAMAN_LUCKY))
 	{
-		TakenTotalMod *= 0.8f;
+		TakenTotalMod *= 0.9f;
 	}
 
     // ..taken
@@ -7941,7 +7945,7 @@ uint32 Unit::MeleeDamageBonusTaken(Unit* pCaster, uint32 pdamage, WeaponAttackTy
 
 	if (owner->HasAura(SHAMAN_LUCKY))
 	{
-		TakenPercent *= 0.80f;
+		TakenPercent *= 0.9f;
 	}
 
     // final calculation
@@ -10259,6 +10263,15 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* pTarget, uint32 procFlag, 
 					{
 						ModifyAuraState(AURA_STATE_HUNTER_CRIT_STRIKE, true);
 						StartReactiveTimer(REACTIVE_HUNTER_CRIT, pTarget->GetObjectGuid());
+					}
+
+					if (getClass() == CLASS_WARRIOR && GetTypeId() == TYPEID_PLAYER && HasAura(WARRIOR_LUCKY))
+					{
+						((Player*)this)->AddComboPoints(pTarget, 1);
+						//Allow use of Overpower
+						StartReactiveTimer(REACTIVE_OVERPOWER, pTarget->GetObjectGuid());
+						//Remove Cooldown of Whirlwind
+						RemoveSpellCooldown(1680, true);
 					}
 				}
             }

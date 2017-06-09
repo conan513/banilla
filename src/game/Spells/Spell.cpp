@@ -1810,7 +1810,7 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
 		}
 
 		// Lucky for Warrior
-		if (realCaster->HasAura(WARRIOR_LUCKY) && m_spellInfo->IsFitToFamily<SPELLFAMILY_WARRIOR, CF_WARRIOR_HEROIC_STRIKE, CF_WARRIOR_REVENGE, CF_WARRIOR_OVERPOWER, CF_WARRIOR_CLEAVE>())
+		if (realCaster->HasAura(WARRIOR_LUCKY) && m_spellInfo->IsFitToFamily<SPELLFAMILY_WARRIOR, CF_WARRIOR_HEROIC_STRIKE, CF_WARRIOR_REVENGE, CF_WARRIOR_CLEAVE>())
 		{
 			EffectChainTarget += 1;
 		}

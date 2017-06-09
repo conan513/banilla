@@ -1309,6 +1309,7 @@ void Player::Update(uint32 update_diff, uint32 p_time)
 							ClearMovementReactive();
 							ModifyAuraState(AURA_STATE_MOVING, true);
 							StartReactiveTimer(REACTIVE_MOVING, GetObjectGuid());
+							lucky_counter++;
 						}
 					}
 				}
@@ -1317,7 +1318,7 @@ void Player::Update(uint32 update_diff, uint32 p_time)
 				if (getClass() == CLASS_MAGE)
 				{
 					if (ToUnit()->HasAuraState(AURA_STATE_DOUBLE_CRIT) && !HasAura(HOT_STREAK))
-						_CreateCustomAura(HOT_STREAK);
+						_CreateCustomAura(HOT_STREAK);						
 				}
 				else if (getClass() == CLASS_ROGUE || (getClass() == CLASS_WARLOCK))
 				{

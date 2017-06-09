@@ -4338,6 +4338,18 @@ void Aura::HandlePeriodicDamage(bool apply, bool Real)
                     }
                 }
                 break;
+				//Savage Defence
+				// same as Rend
+				if (spellProto->Id == 54477)
+				{
+					//(($MWB+$mwb)/4+$AP/14*$MWS) bonus per tick
+					float ap = caster->GetTotalAttackPowerValue(BASE_ATTACK);
+					int32 mws = caster->GetAttackTime(BASE_ATTACK);
+					float mwb_min = caster->GetWeaponDamageRange(BASE_ATTACK, MINDAMAGE);
+					float mwb_max = caster->GetWeaponDamageRange(BASE_ATTACK, MAXDAMAGE);
+					m_modifier.m_amount = int32(((mwb_min + mwb_max) / 4 + ap * mws / 14000));
+				}
+				break;
             }
 			case SPELLFAMILY_WARLOCK:
 			{
