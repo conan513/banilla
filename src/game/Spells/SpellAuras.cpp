@@ -4260,6 +4260,10 @@ void Aura::HandlePeriodicHeal(bool apply, bool /*Real*/)
 		if (target && target->HasAura(54804))
 			m_modifier.m_amount *= int32(m_modifier.m_amount * 90 / 100);
 
+		//Hunter Lucky
+		if (caster && caster->HasAura(HUNTER_LUCKY) && target->IsPet()) 
+			m_modifier.m_amount *= int32(m_modifier.m_amount * 2);
+
         m_modifier.m_amount = caster->SpellHealingBonusDone(target, GetSpellProto(), m_modifier.m_amount, DOT, GetStackAmount());
     }
 }
@@ -4359,6 +4363,31 @@ void Aura::HandlePeriodicDamage(bool apply, bool Real)
 					if ((spellProto->School == SPELL_SCHOOL_SHADOW) && (roll_chance_f(caster->ToCreature()->GetUnitCriticalChance(SPELL_SCHOOL_MASK_SHADOW))))
 						m_modifier.m_amount *= 2;  //double  damage;
 				}
+				if (caster->HasAura(DAMNED_LUCK) && spellProto->School == SPELL_SCHOOL_SHADOW)
+				{
+					if (caster->HasAura(17836)) // Felfire
+						m_modifier.m_amount *= 1.1f;  
+					else if (caster->HasAura(17835))
+						m_modifier.m_amount *= 1.08f; 
+					else if (caster->HasAura(17834))
+						m_modifier.m_amount *= 1.06f;  
+					else if (caster->HasAura(17833))
+						m_modifier.m_amount *= 1.04f;  
+					else if (caster->HasAura(17815))
+						m_modifier.m_amount *= 1.02f;  
+				}
+				else if (caster->HasAura(DAMNED_LUCK) && spellProto->School == SPELL_SCHOOL_FIRE)
+					if (caster->HasAura(17836))// Felfire
+						m_modifier.m_amount *= 1.25f;  
+					else if (caster->HasAura(17835))
+						m_modifier.m_amount *= 1.2f;  
+					else if (caster->HasAura(17834))
+						m_modifier.m_amount *= 1.15f;  
+					else if (caster->HasAura(17833))
+						m_modifier.m_amount *= 1.10f;  
+					else if (caster->HasAura(17815))
+						m_modifier.m_amount *= 1.05f;  
+
 				break;
 			}
 			case SPELLFAMILY_MAGE:

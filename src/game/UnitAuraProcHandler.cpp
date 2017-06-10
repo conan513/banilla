@@ -797,10 +797,12 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                     }
                     
 					if (HasAura(HOT_STREAK)) // Hot Streak
+					{
 						if (HasAura(18459)) //Incinerate
 							basepoints[0] = int32(0.25f * basepoints[0]);
 						if (HasAura(18460))
 							basepoints[0] = int32(0.5f * basepoints[0]);
+					}
 
                     // Get current Ignite Aura if exist
                     Aura *igniteAura = target->GetAura(12654, EFFECT_INDEX_0);

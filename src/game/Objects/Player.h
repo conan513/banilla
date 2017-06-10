@@ -662,6 +662,7 @@ enum ReputationSource
 #define HOT_STREAK				55021
 #define FURIOUS					55024
 #define MARTYR					55025
+#define DAMNED_LUCK				55026
 
 #define HEARTENED				54600
 #define WOUNDED					54601

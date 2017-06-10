@@ -2944,7 +2944,7 @@ namespace LuaPlayer
                 player->SetQuestSlot(slot, 0);
 
                 // we ignore unequippable quest items in this case, its' still be equipped
-                player->TakeQuestSourceItem(logQuest, false);
+                player->TakeOrReplaceQuestStartItems(logQuest, false, false);
 
 #ifdef TRINITY
                 if (quest->HasFlag(QUEST_FLAGS_FLAGS_PVP))

@@ -7155,7 +7155,7 @@ bool Unit::IsSpellCrit(Unit *pVictim, SpellEntry const *spellProto, SpellSchoolM
 	// Lucky for Paladin (Holy)
 	if (HasAura(PALADIN_LUCKY) && (schoolMask & SPELL_SCHOOL_MASK_HOLY) && IsPositiveSpell(spellProto->Id))
 	{
-		crit_chance *= 2;
+		crit_chance += 25.f;
 	}
 	//Lucky for Mage (Frost)
 	if (HasAura(MAGE_LUCKY) && (schoolMask & SPELL_SCHOOL_MASK_FROST) && !isInFront(pVictim,5 * M_PI_F / 12))
@@ -10273,6 +10273,30 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* pTarget, uint32 procFlag, 
 						StartReactiveTimer(REACTIVE_OVERPOWER, pTarget->GetObjectGuid());
 						//Remove Cooldown of Whirlwind
 						RemoveSpellCooldown(1680, true);
+					}
+
+					if (IsPet()) // Demonic Servitute
+					{
+						Unit *owner = GetCharmerOrOwner();
+						if (owner && (owner->GetTypeId() == TYPEID_PLAYER) && (getClass() == CLASS_WARLOCK))
+						{
+							int chance = 0;
+							if (HasAura(18825))
+								chance = 50;
+							else if (HasAura(18824))
+								chance = 40;
+							else if (HasAura(18823))
+								chance = 30;
+							else if (HasAura(18822))
+								chance = 20;
+							else if (HasAura(18821))
+								chance = 10;							
+
+							if (chance)
+								if (roll_chance_i(chance))
+									CastSpell(this, LOADED_DICE, false);
+						}
+						
 					}
 				}
             }

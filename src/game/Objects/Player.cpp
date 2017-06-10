@@ -1317,10 +1317,16 @@ void Player::Update(uint32 update_diff, uint32 p_time)
 				//Hot Steak
 				if (getClass() == CLASS_MAGE)
 				{
-					if (ToUnit()->HasAuraState(AURA_STATE_DOUBLE_CRIT) && !HasAura(HOT_STREAK))
-						_CreateCustomAura(HOT_STREAK);						
+					if (HasAura(18459) || HasAura(18460)) //Incinerate
+						if (ToUnit()->HasAuraState(AURA_STATE_DOUBLE_CRIT) && !HasAura(HOT_STREAK))
+							_CreateCustomAura(HOT_STREAK);						
 				}
-				else if (getClass() == CLASS_ROGUE || (getClass() == CLASS_WARLOCK))
+				if (getClass() == CLASS_WARLOCK)
+				{
+					if (ToUnit()->HasAuraState(AURA_STATE_DOUBLE_CRIT) && !HasAura(DAMNED_LUCK))
+						_CreateCustomAura(DAMNED_LUCK);
+				}
+				else if (getClass() == CLASS_ROGUE)
 				{
 					if (ToUnit()->HasAuraState(AURA_STATE_DOUBLE_CRIT) && !HasAura(LOADED_DICE))
 						_CreateCustomAura(LOADED_DICE);

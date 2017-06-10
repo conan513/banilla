@@ -520,11 +520,20 @@ void ScriptMgr::LoadScripts(ScriptMapMap& scripts, const char* tablename)
                 }
                 break;
             }
-            case SCRIPT_COMMAND_DESPAWN_SELF:
-            {
-                // for later, we might consider despawn by database guid, and define in datalong2 as option to despawn self.
-                break;
-            }
+			case SCRIPT_COMMAND_DESPAWN_CREATURE:
+			{
+				if (tmp.despawn.creatureEntry && !ObjectMgr::GetCreatureTemplate(tmp.despawn.creatureEntry))
+				{
+					sLog.outErrorDb("Table `%s` has datalong2 = %u in SCRIPT_COMMAND_DESPAWN_CREATURE for script id %u, but this creature_template does not exist.", tablename, tmp.despawn.creatureEntry, tmp.id);
+					continue;
+				}
+				if (tmp.despawn.creatureEntry && !tmp.despawn.searchRadius)
+				{
+					sLog.outErrorDb("Table `%s` has datalong2 = %u in SCRIPT_COMMAND_DESPAWN_CREATURE for script id %u, but search radius is too small (datalong3 = %u).", tablename, tmp.despawn.creatureEntry, tmp.id, tmp.despawn.searchRadius);
+					continue;
+				}
+				break;
+			}
             case SCRIPT_COMMAND_PLAY_MOVIE:
             {
                 sLog.outErrorDb("Table `%s` use unsupported SCRIPT_COMMAND_PLAY_MOVIE for script id %u",
@@ -740,52 +749,46 @@ void ScriptMgr::LoadScripts(ScriptMapMap& scripts, const char* tablename)
 				}
 				break;
 			}
-			case SCRIPT_COMMAND_SEND_TAXI_PATH:             // 30
+			case SCRIPT_COMMAND_SEND_TAXI_PATH:
 			{
 				if (!sTaxiPathStore.LookupEntry(tmp.sendTaxiPath.taxiPathId))
 				{
 					sLog.outErrorDb("Table `%s` has datalong = %u in SCRIPT_COMMAND_SEND_TAXI_PATH for script id %u, but this taxi path does not exist.", tablename, tmp.sendTaxiPath.taxiPathId, tmp.id);
 					continue;
 				}
-				// Check if this taxi path can be triggered with a spell
-				if (!sLog.HasLogFilter(LOG_FILTER_DB_STRICTED_CHECK))
-				{
-					uint32 taxiSpell = 0;
-					for (uint32 i = 1; i < sSpellMgr.GetMaxSpellId() && taxiSpell == 0; ++i)
-					{
-						if (SpellEntry const* spell = sSpellMgr.GetSpellEntry(i))
-							for (int j = 0; j < MAX_EFFECT_INDEX; ++j)
-							{
-								if (spell->Effect[j] == SPELL_EFFECT_SEND_TAXI && spell->EffectMiscValue[j] == int32(tmp.sendTaxiPath.taxiPathId))
-								{
-									taxiSpell = i;
-									break;
-								}
-							}
-					}
-
-					if (taxiSpell)
-					{
-						sLog.outErrorDb("Table `%s` has datalong = %u in SCRIPT_COMMAND_SEND_TAXI_PATH for script id %u, but this taxi path can be triggered by spell %u.", tablename, tmp.sendTaxiPath.taxiPathId, tmp.id, taxiSpell);
-						continue;
-					}
-				}
 				break;
 			}
-			case SCRIPT_COMMAND_TERMINATE_SCRIPT:           // 31
+			case SCRIPT_COMMAND_TERMINATE_SCRIPT:
 			{
-				if (tmp.terminateScript.npcEntry && !ObjectMgr::GetCreatureTemplate(tmp.terminateScript.npcEntry))
+				if (tmp.terminateScript.creatureEntry && !ObjectMgr::GetCreatureTemplate(tmp.terminateScript.creatureEntry))
 				{
-					sLog.outErrorDb("Table `%s` has datalong = %u in SCRIPT_COMMAND_TERMINATE_SCRIPT for script id %u, but this npc entry does not exist.", tablename, tmp.sendTaxiPath.taxiPathId, tmp.id);
+					sLog.outErrorDb("Table `%s` has datalong = %u in SCRIPT_COMMAND_TERMINATE_SCRIPT for script id %u, but this npc entry does not exist.", tablename, tmp.terminateScript.creatureEntry, tmp.id);
+					continue;
+				}
+				if (tmp.terminateScript.creatureEntry && !tmp.terminateScript.searchRadius)
+				{
+					sLog.outErrorDb("Table `%s` has datalong = %u in  SCRIPT_COMMAND_TERMINATE_SCRIPT for script id %u, but search radius is too small (datalong2 = %u).", tablename, tmp.terminateScript.creatureEntry, tmp.id, tmp.terminateScript.searchRadius);
 					continue;
 				}
 				break;
 			}
 			case SCRIPT_COMMAND_PAUSE_WAYPOINTS:            // 32
 				break;
-			case SCRIPT_COMMAND_RESERVED_1:                 // 33
+			case SCRIPT_COMMAND_ENTER_EVADE_MODE:
+			{
+				if (tmp.enterEvadeMode.creatureEntry && !ObjectMgr::GetCreatureTemplate(tmp.enterEvadeMode.creatureEntry))
+				{
+					sLog.outErrorDb("Table `%s` has datalong = %u in SCRIPT_COMMAND_ENTER_EVADE_MODE for script id %u, but this creature_template does not exist.", tablename, tmp.enterEvadeMode.creatureEntry, tmp.id);
+					continue;
+				}
+				if (tmp.enterEvadeMode.creatureEntry && !tmp.enterEvadeMode.searchRadius)
+				{
+					sLog.outErrorDb("Table `%s` has datalong = %u in SCRIPT_COMMAND_ENTER_EVADE_MODE for script id %u, but search radius is too small (datalong2 = %u).", tablename, tmp.enterEvadeMode.creatureEntry, tmp.id, tmp.enterEvadeMode.searchRadius);
+					continue;
+				}
 				break;
-			case SCRIPT_COMMAND_TERMINATE_COND:             // 34
+			}
+			case SCRIPT_COMMAND_TERMINATE_COND:
 			{
 				if (!sConditionStorage.LookupEntry<PlayerCondition>(tmp.terminateCond.conditionId))
 				{
@@ -858,6 +861,25 @@ void ScriptMgr::LoadScripts(ScriptMapMap& scripts, const char* tablename)
 				if (tmp.updateTemplate.newFactionTeam != 0 && tmp.updateTemplate.newFactionTeam != 1)
 				{
 					sLog.outErrorDb("Table `%s` uses nonexistent faction team %u in SCRIPT_COMMAND_UPDATE_TEMPLATE for script id %u.", tablename, tmp.updateTemplate.newFactionTeam, tmp.id);
+					continue;
+				}
+				break;
+			}
+			case SCRIPT_COMMAND_TURN_TO:
+			{
+				if (tmp.turnTo.facingLogic > 2)
+				{
+					sLog.outErrorDb("Table `%s` using unknown option in datalong (%u) in SCRIPT_COMMAND_TURN_TO for script id %u", tablename, tmp.turnTo.facingLogic, tmp.id);
+					continue;
+				}
+				if (tmp.turnTo.creatureEntry && !ObjectMgr::GetCreatureTemplate(tmp.turnTo.creatureEntry))
+				{
+					sLog.outErrorDb("Table `%s` has datalong3 = %u in SCRIPT_COMMAND_TURN_TO for script id %u, but this npc entry does not exist.", tablename, tmp.turnTo.creatureEntry, tmp.id);
+					continue;
+				}
+				if (tmp.turnTo.creatureEntry && !tmp.turnTo.searchRadius)
+				{
+					sLog.outErrorDb("Table `%s` has datalong3 = %u in  SCRIPT_COMMAND_TURN_TO for script id %u, but search radius is too small (datalong4 = %u).", tablename, tmp.turnTo.creatureEntry, tmp.id, tmp.turnTo.searchRadius);
 					continue;
 				}
 				break;
