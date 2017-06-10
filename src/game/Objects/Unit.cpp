@@ -337,6 +337,7 @@ void Unit::Update(uint32 update_diff, uint32 p_time)
 
 	ModifyAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, (GetHealth() < GetMaxHealth() * 0.35f));
 	ModifyAuraState(AURA_STATE_HEALTH_ABOVE_75_PERCENT, GetHealth() > GetMaxHealth() * 0.75f);
+	ModifyAuraState(AURA_STATE_HEALTH_ABOVE_50_PERCENT, GetHealth() > GetMaxHealth() * 0.5f);
 
     if (isAlive())
         //ModifyAuraState(AURA_STATE_HEALTHLESS_20_PERCENT, GetHealth() < GetMaxHealth() * 0.20f);

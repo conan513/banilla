@@ -1314,33 +1314,61 @@ void Player::Update(uint32 update_diff, uint32 p_time)
 					}
 				}
 
-				//Hot Steak
+				//Mage - Hot Steak
 				if (getClass() == CLASS_MAGE)
 				{
 					if (HasAura(18459) || HasAura(18460)) //Incinerate
 						if (ToUnit()->HasAuraState(AURA_STATE_DOUBLE_CRIT) && !HasAura(HOT_STREAK))
 							_CreateCustomAura(HOT_STREAK);						
 				}
+				// Warlock - Luck of the Damned
 				if (getClass() == CLASS_WARLOCK)
 				{
 					if (ToUnit()->HasAuraState(AURA_STATE_DOUBLE_CRIT) && !HasAura(DAMNED_LUCK))
 						_CreateCustomAura(DAMNED_LUCK);
 				}
+				// Rogue - Loaded Dice
 				else if (getClass() == CLASS_ROGUE)
 				{
 					if (ToUnit()->HasAuraState(AURA_STATE_DOUBLE_CRIT) && !HasAura(LOADED_DICE))
 						_CreateCustomAura(LOADED_DICE);
 				}
 
+				//Warrior & Druid - Furius
 				if (getClass() == CLASS_WARRIOR || getClass() == CLASS_DRUID)
 				{
 					if (ToUnit()->HasAuraState(AURA_STATE_ENRAGE) && !HasAura(FURIOUS))
-						_CreateCustomAura(FURIOUS);
+						CastSpell(this,FURIOUS,false);
+					else RemoveAurasDueToSpell(FURIOUS);
 				}
 
-				if (getClass() == CLASS_PALADIN || getClass() == CLASS_PRIEST)
+				//Priest - Apotheosis
+				if (getClass() == CLASS_PRIEST)
+				{
+					if (!ToUnit()->HasAuraState(AURA_STATE_HEALTH_ABOVE_75_PERCENT) && HasAura(10060))
+						CastSpell(this, APOTHEOSIS, false);
+					else RemoveAurasDueToSpell(APOTHEOSIS);
+				}
+
+				//Paladin - Righteous Fire
+				if (getClass() == CLASS_PALADIN)
+				{
 					if (!ToUnit()->HasAuraState(AURA_STATE_HEALTH_ABOVE_75_PERCENT))
-						_CreateCustomAura(MARTYR);
+					{
+						if (HasAura(53910))
+							CastSpell(this, 53913, false);
+						else if (HasAura(53909))
+							CastSpell(this, 53912, false);
+						else if (HasAura(53908))
+							CastSpell(this, 53911, false);
+					}
+					else if (HasAura(53913))
+						RemoveAurasDueToSpell(53913);
+					else if (HasAura(53912))
+						RemoveAurasDueToSpell(53912);
+					else if (HasAura(53911))
+						RemoveAurasDueToSpell(53911);
+				}
 			}
 
 			else

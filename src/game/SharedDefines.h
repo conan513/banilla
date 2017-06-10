@@ -834,6 +834,7 @@ enum AuraState
 	AURA_STATE_HEALTH_ABOVE_75_PERCENT = 21,
 	AURA_STATE_ENRAGE = 22,           // C   |
 	AURA_STATE_BLEEDING = 23,           // C  t|
+	AURA_STATE_HEALTH_ABOVE_50_PERCENT = 24,
 };
 
 // Spell mechanics
