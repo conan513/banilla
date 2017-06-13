@@ -1227,13 +1227,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
             // trigger weapon enchants for weapon based spells; exclude spells that stop attack, because may break CC
             if (m_spellInfo->EquippedItemClass == ITEM_CLASS_WEAPON && !(m_spellInfo->Attributes & SPELL_ATTR_STOP_ATTACK_TARGET))
                 ((Player*)m_caster)->CastItemCombatSpell(unitTarget, m_attackType);
-            // trigger mainhand weapon procs for shield attacks (Shield Bash, Shield Slam) NOTE: vanilla only mechanic, patched out in 2.0.1
-            else if (m_spellInfo->EquippedItemClass == ITEM_CLASS_ARMOR && m_spellInfo->EquippedItemSubClassMask & (1 << ITEM_SUBCLASS_ARMOR_SHIELD)
-				&& (m_spellInfo->SpellIconID == 280 || m_spellInfo->SpellIconID == 413))
-				((Player*)m_caster)->CastItemCombatSpell(unitTarget, BASE_ATTACK);
-			            // special case for Execute - it triggers another spell which does the actual damage
-			else if (m_spellInfo->Id == 20647)
-                ((Player*)m_caster)->CastItemCombatSpell(unitTarget, BASE_ATTACK);
+
             // special Paladin cases - trigger weapon procs despite not having EquippedItemClass
             else if (m_spellInfo->SpellFamilyName == SPELLFAMILY_PALADIN)
             {
