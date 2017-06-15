@@ -839,6 +839,13 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
             }
 
             Creature* pCreature = nullptr;
+			
+			//Fix to ensure rares are not summoned (including corpses)
+			pCreature = m_creature->FindNearestCreature(action.summon_id.creatureId, RARE_SEARCH_RADIUS, false);
+			if (pCreature && pCreature->IsRare())
+				break;
+			else pCreature = nullptr;
+
             if ((*i).second.SpawnTimeSecs)
                 pCreature = m_creature->SummonCreature(action.summon_id.creatureId, (*i).second.position_x, (*i).second.position_y, (*i).second.position_z, (*i).second.orientation, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, (*i).second.SpawnTimeSecs);
             else

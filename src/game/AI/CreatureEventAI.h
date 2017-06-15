@@ -33,6 +33,8 @@ class WorldObject;
 #define MAX_ACTIONS                     3
 #define MAX_PHASE                       32
 
+#define RARE_SEARCH_RADIUS               250
+
 enum EventAI_Type
 {
     EVENT_T_TIMER                   = 0,                    // InitialMin, InitialMax, RepeatMin, RepeatMax

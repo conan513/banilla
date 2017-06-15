@@ -304,7 +304,7 @@ struct ScriptInfo
             uint32 amount;                                  // datalong2
         } createItem;
 
-        struct                                              // SCRIPT_COMMAND_DESPAWN_SELF (18)
+        struct                                              // SCRIPT_COMMAND_DESPAWN_CREATURE (18)
         {
 			uint32 despawnDelay;                            // datalong
 			uint32 creatureEntry;                           // datalong2

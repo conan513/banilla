@@ -20,6 +20,8 @@
 #include "InstanceData.h"
 #include "Database/DatabaseEnv.h"
 #include "Map.h"
+#include "Player.h"
+#include "ScriptedInstance.h"
 
 void InstanceData::SaveToDB()
 {
@@ -33,6 +35,27 @@ void InstanceData::SaveToDB()
     std::string data = Save();
     CharacterDatabase.escape_string(data);
 
+	std::stringstream ss(data);
+	int bossState;
+	bool instanceComplete = true;
+	int count = 1;
+
+	while (ss >> bossState)
+	{
+		if ((bossState != DONE) && (bossState != SPECIAL))
+		{
+			instanceComplete = false;
+			break;
+		}
+		count = count + 1;
+	}
+
+
+	if (instanceComplete)
+	{
+		CharacterDatabase.PExecute("UPDATE `instance_times` SET `end_time` =  NOW() WHERE `instance_id` = %i", instance->GetInstanceId());
+		}
+
     if (instance->Instanceable())
         CharacterDatabase.PExecute("UPDATE instance SET data = '%s' WHERE id = '%u'", data.c_str(), instance->GetInstanceId());
     else
@@ -44,4 +67,36 @@ bool InstanceData::CheckConditionCriteriaMeet(Player const* /*player*/, uint32 m
     sLog.outError("Condition system call InstanceData::CheckConditionCriteriaMeet but instance script for map %u not have implementation for player condition criteria with internal id %u for map %u",
                   instance->GetId(), instance_condition_id, map_id);
     return false;
+}
+
+void InstanceData::OnPlayerEnter(Player *player)
+{
+	if (player->isGameMaster())
+	{
+		return;
+	}
+
+	QueryResult* resultPlayerIds = resultPlayerIds = CharacterDatabase.PQuery("SELECT `player_ids` FROM `instance_times` WHERE `instance_id` = %i", instance->GetInstanceId());
+	if (resultPlayerIds)
+	{
+		Field* fields = resultPlayerIds->Fetch();
+		std::string playerIds = fields[0].GetString();
+		std::istringstream ss(playerIds);
+		int playerId;
+
+		while (ss >> playerId)
+		{
+			if (playerId == player->GetGUIDLow())
+			{
+				return;
+			}
+		}
+	}
+
+	CharacterDatabase.PExecute("INSERT INTO `instance_times` (`instance_id`, `map`, `difficulty`, `player_ids`) VALUES (%i, %i, %i, %i) ON DUPLICATE KEY UPDATE `player_ids` = CONCAT(player_ids, ' %i')", instance->GetInstanceId(), instance->GetId(), false, player->GetGUIDLow(), player->GetGUIDLow());
+}
+
+void InstanceData::OnPlayerDeath(Player *player)
+{
+	CharacterDatabase.PExecute("UPDATE `instance_times` SET `deaths` = `deaths`+1 WHERE instance_id = %i", instance->GetInstanceId());
 }

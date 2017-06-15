@@ -70,6 +70,30 @@ class MANGOS_DLL_SPEC InstanceData : public ZoneScript
 
         void SaveToDB();
 
+		// Called when a player successfully enters the instance.
+		virtual void OnPlayerEnter(Player *player);
+
+		//Called when a player deaths in the instance.
+		virtual void OnPlayerDeath(Player *player);
+
+		// Called when a gameobject is created
+		virtual void OnObjectCreate(GameObject*) {}
+
+		// called on creature creation
+		virtual void OnCreatureCreate(Creature* /*creature*/) {}
+
+		// called on creature enter combat
+		virtual void OnCreatureEnterCombat(Creature* /*creature*/) {}
+
+		// called on creature evade
+		virtual void OnCreatureEvade(Creature* /*creature*/) {}
+
+		// called on creature death
+		virtual void OnCreatureDeath(Creature* /*creature*/) {}
+
+		// called on creature despawn
+		virtual void OnCreatureDespawn(Creature* /*creature*/) {}
+
         //Called every map update
         void Update(uint32 /*diff*/) override {}
 

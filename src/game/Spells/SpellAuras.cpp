@@ -1333,6 +1333,8 @@ void Aura::TriggerSpell()
 							triggerTarget->CastSpell(triggerTarget, spell_id, true, nullptr, this, casterGUID);
 						return;
 					}
+					case 35515:
+						return;
 					case 36573:                             // Vision Guide
 					{
 						if (GetAuraTicks() == 10 && target->GetTypeId() == TYPEID_PLAYER)
@@ -4151,6 +4153,11 @@ void Aura::HandlePeriodicTriggerSpell(bool apply, bool /*Real*/)
                     // Cast Wrath of the Plaguebringer if not dispelled
                     target->CastSpell(target, 29214, true, nullptr, this);
                 return;
+			case 35515:                                     // Salaadin's Tesla
+				if ((m_removeMode != AURA_REMOVE_BY_STACK) && (!target->HasAura(35515)))
+					if (Creature* creature = (Creature*)target)
+					creature->AI()->SendAIEvent(AI_EVENT_CUSTOM_A, creature, creature);
+				return;
 			case 42783:                                     // Wrath of the Astrom...
 				if (m_removeMode == AURA_REMOVE_BY_EXPIRE && GetEffIndex() + 1 < MAX_EFFECT_INDEX)
 					target->CastSpell(target, GetSpellProto()->CalculateSimpleValue(SpellEffectIndex(GetEffIndex() + 1)), true);
