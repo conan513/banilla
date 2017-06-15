@@ -480,16 +480,19 @@ void Spell::EffectSchoolDMG(SpellEffectIndex effect_idx)
                 // Ferocious Bite
                 if (m_spellInfo->IsFitToFamilyMask<CF_DRUID_RIP_BITE>() && m_spellInfo->SpellVisual == 6587)
                 {
-                    // converts each extra point of energy into ($f1+$AP/630) additional damage
-                    float multiple = m_caster->GetTotalAttackPowerValue(BASE_ATTACK) / 630 + m_spellInfo->DmgMultiplier[effect_idx];
+					// ( AP * 3% * combo + energy * 2,7 + damage )
+					if (uint32 combo = ((Player*)m_caster)->GetComboPoints())
+						damage += int32(m_caster->GetTotalAttackPowerValue(BASE_ATTACK) * combo * 0.03f);
+					
 					if (m_caster->HasAura(58422)) //Feral Tenacity
 					{
-						damage += int32(m_caster->GetMaxPower(POWER_ENERGY) * multiple);
+						damage += int32(m_caster->GetMaxPower(POWER_ENERGY) * m_spellInfo->DmgMultiplier[effect_idx]);
 						m_caster->RemoveAurasDueToSpell(58422);
 					}
 					else
-						damage += int32(m_caster->GetPower(POWER_ENERGY) * multiple);
+						damage += int32(m_caster->GetPower(POWER_ENERGY) * m_spellInfo->DmgMultiplier[effect_idx]);
 
+					
                     m_caster->SetPower(POWER_ENERGY, 0);
                 }
 				// Berserk (druid)

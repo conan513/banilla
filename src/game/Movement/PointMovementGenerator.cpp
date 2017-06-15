@@ -62,9 +62,10 @@ void PointMovementGenerator<T>::Finalize(T &unit)
 }
 
 template<class T>
-void PointMovementGenerator<T>::Interrupt(T &unit)
+void PointMovementGenerator<T>::Interrupt(T& unit)
 {
-    unit.clearUnitState(UNIT_STAT_ROAMING | UNIT_STAT_ROAMING_MOVE);
+	unit.InterruptMoving();
+	unit.clearUnitState(UNIT_STAT_ROAMING | UNIT_STAT_ROAMING_MOVE);
 }
 
 template<class T>

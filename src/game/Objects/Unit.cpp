@@ -10435,6 +10435,23 @@ void Unit::StopMoving(bool force)
     DisableSpline();
 }
 
+void Unit::InterruptMoving(bool force /*=false*/)
+{
+	bool isMoving = false;
+
+	if (!movespline->Finalized())
+	{
+		Movement::Location loc = movespline->ComputePosition();
+		movespline->_Interrupt();
+		// loc.orientation may be wrong if creature shouldn't be able to turn (i.e. stunned);
+		// use current orientation instead.
+		Relocate(loc.x, loc.y, loc.z, hasUnitState(UNIT_STAT_STUNNED) ? GetOrientation() : loc.orientation);
+		isMoving = true;
+	}
+
+	StopMoving(force || isMoving);
+}
+
 void Unit::SetFleeing(bool apply, ObjectGuid casterGuid, uint32 spellID, uint32 time)
 {
     if (apply && HasAuraType(SPELL_AURA_PREVENTS_FLEEING))

@@ -258,6 +258,8 @@ void Creature::RemoveCorpse()
     if (respawnDelay)
         m_respawnTime = time(nullptr) + respawnDelay;
 
+	InterruptMoving();
+
     float x, y, z, o;
     GetRespawnCoord(x, y, z, &o);
     GetMap()->CreatureRelocation(this, x, y, z, o);

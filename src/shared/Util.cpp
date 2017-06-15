@@ -136,6 +136,16 @@ int32 rand32 ()
     return (*mtRand)->randInt ();
 }
 
+int32 irand()
+{
+	return int32 ((*mtRand)->randInt());
+}
+
+uint32 urand()
+{
+	return (*mtRand)->randInt();
+}
+
 double rand_norm(void)
 {
     return (*mtRand)->randExc ();
