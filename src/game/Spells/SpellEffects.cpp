@@ -3651,6 +3651,16 @@ void Spell::EffectHeal(SpellEffectIndex /*eff_idx*/)
 			if (!found)
 				return;
 		}
+		//Totemic Mastery
+		if (m_caster && m_caster->GetTypeId() == TYPEID_PLAYER && m_caster->HasAura(16189))
+		{
+			Aura* totemic_mastery_aura = m_caster->GetAura(53914, EFFECT_INDEX_0);
+			if (totemic_mastery_aura)
+			{				
+				addhealth *= (0.1f*totemic_mastery_aura->GetStackAmount());
+				((Player*)m_caster)->RemoveAurasDueToSpell(53914);
+			}
+		}
 
         addhealth = caster->SpellHealingBonusDone(unitTarget, m_spellInfo, addhealth, HEAL, 1, this);
         addhealth = unitTarget->SpellHealingBonusTaken(caster, m_spellInfo, addhealth, HEAL, 1, this);
@@ -6554,6 +6564,10 @@ void Spell::EffectSummonTotem(SpellEffectIndex eff_idx)
         pTotem->SetPvP(true);
 
     pTotem->Summon(m_caster);
+
+	//Totemic Mastery
+	if (m_caster && m_caster->HasAura(16189))
+		m_caster->CastSpell(m_caster, 53914, true, nullptr);
 }
 
 void Spell::EffectEnchantHeldItem(SpellEffectIndex eff_idx)
