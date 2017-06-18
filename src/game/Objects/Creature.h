@@ -78,6 +78,8 @@ enum CreatureFlagsExtra
 
 #define MAX_KILL_CREDIT 2
 #define MAX_CREATURE_MODEL 4                                // only single send to client in static data
+#define COLLISION_TIMER 500
+#define COLLISION_SPELL 55003
 
 // from `creature_template` table
 struct CreatureInfo
@@ -694,6 +696,8 @@ class MANGOS_DLL_SPEC Creature : public Unit
 
         void SendAIReaction(AiReaction reactionType);
 
+		void EscapeMeleeRange(Unit* target, float range = 15.f, uint32 time = 4000);
+		void MoveBehind(Unit* target);
         void DoFleeToGetAssistance();
         float GetFleeingSpeed() const;
         void CallForHelp(float fRadius);
@@ -862,6 +866,8 @@ class MANGOS_DLL_SPEC Creature : public Unit
 
 		void SetDisableReputationGain(bool disable) { DisableReputationGain = disable; }
 		bool IsReputationGainDisabled() { return DisableReputationGain; }
+
+		uint32 _collisionTimer;
 
     protected:
         bool MeetsSelectAttackingRequirement(Unit* pTarget, SpellEntry const* pSpellInfo, uint32 selectFlags) const;

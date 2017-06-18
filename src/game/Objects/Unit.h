@@ -1373,6 +1373,7 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
 		bool isSnared() const { return HasAuraType(SPELL_AURA_MOD_DECREASE_SPEED); }
 		bool IsImmobilized() const { return hasUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED); }
 		bool IsRooted() const { return m_movementInfo.HasMovementFlag(MOVEFLAG_ROOT); }
+		bool IsImpaired() const { return isFrozen() || IsStunned() || IsIncapacitated() || isSnared() || IsImmobilized() || IsRooted(); }
 
 		bool isAsleep() const { return HasAuraWithMechanic(MECHANIC_SLEEP); }
 		bool isSilenced()  const { return HasAuraWithMechanic(MECHANIC_SILENCE); }

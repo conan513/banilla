@@ -152,6 +152,8 @@ bool CreatureEventAI::IsTimerBasedEvent(EventAI_Type type) const
 	case EVENT_T_TARGET_MISSING_AURA:
 	case EVENT_T_RANGE:
 	case EVENT_T_ENERGY:
+	case EVENT_T_BEHIND_TARGET:
+	case EVENT_T_TARGET_IMPAIRED:
 		return true;
 	default:
 		return false;
@@ -409,6 +411,33 @@ bool CreatureEventAI::ProcessEvent(CreatureEventAIHolder& pHolder, Unit* pAction
 
 			// Repeat Timers
 			pHolder.UpdateRepeatTimer(m_creature, event.percent_range.repeatMin, event.percent_range.repeatMax);
+			break;
+		}
+		case EVENT_T_BEHIND_TARGET:
+		{
+			if (!m_creature->isInCombat() || !m_creature->getVictim())
+				return false;
+			
+			if (m_creature->getVictim()->HasInArc(M_PI_F, m_creature))
+				return false;
+
+			//Repeat Timers
+			pHolder.UpdateRepeatTimer(m_creature, event.timer.repeatMin, event.timer.repeatMax);
+			break;
+		}
+		case EVENT_T_TARGET_IMPAIRED:
+		{
+			if (!m_creature->isInCombat() || !m_creature->getVictim())
+				return false;
+
+			if (m_creature->IsImpaired())
+				return false;
+
+			if (!m_creature->getVictim()->IsImpaired())
+				return false;
+						
+			//Repeat Timers
+			pHolder.UpdateRepeatTimer(m_creature, event.timer.repeatMin, event.timer.repeatMax);
 			break;
 		}
         default:
@@ -787,7 +816,7 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
         case ACTION_T_FLEE_FOR_ASSIST:
             m_creature->DoFleeToGetAssistance();
             break;
-        case ACTION_T_QUEST_EVENT_ALL:
+		case ACTION_T_QUEST_EVENT_ALL:
             if (pActionInvoker && pActionInvoker->GetTypeId() == TYPEID_PLAYER)
                 ((Player*)pActionInvoker)->GroupEventHappens(action.quest_event_all.questId, m_creature);
             break;
@@ -1051,6 +1080,40 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
             sObjectMgr.SetSavedVariable(action.setVariable.variableEntry, action.setVariable.value, true);
             break;
         }
+		case ACTION_T_ESCAPE_MELEE:
+		{
+			Unit* target;
+
+			if (action.escape_melee.target)
+				target = GetTargetByType(action.escape_melee.target, pActionInvoker, pAIEventSender, reportTargetError);
+			else 
+				target = GetTargetByType(TARGET_T_HOSTILE, pActionInvoker, pAIEventSender, reportTargetError);
+
+			uint32 duration;
+			float range;
+
+			if (action.escape_melee.range > 0)
+				range = action.escape_melee.range;
+			else range = 15.f;
+
+			if (action.escape_melee.duration > 0)
+				duration = action.escape_melee.duration;
+			else duration = 4000;
+
+			m_creature->EscapeMeleeRange(target, range, duration);
+			break;
+		}
+		case ACTION_T_MOVE_BEHIND_TARGET:
+		{
+			Unit* target;
+			if (action.behind_target.target)
+				target = GetTargetByType(action.behind_target.target, pActionInvoker, pAIEventSender, reportTargetError);
+			else
+				target = GetTargetByType(TARGET_T_HOSTILE, pActionInvoker, pAIEventSender, reportTargetError);
+
+			m_creature->MoveBehind(target);
+			break;			
+		 }
 		default:
 			sLog.outError("CreatureEventAi::ProcessAction(): action(%u) not implemented", static_cast<uint32>(action.type));
 			break;

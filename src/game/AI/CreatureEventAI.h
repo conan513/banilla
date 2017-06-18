@@ -69,6 +69,8 @@ enum EventAI_Type
 	EVENT_T_TIMER_GENERIC = 29,                   // InitialMin, InitialMax, RepeatMin, RepeatMax
 	EVENT_T_RECEIVE_AI_EVENT = 30,                   // AIEventType, Sender-Entry, unused, unused
 	EVENT_T_ENERGY = 31,                   // EnergyMax%, EnergyMin%, RepeatMin, RepeatMax
+	EVENT_T_BEHIND_TARGET = 40,								// InitialMin, InitialMax, RepeatMin, RepeatMax
+	EVENT_T_TARGET_IMPAIRED = 41,							// 
 
     EVENT_T_END,
 };
@@ -130,6 +132,8 @@ enum EventAI_ActionType
 	ACTION_T_INTERRUPT_SPELL = 52,               // SpellType enum CurrentSpellTypes, unused, unused
     ACTION_T_SET_VARIABLE               = 53,               // VariableEntry, Value, unused
 	ACTION_T_CHANCED_TEXT = 54,               // Chance to display the text, TextId1, optionally TextId2. If more than just -TextId1 is defined, randomize. Negative values.
+	ACTION_T_ESCAPE_MELEE = 60,               // Target, Range, time (4 seconds if not time). Only usable, if target is impaired
+	ACTION_T_MOVE_BEHIND_TARGET = 61,         // Target      
     ACTION_T_END,
 };
 
@@ -482,6 +486,20 @@ struct CreatureEventAI_Action
 			uint32 chance;
 			int32 TextId[2];
 		} chanced_text;
+		//  ACTION_T_ESCAPE_MELEE                           = 60
+		struct
+		{
+			uint32 target;
+			uint32 range;
+			uint32 duration;
+		} escape_melee;
+		//  ACTION_T_MOVE_BEHIND_TARGET						= 61
+		struct
+		{
+			uint32 target;
+			uint32 unused1;
+			uint32 unused2;
+		} behind_target;
         // RAW
         struct
         {
