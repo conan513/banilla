@@ -779,6 +779,8 @@ void GameObject::SaveToDB(uint32 mapid)
     data.rotation2 = GetFloatValue(GAMEOBJECT_ROTATION + 2);
     data.rotation3 = GetFloatValue(GAMEOBJECT_ROTATION + 3);
     data.spawntimesecs = m_spawnedByDefault ? (int32)m_respawnDelayTime : -(int32)m_respawnDelayTime;
+    data.spawntimesecsmin = m_spawnedByDefault ? (int32)m_respawnDelayTime : -(int32)m_respawnDelayTime;
+    data.spawntimesecsmax = m_spawnedByDefault ? (int32)m_respawnDelayTime : -(int32)m_respawnDelayTime;
     data.animprogress = GetGoAnimProgress();
     data.go_state = GetGoState();
     data.spawnFlags = m_isActiveObject ? SPAWN_FLAG_ACTIVE : 0;
@@ -848,7 +850,21 @@ bool GameObject::LoadFromDB(uint32 guid, Map *map)
     }
     else
     {
-        if (data->spawntimesecs >= 0)
+	if (data->spawntimesecsmin >= 0)
+        {
+            m_spawnedByDefault = true;
+            m_respawnDelayTime = data->GetRandomRespawnTime();
+
+            m_respawnTime  = map->GetPersistentState()->GetGORespawnTime(GetGUIDLow());
+
+            // ready to respawn
+            if (m_respawnTime && m_respawnTime <= time(NULL))
+            {
+                m_respawnTime = 0;
+                map->GetPersistentState()->SaveGORespawnTime(GetGUIDLow(), 0);
+            }
+        }
+        else if (data->spawntimesecs >= 0)
         {
             m_spawnedByDefault = true;
             m_respawnDelayTime = data->spawntimesecs;
@@ -865,7 +881,7 @@ bool GameObject::LoadFromDB(uint32 guid, Map *map)
         else
         {
             m_spawnedByDefault = false;
-            m_respawnDelayTime = -data->spawntimesecs;
+            m_respawnDelayTime = -data->GetRandomRespawnTime();
             m_respawnTime = 0;
         }
     }
@@ -2221,7 +2237,7 @@ void GameObject::Despawn()
 {
     SendObjectDeSpawnAnim(GetObjectGuid());
     if (GameObjectData const* data = GetGOData())
-        SetRespawnTime(data->spawntimesecs);
+        SetRespawnTime(GetRandomRespawnTime());
     else
         AddObjectToRemoveList();
 }

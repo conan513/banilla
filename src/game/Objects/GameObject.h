@@ -26,6 +26,7 @@
 #include "LootMgr.h"
 #include "Database/DatabaseEnv.h"
 #include "Group.h"
+#include "Util.h"
 #include <mutex>
 
 // GCC have alternative #pragma pack(N) syntax and old gcc version not support pack(push,N), also any gcc version not support it at some platform
@@ -509,12 +510,21 @@ struct GameObjectData
     float rotation2;
     float rotation3;
     int32  spawntimesecs;
+    int32 spawntimesecsmin;
+    int32 spawntimesecsmax;
     uint32 animprogress;
     GOState go_state;
     uint32 spawnFlags;
 
     uint32 instanciatedContinentInstanceId;
     uint32 ComputeRespawnDelay(uint32 baseDelay) const;
+    uint32 GetRandomRespawnTime() const 
+   { 
+	if ((spawntimesecsmin == 0) && (spawntimesecsmax == 0))
+	   return spawntimesecs;
+    	else
+    	    return urand(spawntimesecsmin, spawntimesecsmax);
+   }
 };
 
 // For containers:  [GO_NOT_READY]->GO_READY (close)->GO_ACTIVATED (open) ->GO_JUST_DEACTIVATED->GO_READY        -> ...

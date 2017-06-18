@@ -1328,6 +1328,8 @@ void Creature::SaveToDB(uint32 mapid)
     data.posZ = GetPositionZ();
     data.orientation = GetOrientation();
     data.spawntimesecs = m_respawnDelay;
+    data.spawntimesecsmin = m_respawnDelay;
+    data.spawntimesecsmax = m_respawnDelay;
     // prevent add data integrity problems
     data.spawndist = GetDefaultMovementType() == IDLE_MOTION_TYPE ? 0 : m_respawnradius;
     data.currentwaypoint = 0;
@@ -1355,7 +1357,9 @@ void Creature::SaveToDB(uint32 mapid)
        << GetPositionY() << ","
        << GetPositionZ() << ","
        << GetOrientation() << ","
-       << m_respawnDelay << ","                            //respawn time
+       << m_respawnDelay << ","  
+       << spawntimesecsmin << ","                     // respawn time minimum
+       << spawntimesecsmax << ","                     // respawn time maximum                          //respawn time
        << (float) m_respawnradius << ","                   //spawn distance (float)
        << (uint32)(0) << ","                               //currentwaypoint
        << GetHealth() << ","                               //curhealth
@@ -1561,8 +1565,9 @@ bool Creature::LoadFromDB(uint32 guidlow, Map *map)
         return false;
 
     m_respawnradius = data->spawndist;
+    
+    m_respawnDelay = data->GetRandomRespawnTime();
 
-    m_respawnDelay = data->spawntimesecs;
     m_isDeadByDefault = data->is_dead;
     m_deathState = m_isDeadByDefault ? DEAD : ALIVE;
     m_isActiveObject = data->spawnFlags & SPAWN_FLAG_ACTIVE;
@@ -1745,6 +1750,10 @@ void Creature::SetDeathState(DeathState s)
         auto data = sObjectMgr.GetCreatureData(GetGUIDLow());
 
         uint32 respawnDelay = m_respawnDelay;
+
+	if(CreatureData const* data = sObjectMgr.GetCreatureData(GetObjectGuid().GetCounter()))
+             m_respawnDelay = data->GetRandomRespawnTime();
+
         ApplyDynamicRespawnDelay(respawnDelay, data);
         m_corpseDecayTimer = m_corpseDelay * IN_MILLISECONDS; // the max/default time for corpse decay (before creature is looted/AllLootRemovedFromCorpse() is called)
 

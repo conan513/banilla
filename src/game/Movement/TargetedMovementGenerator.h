@@ -59,6 +59,7 @@ class MANGOS_DLL_SPEC TargetedMovementGeneratorMedium
 
         void unitSpeedChanged() { i_recalculateTravel=true; }
         void UpdateFinalDistance(float fDistance);
+	virtual float GetDynamicTargetDistance(T& /*owner*/, bool /*forRangeCheck*/) const { return i_offset; }
 
     protected:
         void _setTargetLocation(T &);
@@ -81,8 +82,8 @@ class MANGOS_DLL_SPEC ChaseMovementGenerator : public TargetedMovementGeneratorM
     public:
         explicit ChaseMovementGenerator(Unit &target)
             : TargetedMovementGeneratorMedium<T, ChaseMovementGenerator<T> >(target) {}
-        ChaseMovementGenerator(Unit &target, float offset, float angle)
-            : TargetedMovementGeneratorMedium<T, ChaseMovementGenerator<T> >(target, offset, angle) {}
+        ChaseMovementGenerator(Unit &target, float offset, float angle, bool moveFurther = true)
+            : TargetedMovementGeneratorMedium<T, ChaseMovementGenerator<T> >(target, offset, angle), m_moveFurther(moveFurther) {}
         ~ChaseMovementGenerator() {}
 
         MovementGeneratorType GetMovementGeneratorType() const { return CHASE_MOTION_TYPE; }
@@ -98,6 +99,12 @@ class MANGOS_DLL_SPEC ChaseMovementGenerator : public TargetedMovementGeneratorM
         bool EnableWalking() const { return false;}
         bool _lostTarget(T &u) const { return u.getVictim() != this->GetTarget(); }
         void _reachTarget(T &);
+
+  protected:
+        float GetDynamicTargetDistance(T& owner, bool forRangeCheck) const override;
+
+      private:
+         bool m_moveFurther;
 };
 
 template<class T>
@@ -125,6 +132,9 @@ class MANGOS_DLL_SPEC FollowMovementGenerator : public TargetedMovementGenerator
         void _reachTarget(T &) {}
     private:
         void _updateSpeed(T &u);
+
+    protected:
+        float GetDynamicTargetDistance(T& owner, bool forRangeCheck) const override;
 };
 
 #endif

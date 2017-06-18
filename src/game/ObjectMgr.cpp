@@ -1388,11 +1388,11 @@ void ObjectMgr::LoadCreatures(bool reload)
     uint32 count = 0;
     //                                                0                       1   2    3
     QueryResult *result = WorldDatabase.Query("SELECT creature.guid, creature.id, map, modelid,"
-                          //   4             5           6           7           8            9              10         11
-                          "equipment_id, position_x, position_y, position_z, orientation, spawntimesecs, spawndist, currentwaypoint,"
-                          //   12         13       14          15            16
-                          "curhealth, curmana, DeathState, MovementType, event,"
-                          //   17                        18                                 19
+                          //   4             5           6           7           8            9                10            11
+                          "equipment_id, position_x, position_y, position_z, orientation, spawntimesecs, spawntimesecsmin, spawntimesecsmax,"
+                          //   12         13       	14          15        16          17         18
+                          "spawndist, currentwaypoint,curhealth, curmana, DeathState, MovementType, event,"
+                          //   19                        20                                 21
                           "pool_creature.pool_entry, pool_creature_template.pool_entry, spawnFlags "
                           "FROM creature "
                           "LEFT OUTER JOIN game_event_creature ON creature.guid = game_event_creature.guid "
@@ -1442,17 +1442,19 @@ void ObjectMgr::LoadCreatures(bool reload)
         data.posZ               = fields[ 7].GetFloat();
         data.orientation        = fields[ 8].GetFloat();
         data.spawntimesecs      = fields[ 9].GetUInt32();
-        data.spawndist          = fields[10].GetFloat();
-        data.currentwaypoint    = fields[11].GetUInt32();
-        data.curhealth          = fields[12].GetUInt32();
-        data.curmana            = fields[13].GetUInt32();
-        data.is_dead            = fields[14].GetBool();
-        data.movementType       = fields[15].GetUInt8();
-        data.spawnFlags         = fields[19].GetUInt32();
+        data.spawntimesecsmin   = fields[10].GetUInt32();
+        data.spawntimesecsmax   = fields[11].GetUInt32();
+        data.spawndist          = fields[12].GetFloat();
+        data.currentwaypoint    = fields[13].GetUInt32();
+        data.curhealth          = fields[14].GetUInt32();
+        data.curmana            = fields[15].GetUInt32();
+        data.is_dead            = fields[16].GetBool();
+        data.movementType       = fields[17].GetUInt8();
+        data.spawnFlags         = fields[21].GetUInt32();
         data.instanciatedContinentInstanceId = sMapMgr.GetContinentInstanceId(data.mapid, data.posX, data.posY);
-        int16 gameEvent         = fields[16].GetInt16();
-        int16 GuidPoolId        = fields[17].GetInt16();
-        int16 EntryPoolId       = fields[18].GetInt16();
+        int16 gameEvent         = fields[18].GetInt16();
+        int16 GuidPoolId        = fields[19].GetInt16();
+        int16 EntryPoolId       = fields[20].GetInt16();
 
         MapEntry const* mapEntry = sMapStorage.LookupEntry<MapEntry>(data.mapid);
         if (!mapEntry)
@@ -1572,10 +1574,10 @@ void ObjectMgr::LoadGameobjects(bool reload)
 
     //                                                0                           1   2    3           4           5           6
     QueryResult *result = WorldDatabase.Query("SELECT gameobject.guid, gameobject.id, map, position_x, position_y, position_z, orientation,"
-                          //   7          8          9          10         11             12            13     14
-                          "rotation0, rotation1, rotation2, rotation3, spawntimesecs, animprogress, state, event, "
-                          //   15                          16                                   17
-                          "pool_gameobject.pool_entry, pool_gameobject_template.pool_entry, spawnFlags "
+                          //   7          8          9          10         11             12                13                14
+                          "rotation0, rotation1, rotation2, rotation3, spawntimesecs, spawntimesecsmin, spawntimesecsmax,animprogress, "
+                          //   15     16                  17                                  18                19
+                          ", state, event, pool_gameobject.pool_entry, pool_gameobject_template.pool_entry, spawnFlags "
                           "FROM gameobject "
                           "LEFT OUTER JOIN game_event_gameobject ON gameobject.guid = game_event_gameobject.guid "
                           "LEFT OUTER JOIN pool_gameobject ON gameobject.guid = pool_gameobject.guid "
@@ -1630,7 +1632,9 @@ void ObjectMgr::LoadGameobjects(bool reload)
         data.rotation2      = fields[ 9].GetFloat();
         data.rotation3      = fields[10].GetFloat();
         data.spawntimesecs  = fields[11].GetInt32();
-        data.spawnFlags     = fields[17].GetUInt32();
+        data.spawntimesecsmin = fields[12].GetInt32();
+        data.spawntimesecsmax = fields[13].GetInt32();
+        data.spawnFlags     = fields[19].GetUInt32();
         data.instanciatedContinentInstanceId = sMapMgr.GetContinentInstanceId(data.mapid, data.posX, data.posY);
 
         MapEntry const* mapEntry = sMapStorage.LookupEntry<MapEntry>(data.mapid);
@@ -1640,12 +1644,14 @@ void ObjectMgr::LoadGameobjects(bool reload)
             continue;
         }
 
-        if (data.spawntimesecs == 0 && gInfo->IsDespawnAtAction())
+        if (data.spawntimesecs == 0 && data.spawntimesecsmin == 0 && gInfo->IsDespawnAtAction())
+            sLog.outErrorDb("Table `gameobject` have gameobject (GUID: %u Entry: %u) with `spawntimesecs` (0) value, but gameobejct marked as despawnable at action.", guid, data.id);
+	else if (data.spawntimesecs == 0 && gInfo->IsDespawnAtAction())
             sLog.outErrorDb("Table `gameobject` have gameobject (GUID: %u Entry: %u) with `spawntimesecs` (0) value, but gameobejct marked as despawnable at action.", guid, data.id);
 
-        data.animprogress   = fields[12].GetUInt32();
+        data.animprogress   = fields[14].GetUInt32();
 
-        uint32 go_state     = fields[13].GetUInt32();
+        uint32 go_state     = fields[15].GetUInt32();
         if (go_state >= MAX_GO_STATE)
         {
             sLog.outErrorDb("Table `gameobject` have gameobject (GUID: %u Entry: %u) with invalid `state` (%u) value, skip", guid, data.id, go_state);
@@ -1653,9 +1659,9 @@ void ObjectMgr::LoadGameobjects(bool reload)
         }
         data.go_state       = GOState(go_state);
 
-        int16 gameEvent     = fields[14].GetInt16();
-        int16 GuidPoolId    = fields[15].GetInt16();
-        int16 EntryPoolId   = fields[16].GetInt16();
+        int16 gameEvent     = fields[16].GetInt16();
+        int16 GuidPoolId    = fields[17].GetInt16();
+        int16 EntryPoolId   = fields[18].GetInt16();
 
         if (data.rotation0 < -1.0f || data.rotation0 > 1.0f)
         {

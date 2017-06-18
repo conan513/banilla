@@ -365,6 +365,31 @@ void ChaseMovementGenerator<T>::Reset(T &owner)
     Initialize(owner);
 }
 
+// Chase-Movement: These factors depend on combat-reach distance
+#define CHASE_DEFAULT_RANGE_FACTOR                        0.5f
+#define CHASE_RECHASE_RANGE_FACTOR                        0.75f
+#define CHASE_MOVE_CLOSER_FACTOR                          0.875f
+
+template<class T>
+float ChaseMovementGenerator<T>::GetDynamicTargetDistance(T& owner, bool forRangeCheck) const
+{
+    if (m_moveFurther)
+    {
+        if (!forRangeCheck)
+            return this->i_offset + CHASE_DEFAULT_RANGE_FACTOR * this->i_target->GetCombatReach(&owner);
+
+        return CHASE_RECHASE_RANGE_FACTOR * this->i_target->GetCombatReach(&owner) - this->i_target->GetObjectBoundingRadius();
+    }
+    else
+    {
+        if (!forRangeCheck) // move slightly closer than setting to prevent jittery movement
+            return this->i_offset * CHASE_MOVE_CLOSER_FACTOR + CHASE_DEFAULT_RANGE_FACTOR * this->i_target->GetCombatReach(&owner);
+
+        // check against actual max range setting
+        return this->i_offset + CHASE_RECHASE_RANGE_FACTOR * this->i_target->GetCombatReach(&owner) - this->i_target->GetObjectBoundingRadius(); 
+    }
+}
+
 template<class T>
 void ChaseMovementGenerator<T>::MovementInform(T& /*unit*/)
 {
@@ -464,6 +489,29 @@ void FollowMovementGenerator<T>::Reset(T &owner)
 {
     Initialize(owner);
 }
+
+// This factor defines how much of the bounding-radius (as measurement of size) will be used for recalculating a new following position
+//   The smaller, the more micro movement, the bigger, possibly no proper movement updates
+#define FOLLOW_RECALCULATE_FACTOR                         1.0f
+// This factor defines when the distance of a follower will have impact onto following-position updates
+#define FOLLOW_DIST_GAP_FOR_DIST_FACTOR                   3.0f
+// This factor defines how much of the follow-distance will be used as sloppyness value (if the above distance is exceeded)
+#define FOLLOW_DIST_RECALCULATE_FACTOR                    1.0f
+
+template<class T>
+float FollowMovementGenerator<T>::GetDynamicTargetDistance(T& owner, bool forRangeCheck) const
+{
+    if (!forRangeCheck)
+        return this->i_offset + owner.GetObjectBoundingRadius() + this->i_target->GetObjectBoundingRadius();
+
+    float allowed_dist = sWorld.getConfig(CONFIG_FLOAT_RATE_TARGET_POS_RECALCULATION_RANGE) - this->i_target->GetObjectBoundingRadius();
+    allowed_dist += FOLLOW_RECALCULATE_FACTOR * (owner.GetObjectBoundingRadius() + this->i_target->GetObjectBoundingRadius());
+    if (this->i_offset > FOLLOW_DIST_GAP_FOR_DIST_FACTOR)
+        allowed_dist += FOLLOW_DIST_RECALCULATE_FACTOR * this->i_offset;
+
+    return allowed_dist;
+}
+
 
 template<class T>
 void FollowMovementGenerator<T>::MovementInform(T& /*unit*/)

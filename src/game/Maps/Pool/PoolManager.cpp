@@ -468,6 +468,7 @@ void PoolGroup<Creature>::Spawn1Object(MapPersistentState& mapState, PoolObject*
                 // if new spawn replaces a just despawned creature, not instantly spawn but set respawn timer
                 if (!instantly)
                 {
+   		    pCreature->SetRespawnDelay(data->GetRandomRespawnTime());
                     pCreature->SetRespawnTime(pCreature->GetRespawnDelay());
                     if (sWorld.getConfig(CONFIG_BOOL_SAVE_RESPAWN_TIME_IMMEDIATELY) || pCreature->IsWorldBoss())
                         pCreature->SaveRespawnTime();
@@ -477,7 +478,7 @@ void PoolGroup<Creature>::Spawn1Object(MapPersistentState& mapState, PoolObject*
         }
         // for not loaded grid just update respawn time (avoid work for instances until implemented support)
         else if (!instantly)
-            mapState.SaveCreatureRespawnTime(obj->guid, time(NULL) + data->spawntimesecs);
+            mapState.SaveCreatureRespawnTime(obj->guid, time(NULL) + data->GetRandomRespawnTime());
     }
 }
 
@@ -511,7 +512,7 @@ void PoolGroup<GameObject>::Spawn1Object(MapPersistentState& mapState, PoolObjec
                     // if new spawn replaces a just despawned object, not instantly spawn but set respawn timer
                     if (!instantly)
                     {
-                        uint32 originalRespawnDelay = pGameobject->GetRespawnDelay();
+                        uint32 originalRespawnDelay = data->GetRandomRespawnTime())
                         uint32 delay = data->ComputeRespawnDelay(originalRespawnDelay);
                         pGameobject->SetRespawnTime(delay);
                         pGameobject->SetRespawnDelay(originalRespawnDelay);
@@ -527,7 +528,7 @@ void PoolGroup<GameObject>::Spawn1Object(MapPersistentState& mapState, PoolObjec
         {
             // for spawned by default object only
             if (data->spawntimesecs >= 0)
-                mapState.SaveGORespawnTime(obj->guid, time(NULL) + data->ComputeRespawnDelay(data->spawntimesecs));
+                mapState.SaveGORespawnTime(obj->guid, time(NULL) + data->ComputeRespawnDelay(data->GetRandomRespawnTime())));
         }
     }
 }
