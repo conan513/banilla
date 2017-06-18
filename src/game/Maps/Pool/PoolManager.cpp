@@ -512,7 +512,7 @@ void PoolGroup<GameObject>::Spawn1Object(MapPersistentState& mapState, PoolObjec
                     // if new spawn replaces a just despawned object, not instantly spawn but set respawn timer
                     if (!instantly)
                     {
-                        uint32 originalRespawnDelay = data->GetRandomRespawnTime())
+						uint32 originalRespawnDelay = data->GetRandomRespawnTime();
                         uint32 delay = data->ComputeRespawnDelay(originalRespawnDelay);
                         pGameobject->SetRespawnTime(delay);
                         pGameobject->SetRespawnDelay(originalRespawnDelay);
@@ -528,7 +528,7 @@ void PoolGroup<GameObject>::Spawn1Object(MapPersistentState& mapState, PoolObjec
         {
             // for spawned by default object only
             if (data->spawntimesecs >= 0)
-                mapState.SaveGORespawnTime(obj->guid, time(NULL) + data->ComputeRespawnDelay(data->GetRandomRespawnTime())));
+                mapState.SaveGORespawnTime(obj->guid, time(NULL) + data->ComputeRespawnDelay(data->GetRandomRespawnTime()));
         }
     }
 }

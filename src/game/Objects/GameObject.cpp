@@ -2237,7 +2237,7 @@ void GameObject::Despawn()
 {
     SendObjectDeSpawnAnim(GetObjectGuid());
     if (GameObjectData const* data = GetGOData())
-        SetRespawnTime(GetRandomRespawnTime());
+        SetRespawnTime(data->GetRandomRespawnTime());
     else
         AddObjectToRemoveList();
 }

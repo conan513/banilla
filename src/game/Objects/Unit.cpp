@@ -10313,7 +10313,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* pTarget, uint32 procFlag, 
             continue;
 
         // skip deleted auras (possible at recursive triggered call
-        if (itr->second->IsDeleted())
+        if (itr->second->GetState() != SPELLAURAHOLDER_STATE_READY || itr->second->IsDeleted())
             continue;
 
         // Aura that applies a modifier with charges. Gere? otherwise.

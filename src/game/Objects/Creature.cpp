@@ -1358,8 +1358,8 @@ void Creature::SaveToDB(uint32 mapid)
        << GetPositionZ() << ","
        << GetOrientation() << ","
        << m_respawnDelay << ","  
-       << spawntimesecsmin << ","                     // respawn time minimum
-       << spawntimesecsmax << ","                     // respawn time maximum                          //respawn time
+       << data.spawntimesecsmin << ","                     // respawn time minimum
+       << data.spawntimesecsmax << ","                     // respawn time maximum                          //respawn time
        << (float) m_respawnradius << ","                   //spawn distance (float)
        << (uint32)(0) << ","                               //currentwaypoint
        << GetHealth() << ","                               //curhealth

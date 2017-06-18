@@ -752,7 +752,8 @@ void AreaAura::Update(uint32 diff)
                         holder->SetInUse(false);
                     }
                     else
-                        (*tIter)->AddSpellAuraHolder(holder);
+                        if ((*tIter)->AddSpellAuraHolder(holder))
+							holder->SetState(SPELLAURAHOLDER_STATE_READY);
                 }
             }
         }
@@ -6434,7 +6435,7 @@ SpellAuraHolder::SpellAuraHolder(SpellEntry const* spellproto, Unit *target, Wor
     m_spellProto(spellproto), m_target(target), m_castItemGuid(castItem ? castItem->GetObjectGuid() : ObjectGuid()),
     m_auraSlot(MAX_AURAS), m_auraLevel(1), m_procCharges(0),
     m_stackAmount(1), m_removeMode(AURA_REMOVE_BY_DEFAULT), m_AuraDRGroup(DIMINISHING_NONE), m_timeCla(1000),
-    m_permanent(false), m_isRemovedOnShapeLost(true), m_deleted(false), m_in_use(0),
+    m_permanent(false), m_isRemovedOnShapeLost(true), m_deleted(false), m_in_use(0), m_spellAuraHolderState(SPELLAURAHOLDER_STATE_CREATED),
     m_debuffLimitAffected(false), m_debuffLimitScore(0), _heartBeatRandValue(0), _pveHeartBeatData(nullptr),
     spellFirstHitAttackerProcFlags(0), spellFirstHitTargetProcFlags(0), m_spellTriggered(false)
 {
