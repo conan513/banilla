@@ -3530,6 +3530,7 @@ void Spell::cast(bool skipCheck)
         // Nostalrius - compute power cost once again at cast finished
         // (in case of mana reduction buff proc while casting)
         m_powerCost = CalculatePowerCost(m_spellInfo, m_caster, this, m_CastItem);
+
         castResult = CheckPower();
         if (castResult != SPELL_CAST_OK)
         {
@@ -4890,9 +4891,9 @@ void Spell::TakePower()
 	//if (hit || m_spellInfo->AttributesEx & SPELL_ATTR_EX_REQ_TARGET_COMBO_POINTS || m_spellInfo->AttributesEx & SPELL_ATTR_EX_REQ_COMBO_POINTS)
 	//	m_caster->ModifyPower(powerType, -(int32)m_powerCost);
 	//else
-	m_caster->ModifyPower(powerType, -(int32)m_powerCost / 5);
+	//m_caster->ModifyPower(powerType, -(int32)m_powerCost / 5);
 
-  //  m_caster->ModifyPower(powerType, -(int32)m_powerCost);
+    m_caster->ModifyPower(powerType, -(int32)m_powerCost);
 
     // Set the five second timer
     if (powerType == POWER_MANA && m_powerCost > 0)

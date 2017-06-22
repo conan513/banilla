@@ -1326,7 +1326,7 @@ void Unit::CastSpell(Unit* Victim, SpellEntry const *spellInfo, bool triggered, 
     if (spellInfo->Targets & TARGET_FLAG_SOURCE_LOCATION)
         if (WorldObject* caster = spell->GetCastingObject())
             targets.setSource(caster->GetPositionX(), caster->GetPositionY(), caster->GetPositionZ());
-
+	
     spell->SetCastItem(castItem);
 	spell->prepare(std::move(targets), triggeredByAura);
 }
@@ -2111,7 +2111,7 @@ static ResistanceValues resistValues[] =
     {1, 13, 41, 35, 10, 40}, // 160
     {1, 16, 45, 30, 8, 43}, // 170
     {1, 18, 48, 26, 7, 45}, // 180
-    {2, 20, 48, 24, 6, 43}, // 190
+    {2, 20, 48, 24, 6, 48}, // 190
     {4, 23, 48, 21, 4, 50}, // 200
     {5, 25, 47, 19, 3, 53}, // 210
     {7, 28, 45, 17, 2, 55}, // 220

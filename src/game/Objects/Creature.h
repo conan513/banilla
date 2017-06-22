@@ -78,7 +78,7 @@ enum CreatureFlagsExtra
 
 #define MAX_KILL_CREDIT 2
 #define MAX_CREATURE_MODEL 4                                // only single send to client in static data
-#define COLLISION_TIMER 500
+#define COLLISION_TIMER 1000
 #define COLLISION_SPELL 55003
 
 // from `creature_template` table
@@ -575,6 +575,9 @@ class MANGOS_DLL_SPEC Creature : public Unit
             if(IsPet())
                 return false;
 
+			if (IsPlayer())
+				return false;
+
 			if (!GetCreatureInfo())
 				return false;
 
@@ -585,6 +588,9 @@ class MANGOS_DLL_SPEC Creature : public Unit
 		bool IsRare() const
 		{
 			if (IsPet())
+				return false;
+
+			if (IsPlayer())
 				return false;
 
 			if (!GetCreatureInfo())
@@ -598,6 +604,10 @@ class MANGOS_DLL_SPEC Creature : public Unit
         {
             if(IsPet())
                 return false;
+
+			if (IsPlayer())
+				return false;
+
 			if (!GetCreatureInfo())
 				return false;
 
@@ -649,7 +659,7 @@ class MANGOS_DLL_SPEC Creature : public Unit
         CreatureDataAddon const* GetCreatureAddon() const;
         CreatureData const* GetCreatureData() const;
 
-        static uint32 ChooseDisplayId(const CreatureInfo *cinfo, const CreatureData *data = nullptr, GameEventCreatureData const* eventData = nullptr);
+		static uint32 ChooseDisplayId(const CreatureInfo *cinfo, const CreatureData *data = nullptr, GameEventCreatureData const* eventData = nullptr);
 
         std::string GetAIName() const;
         std::string GetScriptName() const;
@@ -868,7 +878,7 @@ class MANGOS_DLL_SPEC Creature : public Unit
 		bool IsReputationGainDisabled() { return DisableReputationGain; }
 
 		uint32 _collisionTimer;
-
+		uint32 GetCollisionSpell() { return collision_spell;}
     protected:
         bool MeetsSelectAttackingRequirement(Unit* pTarget, SpellEntry const* pSpellInfo, uint32 selectFlags) const;
 
@@ -939,7 +949,8 @@ class MANGOS_DLL_SPEC Creature : public Unit
 		bool DisableReputationGain;
         uint32 _playerDamageTaken;
         uint32 _nonPlayerDamageTaken;
-		Unit* m_attacker;
+		Unit* m_attacker;		
+		uint32 collision_spell;
     private:
         GridReference<Creature> m_gridRef;
         CreatureInfo const* m_creatureInfo;

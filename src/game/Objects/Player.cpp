@@ -1276,6 +1276,9 @@ void Player::Update(uint32 update_diff, uint32 p_time)
 
 	if (isAlive())
 	{
+		m_regenTimer -= update_diff;
+		RegenerateAll();
+
 		//custom
 		if (sWorld.getConfig(CONFIG_BOOL_CUSTOM_RULES))
 		{
@@ -1465,9 +1468,6 @@ void Player::Update(uint32 update_diff, uint32 p_time)
 			}
 		}
 		//Custom
-
-        m_regenTimer -= update_diff;
-        RegenerateAll();
     }
     else
     {
@@ -2536,6 +2536,9 @@ void Player::Regenerate(Powers power)
             if ((*i)->GetModifier()->m_miscvalue == int32(power))
                 //addvalue *= ((*i)->GetModifier()->m_amount + 100) / 100.0f; 
 				addvalue *= ((*i)->GetModifierAmount(getLevel()) + 100) / 100.0f;
+
+	//	sLog.outError("Regenerate '%s' [GUID: %u], power:%u, value:%u)",
+	//		GetName(), GetGUIDLow(), power, addvalue);
     }
 
     if (power != POWER_RAGE)
@@ -2551,6 +2554,7 @@ void Player::Regenerate(Powers power)
         else
             curValue -= uint32(addvalue);
     }
+
     SetPower(power, curValue);
 }
 
@@ -2571,7 +2575,12 @@ void Player::RegenerateHealth()
     // normal regen case (maybe partly in combat case)
     else if (!isInCombat() || HasAuraType(SPELL_AURA_MOD_REGEN_DURING_COMBAT))
     {
-        addvalue = OCTRegenHPPerSpirit() * HealthIncreaseRate;
+		//Sturdy Complexion
+		if (HasAura(54708))
+			addvalue = OCTRegenHPPerSpirit() * HealthIncreaseRate * 1.25f;
+		else
+			addvalue = OCTRegenHPPerSpirit() * HealthIncreaseRate;
+
         if (!isInCombat())
         {
             AuraList const& mModHealthRegenPct = GetAurasByType(SPELL_AURA_MOD_HEALTH_REGEN_PERCENT);
@@ -2579,7 +2588,7 @@ void Player::RegenerateHealth()
                 addvalue *= (100.0f + (*i)->GetModifier()->m_amount) / 100.0f;
         }
         else if (HasAuraType(SPELL_AURA_MOD_REGEN_DURING_COMBAT))
-            addvalue *= GetTotalAuraModifier(SPELL_AURA_MOD_REGEN_DURING_COMBAT) / 100.0f;
+			addvalue *= GetTotalAuraModifier(SPELL_AURA_MOD_REGEN_DURING_COMBAT) / 100.0f;
 
         if (!IsStandState())
             addvalue *= 1.5;
@@ -2588,6 +2597,7 @@ void Player::RegenerateHealth()
     // always regeneration bonus (including combat)
     // This function is called every 2 seconds.
     addvalue += HealthIncreaseRate * 2.0f * (GetTotalAuraModifier(SPELL_AURA_MOD_HEALTH_REGEN_IN_COMBAT) / 5.0f);
+
 
     // Health fractions get carried to the next tick
     addvalue += m_carryHealthRegen;
@@ -5352,7 +5362,8 @@ float Player::OCTRegenHPPerSpirit()
             regen = (Spirit * 0.15 + 1.4);
             break;
         case CLASS_ROGUE:
-            regen = (Spirit * 0.84 - 13);
+            //regen = (Spirit * 0.84 - 13);
+			regen = (Spirit * 0.84 - 6);
             break;
         case CLASS_SHAMAN:
             regen = (Spirit * 0.28 - 3.6);
@@ -5361,7 +5372,8 @@ float Player::OCTRegenHPPerSpirit()
             regen = (Spirit * 0.12 + 1.5);
             break;
         case CLASS_WARRIOR:
-            regen = (Spirit * 1.26 - 22.6);
+   //         regen = (Spirit * 1.26 - 22.6);
+			regen = (Spirit * 1.26 - 10.6);
             break;
     }
 

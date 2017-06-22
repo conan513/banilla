@@ -352,6 +352,53 @@ bool Creature::InitEntry(uint32 Entry, Team team, CreatureData const* data /*=NU
     UpdateSpeed(MOVE_RUN,  false);
     SetFly(CanFly());
 
+	//Collision data
+
+	if (GetCreatureInfo()->type == CREATURE_TYPE_CRITTER)
+		collision_spell = 0;
+	else if (minfo->bounding_radius <= 0.5f)
+		collision_spell = 55900;
+	else if (minfo->bounding_radius <= 1.f)
+		collision_spell = 55901;
+	else if (minfo->bounding_radius <= 1.5f)
+		collision_spell = 55902;
+	else if (minfo->bounding_radius <= 2.f)
+		collision_spell = 55903;
+	else if (minfo->bounding_radius <= 2.5f)
+		collision_spell = 55904;
+	else if (minfo->bounding_radius <= 3.f)
+		collision_spell = 55905;
+	else if (minfo->bounding_radius <= 3.5f)
+		collision_spell = 55906;
+	else if (minfo->bounding_radius <= 4.f)
+		collision_spell = 55907;
+	else if (minfo->bounding_radius <= 4.5f)
+		collision_spell = 55908;
+	else if (minfo->bounding_radius <= 5.f)
+		collision_spell = 55909;
+	else if (minfo->bounding_radius <= 6.f)
+		collision_spell = 55910;
+	else if (minfo->bounding_radius <= 7.f)
+		collision_spell = 55911;
+	else if (minfo->bounding_radius <= 8.f)
+		collision_spell = 55912;
+	else if (minfo->bounding_radius <= 9.f)
+		collision_spell = 55913;
+	else if (minfo->bounding_radius <= 10.f)
+		collision_spell = 55914;
+	else if (minfo->bounding_radius <= 11.f)
+		collision_spell = 55915;
+	else if (minfo->bounding_radius <= 12.f)
+		collision_spell = 55916;
+	else if (minfo->bounding_radius <= 13.f)
+		collision_spell = 55917;
+	else if (minfo->bounding_radius <= 14.f)
+		collision_spell = 55918;
+	else if (minfo->bounding_radius <= 15.f)
+		collision_spell = 55919;
+	else 
+		collision_spell = 55920;
+	
     // checked at loading
     m_defaultMovementType = MovementGeneratorType(cinfo->MovementType);
 
@@ -729,7 +776,9 @@ void Creature::Update(uint32 update_diff, uint32 diff)
 			if (_collisionTimer <= update_diff)
 			{
 				_collisionTimer = COLLISION_TIMER;
-				CastSpell(this, COLLISION_SPELL, false);
+				uint32 collisionspell = GetCollisionSpell();
+				if (collisionspell)
+					CastSpell(this, collisionspell, false);
 			}
 			else
 				_collisionTimer -= update_diff;
