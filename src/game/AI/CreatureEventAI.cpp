@@ -1100,18 +1100,31 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
 				duration = action.escape_melee.duration;
 			else duration = 4000;
 
-			m_creature->EscapeMeleeRange(target, range, duration);
+			if (target)
+			{
+				sLog.outError("CreatureEventAi::action(%u) creature %s [GUID: %u] escape from %s [GUID: %u]", static_cast<uint32>(action.type)),
+					m_creature->GetName(), m_creature->GetGUIDLow(), target->GetName(), target->GetGUIDLow();
+
+				m_creature->EscapeMeleeRange(target, range, duration);
+			}
 			break;
 		}
 		case ACTION_T_MOVE_BEHIND_TARGET:
-		{
+		{			
+				
 			Unit* target;
 			if (action.behind_target.target)
 				target = GetTargetByType(action.behind_target.target, pActionInvoker, pAIEventSender, reportTargetError);
 			else
 				target = GetTargetByType(TARGET_T_HOSTILE, pActionInvoker, pAIEventSender, reportTargetError);
 
-			m_creature->MoveBehind(target);
+			if (target)
+			{
+				sLog.outError("CreatureEventAi::action(%u) creature %s [GUID: %u] move behind %s [GUID: %u]", static_cast<uint32>(action.type)),
+					m_creature->GetName(), m_creature->GetGUIDLow(), target->GetName(), target->GetGUIDLow();
+
+				m_creature->MoveBehind(target);
+			}
 			break;			
 		 }
 		default:
