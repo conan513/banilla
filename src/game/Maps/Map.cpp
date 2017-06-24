@@ -1016,7 +1016,8 @@ void Map::Remove(Player *player, bool remove)
     if (p.x_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP || p.y_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP)
     {
         // invalid coordinates
-        player->ResetMap();
+		if (!player->GetPlayerbotAI())
+			player->ResetMap();
 
         if (remove)
             DeleteFromWorld(player);
@@ -1050,7 +1051,8 @@ void Map::Remove(Player *player, bool remove)
         if (Player* other = GetPlayer(*it))
             other->m_broadcaster->RemoveListener(player);
 
-    player->ResetMap();
+	if (!player->GetPlayerbotAI())
+		player->ResetMap();
     if (remove)
         DeleteFromWorld(player);
 }

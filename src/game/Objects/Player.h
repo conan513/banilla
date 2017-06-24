@@ -65,6 +65,9 @@ class PlayerBroadcaster;
 #define PLAYER_MAX_SKILLS           127
 #define PLAYER_EXPLORED_ZONES_SIZE  64
 
+class PlayerbotAI;
+class PlayerbotMgr;
+
 // Note: SPELLMOD_* values is aura types in fact
 enum SpellModType
 {
@@ -1341,6 +1344,7 @@ class MANGOS_DLL_SPEC Player final: public Unit
         /*********************************************************/
 
         bool LoadFromDB(ObjectGuid guid, SqlQueryHolder *holder);
+		bool MinimalLoadFromDB(QueryResult *result, uint32 guid);
         void SendPacketsAtRelogin();
 
         static uint32 GetZoneIdFromDB(ObjectGuid guid);
@@ -2149,6 +2153,13 @@ class MANGOS_DLL_SPEC Player final: public Unit
         void SetControlledBy(Unit *Who);
         void RemoveAI();
         void ModPossessPet(Pet* pet, bool apply, AuraRemoveMode m_removeMode = AURA_REMOVE_BY_DEFAULT);
+
+		void SetPlayerbotAI(PlayerbotAI* ai) { assert(!m_playerbotAI && !m_playerbotMgr); m_playerbotAI = ai; }
+		PlayerbotAI* GetPlayerbotAI() { return m_playerbotAI; }
+		void SetPlayerbotMgr(PlayerbotMgr* mgr) { assert(!m_playerbotAI && !m_playerbotMgr); m_playerbotMgr = mgr; }
+		PlayerbotMgr* GetPlayerbotMgr() { return m_playerbotMgr; }
+		void SetBotDeathTimer() { m_deathTimer = 0; }
+
         // Changement de faction
         bool m_DbSaveDisabled;
 
@@ -2408,6 +2419,47 @@ class MANGOS_DLL_SPEC Player final: public Unit
         uint32 m_currentTicketCounter;
         bool m_smartInstanceRebind;
 
+	private:
+		float m_order_mov_x;
+		float m_order_mov_y;
+		float m_order_mov_z;
+		bool m_order_mov_point;
+		uint32 m_order_mov_mapId;
+		bool mSemaphore_Process = false;
+	public:
+		typedef std::list<uint32> QuestList;
+		QuestList m_questIds;
+
+		void ResetToDoQuests();
+		bool AddToDoQuest(uint32 questId);
+		uint32 GetToDoQuestsSize() { return m_questIds.size(); }
+
+		WorldObject* MoveToQuestStarter(uint32& mapId, uint32& areaId, uint32& zoneId, float& x, float& y, float& z, uint32 questId);
+		WorldObject* MoveToQuestEnder(uint32& mapId, uint32& areaId, uint32& zoneId, float& x, float& y, float& z, uint32 questId);
+		WorldObject* MoveToQuestPosition(uint32& mapId, uint32& areaId, uint32& zoneId, float& x, float& y, float& z, uint32 questId);
+
+		bool HasMoveOrder() { return m_order_mov_point; }
+		void SetMovePoint(uint32 mapId, float x, float y, float z) { m_order_mov_point = true; m_order_mov_mapId = mapId; m_order_mov_x = x; m_order_mov_y = y; m_order_mov_z = z; }
+		void ResetMovePoint() { m_order_mov_point = false; }
+
+		void StartProcessing() { mSemaphore_Process = true; }
+		void StopProcessing() { mSemaphore_Process = false; }
+		bool CanProcess() { return !mSemaphore_Process; }
+
+		bool GetMovePoint(uint32 mapId, float& x, float& y, float& z)
+		{
+			if (mapId != m_order_mov_mapId)
+				return false;
+
+			if (m_order_mov_point)
+			{
+				x = m_order_mov_x;
+				y = m_order_mov_y;
+				z = m_order_mov_z;
+				return true;
+			}
+			else return false;
+		}
     private:
         // internal common parts for CanStore/StoreItem functions
         InventoryResult _CanStoreItem_InSpecificSlot( uint8 bag, uint8 slot, ItemPosCountVec& dest, ItemPrototype const *pProto, uint32& count, bool swap, Item *pSrcItem ) const;
@@ -2446,6 +2498,9 @@ class MANGOS_DLL_SPEC Player final: public Unit
 
         GridReference<Player> m_gridRef;
         MapReference m_mapRef;
+
+		PlayerbotAI* m_playerbotAI;
+		PlayerbotMgr* m_playerbotMgr;
 
         // Homebind coordinates
         uint32 m_homebindMapId;

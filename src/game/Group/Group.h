@@ -334,6 +334,8 @@ class MANGOS_DLL_SPEC Group
         BoundInstancesMap& GetBoundInstances() { return m_boundInstances; }
 
         Team GetTeam() const { return m_groupTeam; }
+		ObjectGuid GetTargetIcon(int index) { return m_targetIcons[index]; }
+		Rolls GetRolls() { return RollId; }
     protected:
         bool _addMember(ObjectGuid guid, const char* name, bool isAssistant=false);
         bool _addMember(ObjectGuid guid, const char* name, bool isAssistant, uint8 group);

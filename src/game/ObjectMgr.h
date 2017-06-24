@@ -645,6 +645,7 @@ class ObjectMgr
             return itr != mQuestTemplates.end() ? itr->second : NULL;
         }
         QuestMap const& GetQuestTemplates() const { return mQuestTemplates; }
+		QuestMap const& GetQuestLevelTemplates(int level) const { return _questLevelTemplates[level + 1]; }
 
         // Return the ID of the item that starts a quest.
         // Return 0 if no such item exists.
@@ -1237,6 +1238,8 @@ class ObjectMgr
         ObjectGuidGenerator<HIGHGUID_CORPSE>     m_CorpseGuids;
 
         QuestMap            mQuestTemplates;
+		//Playerbot add for optimization
+		QuestMap _questLevelTemplates[MAX_LEVEL + 1];
 
         typedef UNORDERED_MAP<uint32, GossipText> GossipTextMap;
         typedef UNORDERED_MAP<uint32, uint32> QuestAreaTriggerMap;

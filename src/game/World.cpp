@@ -81,6 +81,10 @@
 #include "HonorMgr.h"
 #include "Anticheat/Anticheat.h"
 
+#include "AhBot.h"
+#include "PlayerbotAIConfig.h"
+#include "RandomPlayerbotMgr.h"
+
 #include <chrono>
 
 INSTANTIATE_SINGLETON_1(World);
@@ -954,7 +958,7 @@ void World::LoadNostalriusConfig(bool reload)
     sAnticheatLib->LoadConfig();
 
     // Bots
-    sPlayerBotMgr.LoadConfig();
+    sEventBotMgr.LoadConfig();
 
     m_configNostalrius[CONFIG_PHASE_MAIL]                 = sConfig.GetIntDefault("Phase.Allow.Mail",      0);
     m_configNostalrius[CONFIG_PHASE_ITEM]                 = sConfig.GetIntDefault("Phase.Allow.Item",      0);
@@ -1615,8 +1619,8 @@ void World::SetInitialWorldSettings()
         sLog.outString("Loading auto broadcast");
         sAutoBroadCastMgr.load();
 
-        sLog.outString("Loading AH bot (obsolete)");
-        sAuctionHouseBotMgr.load();
+        //sLog.outString("Loading AH bot (obsolete)");
+        //sAuctionHouseBotMgr.load();
 
         sLog.outString("Caching player phases (obsolete)");
         sObjectMgr.LoadPlayerPhaseFromDb();
@@ -1625,7 +1629,7 @@ void World::SetInitialWorldSettings()
         sCharacterDatabaseCache.LoadAll();
 
         sLog.outString("Loading PlayerBot ..."); // Requires Players cache
-        sPlayerBotMgr.load();
+        sEventBotMgr.load();
 
         sLog.outString("Loading faction change ...");
         sObjectMgr.LoadFactionChangeReputations();
@@ -1639,6 +1643,9 @@ void World::SetInitialWorldSettings()
 	sEluna->RunScripts();
 	sEluna->OnConfigLoad(false); // Must be done after Eluna is initialized and scripts have run
 	sLog.outString();
+
+	sPlayerbotAIConfig.Initialize();
+	auctionbot.Init();
 	
     sLog.outString("Loading loot-disabled map list");
     sObjectMgr.LoadMapLootDisabled();
@@ -1763,6 +1770,12 @@ void World::Update(uint32 diff)
         sAuctionMgr.Update();
     }
 
+	/// <li> Handle AHBot operations
+	auctionbot.Update();
+
+	sRandomPlayerbotMgr.UpdateAI(diff);
+	sRandomPlayerbotMgr.UpdateSessions(diff);
+
     /// <li> Handle session updates
     uint32 updateSessionsTime = WorldTimer::getMSTime();
     UpdateSessions(diff);
@@ -1885,7 +1898,7 @@ void World::Update(uint32 diff)
         m_MaintenanceTimeChecker -= diff;
 
     //Update PlayerBotMgr
-    sPlayerBotMgr.update(diff);
+    sEventBotMgr.update(diff);
     // Update AutoBroadcast
     sAutoBroadCastMgr.update(diff);
     // Update liste des ban si besoin
@@ -2303,6 +2316,8 @@ void World::ShutdownServ(uint32 time, uint32 options, uint8 exitcode)
         m_ShutdownTimer = time;
         ShutdownMsg(true);
     }
+
+	sRandomPlayerbotMgr.LogoutAllBots();
 
 	sEluna->OnShutdownInitiate(ShutdownExitCode(exitcode), ShutdownMask(options));
 }

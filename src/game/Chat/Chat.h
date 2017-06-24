@@ -120,6 +120,8 @@ class MANGOS_DLL_SPEC ChatHandler
         bool isValidChatMessage(const char* msg);
         bool HasSentErrorMessage() { return sentErrorMessage;}
 
+		WorldSession* GetSession() { return m_session; }
+
         std::string playerLink(std::string const& name) const { return m_session ? "|cffffffff|Hplayer:"+name+"|h["+name+"]|h|r" : name; }
         std::string GetNameLink(Player* chr) const;
         std::string GetItemLink(ItemPrototype const* pItem) const;
@@ -222,6 +224,11 @@ class MANGOS_DLL_SPEC ChatHandler
         // AHBot
         bool HandleAHBotReloadCommand(char *);
         bool HandleAHBotUpdateCommand(char *);
+		//Playerbots
+		bool HandlePlayerbotCommand(char* args);
+		bool HandleRandomPlayerbotCommand(char* args);
+		bool HandleAhBotCommand(char* args);
+		bool HandleGuildTaskCommand(char* args);
         //Bg
         bool HandleGoWarsongCommand(char *);
         bool HandleGoArathiCommand(char *);

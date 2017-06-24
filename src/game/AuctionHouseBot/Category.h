@@ -109,7 +109,7 @@ namespace ahbot
         virtual bool Contains(ItemPrototype const* proto)
         {
             return proto->Class == ITEM_CLASS_TRADE_GOODS ||
-                    proto->Class == ITEM_CLASS_MISC ||
+                    proto->Class == ITEM_CLASS_JUNK ||
                     proto->Class == ITEM_CLASS_REAGENT;
         }
         virtual string GetName() { return "trade"; }
@@ -223,7 +223,7 @@ namespace ahbot
         virtual bool Contains(ItemPrototype const* proto)
         {
             return proto->Quality > ITEM_QUALITY_POOR && (
-                proto->Class == ITEM_CLASS_MISC) && proto->ItemLevel > 1;
+                proto->Class == ITEM_CLASS_JUNK) && proto->ItemLevel > 1;
         }
         virtual string GetName() { return "other"; }
 

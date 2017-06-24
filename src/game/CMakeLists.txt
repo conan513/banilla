@@ -47,6 +47,20 @@ set (game_SRCS
 	Weather.cpp
 	World.cpp
 	WorldSession.cpp
+AuctionHouseBot/AhBot.cpp
+AuctionHouseBot/AhBot.h
+AuctionHouseBot/AhBotConfig.cpp
+AuctionHouseBot/AhBotConfig.h
+AuctionHouseBot/Category.cpp
+AuctionHouseBot/Category.h
+AuctionHouseBot/ConsumableCategory.cpp
+AuctionHouseBot/ConsumableCategory.h
+AuctionHouseBot/ItemBag.cpp
+AuctionHouseBot/ItemBag.h
+AuctionHouseBot/PricingStrategy.cpp
+AuctionHouseBot/PricingStrategy.h
+AuctionHouseBot/TradeCategory.cpp
+AuctionHouseBot/TradeCategory.h
 	AI/AggressorAI.cpp
 	AI/CreatureAI.cpp
 	AI/CreatureAIRegistry.cpp
@@ -445,8 +459,615 @@ set (game_SRCS
 	OutdoorPvP/OutdoorPvPSI.h
 	PacketBroadcast/MovementBroadcaster.h
 	PacketBroadcast/PlayerBroadcaster.h
-	PlayerBots/PlayerBotAI.h
-	PlayerBots/PlayerBotMgr.h
+PlayerBots/AiFactory.cpp
+PlayerBots/AiFactory.h
+PlayerBots/ChatFilter.cpp
+PlayerBots/ChatFilter.h
+PlayerBots/ChatHelper.cpp
+PlayerBots/ChatHelper.h
+PlayerBots/DisperseManager.cpp
+PlayerBots/DisperseManager.h
+PlayerBots/FleeManager.cpp
+PlayerBots/FleeManager.h
+PlayerBots/GuildTaskMgr.cpp
+PlayerBots/GuildTaskMgr.h
+PlayerBots/Helpers.cpp
+PlayerBots/LazyCalculatedValue.h
+PlayerBots/LootObjectStack.cpp
+PlayerBots/LootObjectStack.h
+PlayerBots/playerbot.h
+PlayerBots/PlayerBotAI.cpp
+PlayerBots/PlayerBotAI.h
+PlayerBots/PlayerbotAIAware.h
+PlayerBots/PlayerbotAIBase.cpp
+PlayerBots/PlayerbotAIBase.h
+PlayerBots/PlayerbotAIConfig.cpp
+PlayerBots/PlayerbotAIConfig.h
+PlayerBots/PlayerbotCommandServer.cpp
+PlayerBots/PlayerbotCommandServer.h
+PlayerBots/PlayerbotDbStore.cpp
+PlayerBots/PlayerbotDbStore.h
+PlayerBots/playerbotDefs.h
+PlayerBots/PlayerbotFactory.cpp
+PlayerBots/PlayerbotFactory.h
+PlayerBots/PlayerBotMgr.cpp
+PlayerBots/PlayerBotMgr.h
+PlayerBots/PlayerbotSecurity.cpp
+PlayerBots/PlayerbotSecurity.h
+PlayerBots/RandomItemMgr.cpp
+PlayerBots/RandomItemMgr.h
+PlayerBots/RandomPlayerbotFactory.cpp
+PlayerBots/RandomPlayerbotFactory.h
+PlayerBots/RandomPlayerbotMgr.cpp
+PlayerBots/RandomPlayerbotMgr.h
+PlayerBots/strategy/Action.cpp
+PlayerBots/strategy/Action.h
+PlayerBots/strategy/ActionBasket.cpp
+PlayerBots/strategy/ActionBasket.h
+PlayerBots/strategy/AiObject.cpp
+PlayerBots/strategy/AiObject.h
+PlayerBots/strategy/AiObjectContext.cpp
+PlayerBots/strategy/AiObjectContext.h
+PlayerBots/strategy/CustomStrategy.cpp
+PlayerBots/strategy/CustomStrategy.h
+PlayerBots/strategy/Engine.cpp
+PlayerBots/strategy/Engine.h
+PlayerBots/strategy/Event.cpp
+PlayerBots/strategy/Event.h
+PlayerBots/strategy/ExternalEventHelper.h
+PlayerBots/strategy/ItemVisitors.h
+PlayerBots/strategy/Multiplier.cpp
+PlayerBots/strategy/Multiplier.h
+PlayerBots/strategy/NamedObjectContext.h
+PlayerBots/strategy/PassiveMultiplier.cpp
+PlayerBots/strategy/PassiveMultiplier.h
+PlayerBots/strategy/Queue.cpp
+PlayerBots/strategy/Queue.h
+PlayerBots/strategy/Strategy.cpp
+PlayerBots/strategy/Strategy.h
+PlayerBots/strategy/StrategyContext.h
+PlayerBots/strategy/Trigger.cpp
+PlayerBots/strategy/Trigger.h
+PlayerBots/strategy/Value.cpp
+PlayerBots/strategy/Value.h
+PlayerBots/strategy/actions/AcceptDuelAction.h
+PlayerBots/strategy/actions/AcceptInvitationAction.h
+PlayerBots/strategy/actions/AcceptQuestAction.cpp
+PlayerBots/strategy/actions/AcceptQuestAction.h
+PlayerBots/strategy/actions/AcceptResurrectAction.h
+PlayerBots/strategy/actions/ActionContext.h
+PlayerBots/strategy/actions/AddLootAction.cpp
+PlayerBots/strategy/actions/AddLootAction.h
+PlayerBots/strategy/actions/AreaTriggerAction.cpp
+PlayerBots/strategy/actions/AreaTriggerAction.h
+PlayerBots/strategy/actions/AttackAction.cpp
+PlayerBots/strategy/actions/AttackAction.h
+PlayerBots/strategy/actions/BankAction.cpp
+PlayerBots/strategy/actions/BankAction.h
+PlayerBots/strategy/actions/BuffAction.cpp
+PlayerBots/strategy/actions/BuffAction.h
+PlayerBots/strategy/actions/BuyAction.cpp
+PlayerBots/strategy/actions/BuyAction.h
+PlayerBots/strategy/actions/CastCustomSpellAction.cpp
+PlayerBots/strategy/actions/CastCustomSpellAction.h
+PlayerBots/strategy/actions/ChangeChatAction.cpp
+PlayerBots/strategy/actions/ChangeChatAction.h
+PlayerBots/strategy/actions/ChangeStrategyAction.cpp
+PlayerBots/strategy/actions/ChangeStrategyAction.h
+PlayerBots/strategy/actions/ChangeTalentsAction.cpp
+PlayerBots/strategy/actions/ChangeTalentsAction.h
+PlayerBots/strategy/actions/ChatActionContext.h
+PlayerBots/strategy/actions/ChatShortcutActions.cpp
+PlayerBots/strategy/actions/ChatShortcutActions.h
+PlayerBots/strategy/actions/CheckMailAction.cpp
+PlayerBots/strategy/actions/CheckMailAction.h
+PlayerBots/strategy/actions/CheckMountStateAction.cpp
+PlayerBots/strategy/actions/CheckMountStateAction.h
+PlayerBots/strategy/actions/ChooseTargetActions.h
+PlayerBots/strategy/actions/DelayAction.h
+PlayerBots/strategy/actions/DestroyItemAction.cpp
+PlayerBots/strategy/actions/DestroyItemAction.h
+PlayerBots/strategy/actions/DropQuestAction.cpp
+PlayerBots/strategy/actions/DropQuestAction.h
+PlayerBots/strategy/actions/EmoteAction.cpp
+PlayerBots/strategy/actions/EmoteAction.h
+PlayerBots/strategy/actions/EquipAction.cpp
+PlayerBots/strategy/actions/EquipAction.h
+PlayerBots/strategy/actions/FollowActions.cpp
+PlayerBots/strategy/actions/FollowActions.h
+PlayerBots/strategy/actions/GenericActions.cpp
+PlayerBots/strategy/actions/GenericActions.h
+PlayerBots/strategy/actions/GenericSpellActions.cpp
+PlayerBots/strategy/actions/GenericSpellActions.h
+PlayerBots/strategy/actions/GossipHelloAction.cpp
+PlayerBots/strategy/actions/GossipHelloAction.h
+PlayerBots/strategy/actions/GuildAcceptAction.cpp
+PlayerBots/strategy/actions/GuildAcceptAction.h
+PlayerBots/strategy/actions/GuildBankAction.cpp
+PlayerBots/strategy/actions/GuildBankAction.h
+PlayerBots/strategy/actions/HelpAction.cpp
+PlayerBots/strategy/actions/HelpAction.h
+PlayerBots/strategy/actions/InventoryAction.cpp
+PlayerBots/strategy/actions/InventoryAction.h
+PlayerBots/strategy/actions/InventoryChangeFailureAction.cpp
+PlayerBots/strategy/actions/InventoryChangeFailureAction.h
+PlayerBots/strategy/actions/InviteToGroupAction.h
+PlayerBots/strategy/actions/LeaveGroupAction.h
+PlayerBots/strategy/actions/LfgActions.cpp
+PlayerBots/strategy/actions/LfgActions.h
+PlayerBots/strategy/actions/ListQuestsActions.cpp
+PlayerBots/strategy/actions/ListQuestsActions.h
+PlayerBots/strategy/actions/ListSpellsAction.cpp
+PlayerBots/strategy/actions/ListSpellsAction.h
+PlayerBots/strategy/actions/LogLevelAction.cpp
+PlayerBots/strategy/actions/LogLevelAction.h
+PlayerBots/strategy/actions/LootAction.cpp
+PlayerBots/strategy/actions/LootAction.h
+PlayerBots/strategy/actions/LootRollAction.cpp
+PlayerBots/strategy/actions/LootRollAction.h
+PlayerBots/strategy/actions/LootStrategyAction.cpp
+PlayerBots/strategy/actions/LootStrategyAction.h
+PlayerBots/strategy/actions/MoveBehindAction.cpp
+PlayerBots/strategy/actions/MoveBehindAction.h
+PlayerBots/strategy/actions/MovementActions.cpp
+PlayerBots/strategy/actions/MovementActions.h
+PlayerBots/strategy/actions/NonCombatActions.cpp
+PlayerBots/strategy/actions/NonCombatActions.h
+PlayerBots/strategy/actions/OutfitAction.cpp
+PlayerBots/strategy/actions/OutfitAction.h
+PlayerBots/strategy/actions/PassLeadershipToMasterAction.h
+PlayerBots/strategy/actions/PositionAction.cpp
+PlayerBots/strategy/actions/PositionAction.h
+PlayerBots/strategy/actions/QueryItemUsageAction.cpp
+PlayerBots/strategy/actions/QueryItemUsageAction.h
+PlayerBots/strategy/actions/QueryQuestAction.cpp
+PlayerBots/strategy/actions/QueryQuestAction.h
+PlayerBots/strategy/actions/QuestAction.cpp
+PlayerBots/strategy/actions/QuestAction.h
+PlayerBots/strategy/actions/RandomBotUpdateAction.h
+PlayerBots/strategy/actions/ReachTargetActions.h
+PlayerBots/strategy/actions/ReadyCheckAction.cpp
+PlayerBots/strategy/actions/ReadyCheckAction.h
+PlayerBots/strategy/actions/ReleaseSpiritAction.h
+PlayerBots/strategy/actions/RememberTaxiAction.cpp
+PlayerBots/strategy/actions/RememberTaxiAction.h
+PlayerBots/strategy/actions/RepairAllAction.cpp
+PlayerBots/strategy/actions/RepairAllAction.h
+PlayerBots/strategy/actions/ResetAiAction.cpp
+PlayerBots/strategy/actions/ResetAiAction.h
+PlayerBots/strategy/actions/RevealGatheringItemAction.cpp
+PlayerBots/strategy/actions/RevealGatheringItemAction.h
+PlayerBots/strategy/actions/ReviveFromCorpseAction.cpp
+PlayerBots/strategy/actions/ReviveFromCorpseAction.h
+PlayerBots/strategy/actions/RewardAction.cpp
+PlayerBots/strategy/actions/RewardAction.h
+PlayerBots/strategy/actions/RtiAction.h
+PlayerBots/strategy/actions/SaveManaAction.cpp
+PlayerBots/strategy/actions/SaveManaAction.h
+PlayerBots/strategy/actions/SayAction.cpp
+PlayerBots/strategy/actions/SayAction.h
+PlayerBots/strategy/actions/SecurityCheckAction.cpp
+PlayerBots/strategy/actions/SecurityCheckAction.h
+PlayerBots/strategy/actions/SellAction.cpp
+PlayerBots/strategy/actions/SellAction.h
+PlayerBots/strategy/actions/SendMailAction.cpp
+PlayerBots/strategy/actions/SendMailAction.h
+PlayerBots/strategy/actions/SetHomeAction.cpp
+PlayerBots/strategy/actions/SetHomeAction.h
+PlayerBots/strategy/actions/StatsAction.cpp
+PlayerBots/strategy/actions/StatsAction.h
+PlayerBots/strategy/actions/StayActions.cpp
+PlayerBots/strategy/actions/StayActions.h
+PlayerBots/strategy/actions/SuggestWhatToDoAction.cpp
+PlayerBots/strategy/actions/SuggestWhatToDoAction.h
+PlayerBots/strategy/actions/TalkToQuestGiverAction.cpp
+PlayerBots/strategy/actions/TalkToQuestGiverAction.h
+PlayerBots/strategy/actions/TaxiAction.cpp
+PlayerBots/strategy/actions/TaxiAction.h
+PlayerBots/strategy/actions/TeleportAction.cpp
+PlayerBots/strategy/actions/TeleportAction.h
+PlayerBots/strategy/actions/TellCastFailedAction.cpp
+PlayerBots/strategy/actions/TellCastFailedAction.h
+PlayerBots/strategy/actions/TellItemCountAction.cpp
+PlayerBots/strategy/actions/TellItemCountAction.h
+PlayerBots/strategy/actions/TellLosAction.cpp
+PlayerBots/strategy/actions/TellLosAction.h
+PlayerBots/strategy/actions/TellMasterAction.h
+PlayerBots/strategy/actions/TellReputationAction.cpp
+PlayerBots/strategy/actions/TellReputationAction.h
+PlayerBots/strategy/actions/TellTargetAction.cpp
+PlayerBots/strategy/actions/TellTargetAction.h
+PlayerBots/strategy/actions/TradeAction.cpp
+PlayerBots/strategy/actions/TradeAction.h
+PlayerBots/strategy/actions/TradeStatusAction.cpp
+PlayerBots/strategy/actions/TradeStatusAction.h
+PlayerBots/strategy/actions/TrainerAction.cpp
+PlayerBots/strategy/actions/TrainerAction.h
+PlayerBots/strategy/actions/UnequipAction.cpp
+PlayerBots/strategy/actions/UnequipAction.h
+PlayerBots/strategy/actions/UseConsumableAction.cpp
+PlayerBots/strategy/actions/UseConsumableAction.h
+PlayerBots/strategy/actions/UseItemAction.cpp
+PlayerBots/strategy/actions/UseItemAction.h
+PlayerBots/strategy/actions/UseMeetingStoneAction.cpp
+PlayerBots/strategy/actions/UseMeetingStoneAction.h
+PlayerBots/strategy/actions/WhoAction.cpp
+PlayerBots/strategy/actions/WhoAction.h
+PlayerBots/strategy/actions/WorldPacketActionContext.h
+PlayerBots/strategy/druid/BearTankDruidStrategy.cpp
+PlayerBots/strategy/druid/BearTankDruidStrategy.h
+PlayerBots/strategy/druid/CasterDruidStrategy.cpp
+PlayerBots/strategy/druid/CasterDruidStrategy.h
+PlayerBots/strategy/druid/CatDpsDruidStrategy.cpp
+PlayerBots/strategy/druid/CatDpsDruidStrategy.h
+PlayerBots/strategy/druid/DruidActions.cpp
+PlayerBots/strategy/druid/DruidActions.h
+PlayerBots/strategy/druid/DruidAiObjectContext.cpp
+PlayerBots/strategy/druid/DruidAiObjectContext.h
+PlayerBots/strategy/druid/DruidBearActions.h
+PlayerBots/strategy/druid/DruidCatActions.h
+PlayerBots/strategy/druid/DruidMultipliers.cpp
+PlayerBots/strategy/druid/DruidMultipliers.h
+PlayerBots/strategy/druid/DruidShapeshiftActions.h
+PlayerBots/strategy/druid/DruidTriggers.cpp
+PlayerBots/strategy/druid/DruidTriggers.h
+PlayerBots/strategy/druid/FeralDruidStrategy.cpp
+PlayerBots/strategy/druid/FeralDruidStrategy.h
+PlayerBots/strategy/druid/GenericDruidNonCombatStrategy.cpp
+PlayerBots/strategy/druid/GenericDruidNonCombatStrategy.h
+PlayerBots/strategy/druid/GenericDruidStrategy.cpp
+PlayerBots/strategy/druid/GenericDruidStrategy.h
+PlayerBots/strategy/druid/HealDruidStrategy.cpp
+PlayerBots/strategy/druid/HealDruidStrategy.h
+PlayerBots/strategy/generic/AttackEnemyPlayersStrategy.cpp
+PlayerBots/strategy/generic/AttackEnemyPlayersStrategy.h
+PlayerBots/strategy/generic/AttackRtiStrategy.cpp
+PlayerBots/strategy/generic/AttackRtiStrategy.h
+PlayerBots/strategy/generic/AttackWeakStrategy.cpp
+PlayerBots/strategy/generic/AttackWeakStrategy.h
+PlayerBots/strategy/generic/CastTimeStrategy.cpp
+PlayerBots/strategy/generic/CastTimeStrategy.h
+PlayerBots/strategy/generic/ChatCommandHandlerStrategy.cpp
+PlayerBots/strategy/generic/ChatCommandHandlerStrategy.h
+PlayerBots/strategy/generic/CombatStrategy.cpp
+PlayerBots/strategy/generic/CombatStrategy.h
+PlayerBots/strategy/generic/ConserveManaStrategy.cpp
+PlayerBots/strategy/generic/ConserveManaStrategy.h
+PlayerBots/strategy/generic/DeadStrategy.cpp
+PlayerBots/strategy/generic/DeadStrategy.h
+PlayerBots/strategy/generic/DisperseStrategy.cpp
+PlayerBots/strategy/generic/DisperseStrategy.h
+PlayerBots/strategy/generic/DpsAoeStrategy.cpp
+PlayerBots/strategy/generic/DpsAoeStrategy.h
+PlayerBots/strategy/generic/DpsAssistStrategy.cpp
+PlayerBots/strategy/generic/DpsAssistStrategy.h
+PlayerBots/strategy/generic/DuelStrategy.cpp
+PlayerBots/strategy/generic/DuelStrategy.h
+PlayerBots/strategy/generic/EmoteStrategy.cpp
+PlayerBots/strategy/generic/EmoteStrategy.h
+PlayerBots/strategy/generic/FleeStrategy.cpp
+PlayerBots/strategy/generic/FleeStrategy.h
+PlayerBots/strategy/generic/FollowMasterStrategy.cpp
+PlayerBots/strategy/generic/FollowMasterStrategy.h
+PlayerBots/strategy/generic/GrindingStrategy.cpp
+PlayerBots/strategy/generic/GrindingStrategy.h
+PlayerBots/strategy/generic/GuardStrategy.cpp
+PlayerBots/strategy/generic/GuardStrategy.h
+PlayerBots/strategy/generic/KiteStrategy.cpp
+PlayerBots/strategy/generic/KiteStrategy.h
+PlayerBots/strategy/generic/LootNonCombatStrategy.cpp
+PlayerBots/strategy/generic/LootNonCombatStrategy.h
+PlayerBots/strategy/generic/MeleeCombatStrategy.cpp
+PlayerBots/strategy/generic/MeleeCombatStrategy.h
+PlayerBots/strategy/generic/MoveRandomStrategy.cpp
+PlayerBots/strategy/generic/MoveRandomStrategy.h
+PlayerBots/strategy/generic/NonCombatStrategy.cpp
+PlayerBots/strategy/generic/NonCombatStrategy.h
+PlayerBots/strategy/generic/PassiveStrategy.cpp
+PlayerBots/strategy/generic/PassiveStrategy.h
+PlayerBots/strategy/generic/PassTroughStrategy.h
+PlayerBots/strategy/generic/PullStrategy.cpp
+PlayerBots/strategy/generic/PullStrategy.h
+PlayerBots/strategy/generic/QuestStrategies.cpp
+PlayerBots/strategy/generic/QuestStrategies.h
+PlayerBots/strategy/generic/RacialsStrategy.cpp
+PlayerBots/strategy/generic/RacialsStrategy.h
+PlayerBots/strategy/generic/RangedCombatStrategy.cpp
+PlayerBots/strategy/generic/RangedCombatStrategy.h
+PlayerBots/strategy/generic/RunawayStrategy.cpp
+PlayerBots/strategy/generic/RunawayStrategy.h
+PlayerBots/strategy/generic/SayStrategy.cpp
+PlayerBots/strategy/generic/SayStrategy.h
+PlayerBots/strategy/generic/StayStrategy.cpp
+PlayerBots/strategy/generic/StayStrategy.h
+PlayerBots/strategy/generic/TankAoeStrategy.cpp
+PlayerBots/strategy/generic/TankAoeStrategy.h
+PlayerBots/strategy/generic/TankAssistStrategy.cpp
+PlayerBots/strategy/generic/TankAssistStrategy.h
+PlayerBots/strategy/generic/TellTargetStrategy.cpp
+PlayerBots/strategy/generic/TellTargetStrategy.h
+PlayerBots/strategy/generic/ThreatStrategy.cpp
+PlayerBots/strategy/generic/ThreatStrategy.h
+PlayerBots/strategy/generic/UseFoodStrategy.cpp
+PlayerBots/strategy/generic/UseFoodStrategy.h
+PlayerBots/strategy/generic/UsePotionsStrategy.cpp
+PlayerBots/strategy/generic/UsePotionsStrategy.h
+PlayerBots/strategy/generic/WorldPacketHandlerStrategy.cpp
+PlayerBots/strategy/generic/WorldPacketHandlerStrategy.h
+PlayerBots/strategy/hunter/DpsHunterStrategy.cpp
+PlayerBots/strategy/hunter/DpsHunterStrategy.h
+PlayerBots/strategy/hunter/GenericHunterNonCombatStrategy.cpp
+PlayerBots/strategy/hunter/GenericHunterNonCombatStrategy.h
+PlayerBots/strategy/hunter/GenericHunterStrategy.cpp
+PlayerBots/strategy/hunter/GenericHunterStrategy.h
+PlayerBots/strategy/hunter/HunterActions.cpp
+PlayerBots/strategy/hunter/HunterActions.h
+PlayerBots/strategy/hunter/HunterAiObjectContext.cpp
+PlayerBots/strategy/hunter/HunterAiObjectContext.h
+PlayerBots/strategy/hunter/HunterBuffStrategies.cpp
+PlayerBots/strategy/hunter/HunterBuffStrategies.h
+PlayerBots/strategy/hunter/HunterMultipliers.cpp
+PlayerBots/strategy/hunter/HunterMultipliers.h
+PlayerBots/strategy/hunter/HunterTriggers.cpp
+PlayerBots/strategy/hunter/HunterTriggers.h
+PlayerBots/strategy/mage/ArcaneMageStrategy.cpp
+PlayerBots/strategy/mage/ArcaneMageStrategy.h
+PlayerBots/strategy/mage/FireMageStrategy.cpp
+PlayerBots/strategy/mage/FireMageStrategy.h
+PlayerBots/strategy/mage/FrostMageStrategy.cpp
+PlayerBots/strategy/mage/FrostMageStrategy.h
+PlayerBots/strategy/mage/GenericMageNonCombatStrategy.cpp
+PlayerBots/strategy/mage/GenericMageNonCombatStrategy.h
+PlayerBots/strategy/mage/GenericMageStrategy.cpp
+PlayerBots/strategy/mage/GenericMageStrategy.h
+PlayerBots/strategy/mage/MageActions.cpp
+PlayerBots/strategy/mage/MageActions.h
+PlayerBots/strategy/mage/MageAiObjectContext.cpp
+PlayerBots/strategy/mage/MageAiObjectContext.h
+PlayerBots/strategy/mage/MageMultipliers.cpp
+PlayerBots/strategy/mage/MageMultipliers.h
+PlayerBots/strategy/mage/MageTriggers.cpp
+PlayerBots/strategy/mage/MageTriggers.h
+PlayerBots/strategy/paladin/DpsPaladinStrategy.cpp
+PlayerBots/strategy/paladin/DpsPaladinStrategy.h
+PlayerBots/strategy/paladin/GenericPaladinNonCombatStrategy.cpp
+PlayerBots/strategy/paladin/GenericPaladinNonCombatStrategy.h
+PlayerBots/strategy/paladin/GenericPaladinStrategy.cpp
+PlayerBots/strategy/paladin/GenericPaladinStrategy.h
+PlayerBots/strategy/paladin/GenericPaladinStrategyActionNodeFactory.h
+PlayerBots/strategy/paladin/HealPaladinStrategy.cpp
+PlayerBots/strategy/paladin/HealPaladinStrategy.h
+PlayerBots/strategy/paladin/PaladinActions.cpp
+PlayerBots/strategy/paladin/PaladinActions.h
+PlayerBots/strategy/paladin/PaladinAiObjectContext.cpp
+PlayerBots/strategy/paladin/PaladinAiObjectContext.h
+PlayerBots/strategy/paladin/PaladinBuffStrategies.cpp
+PlayerBots/strategy/paladin/PaladinBuffStrategies.h
+PlayerBots/strategy/paladin/PaladinMultipliers.cpp
+PlayerBots/strategy/paladin/PaladinMultipliers.h
+PlayerBots/strategy/paladin/PaladinTriggers.cpp
+PlayerBots/strategy/paladin/PaladinTriggers.h
+PlayerBots/strategy/paladin/TankPaladinStrategy.cpp
+PlayerBots/strategy/paladin/TankPaladinStrategy.h
+PlayerBots/strategy/priest/GenericPriestStrategy.cpp
+PlayerBots/strategy/priest/GenericPriestStrategy.h
+PlayerBots/strategy/priest/GenericPriestStrategyActionNodeFactory.h
+PlayerBots/strategy/priest/HealPriestStrategy.cpp
+PlayerBots/strategy/priest/HealPriestStrategy.h
+PlayerBots/strategy/priest/HolyPriestStrategy.cpp
+PlayerBots/strategy/priest/HolyPriestStrategy.h
+PlayerBots/strategy/priest/PriestActions.cpp
+PlayerBots/strategy/priest/PriestActions.h
+PlayerBots/strategy/priest/PriestAiObjectContext.cpp
+PlayerBots/strategy/priest/PriestAiObjectContext.h
+PlayerBots/strategy/priest/PriestMultipliers.cpp
+PlayerBots/strategy/priest/PriestMultipliers.h
+PlayerBots/strategy/priest/PriestNonCombatStrategy.cpp
+PlayerBots/strategy/priest/PriestNonCombatStrategy.h
+PlayerBots/strategy/priest/PriestNonCombatStrategyActionNodeFactory.h
+PlayerBots/strategy/priest/PriestTriggers.cpp
+PlayerBots/strategy/priest/PriestTriggers.h
+PlayerBots/strategy/priest/ShadowPriestStrategy.cpp
+PlayerBots/strategy/priest/ShadowPriestStrategy.h
+PlayerBots/strategy/priest/ShadowPriestStrategyActionNodeFactory.h
+PlayerBots/strategy/rogue/DpsRogueStrategy.cpp
+PlayerBots/strategy/rogue/DpsRogueStrategy.h
+PlayerBots/strategy/rogue/GenericRogueNonCombatStrategy.cpp
+PlayerBots/strategy/rogue/GenericRogueNonCombatStrategy.h
+PlayerBots/strategy/rogue/RogueActions.cpp
+PlayerBots/strategy/rogue/RogueActions.h
+PlayerBots/strategy/rogue/RogueAiObjectContext.cpp
+PlayerBots/strategy/rogue/RogueAiObjectContext.h
+PlayerBots/strategy/rogue/RogueComboActions.h
+PlayerBots/strategy/rogue/RogueFinishingActions.h
+PlayerBots/strategy/rogue/RogueMultipliers.cpp
+PlayerBots/strategy/rogue/RogueMultipliers.h
+PlayerBots/strategy/rogue/RogueOpeningActions.h
+PlayerBots/strategy/rogue/RogueTriggers.cpp
+PlayerBots/strategy/rogue/RogueTriggers.h
+PlayerBots/strategy/shaman/CasterShamanStrategy.cpp
+PlayerBots/strategy/shaman/CasterShamanStrategy.h
+PlayerBots/strategy/shaman/GenericShamanStrategy.cpp
+PlayerBots/strategy/shaman/GenericShamanStrategy.h
+PlayerBots/strategy/shaman/HealShamanStrategy.cpp
+PlayerBots/strategy/shaman/HealShamanStrategy.h
+PlayerBots/strategy/shaman/MeleeShamanStrategy.cpp
+PlayerBots/strategy/shaman/MeleeShamanStrategy.h
+PlayerBots/strategy/shaman/ShamanActions.cpp
+PlayerBots/strategy/shaman/ShamanActions.h
+PlayerBots/strategy/shaman/ShamanAiObjectContext.cpp
+PlayerBots/strategy/shaman/ShamanAiObjectContext.h
+PlayerBots/strategy/shaman/ShamanMultipliers.cpp
+PlayerBots/strategy/shaman/ShamanMultipliers.h
+PlayerBots/strategy/shaman/ShamanNonCombatStrategy.cpp
+PlayerBots/strategy/shaman/ShamanNonCombatStrategy.h
+PlayerBots/strategy/shaman/ShamanTriggers.cpp
+PlayerBots/strategy/shaman/ShamanTriggers.h
+PlayerBots/strategy/shaman/TotemsShamanStrategy.cpp
+PlayerBots/strategy/shaman/TotemsShamanStrategy.h
+PlayerBots/strategy/triggers/ChatCommandTrigger.h
+PlayerBots/strategy/triggers/ChatTriggerContext.h
+PlayerBots/strategy/triggers/CureTriggers.cpp
+PlayerBots/strategy/triggers/CureTriggers.h
+PlayerBots/strategy/triggers/GenericTriggers.cpp
+PlayerBots/strategy/triggers/GenericTriggers.h
+PlayerBots/strategy/triggers/HealthTriggers.cpp
+PlayerBots/strategy/triggers/HealthTriggers.h
+PlayerBots/strategy/triggers/LfgTriggers.h
+PlayerBots/strategy/triggers/LootTriggers.cpp
+PlayerBots/strategy/triggers/LootTriggers.h
+PlayerBots/strategy/triggers/RangeTriggers.h
+PlayerBots/strategy/triggers/TriggerContext.h
+PlayerBots/strategy/triggers/WithinAreaTrigger.h
+PlayerBots/strategy/triggers/WorldPacketTrigger.h
+PlayerBots/strategy/triggers/WorldPacketTriggerContext.h
+PlayerBots/strategy/values/AlwaysLootListValue.h
+PlayerBots/strategy/values/AoeHealValues.cpp
+PlayerBots/strategy/values/AoeHealValues.h
+PlayerBots/strategy/values/AoeValues.cpp
+PlayerBots/strategy/values/AoeValues.h
+PlayerBots/strategy/values/Arrow.cpp
+PlayerBots/strategy/values/Arrow.h
+PlayerBots/strategy/values/AttackerCountValues.cpp
+PlayerBots/strategy/values/AttackerCountValues.h
+PlayerBots/strategy/values/AttackersValue.cpp
+PlayerBots/strategy/values/AttackersValue.h
+PlayerBots/strategy/values/AttackerWithoutAuraTargetValue.cpp
+PlayerBots/strategy/values/AttackerWithoutAuraTargetValue.h
+PlayerBots/strategy/values/AvailableLootValue.h
+PlayerBots/strategy/values/CcTargetValue.cpp
+PlayerBots/strategy/values/CcTargetValue.h
+PlayerBots/strategy/values/ChatValue.h
+PlayerBots/strategy/values/CurrentCcTargetValue.cpp
+PlayerBots/strategy/values/CurrentCcTargetValue.h
+PlayerBots/strategy/values/CurrentTargetValue.cpp
+PlayerBots/strategy/values/CurrentTargetValue.h
+PlayerBots/strategy/values/DistanceValue.h
+PlayerBots/strategy/values/DpsTargetValue.cpp
+PlayerBots/strategy/values/DpsTargetValue.h
+PlayerBots/strategy/values/DuelTargetValue.cpp
+PlayerBots/strategy/values/DuelTargetValue.h
+PlayerBots/strategy/values/EnemyHealerTargetValue.cpp
+PlayerBots/strategy/values/EnemyHealerTargetValue.h
+PlayerBots/strategy/values/EnemyPlayerValue.cpp
+PlayerBots/strategy/values/EnemyPlayerValue.h
+PlayerBots/strategy/values/Formations.cpp
+PlayerBots/strategy/values/Formations.h
+PlayerBots/strategy/values/GrindTargetValue.cpp
+PlayerBots/strategy/values/GrindTargetValue.h
+PlayerBots/strategy/values/HasAvailableLootValue.h
+PlayerBots/strategy/values/HasTotemValue.h
+PlayerBots/strategy/values/InvalidTargetValue.cpp
+PlayerBots/strategy/values/InvalidTargetValue.h
+PlayerBots/strategy/values/IsBehindValue.h
+PlayerBots/strategy/values/IsFacingValue.h
+PlayerBots/strategy/values/IsMovingValue.h
+PlayerBots/strategy/values/IsWeaponEnhancedValue.h
+PlayerBots/strategy/values/ItemCountValue.cpp
+PlayerBots/strategy/values/ItemCountValue.h
+PlayerBots/strategy/values/ItemForSpellValue.cpp
+PlayerBots/strategy/values/ItemForSpellValue.h
+PlayerBots/strategy/values/ItemUsageValue.cpp
+PlayerBots/strategy/values/ItemUsageValue.h
+PlayerBots/strategy/values/LastMovementValue.h
+PlayerBots/strategy/values/LastSaidValue.h
+PlayerBots/strategy/values/LastSpellCastTimeValue.h
+PlayerBots/strategy/values/LastSpellCastValue.h
+PlayerBots/strategy/values/LeastHpTargetValue.cpp
+PlayerBots/strategy/values/LeastHpTargetValue.h
+PlayerBots/strategy/values/LfgValues.h
+PlayerBots/strategy/values/LineTargetValue.cpp
+PlayerBots/strategy/values/LineTargetValue.h
+PlayerBots/strategy/values/LogLevelValue.h
+PlayerBots/strategy/values/LootStrategyValue.cpp
+PlayerBots/strategy/values/LootStrategyValue.h
+PlayerBots/strategy/values/ManaSaveLevelValue.h
+PlayerBots/strategy/values/MasterTargetValue.h
+PlayerBots/strategy/values/NearestAdsValue.cpp
+PlayerBots/strategy/values/NearestAdsValue.h
+PlayerBots/strategy/values/NearestCorpsesValue.cpp
+PlayerBots/strategy/values/NearestCorpsesValue.h
+PlayerBots/strategy/values/NearestFriendlyPlayersValue.cpp
+PlayerBots/strategy/values/NearestFriendlyPlayersValue.h
+PlayerBots/strategy/values/NearestGameObjects.cpp
+PlayerBots/strategy/values/NearestGameObjects.h
+PlayerBots/strategy/values/NearestGroupMemberValue.cpp
+PlayerBots/strategy/values/NearestGroupMemberValue.h
+PlayerBots/strategy/values/NearestNonBotPlayersValue.cpp
+PlayerBots/strategy/values/NearestNonBotPlayersValue.h
+PlayerBots/strategy/values/NearestNpcsValue.cpp
+PlayerBots/strategy/values/NearestNpcsValue.h
+PlayerBots/strategy/values/NearestUnitsValue.h
+PlayerBots/strategy/values/OutfitListValue.h
+PlayerBots/strategy/values/PartyMemberAfflicted.cpp
+PlayerBots/strategy/values/PartyMemberAfflicted.h
+PlayerBots/strategy/values/PartyMemberToDispel.cpp
+PlayerBots/strategy/values/PartyMemberToDispel.h
+PlayerBots/strategy/values/PartyMemberToHeal.cpp
+PlayerBots/strategy/values/PartyMemberToHeal.h
+PlayerBots/strategy/values/PartyMemberToResurrect.cpp
+PlayerBots/strategy/values/PartyMemberToResurrect.h
+PlayerBots/strategy/values/PartyMemberValue.cpp
+PlayerBots/strategy/values/PartyMemberValue.h
+PlayerBots/strategy/values/PartyMemberWithoutAuraValue.cpp
+PlayerBots/strategy/values/PartyMemberWithoutAuraValue.h
+PlayerBots/strategy/values/PetTargetValue.h
+PlayerBots/strategy/values/PositionValue.cpp
+PlayerBots/strategy/values/PositionValue.h
+PlayerBots/strategy/values/PossibleTargetsValue.cpp
+PlayerBots/strategy/values/PossibleTargetsValue.h
+PlayerBots/strategy/values/RandomBotUpdateValue.h
+PlayerBots/strategy/values/RtiTargetValue.h
+PlayerBots/strategy/values/RtiValue.cpp
+PlayerBots/strategy/values/RtiValue.h
+PlayerBots/strategy/values/SelfTargetValue.h
+PlayerBots/strategy/values/SpellCastUsefulValue.cpp
+PlayerBots/strategy/values/SpellCastUsefulValue.h
+PlayerBots/strategy/values/SpellIdValue.cpp
+PlayerBots/strategy/values/SpellIdValue.h
+PlayerBots/strategy/values/StatsValues.cpp
+PlayerBots/strategy/values/StatsValues.h
+PlayerBots/strategy/values/TankTargetValue.cpp
+PlayerBots/strategy/values/TankTargetValue.h
+PlayerBots/strategy/values/TargetValue.cpp
+PlayerBots/strategy/values/TargetValue.h
+PlayerBots/strategy/values/ThreatValues.cpp
+PlayerBots/strategy/values/ThreatValues.h
+PlayerBots/strategy/values/ValueContext.h
+PlayerBots/strategy/values/formations/Arrow.cpp
+PlayerBots/strategy/values/formations/Arrow.h
+PlayerBots/strategy/warlock/DpsWarlockStrategy.cpp
+PlayerBots/strategy/warlock/DpsWarlockStrategy.h
+PlayerBots/strategy/warlock/GenericWarlockNonCombatStrategy.cpp
+PlayerBots/strategy/warlock/GenericWarlockNonCombatStrategy.h
+PlayerBots/strategy/warlock/GenericWarlockStrategy.cpp
+PlayerBots/strategy/warlock/GenericWarlockStrategy.h
+PlayerBots/strategy/warlock/TankWarlockStrategy.cpp
+PlayerBots/strategy/warlock/TankWarlockStrategy.h
+PlayerBots/strategy/warlock/WarlockActions.cpp
+PlayerBots/strategy/warlock/WarlockActions.h
+PlayerBots/strategy/warlock/WarlockAiObjectContext.cpp
+PlayerBots/strategy/warlock/WarlockAiObjectContext.h
+PlayerBots/strategy/warlock/WarlockMultipliers.cpp
+PlayerBots/strategy/warlock/WarlockMultipliers.h
+PlayerBots/strategy/warlock/WarlockTriggers.cpp
+PlayerBots/strategy/warlock/WarlockTriggers.h
+PlayerBots/strategy/warrior/DpsWarriorStrategy.cpp
+PlayerBots/strategy/warrior/DpsWarriorStrategy.h
+PlayerBots/strategy/warrior/GenericWarriorNonCombatStrategy.cpp
+PlayerBots/strategy/warrior/GenericWarriorNonCombatStrategy.h
+PlayerBots/strategy/warrior/GenericWarriorStrategy.cpp
+PlayerBots/strategy/warrior/GenericWarriorStrategy.h
+PlayerBots/strategy/warrior/TankWarriorStrategy.cpp
+PlayerBots/strategy/warrior/TankWarriorStrategy.h
+PlayerBots/strategy/warrior/WarriorActions.cpp
+PlayerBots/strategy/warrior/WarriorActions.h
+PlayerBots/strategy/warrior/WarriorAiObjectContext.cpp
+PlayerBots/strategy/warrior/WarriorAiObjectContext.h
+PlayerBots/strategy/warrior/WarriorMultipliers.cpp
+PlayerBots/strategy/warrior/WarriorMultipliers.h
+PlayerBots/strategy/warrior/WarriorTriggers.cpp
+PlayerBots/strategy/warrior/WarriorTriggers.h
 	Protocol/Opcodes.h
 	Protocol/WorldSocket.h
 	Protocol/WorldSocketMgr.h
@@ -475,7 +1096,6 @@ set (game_SRCS
 	vmap/VMapManager2.h
 	vmap/VMapTools.h
 	vmap/WorldModel.h
-
 )
 
 
@@ -531,7 +1151,8 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/Objects
   ${CMAKE_CURRENT_SOURCE_DIR}/OutdoorPvP
   ${CMAKE_CURRENT_SOURCE_DIR}/PacketBroadcast
-  ${CMAKE_CURRENT_SOURCE_DIR}/PlayerBots  
+  ${CMAKE_CURRENT_SOURCE_DIR}/PlayerBots
+  ${CMAKE_CURRENT_SOURCE_DIR}/PlayerBots/strategy
   ${CMAKE_CURRENT_SOURCE_DIR}/Protocol
   ${CMAKE_CURRENT_SOURCE_DIR}/Spells
   ${CMAKE_CURRENT_SOURCE_DIR}/Texts
@@ -558,6 +1179,10 @@ include_directories(
 
 source_group("Object"
   REGULAR_EXPRESSION .*
+)
+
+source_group("Playerbot"
+  REGULAR_EXPRESSION Playerbot|Strategy|Action|Trigger|Value
 )
 
 source_group("World/Handlers"
@@ -592,111 +1217,30 @@ source_group("Anticheat"
   REGULAR_EXPRESSION Anticheat
 )
 
-set(LIBRARY_NAME Bots)
-
-#Add PCH Files
-set(bots_PCH "${CMAKE_CURRENT_SOURCE_DIR}/botpch.h")
 if(PCH)
-    LIST(APPEND bots_PCH "${CMAKE_CURRENT_SOURCE_DIR}/botpch.cpp")
+  include_directories(${CMAKE_CURRENT_BINARY_DIR})
 endif()
 
-#Base files
-file(GLOB Playerbot_Source ${CMAKE_CURRENT_SOURCE_DIR}/playerbot/*.cpp ${CMAKE_CURRENT_SOURCE_DIR}/playerbot/*.h)
-    source_group("Player Bot" FILES ${Playerbot_Source})
-    
-#file(GLOB AHbot_Source ${CMAKE_CURRENT_SOURCE_DIR}/ahbot/*.cpp ${CMAKE_CURRENT_SOURCE_DIR}/ahbot/*.h)
-#    source_group("AH Bot" FILES ${AHbot_Source})
-    
-#Define base source library
-set(LIBRARY_SRCS 
-    ${Playerbot_Source}
-#    ${AHbot_Source}
-    ${bots_PCH}
+add_library(game STATIC
+  ${game_SRCS}
 )
 
-#Strategy files
-file(GLOB Playerbot_Strategy ${CMAKE_CURRENT_SOURCE_DIR}/playerbot/strategy/*.cpp ${CMAKE_CURRENT_SOURCE_DIR}/playerbot/strategy/*.h)
-    source_group("Player Bot\\Strategies" FILES ${Playerbot_Strategy})
-    LIST(APPEND LIBRARY_SRCS ${Playerbot_Strategy})
-    
-#Action files
-file(GLOB Playerbot_Actions ${CMAKE_CURRENT_SOURCE_DIR}/playerbot/strategy/actions/*.cpp ${CMAKE_CURRENT_SOURCE_DIR}/playerbot/strategy/actions/*.h)
-    source_group("Player Bot\\Strategies\\Actions" FILES ${Playerbot_Actions})
-    LIST(APPEND LIBRARY_SRCS ${Playerbot_Actions})
-    
-#Generic files
-file(GLOB Playerbot_Generic ${CMAKE_CURRENT_SOURCE_DIR}/playerbot/strategy/generic/*.cpp ${CMAKE_CURRENT_SOURCE_DIR}/playerbot/strategy/generic/*.h)
-    source_group("Player Bot\\Strategies\\Generic" FILES ${Playerbot_Generic})
-    LIST(APPEND LIBRARY_SRCS ${Playerbot_Generic})
-    
-#Trigger files
-file(GLOB Playerbot_Triggers ${CMAKE_CURRENT_SOURCE_DIR}/playerbot/strategy/triggers/*.cpp ${CMAKE_CURRENT_SOURCE_DIR}/playerbot/strategy/triggers/*.h)
-    source_group("Player Bot\\Strategies\\Triggers" FILES ${Playerbot_Triggers})
-    LIST(APPEND LIBRARY_SRCS ${Playerbot_Triggers})
-    
-#Value files
-file(GLOB Playerbot_Values ${CMAKE_CURRENT_SOURCE_DIR}/playerbot/strategy/values/*.cpp ${CMAKE_CURRENT_SOURCE_DIR}/playerbot/strategy/values/*.h)
-    source_group("Player Bot\\Strategies\\Values" FILES ${Playerbot_Values})
-    LIST(APPEND LIBRARY_SRCS ${Playerbot_Values})
-    
-## Class files
+target_link_libraries(game
+  shared
+  detour
+  lualib
+)
 
-#Druid AI
-file(GLOB Playerbot_Druid ${CMAKE_CURRENT_SOURCE_DIR}/playerbot/strategy/druid/*.cpp ${CMAKE_CURRENT_SOURCE_DIR}/playerbot/strategy/druid/*.h)
-    source_group("Player Bot\\Strategies\\Druid" FILES ${Playerbot_Druid})
-    LIST(APPEND LIBRARY_SRCS ${Playerbot_Druid})
-    
-#Hunter AI
-file(GLOB Playerbot_Hunter ${CMAKE_CURRENT_SOURCE_DIR}/playerbot/strategy/hunter/*.cpp ${CMAKE_CURRENT_SOURCE_DIR}/playerbot/strategy/hunter/*.h)
-    source_group("Player Bot\\Strategies\\Hunter" FILES ${Playerbot_Hunter})
-    LIST(APPEND LIBRARY_SRCS ${Playerbot_Hunter})
-    
-#Mage AI
-file(GLOB Playerbot_Mage ${CMAKE_CURRENT_SOURCE_DIR}/playerbot/strategy/mage/*.cpp ${CMAKE_CURRENT_SOURCE_DIR}/playerbot/strategy/mage/*.h)
-    source_group("Player Bot\\Strategies\\Mage" FILES ${Playerbot_Mage})
-    LIST(APPEND LIBRARY_SRCS ${Playerbot_Mage})
-    
-#Paladin AI
-file(GLOB Playerbot_Paladin ${CMAKE_CURRENT_SOURCE_DIR}/playerbot/strategy/paladin/*.cpp ${CMAKE_CURRENT_SOURCE_DIR}/playerbot/strategy/paladin/*.h)
-    source_group("Player Bot\\Strategies\\Paladin" FILES ${Playerbot_Paladin})
-    LIST(APPEND LIBRARY_SRCS ${Playerbot_Paladin})
-    
-#Priest AI
-file(GLOB Playerbot_Priest ${CMAKE_CURRENT_SOURCE_DIR}/playerbot/strategy/priest/*.cpp ${CMAKE_CURRENT_SOURCE_DIR}/playerbot/strategy/priest/*.h)
-    source_group("Player Bot\\Strategies\\Priest" FILES ${Playerbot_Priest})
-    LIST(APPEND LIBRARY_SRCS ${Playerbot_Priest})
-    
-#Rogue AI
-file(GLOB Playerbot_Rogue ${CMAKE_CURRENT_SOURCE_DIR}/playerbot/strategy/rogue/*.cpp ${CMAKE_CURRENT_SOURCE_DIR}/playerbot/strategy/rogue/*.h)
-    source_group("Player Bot\\Strategies\\Rogue" FILES ${Playerbot_Rogue})
-    LIST(APPEND LIBRARY_SRCS ${Playerbot_Rogue})
-    
-#Shaman AI
-file(GLOB Playerbot_Shaman ${CMAKE_CURRENT_SOURCE_DIR}/playerbot/strategy/shaman/*.cpp ${CMAKE_CURRENT_SOURCE_DIR}/playerbot/strategy/shaman/*.h)
-    source_group("Player Bot\\Strategies\\Shaman" FILES ${Playerbot_Shaman})
-    LIST(APPEND LIBRARY_SRCS ${Playerbot_Shaman})
-    
-#Warlock AI
-file(GLOB Playerbot_Warlock ${CMAKE_CURRENT_SOURCE_DIR}/playerbot/strategy/warlock/*.cpp ${CMAKE_CURRENT_SOURCE_DIR}/playerbot/strategy/warlock/*.h)
-    source_group("Player Bot\\Strategies\\Warlock" FILES ${Playerbot_Warlock})
-    LIST(APPEND LIBRARY_SRCS ${Playerbot_Warlock})
-    
-#Warrior AI
-file(GLOB Playerbot_Warrior ${CMAKE_CURRENT_SOURCE_DIR}/playerbot/strategy/warrior/*.cpp ${CMAKE_CURRENT_SOURCE_DIR}/playerbot/strategy/warrior/*.h)
-    source_group("Player Bot\\Strategies\\Warrior" FILES ${Playerbot_Warrior})
-    LIST(APPEND LIBRARY_SRCS ${Playerbot_Warrior})
+#add_dependencies(game revision.h)
 
-# Install config files
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/playerbot/aiplayerbot.conf.dist.in ${CMAKE_CURRENT_BINARY_DIR}/aiplayerbot.conf.dist)
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/aiplayerbot.conf.dist DESTINATION ${CONF_INSTALL_DIR})
-
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/ahbot/ahbot.conf.dist.in ${CMAKE_CURRENT_BINARY_DIR}/ahbot.conf.dist)
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/ahbot.conf.dist DESTINATION ${CONF_INSTALL_DIR})
-
-if(WIN32 AND MSVC)
-  add_custom_command(TARGET ${LIBRARY_NAME}
-    POST_BUILD 
-    COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_BINARY_DIR}/ahbot.conf.dist" "${CONF_COPY_DIR}"
-    COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_BINARY_DIR}/aiplayerbot.conf.dist" "${CONF_COPY_DIR}"
-  )
+# Generate precompiled header
+if(PCH)
+  if(MSVC OR XCODE)
+    if(MSVC)
+      set(game_pch "${CMAKE_CURRENT_SOURCE_DIR}/pchdef.cpp")
+    endif()
+    add_native_precompiled_header(game ${CMAKE_CURRENT_SOURCE_DIR}/pchdef.h)
+  elseif(CMAKE_COMPILER_IS_GNUCXX)
+    add_precompiled_header(game ${CMAKE_CURRENT_SOURCE_DIR}/pchdef.h)
+  endif()
 endif()

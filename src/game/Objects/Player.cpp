@@ -2352,7 +2352,7 @@ void Player::AddToWorld()
         if (m_items[i])
             m_items[i]->AddToWorld();
     }
-    sPlayerBotMgr.OnPlayerInWorld(this);
+    sEventBotMgr.OnPlayerInWorld(this);
     GetCheatData()->InitSpeeds(this);
 }
 
@@ -21852,4 +21852,488 @@ PartyResult Player::CanUninviteFromGroup() const
 		return ERR_NOT_IN_GROUP;  // error message is not so appropriated but no other option for classic
 
 	return ERR_PARTY_RESULT_OK;
+}
+
+void Player::ResetToDoQuests()
+{
+	m_questIds.clear();
+}
+
+bool Player::AddToDoQuest(uint32 questId)
+{
+	QuestList::iterator it = find(m_questIds.begin(), m_questIds.end(), questId);
+	if (it != m_questIds.end())
+		return false;
+
+	Quest const *quest = sObjectMgr.GetQuestTemplate(questId);
+
+	if (!CanTakeQuest(quest, false))
+		return false;
+
+	m_questIds.push_back(questId);
+	return true;
+}
+
+
+WorldObject* Player::MoveToQuestStarter(uint32& mapId, uint32& areaId, uint32& zoneId, float& x, float& y, float& z, uint32 questId = 0)
+{
+	uint32 questGiver = 0;
+	ObjectGuid guid;
+
+	float position_x;
+	float position_y;
+	float position_z;
+
+	if (questId == 0)
+	{
+		uint8 level = getLevel();
+
+		if (m_questIds.size() == 0)
+		{
+			ResetToDoQuests();
+
+			for (uint8 questlevel = level; questlevel >= level - 5; questlevel--)
+			{
+				ObjectMgr::QuestMap const& questLevelTemplates = sObjectMgr.GetQuestLevelTemplates(questlevel - 1);
+
+				int quests = 0;
+				for (ObjectMgr::QuestMap::const_iterator i = questLevelTemplates.begin(); i != questLevelTemplates.end(); ++i)
+				{
+					uint32 questId = i->first;
+					Quest const *quest = i->second;
+
+					for (Quest::PrevQuests::const_iterator iter = quest->prevQuests.begin(); iter != quest->prevQuests.end(); ++iter)
+					{
+						uint32 prevId = abs(*iter);
+						if (AddToDoQuest(prevId))
+							++quests;
+					}
+
+					if (AddToDoQuest(questId))
+						++quests;
+
+					if (GetToDoQuestsSize() > 10)
+						break;
+				}
+			}
+
+			sLog.outError("playerbot: Initialed %u quests for level %u", GetToDoQuestsSize(), level);
+			return NULL;
+		}
+
+		QueryResult *result;
+		do
+		{
+			uint32 randomQuest = (uint32)(rand() % m_questIds.size());
+
+			QuestList::iterator it = m_questIds.begin();
+			std::advance(it, randomQuest);
+			questId = *it;
+
+			m_questIds.erase(it);
+
+			result = WorldDatabase.PQuery("SELECT "
+				//           0      1      2     3         4          5         6           7
+				"q.id,c.GUID,c.map,c.position_x,c.position_y,c.position_z"
+				" FROM creature_queststarter q LEFT OUTER JOIN creature c ON c.id = q.id where quest = '%u' ORDER BY RAND() LIMIT 1", questId);
+
+			if (!result)
+				continue;
+
+			do
+			{
+				Field* fields = result->Fetch();
+				questGiver = fields[0].GetUInt32();
+				guid = ObjectGuid(fields[1].GetUInt64());
+				mapId = fields[2].GetUInt32();
+				position_x = fields[3].GetFloat();
+				position_y = fields[4].GetFloat();
+				position_z = fields[5].GetFloat();
+			} while (result->NextRow());
+		} while (!m_questIds.empty());
+	}
+	else
+	{
+		uint32 randomQuest = questId;
+
+		QuestList::iterator it = m_questIds.begin();
+		std::advance(it, randomQuest);
+		if (it != m_questIds.end())
+			m_questIds.erase(it);
+
+		QueryResult* result;
+		result = WorldDatabase.PQuery("SELECT "
+			//           0      1      2     3         4          5         6           7
+			"q.id,c.GUID,map,c.position_x,c.position_y,c.position_z"
+			" FROM creature_queststarter q LEFT OUTER JOIN creature c ON c.id = q.id where quest = '%u' ORDER BY RAND() LIMIT 1", questId);
+
+		if (!result)
+			return NULL;
+
+		do
+		{
+			Field* fields = result->Fetch();
+			questGiver = fields[0].GetUInt32();
+			guid = ObjectGuid(fields[1].GetUInt64());
+			mapId = fields[2].GetUInt32();
+			position_x = fields[3].GetFloat();
+			position_y = fields[4].GetFloat();
+			position_z = fields[5].GetFloat();
+		} while (result->NextRow());
+	}
+
+	if (!questGiver)
+		return NULL;
+
+	Map* map = sMapMgr.FindMap(mapId, 0);
+	if (!map)
+		return NULL;
+	
+	if (map->IsBattleGround() || map->IsDungeon() || map->IsRaid())
+		return NULL;
+
+	areaId = map->GetTerrain()->GetAreaId(x, y, z);
+
+	if (!areaId)
+		return NULL;
+
+	float distance = 50.0f;
+	float ground;
+
+	do
+	{
+		position_x += urand(0, distance) - distance / 2;
+		position_y += urand(0, distance) - distance / 2;
+		UpdateAllowedPositionZ(position_x, position_y, position_z);
+
+		ground = map->GetHeight(position_x, position_y, position_z + 0.5f);
+	} while (ground <= INVALID_HEIGHT);
+
+	x = position_x;
+	y = position_y;
+	z = position_z;
+
+	//sLog->outMessage("playerbot", LOG_LEVEL_INFO, "Teleporting bot %s for quest to %s %f,%f,%f", bot->.c_str(), area->area_name[0], x, y, z);
+
+	GetMotionMaster()->Clear();
+	TeleportTo(mapId, x, y, z, 0);
+
+	return map->GetGameObject(guid);
+}
+
+
+
+
+WorldObject* Player::MoveToQuestEnder(uint32& mapId, uint32& areaId, uint32& zoneId, float& x, float& y, float& z, uint32 questId = 0)
+{
+
+	if (questId != 0)
+	{
+		QuestStatusMap::const_iterator itr = mQuestStatus.find(questId);
+		if (itr == mQuestStatus.end())
+			questId = 0;
+		else
+		{
+			QuestStatusData& q_status = mQuestStatus[questId];
+
+			if (q_status.m_status == QUEST_STATUS_INCOMPLETE)
+				questId = 0;
+		}
+	}
+
+	if (questId == 0)
+	{
+		//    uint32 randomQuest = (uint32)(rand() % m_questIds.size());
+
+		for (QuestStatusMap::iterator itr = mQuestStatus.begin(); itr != mQuestStatus.end(); ++itr)
+		{
+			QuestStatusData &q_status = itr->second;
+
+			if (q_status.m_status == QUEST_STATUS_INCOMPLETE)
+				continue;
+			else
+			{
+				questId = itr->first;
+				break;
+			}
+		}
+	}
+
+	if (questId == 0)
+		return nullptr;
+
+	QueryResult* result = WorldDatabase.PQuery("SELECT "
+		//           0      1      2     3         4          5         6           7
+		"q.id,c.GUID,map,c.position_x,c.position_y,c.position_z"
+		" FROM creature_questender q LEFT OUTER JOIN creature c ON c.id = q.id where quest = '%u' ORDER BY RAND() LIMIT 1", questId);
+
+	if (!result)
+	{
+		Quest const* quest = sObjectMgr.GetQuestTemplate(questId);
+		SetQuestStatus(questId, QUEST_STATUS_COMPLETE);
+		RewardQuest(quest, 0, this, false);
+		return NULL;
+	}
+
+	uint32 questEnder = 0;
+	ObjectGuid guid;
+
+	float position_x;
+	float position_y;
+	float position_z;
+
+	do
+	{
+		Field* fields = result->Fetch();
+		questEnder = fields[0].GetUInt32();
+		guid = ObjectGuid(fields[1].GetUInt64());
+		mapId = fields[2].GetUInt32();
+		position_x = fields[3].GetFloat();
+		position_y = fields[4].GetFloat();
+		position_z = fields[5].GetFloat();
+	} while (result->NextRow());
+
+	if (!questEnder)
+		return nullptr;
+
+	Map* map = sMapMgr.FindMap(mapId, 0);
+	if (!map)
+		return nullptr;
+
+	if (map->IsBattleGround() || map->IsDungeon() || map->IsRaid())
+		return NULL;
+
+	areaId = map->GetTerrain()->GetAreaId(x, y, z);
+
+	if (!areaId)
+		return nullptr;
+
+	float distance = 50.0f;
+	float ground;
+
+	do
+	{
+		position_x += urand(0, distance) - distance / 2;
+		position_y += urand(0, distance) - distance / 2;
+		UpdateAllowedPositionZ(position_x, position_y, position_z);
+
+		ground = map->GetHeight(position_x, position_y, position_z + 0.5f);
+	} while (ground <= INVALID_HEIGHT);
+
+	x = position_x;
+	y = position_y;
+	z = position_z;
+
+	// sLog->outMessage("playerbot", LOG_LEVEL_INFO, "Teleporting bot %s for quest to %s %f,%f,%f", bot->.c_str(), area->area_name[0], x, y, z);
+
+	GetMotionMaster()->Clear();
+	TeleportTo(mapId, x, y, z, 0);
+
+	return map->GetGameObject(guid);
+}
+
+
+WorldObject* Player::MoveToQuestPosition(uint32& mapId, uint32& areaId, uint32& zoneId, float& x, float& y, float& z, uint32 questId = 0)
+{
+	if (questId != 0)
+	{
+		QuestStatusMap::const_iterator itr = mQuestStatus.find(questId);
+		if (itr == mQuestStatus.end())
+			questId = 0;
+		else
+		{
+			QuestStatusData& q_status = mQuestStatus[questId];
+
+			if (q_status.m_status == QUEST_STATUS_INCOMPLETE)
+				questId = 0;
+		}
+	}
+
+
+	if ((questId == 0) && (mQuestStatus.size() > 0))
+	{
+		uint32 randomQuest = (uint32)(rand() % mQuestStatus.size() - 1);
+
+		QuestStatusMap::iterator itr = mQuestStatus.begin();
+		std::advance(itr, randomQuest);
+
+		for (; itr != mQuestStatus.end(); ++itr)
+		{
+			QuestStatusData& q_status = mQuestStatus[questId];
+
+			if (q_status.m_status == QUEST_STATUS_COMPLETE)
+				continue;
+			else
+			{
+				questId = itr->first;
+				break;
+			}
+		}
+	}
+
+	if (questId == 0)
+		return nullptr;
+
+	Quest const* quest = sObjectMgr.GetQuestTemplate(questId);
+	QuestStatusData& questStatusData = mQuestStatus[questId];
+
+	if (!quest)
+		return nullptr;
+
+	uint32 npcId = 0;
+
+	for (int count = 0; count < quest->GetReqCreatureOrGOcount(); count++)
+	{
+		if (questStatusData.m_creatureOrGOcount[count] < quest->ReqCreatureOrGOCount[count])
+			npcId = quest->ReqCreatureOrGOId[count];
+	}
+
+	if (npcId)
+	{
+		QueryResult* result;
+		result = WorldDatabase.PQuery("SELECT "
+			// 0      1      2     3         4          5         6           7
+			"id,GUID,map,position_x,position_y,position_z"
+			" FROM creature where id = '%u' ORDER BY RAND() LIMIT 1", npcId);
+
+		ObjectGuid guid;
+
+		float position_x;
+		float position_y;
+		float position_z;
+
+		do
+		{
+			Field* fields = result->Fetch();
+			npcId = fields[0].GetUInt32();
+			guid = ObjectGuid(fields[1].GetUInt64());
+			mapId = fields[2].GetUInt32();
+			position_x = fields[3].GetFloat();
+			position_y = fields[4].GetFloat();
+			position_z = fields[5].GetFloat();
+		} while (result->NextRow());
+
+		if (npcId)
+		{
+
+			Map* map = sMapMgr.FindMap(mapId, 0);
+			if (!map)
+				return nullptr;
+
+			if (map->IsBattleGround() || map->IsDungeon() || map->IsRaid())
+				return nullptr;
+
+			areaId = map->GetTerrain()->GetAreaId(x, y, z);
+
+			if (!areaId)
+				return nullptr;
+
+			float distance = 50.0f;
+			float ground;
+
+			do
+			{
+				position_x += urand(0, distance) - distance / 2;
+				position_y += urand(0, distance) - distance / 2;
+				UpdateAllowedPositionZ(position_x, position_y, position_z);
+
+				ground = map->GetHeight(position_x, position_y, position_z + 0.5f);
+			} while (ground <= INVALID_HEIGHT);
+
+			x = position_x;
+			y = position_y;
+			z = position_z;
+
+			return  map->GetGameObject(guid);
+		}
+	}
+
+	uint32 itemId = 0;
+
+	for (int count = 0; count < quest->GetReqCreatureOrGOcount(); count++)
+	{
+		if (questStatusData.m_itemcount[count] < quest->ReqItemCount[count])
+			itemId = quest->ReqItemId[count];
+	}
+
+
+	if (itemId)
+	{
+		QueryResult* result;
+		result = WorldDatabase.PQuery("SELECT "
+			// 0     
+			"c.entry"
+			" FROM creature_loot_template c where item = '%u' ORDER BY RAND() LIMIT 1", itemId);
+
+		do
+		{
+			Field* fields = result->Fetch();
+			npcId = fields[0].GetUInt32();
+		} while (result->NextRow());
+
+	}
+
+	if (npcId)
+	{
+		QueryResult* result;
+		result = WorldDatabase.PQuery("SELECT "
+			// 0      1      2     3         4          5         		
+			"id,GUID,map,position_x,position_y,position_z"
+			" FROM creature q where id = '%u' ORDER BY NEWID() LIMIT 1", npcId);
+
+		ObjectGuid guid;
+
+		float position_x;
+		float position_y;
+		float position_z;
+
+		do
+		{
+			Field* fields = result->Fetch();
+			npcId = fields[0].GetUInt32();
+			guid = ObjectGuid(fields[1].GetUInt64());
+			mapId = fields[2].GetUInt32();
+			position_x = fields[3].GetFloat();
+			position_y = fields[4].GetFloat();
+			position_z = fields[5].GetFloat();
+		} while (result->NextRow());
+
+		if (npcId)
+		{
+
+			Map* map = sMapMgr.FindMap(mapId, 0);
+			if (!map)
+				return nullptr;
+
+			if (map->IsBattleGround() || map->IsDungeon() || map->IsRaid())
+				return nullptr;
+
+			areaId = map->GetTerrain()->GetAreaId(x, y, z);
+
+			if (!areaId)
+				return nullptr;
+
+			float distance = 50.0f;
+			float ground;
+
+			do
+			{
+				position_x += urand(0, distance) - distance / 2;
+				position_y += urand(0, distance) - distance / 2;
+				UpdateAllowedPositionZ(position_x, position_y, position_z);
+
+				ground = map->GetHeight(position_x, position_y, position_z + 0.5f);
+			} while (ground <= INVALID_HEIGHT);
+
+			x = position_x;
+			y = position_y;
+			z = position_z;
+
+			// sLog->outMessage("playerbot", LOG_LEVEL_INFO, "Teleporting bot %s for quest to %s %f,%f,%f", bot->.c_str(), area->area_name[0], x, y, z);			
+
+			return  map->GetGameObject(guid);
+		}
+	}
+
+	return nullptr;
 }

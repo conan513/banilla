@@ -208,7 +208,7 @@ void InventoryAction::TellItems(map<uint32, int> itemMap)
             case ITEM_CLASS_PERMANENT:
                 ai->TellMaster("--- permanent ---");
                 break;
-            case ITEM_CLASS_MISC:
+            case ITEM_CLASS_JUNK:
                 ai->TellMaster("--- other ---");
                 break;
             }

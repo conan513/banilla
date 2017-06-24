@@ -1,15 +1,15 @@
 #include "../pchdef.h"
 #include "playerbot.h"
 #include "PlayerbotFactory.h"
-#include "../../game/GuildMgr.h"
+#include "GuildMgr.h"
 
-#include "../../game/ItemPrototype.h"
+#include "ItemPrototype.h"
 
 #include "PlayerbotAIConfig.h"
-#include "../../game/DBCStores.h"
-#include "../../game/SharedDefines.h"
-#include "../../game/AuctionHouseBot/AuctionHouseBot.h"
-#include "../../game/Pet.h"
+#include "DBCStores.h"
+#include "SharedDefines.h"
+#include "AuctionHouseBot/AhBot.h"
+#include "Pet.h"
 #include "RandomPlayerbotFactory.h"
 
 using namespace ai;
@@ -180,7 +180,7 @@ void PlayerbotFactory::InitPet()
 			if (!co->isTameable())
 				continue;
 
-			if (co->MinLevel > bot->getLevel())
+			if (co->minlevel> bot->getLevel())
 				continue;
 
 			PetLevelInfo const* petInfo = sObjectMgr.GetPetLevelInfo(co->Entry, bot->getLevel());
@@ -252,7 +252,7 @@ void PlayerbotFactory::InitPet()
         return;
     }
 
-	for (PetSpellMap::const_iterator itr = pet->m_spells.begin(); itr != pet->m_spells.end(); ++itr)
+	for (PetSpellMap::const_iterator itr = pet->m_petSpells.begin(); itr != pet->m_petSpells.end(); ++itr)
 	{
 		if (itr->second.state == PETSPELL_REMOVED)
 			continue;
@@ -333,7 +333,7 @@ private:
 
 
 		ItemPrototype const* proto = sItemStorage.LookupEntry<ItemPrototype>(id);
-        if (proto->Class == ITEM_CLASS_MISC && (proto->SubClass == ITEM_SUBCLASS_JUNK_REAGENT || proto->SubClass == ITEM_SUBCLASS_JUNK))
+        if (proto->Class == ITEM_CLASS_JUNK && (proto->SubClass == ITEM_SUBCLASS_JUNK_REAGENT || proto->SubClass == ITEM_SUBCLASS_JUNK))
             return true;
 
         return false;
@@ -863,7 +863,7 @@ void PlayerbotFactory::EnchantItem(Item* item)
     vector<uint32> ids;
     for (int id = 0; id < sSpellStore.GetNumRows(); ++id)
     {
-		SpellEntry const *entry = sSpellStore.LookupEntry(id);
+		SpellEntry const *entry = sSpellMgr.GetSpellEntry(id);
 
         if (!entry)
             continue;
@@ -892,7 +892,7 @@ void PlayerbotFactory::EnchantItem(Item* item)
 			if (!enchant || enchant->slot != PERM_ENCHANTMENT_SLOT)
 				continue;
 
-			const SpellEntry *enchantSpell = sSpellStore.LookupEntry(enchant->spellid[0]);
+			const SpellEntry *enchantSpell = sSpellMgr.GetSpellEntry(enchant->spellid[0]);
 			if (!enchantSpell || (enchantSpell->spellLevel && enchantSpell->spellLevel > level))
 				continue;
 
@@ -1074,13 +1074,13 @@ void PlayerbotFactory::InitAvailableSpells()
 		if (!co)
 			continue;
 
-		if (co->TrainerType != TRAINER_TYPE_TRADESKILLS && co->TrainerType != TRAINER_TYPE_CLASS)
+		if (co->trainer_type != TRAINER_TYPE_TRADESKILLS && co->trainer_type != TRAINER_TYPE_CLASS)
 			continue;
 
-		if (co->TrainerType == TRAINER_TYPE_CLASS && co->TrainerClass != bot->getClass())
+		if (co->trainer_type == TRAINER_TYPE_CLASS && co->trainer_class != bot->getClass())
 			continue;
 
-		uint32 trainerId = co->TrainerTemplateId;
+		uint32 trainerId = co->trainerId;
 		if (!trainerId)
 			trainerId = co->Entry;
 
@@ -1100,8 +1100,8 @@ void PlayerbotFactory::InitAvailableSpells()
 
 			uint32 reqLevel = 0;
 
-			reqLevel = tSpell->isProvidedReqLevel ? tSpell->reqLevel : std::max(reqLevel, tSpell->reqLevel);
-			TrainerSpellState state = bot->GetTrainerSpellState(tSpell, reqLevel);
+			//reqLevel = tSpell->isProvidedReqLevel ? tSpell->reqLevel : std::max(reqLevel, tSpell->reqLevel);
+			TrainerSpellState state = bot->GetTrainerSpellState(tSpell);
 			if (state != TRAINER_SPELL_GREEN)
 				continue;
 

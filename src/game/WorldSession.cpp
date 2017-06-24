@@ -51,6 +51,7 @@
 #include "NodesOpcodes.h"
 #include "MasterPlayer.h"
 #include "LuaEngine.h"
+#include "playerbot.h"
 
 // select opcodes appropriate for processing in Map::Update context for current session state
 static bool MapSessionFilterHelper(WorldSession* session, OpcodeHandler const& opHandle)
@@ -144,6 +145,14 @@ void WorldSession::SendPacket(WorldPacket const* packet)
         sLog.outInfo("[NETWORK] Packet %s size %u is too large. Not sent [Account %u Player %s]", LookupOpcodeName(packet->GetOpcode()), packet->size(), GetAccountId(), GetPlayerName());
         return;
     }
+
+	if (GetPlayer()) {
+		if (GetPlayer()->GetPlayerbotAI())
+			GetPlayer()->GetPlayerbotAI()->HandleBotOutgoingPacket(*packet);
+		else if (GetPlayer()->GetPlayerbotMgr())
+			GetPlayer()->GetPlayerbotMgr()->HandleMasterOutgoingPacket(*packet);
+	}
+
     if (!m_Socket && !m_masterSession)
     {
         if (packet->GetOpcode() == SMSG_MESSAGECHAT)
@@ -293,7 +302,7 @@ void WorldSession::LogUnprocessedTail(WorldPacket *packet)
 
 bool WorldSession::ForcePlayerLogoutDelay()
 {
-    if (!sWorld.IsStopped() && GetPlayer() && (GetPlayer()->IsBeingTeleportedFar() || GetPlayer()->FindMap() && GetPlayer()->IsInWorld()) && sPlayerBotMgr.ForceLogoutDelay())
+    if (!sWorld.IsStopped() && GetPlayer() && (GetPlayer()->IsBeingTeleportedFar() || GetPlayer()->FindMap() && GetPlayer()->IsInWorld()) && sEventBotMgr.ForceLogoutDelay())
     {
         sLog.out(LOG_CHAR, "Account: %d (IP: %s) Lost socket for character:[%s] (guid: %u)", GetAccountId(), GetRemoteAddress().c_str(), _player->GetName() , _player->GetGUIDLow());
         sWorld.LogCharacter(GetPlayer(), "LostSocket");
@@ -344,6 +353,10 @@ bool WorldSession::Update(PacketFilter& updater)
             _clientHashComputeStep = HASH_NOTIFIED;
             sAnticheatLib->OnClientHashComputed(this);
         }
+
+		if (GetPlayer() && GetPlayer()->GetPlayerbotMgr())
+			GetPlayer()->GetPlayerbotMgr()->UpdateSessions(0);
+
         ///- Cleanup socket pointer if need
         if (m_Socket && m_Socket->IsClosed())
         {
@@ -356,7 +369,7 @@ bool WorldSession::Update(PacketFilter& updater)
 
         ///- If necessary, log the player out
         time_t currTime = time(nullptr);
-        bool forceConnection = sPlayerBotMgr.ForceAccountConnection(this);
+        bool forceConnection = sEventBotMgr.ForceAccountConnection(this);
         if (sWorld.IsStopped())
             forceConnection = false;
         if ((!m_Socket || (ShouldLogOut(currTime) && !m_playerLoading)) && !forceConnection && m_bot == nullptr)
@@ -448,7 +461,7 @@ bool WorldSession::CanProcessPackets() const
 {
     if (GetMasterSession())
         return true;
-    return ((m_Socket && !m_Socket->IsClosed()) || (_player && sPlayerBotMgr.IsChatBot(_player->GetGUIDLow())));
+    return ((m_Socket && !m_Socket->IsClosed()) || (_player && sEventBotMgr.IsChatBot(_player->GetGUIDLow())));
 }
 
 void WorldSession::ProcessPackets(PacketFilter& updater)
@@ -509,6 +522,10 @@ void WorldSession::ProcessPackets(PacketFilter& updater)
                         ExecuteOpcode(opHandle, packet);
 
                     // lag can cause STATUS_LOGGEDIN opcodes to arrive after the player started a transfer
+
+					if (_player && _player->GetPlayerbotMgr())
+						_player->GetPlayerbotMgr()->HandleMasterIncomingPacket(*packet);
+
                     break;
                 case STATUS_LOGGEDIN_OR_RECENTLY_LOGGEDOUT:
                     if (!_player && !m_playerRecentlyLogout)
@@ -628,6 +645,17 @@ bool WorldSession::UpdateDisconnected(uint32 diff)
     return true;
 }
 
+void WorldSession::HandleBotPackets()
+{
+	WorldPacket* packet;
+	while (_recvQueue.next(packet))
+	{
+		OpcodeHandler const& opHandle = opcodeTable[packet->GetOpcode()];
+		(this->*opHandle.handler)(*packet);
+		delete packet;
+	}
+}
+
 /// %Log the player out
 void WorldSession::LogoutPlayer(bool Save)
 {
@@ -648,6 +676,10 @@ void WorldSession::LogoutPlayer(bool Save)
         sWorld.LogCharacter(_player, "Logout");
         if (ObjectGuid lootGuid = GetPlayer()->GetLootGuid())
             DoLootRelease(lootGuid);
+
+		if (_player->GetPlayerbotMgr())
+			_player->GetPlayerbotMgr()->LogoutAllBots();
+		sRandomPlayerbotMgr.OnPlayerLogout(_player);
 
         ///- If the player just died before logging out, make him appear as a ghost
         if (inWorld && _player->GetDeathTimer())
@@ -751,6 +783,16 @@ void WorldSession::LogoutPlayer(bool Save)
         // a) in group; b) not in raid group; c) logging out normally (not being kicked or disconnected)
         if (_player->GetGroup() && !_player->GetGroup()->isRaidGroup() && m_Socket)
             _player->RemoveFromGroup();
+
+		///- If the player is in a group (or invited), remove him. If the group if then only 1 person, disband the group.
+		_player->UninviteFromGroup();
+
+		// remove player from the group if he is:
+		// a) in group; b) not in raid group; c) logging out normally (not being kicked or disconnected)
+		if (_player->GetGroup() && !_player->GetGroup()->isRaidGroup() && m_Socket)
+		{
+			_player->RemoveFromGroup();
+		}
 
         ///- Send update to group
         if (Group* group = _player->GetGroup())

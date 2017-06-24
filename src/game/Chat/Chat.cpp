@@ -37,6 +37,10 @@
 #include "GameEventMgr.h"
 #include "LuaEngine.h"
 
+#include "AhBot.h"
+#include "playerbot.h"
+#include "GuildTaskMgr.h"
+
 // Supported shift-links (client generated and server side)
 // |color|Harea:area_id|h[name]|h|r
 // |color|Hareatrigger:id|h[name]|h|r
@@ -1020,8 +1024,11 @@ ChatCommand * ChatHandler::getCommandTable()
         { NODE, "service",        SEC_ADMINISTRATOR,  true, nullptr,                                           "", serviceCommandTable  },
 
         { NODE, "export",         SEC_CONSOLE,        true, nullptr,               "Export DBC files to database", exportCommandTable},
-        { NODE, "bot",            SEC_GAMEMASTER,     true, nullptr,                                "Manage bots", botCommandTable},
-        { NODE, "ahbot",          SEC_GAMEMASTER,     true, nullptr,                              "Manage AH bot", ahbotCommandTable},
+        { NODE, "eventbot",            SEC_GAMEMASTER,     true, nullptr,                                "Manage bots", botCommandTable},
+		{ NODE, "ahbot",          SEC_GAMEMASTER,     true,  &ChatHandler::HandleAhBotCommand,                      "" , nullptr },
+		{ NODE,  "rndbot",        SEC_GAMEMASTER,     true,  &ChatHandler::HandleRandomPlayerbotCommand,     "" , nullptr },
+		{ NODE, "bot",            SEC_PLAYER,         false, &ChatHandler::HandlePlayerbotCommand,               "" , nullptr },
+		{ NODE,  "gtask",         SEC_GAMEMASTER,     true,  &ChatHandler::HandleGuildTaskCommand,           "" , nullptr },
         { NODE, "world",          SEC_GAMEMASTER,     false, nullptr,                                           "", worldCommandTable },
         { NODE, "possess",        SEC_GAMEMASTER,     false, &ChatHandler::HandlePossessCommand,             "", nullptr},
         { NODE, "cinematic",      SEC_GAMEMASTER,     false, nullptr,                                           "", cinematicCommandTable},

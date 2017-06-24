@@ -63,6 +63,8 @@
 #include "Anticheat.h"
 #include "LuaEngine.h"
 #include "ElunaEventMgr.h"
+#include "playerbot.h"
+#include "GuildTaskMgr.h"
 
 #include <math.h>
 #include <stdarg.h>
@@ -1058,6 +1060,7 @@ void Unit::Kill(Unit* pVictim, SpellEntry const *spellProto, bool durabilityLoss
 			player_tap->RewardSinglePlayerAtKill(pVictim);
 		}
 
+		sGuildTaskMgr.CheckKillTask(player_tap, pVictim);
 		// used by eluna
 		sEluna->OnCreatureKill(player_tap, creature);
     }
