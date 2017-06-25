@@ -3,8 +3,8 @@
 #include "PlayerbotAIConfig.h"
 #include "RandomItemMgr.h"
 
-#include "../../game/AuctionHouseBot/AuctionHouseBot.h"
-#include "../../../shared/Database/DatabaseEnv.h"
+#include "AhBot.h"
+#include "DatabaseEnv.h"
 #include "PlayerbotAI.h"
 
 #include "../botpch.h"

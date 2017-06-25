@@ -1,9 +1,9 @@
 #include "../../../botpch.h"
 #include "../../playerbot.h"
 #include "AttackAction.h"
-#include "../../game/MovementGenerator.h"
-#include "../../game/AI/CreatureAI.h"
-#include "../../game/Pet.h"
+#include "MovementGenerator.h"
+#include "AI/CreatureAI.h"
+#include "Pet.h"
 #include "../../LootObjectStack.h"
 
 using namespace ai;
@@ -24,7 +24,7 @@ bool AttackMyTargetAction::Execute(Event event)
     if (!master)
         return false;
 
-    Unit* target = master->GetSelectedUnit();
+    Unit* target = master->getSelectedUnit();
     if (!target)
     {
         if (verbose) ai->TellMaster("You have no target");
@@ -49,10 +49,9 @@ bool AttackAction::Attack(Unit* target)
         return false;
     }
 
-	if (target->IsDead())
+	if (target->isDead())
 	{
-		msg << " is dead";
-		if (verbose) ai->TellMaster(msg.str());
+		if (verbose) ai->TellMaster("Target is dead");
 		return false;
 	}
 
@@ -84,7 +83,7 @@ bool AttackAction::Attack(Unit* target)
         return false;
     }
 
-	if (target && (target->UnderCc() || target->isStunned() || target->isFrozen()))
+	if (target && (target->UnderCc() || target->IsStunned() || target->isFrozen()))
 	{
 		float minHealth = 0;
 
@@ -137,7 +136,7 @@ bool AttackAction::Attack(Unit* target)
     }
 
     ObjectGuid guid = target->GetGUID();
-    bot->SetSelection(target->GetGUID());
+    bot->SetSelectionGuid(target->GetGUID());
 
     Unit* oldTarget = context->GetValue<Unit*>("current target")->Get();
     context->GetValue<Unit*>("old target")->Set(oldTarget);

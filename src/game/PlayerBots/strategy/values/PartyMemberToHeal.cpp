@@ -1,20 +1,20 @@
-#include "../../../botpch.h"
+#include "../../botpch.h"
 #include "../../playerbot.h"
 #include "PartyMemberToHeal.h"
 #include "../../PlayerbotAIConfig.h"
-#include "../../../Entities/Pet/Pet.h"
+#include "Pet.h"
 
 using namespace ai;
 
 class IsTargetOfHealingSpell : public SpellEntryPredicate
 {
 public:
-    virtual bool Check(SpellProto const* spell) {
+    virtual bool Check(SpellEntry const* spell) {
         for (int i=0; i<3; i++) {
-            if (spell->Effects[i].Effect == SPELL_EFFECT_HEAL ||
-                spell->Effects[i].Effect == SPELL_EFFECT_HEAL_MAX_HEALTH ||
-                spell->Effects[i].Effect == SPELL_EFFECT_HEAL_MECHANICAL ||
-                spell->Effects[i].Effect == SPELL_EFFECT_HEAL_PCT)
+            if (spell->Effect[i] == SPELL_EFFECT_HEAL ||
+                spell->Effect[i] == SPELL_EFFECT_HEAL_MAX_HEALTH ||
+                spell->Effect[i] == SPELL_EFFECT_HEAL_MECHANICAL ||
+                spell->Effect[i] == SPELL_EFFECT_HEAL_PCT)
                 return true;
         }
         return false;
@@ -35,8 +35,8 @@ Unit* PartyMemberToHeal::Calculate()
     MinValueCalculator calc(100);
     for (GroupReference *gref = group->GetFirstMember(); gref; gref = gref->next())
     {
-        Player* player = gref->GetSource();
-        if (!Check(player) || !player->IsAlive())
+        Player* player = gref->getSource();
+        if (!Check(player) || !player->isAlive())
             continue;
 
         uint8 health = player->GetHealthPercent();

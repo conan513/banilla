@@ -12,7 +12,7 @@ bool TradeAction::Execute(Event event)
     uint32 copper = chat->parseMoney(text);
     if (copper > 0)
     {
-		std::unique_ptr<WorldPacket> packet(new WorldPacket(CMSG_SET_TRADE_GOLD, 4));
+		WorldPacket* const packet = new WorldPacket(CMSG_SET_TRADE_GOLD, 4);
         *packet << copper;
         bot->GetSession()->QueuePacket(std::move(packet));
     }
@@ -54,7 +54,7 @@ bool TradeAction::TradeItem(const Item& item, int8 slot)
             {
                 tradeSlot = i;
 
-				std::unique_ptr<WorldPacket> packet(new WorldPacket(CMSG_CLEAR_TRADE_ITEM, 1));
+				WorldPacket* const packet = new WorldPacket(CMSG_CLEAR_TRADE_ITEM, 1);
                 *packet << (uint8) tradeSlot;
                 bot->GetSession()->QueuePacket(std::move(packet));
                 pTrade->SetItem(TradeSlots(i), NULL);
@@ -74,7 +74,7 @@ bool TradeAction::TradeItem(const Item& item, int8 slot)
 
     if (tradeSlot == -1) return false;
 
-	std::unique_ptr<WorldPacket> packet(new WorldPacket(CMSG_SET_TRADE_ITEM, 3));
+	WorldPacket* const packet = new WorldPacket(CMSG_SET_TRADE_ITEM, 3);
     *packet << (uint8) tradeSlot << (uint8) item.GetBagSlot()
         << (uint8) item.GetSlot();
     bot->GetSession()->QueuePacket(std::move(packet));

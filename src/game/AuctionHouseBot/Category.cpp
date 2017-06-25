@@ -140,14 +140,14 @@ bool TradeSkill::Contains(ItemPrototype const* proto)
 
 bool TradeSkill::IsCraftedBy(ItemPrototype const* proto, uint32 spellId)
 {
-    SpellEntry const *entry = sSpellStore.LookupEntry(spellId);
+    SpellEntry const *entry = sSpellMgr.GetSpellEntry(spellId);
     if (!entry)
         return false;
 
     for (uint32 effect = EFFECT_INDEX_0; effect < MAX_EFFECT_INDEX; ++effect)
     {
         uint32 craftId = entry->EffectTriggerSpell[effect];
-        SpellEntry const *craft = sSpellStore.LookupEntry(craftId);
+        SpellEntry const *craft = sSpellMgr.GetSpellEntry(craftId);
         if (!craft)
             continue;
 

@@ -1,9 +1,9 @@
 #pragma once
 #include "../Trigger.h"
 
-#include "../../game/BattleGround/BattleGround.h"
-#include "../../game/BattleGround/BattleGroundMgr.h"
-#include "../../game/BattleGround/BattleGroundWS.h"
+#include "BattleGround.h"
+#include "BattleGroundMgr.h"
+#include "BattleGroundWS.h"
 #include "../../PlayerbotAIConfig.h"
 
 #define BUFF_TRIGGER(clazz, spell, action) \

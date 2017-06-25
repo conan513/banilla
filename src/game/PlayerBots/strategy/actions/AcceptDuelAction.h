@@ -19,10 +19,9 @@ namespace ai
             ObjectGuid playerGuid;
             p >> playerGuid;
 
-			std::unique_ptr<WorldPacket> packet(new WorldPacket(CMSG_DUEL_ACCEPTED, 8));
+			WorldPacket* const packet= new WorldPacket(CMSG_DUEL_ACCEPTED, 8);
             *packet << flagGuid;
             bot->GetSession()->QueuePacket(std::move(packet));
-
             ai->ResetStrategies();
             return true;
         }

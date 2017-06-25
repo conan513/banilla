@@ -18,7 +18,7 @@ public:
 		{
 			for (int j = 0; j < MAX_ITEM_PROTO_SPELLS; j++)
 			{
-				const SpellEntry* const spellInfo = sSpellStore.LookupEntry(proto->Spells[j].SpellId);
+				const SpellEntry* const spellInfo = sSpellMgr.GetSpellEntry(proto->Spells[j].SpellId);
 				if (!spellInfo)
 					return false;
 
@@ -333,7 +333,7 @@ bool InventoryAction::UseItem(Item* item,  Item* itemTarget)
     uint32 glyphIndex = 0;
     uint8 unk_flags = 0;
 
-	std::unique_ptr<WorldPacket> packet(new WorldPacket(CMSG_USE_ITEM, 1 + 1 + 1 + 4 + 8 + 4 + 1 + 8 + 1));
+	WorldPacket* const packet = new WorldPacket(CMSG_USE_ITEM, 1 + 1 + 1 + 4 + 8 + 4 + 1 + 8 + 1);
     *packet << bagIndex << slot << cast_count << uint32(0) << item_guid
         << glyphIndex << unk_flags;
 
@@ -363,7 +363,7 @@ bool InventoryAction::UseItem(Item* item,  Item* itemTarget)
     bot->clearUnitState( UNIT_STAT_CHASE );
     bot->clearUnitState( UNIT_STAT_FOLLOW );
 
-    if (bot->isMoving())
+    if (bot->IsMoving())
         return false;
 
     for (int i=0; i<MAX_ITEM_PROTO_SPELLS; i++)
@@ -375,7 +375,7 @@ bool InventoryAction::UseItem(Item* item,  Item* itemTarget)
         if (!ai->CanCastSpell(spellId, bot, false))
             continue;
 
-		const SpellEntry* const pSpellInfo = sSpellStore.LookupEntry(spellId);
+		const SpellEntry* const pSpellInfo = sSpellMgr.GetSpellEntry(spellId);
 		if (pSpellInfo->Targets & TARGET_FLAG_ITEM)
         {
             Item* itemForSpell = AI_VALUE2(Item*, "item for spell", spellId);

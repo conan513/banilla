@@ -1,7 +1,7 @@
 #include "../../../botpch.h"
 #include "../../playerbot.h"
 #include "PartyMemberToDispel.h"
-#include "../../../Entities/Pet/Pet.h"
+#include "Pet.h"
 
 using namespace ai;
 
@@ -21,7 +21,7 @@ public:
                 return false;
         }
 
-        return unit->IsAlive() && ai->HasAuraToDispel(unit, dispelType);
+        return unit->isAlive() && ai->HasAuraToDispel(unit, dispelType);
     }
 
 private:

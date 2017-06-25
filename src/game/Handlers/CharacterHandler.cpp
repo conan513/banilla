@@ -223,7 +223,7 @@ public:
         session->HandlePlayerLogin((LoginQueryHolder*)holder);
 
 		ObjectGuid guid = ((LoginQueryHolder*)holder)->GetGuid();
-		Player* player = sObjectMgr.GetPlayer(guid, true);
+		Player* player = sObjectMgr.GetPlayer(guid);
 		if (player && !player->GetPlayerbotAI())
 		{
 			player->SetPlayerbotMgr(new PlayerbotMgr(player));

@@ -29,10 +29,9 @@ namespace ai
                     return true;
             }
 
-            if (!ChatHelper::parseable(command))
+            if (!ai::ChatHelper::parseable(command))
                 return false;
 
-            HandleCommand("q", command, owner);
             HandleCommand("c", command, owner);
             HandleCommand("t", command, owner);
             return true;

@@ -2,7 +2,7 @@
 #include "../../playerbot.h"
 #include "../../RandomPlayerbotMgr.h"
 #include "SecurityCheckAction.h"
-#include "../../../Groups/Group.h"
+#include "Group.h"
 
 using namespace ai;
 

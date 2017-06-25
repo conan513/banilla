@@ -75,7 +75,7 @@ private:
     Player* const master;
 };
 
-class PlayerBotAI;
+class EventBotAI;
 class WorldSession;
 
 enum PlayerBotState
@@ -85,7 +85,7 @@ enum PlayerBotState
     PB_STATE_ONLINE
 };
 
-struct PlayerBotEntry
+struct EventBotEntry
 {
     uint64 playerGUID;
     std::string name;
@@ -95,11 +95,11 @@ struct PlayerBotEntry
     uint8 state; //Online, in queue or offline
     bool isChatBot; // bot des joueurs en discussion via le site.
     bool customBot; // Enabled even if PlayerBot system disabled (AutoTesting system for example)
-    PlayerBotAI* ai;
+    EventBotAI* ai;
 
-    PlayerBotEntry(uint64 guid, uint32 account, uint32 _chance): playerGUID(guid), accountId(account), chance(_chance), state(PB_STATE_OFFLINE), isChatBot(false), ai(NULL), customBot(false)
+    EventBotEntry(uint64 guid, uint32 account, uint32 _chance): playerGUID(guid), accountId(account), chance(_chance), state(PB_STATE_OFFLINE), isChatBot(false), ai(NULL), customBot(false)
     {}
-    PlayerBotEntry(): state(PB_STATE_OFFLINE), isChatBot(false), ai(NULL), accountId(0), playerGUID(0), chance(100.0f), customBot(false)
+    EventBotEntry(): state(PB_STATE_OFFLINE), isChatBot(false), ai(NULL), accountId(0), playerGUID(0), chance(100.0f), customBot(false)
     {}
 };
 
@@ -135,7 +135,7 @@ class EventBotMgr
         void update(uint32 diff);
         bool addOrRemoveBot();
 
-        bool addBot(PlayerBotAI* ai);
+        bool addBot(EventBotAI* ai);
         bool addBot(uint32 playerGuid, bool chatBot=false);
         bool deleteBot(uint32 playerGuid);
 
@@ -145,8 +145,8 @@ class EventBotMgr
         void deleteAll();
         void addAllBots();
 
-        void OnBotLogout(PlayerBotEntry *e);
-        void OnBotLogin(PlayerBotEntry *e);
+        void OnBotLogout(EventBotEntry *e);
+        void OnBotLogin(EventBotEntry *e);
         void OnPlayerInWorld(Player* pPlayer);
         void AddTempBot(uint32 account, uint32 time);
         void RefreshTempBot(uint32 account);
@@ -167,7 +167,7 @@ class EventBotMgr
         uint32 totalChance;
         uint32 _maxAccountId;
 
-        std::map<uint32 /*pl guid*/, PlayerBotEntry*> m_bots;
+        std::map<uint32 /*pl guid*/, EventBotEntry*> m_bots;
         std::map<uint32 /*account*/, uint32> m_tempBots;
         PlayerBotStats m_stats;
 

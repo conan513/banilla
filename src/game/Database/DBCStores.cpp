@@ -561,6 +561,11 @@ char const* GetAreaLocaleNameByAreaID(uint32 area_id, uint8 locale)
 	else return NULL;
 }
 
+AreaTableEntry const* GetAreaEntryByAreaID(uint32 area_id)
+{
+	return sAreaStore.LookupEntry(area_id);
+}
+
 uint32 GetAreaIdByLocalizedName(const std::string& name) // Channel name provided
 {
     AreaTableEntry const* aEntry = NULL;

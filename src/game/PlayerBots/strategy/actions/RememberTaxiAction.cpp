@@ -35,7 +35,7 @@ bool RememberTaxiAction::Execute(Event event)
             {
                 uint32 node;
                 p >> node;
-                movement.taxiNodes.push_back(node);
+                movement.taxiNodes.push_back(std::move(node));
             }
 
             return true;

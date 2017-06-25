@@ -3821,6 +3821,39 @@ bool Unit::IsNonMeleeSpellCasted(bool withDelayed, bool skipChanneled, bool skip
     return (false);
 }
 
+bool Unit::IsNonPositiveSpellCast(bool withDelayed, bool skipChanneled, bool skipAutorepeat, bool isAutoshoot, bool skipInstant) const
+{
+	// We don't do loop here to explicitly show that melee spell is excluded.
+	// Maybe later some special spells will be excluded too.
+
+	// generic spells are cast when they are not finished and not delayed
+	if (m_currentSpells[CURRENT_GENERIC_SPELL] &&
+		(m_currentSpells[CURRENT_GENERIC_SPELL]->getState() != SPELL_STATE_FINISHED) &&
+		(withDelayed || m_currentSpells[CURRENT_GENERIC_SPELL]->getState() != SPELL_STATE_DELAYED))
+	{
+		if (!skipInstant || m_currentSpells[CURRENT_GENERIC_SPELL]->GetCastTime())
+		{
+			if (!isAutoshoot || !(m_currentSpells[CURRENT_GENERIC_SPELL]->m_spellInfo->HasAttribute(SPELL_ATTR2_NOT_RESET_AUTO_ACTIONS)))
+				if (!m_currentSpells[CURRENT_GENERIC_SPELL]->m_spellInfo->IsPositive())
+					return true;
+		}
+	}
+	// channeled spells may be delayed, but they are still considered cast
+	if (!skipChanneled && m_currentSpells[CURRENT_CHANNELED_SPELL] &&
+		(m_currentSpells[CURRENT_CHANNELED_SPELL]->getState() != SPELL_STATE_FINISHED))
+	{
+		if (!isAutoshoot || !(m_currentSpells[CURRENT_CHANNELED_SPELL]->m_spellInfo->HasAttribute(SPELL_ATTR2_NOT_RESET_AUTO_ACTIONS)))
+			if (!m_currentSpells[CURRENT_CHANNELED_SPELL]->m_spellInfo->IsPositive())
+				return true;
+	}
+	// autorepeat spells may be finished or delayed, but they are still considered cast
+	if (!skipAutorepeat && m_currentSpells[CURRENT_AUTOREPEAT_SPELL])
+		if (m_currentSpells[CURRENT_AUTOREPEAT_SPELL]->m_spellInfo->IsPositive())
+			return true;
+
+	return false;
+}
+
 bool Unit::IsNoMovementSpellCasted() const
 {
     if (m_currentSpells[CURRENT_GENERIC_SPELL] &&
@@ -8168,7 +8201,7 @@ void Unit::SetInCombatState(bool PvP, Unit* enemy)
 			ClearMovementReactive();
 			ModifyAuraState(AURA_STATE_MOVING, true);
 			StartReactiveTimer(REACTIVE_MOVING, GetObjectGuid());
-			GetPosition(_old_pos);
+			//GetPosition(_old_pos);
 		}
 	}
 }
@@ -10649,6 +10682,10 @@ bool Unit::IsPolymorphed() const
 {
     return GetSpellSpecific(getTransForm()) == SPELL_MAGE_POLYMORPH;
 }
+
+bool Unit::hasCriticalHealth() const { return HasAuraState(AURA_STATE_HEALTHLESS_20_PERCENT); }
+bool Unit::hasLowHealth() const { return HasAuraState(AURA_STATE_HEALTHLESS_35_PERCENT); }
+bool Unit::hasHighHealth() const { return HasAuraState(AURA_STATE_HEALTH_ABOVE_75_PERCENT); }
 
 bool Unit::isAttackReady(WeaponAttackType type) const
 {

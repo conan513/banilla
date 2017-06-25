@@ -5,12 +5,12 @@ namespace ai
     class Event
 	{
 	public:
-        Event(Event const& other)
+        Event(Event const& other):source(other.source), param(other.param),packet(other.packet), owner(other.owner)
         {
-            source = other.source;
-            param = other.param;
-            packet = other.packet;
-            owner = other.owner;
+           // source = other.source;
+           // param = other.param;
+           // packet = other.packet;
+           // owner = other.owner;
         }
         Event() {}
         Event(string source) : source(source) {}

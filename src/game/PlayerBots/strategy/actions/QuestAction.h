@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../Action.h"
-#include "../../../Quests/QuestDef.h"
+#include "QuestDef.h"
 
 namespace ai
 {

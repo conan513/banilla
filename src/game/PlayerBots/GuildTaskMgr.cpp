@@ -3,13 +3,13 @@
 #include "PlayerbotAIConfig.h"
 #include "GuildTaskMgr.h"
 
-#include "../../modules/Bots/ahbot/AhBot.h"
+#include "AhBot.h"
 #include "GuildMgr.h"
-#include "../../../shared/Database/DatabaseEnv.h"
+#include "Database/DatabaseEnv.h"
 #include "Mail.h"
 #include "PlayerbotAI.h"
 
-#include "../../modules/Bots/ahbot/AhBotConfig.h"
+#include "AhBotConfig.h"
 #include "RandomItemMgr.h"
 
 INSTANTIATE_SINGLETON_1(GuildTaskMgr);

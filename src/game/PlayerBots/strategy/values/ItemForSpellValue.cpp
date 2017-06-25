@@ -18,7 +18,7 @@ Item* ItemForSpellValue::Calculate()
     if (!spellid)
         return NULL;
 
-    SpellProto const *SpellProto = sSpellMgr->GetSpellProto(spellid);
+    SpellEntry const *SpellProto = sSpellMgr.GetSpellEntry(spellid);
     if (!SpellProto)
         return NULL;
 
@@ -57,7 +57,7 @@ Item* ItemForSpellValue::Calculate()
     return NULL;
 }
 
-Item* ItemForSpellValue::GetItemFitsToSpellRequirements(uint8 slot, SpellProto const *SpellProto)
+Item* ItemForSpellValue::GetItemFitsToSpellRequirements(uint8 slot, SpellEntry const *SpellProto)
 {
     Item* const itemForSpell = bot->GetItemByPos( INVENTORY_SLOT_BAG_0, slot );
     if (!itemForSpell || itemForSpell->GetEnchantmentId(TEMP_ENCHANTMENT_SLOT))

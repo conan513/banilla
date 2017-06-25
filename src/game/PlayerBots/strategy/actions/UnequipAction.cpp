@@ -35,7 +35,7 @@ void UnequipAction::UnequipItem(Item& item)
     uint8 dstBag = NULL_BAG;
 
 
-	std::unique_ptr<WorldPacket> packet(new WorldPacket(CMSG_AUTOSTORE_BAG_ITEM, 3));
+	WorldPacket* const packet = new WorldPacket(CMSG_AUTOSTORE_BAG_ITEM, 3);
     *packet << bagIndex << slot << dstBag;
     bot->GetSession()->QueuePacket(std::move(packet));
 

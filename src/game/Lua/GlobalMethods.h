@@ -503,7 +503,7 @@ namespace LuaGlobalFunctions
 #ifdef TRINITY
         AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(areaOrZoneId);
 #else
-       // AreaTableEntry const* areaEntry = sAreaStore.LookupEntry(areaOrZoneId);
+        AreaTableEntry const* areaEntry = sAreaStore.LookupEntry(areaOrZoneId);
 #endif
        // if (!areaEntry)
             return luaL_argerror(L, 1, "valid Area or Zone ID expected");

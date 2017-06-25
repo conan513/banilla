@@ -1,7 +1,7 @@
 #include "../../../botpch.h"
 #include "../../playerbot.h"
 #include "SuggestWhatToDoAction.h"
-#include "../../../ahbot/AhBot.h"
+#include "AhBot.h"
 #include "ChannelMgr.h"
 #include "../../PlayerbotAIConfig.h"
 
@@ -175,8 +175,8 @@ void SuggestWhatToDoAction::spam(string msg, uint32 channelId)
 			{
 				if (Channel* chn = cMgr->GetJoinChannel(channelName))
 				{
-					chn->Join(bot, "");
-					chn->Say(bot, msg.c_str(), LANG_UNIVERSAL);
+					chn->Join(bot->GetGUID(), "");
+					chn->Say(bot->GetGUID(), msg.c_str(), LANG_UNIVERSAL);
 				}
 			}
 		}

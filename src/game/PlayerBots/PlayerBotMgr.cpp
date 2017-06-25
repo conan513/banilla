@@ -843,7 +843,7 @@ void PlayerbotMgr::OnBotLoginInternal(Player * const bot)
 INSTANTIATE_SINGLETON_1(EventBotMgr);
 
 
-PlayerBotMgr::EventBotMgr()
+EventBotMgr::EventBotMgr()
 {
     totalChance = 0;
     _maxAccountId = 0;
@@ -921,9 +921,9 @@ void EventBotMgr::load()
             uint32 acc = GenBotAccountId();
             uint32 chance = fields[1].GetUInt32();
 
-            PlayerBotEntry* entry = new PlayerBotEntry(guid,
+            EventBotEntry* entry = new EventBotEntry(guid,
                     acc, chance);
-            entry->ai = CreatePlayerBotAI(fields[2].GetCppString());
+            entry->ai = CreateEventBotAI(fields[2].GetCppString());
             entry->ai->botEntry = entry;
             if (!sObjectMgr.GetPlayerNameByGUID(guid, entry->name))
                 entry->name = "<Unknown>";
@@ -971,7 +971,7 @@ void EventBotMgr::deleteAll()
     m_stats.onlineCount = 0;
     m_stats.loadingCount = 0;
 
-    std::map<uint32, PlayerBotEntry*>::iterator i;
+    std::map<uint32, EventBotEntry*>::iterator i;
     for (i = m_bots.begin(); i != m_bots.end(); i++)
     {
         if (i->second->state != PB_STATE_OFFLINE)
@@ -986,13 +986,13 @@ void EventBotMgr::deleteAll()
         sLog.outString("[PlayerBotMgr] Deleting all bots [OK]");
 }
 
-void EventBotMgr::OnBotLogin(PlayerBotEntry *e)
+void EventBotMgr::OnBotLogin(EventBotEntry *e)
 {
     e->state = PB_STATE_ONLINE;
     if (confDebug)
         sLog.outString("[PlayerBot][Login]  '%s' GUID:%u Acc:%u", e->name.c_str(), e->playerGUID, e->accountId);
 }
-void EventBotMgr::OnBotLogout(PlayerBotEntry *e)
+void EventBotMgr::OnBotLogout(EventBotEntry *e)
 {
     e->state = PB_STATE_OFFLINE;
     if (confDebug)
@@ -1001,7 +1001,7 @@ void EventBotMgr::OnBotLogout(PlayerBotEntry *e)
 
 void EventBotMgr::OnPlayerInWorld(Player* player)
 {
-    if (PlayerBotEntry* e = player->GetSession()->GetBot())
+    if (EventBotEntry* e = player->GetSession()->GetBot())
     {
         player->setAI(e->ai);
         e->ai->SetPlayer(player);
@@ -1026,7 +1026,7 @@ void EventBotMgr::update(uint32 diff)
         if (!it->second)
         {
             // Update des "chatBot" aussi.
-            for (std::map<uint32, PlayerBotEntry*>::iterator iter = m_bots.begin(); iter != m_bots.end(); ++iter)
+            for (std::map<uint32, EventBotEntry*>::iterator iter = m_bots.begin(); iter != m_bots.end(); ++iter)
                 if (iter->second->accountId == it->first)
                 {
                     iter->second->state = PB_STATE_OFFLINE; // Will get logged out at next WorldSession::Update call
@@ -1046,7 +1046,7 @@ void EventBotMgr::update(uint32 diff)
     m_lastUpdate = m_elapsedTime;
 
     /* Connection des bots en attente */
-    std::map<uint32, PlayerBotEntry*>::iterator iter;
+    std::map<uint32, EventBotEntry*>::iterator iter;
     for (iter = m_bots.begin(); iter != m_bots.end(); ++iter)
     {
         if (!enable && !iter->second->customBot)
@@ -1103,10 +1103,10 @@ bool EventBotMgr::addOrRemoveBot()
 
 }
 
-bool EventBotMgr::addBot(PlayerBotAI* ai)
+bool EventBotMgr::addBot(EventBotAI* ai)
 {
     // Find a correct accountid ?
-    PlayerBotEntry* e = new PlayerBotEntry();
+	EventBotEntry* e = new EventBotEntry();
     e->ai = ai;
     e->accountId = GenBotAccountId();
     e->playerGUID = sObjectMgr.GeneratePlayerLowGuid();
@@ -1120,8 +1120,8 @@ bool EventBotMgr::addBot(PlayerBotAI* ai)
 bool EventBotMgr::addBot(uint32 playerGUID, bool chatBot)
 {
     uint32 accountId = 0;
-    PlayerBotEntry *e = NULL;
-    std::map<uint32, PlayerBotEntry*>::iterator iter = m_bots.find(playerGUID);
+	EventBotEntry *e = NULL;
+    std::map<uint32, EventBotEntry*>::iterator iter = m_bots.find(playerGUID);
     if (iter == m_bots.end())
         accountId = sObjectMgr.GetPlayerAccountIdByGUID(playerGUID);
     else
@@ -1137,13 +1137,13 @@ bool EventBotMgr::addBot(uint32 playerGUID, bool chatBot)
     else
     {
         DETAIL_LOG("Adding temporary PlayerBot.");
-        e = new PlayerBotEntry();
+        e = new EventBotEntry();
         e->state        = PB_STATE_LOADING;
         e->playerGUID   = playerGUID;
         e->chance       = 10;
         e->accountId    = accountId;
         e->isChatBot    = chatBot;
-        e->ai           = new PlayerBotAI(NULL);
+        e->ai           = new EventBotAI(NULL);
         m_bots[playerGUID] = e;
     }
 
@@ -1162,7 +1162,7 @@ bool EventBotMgr::addBot(uint32 playerGUID, bool chatBot)
 bool EventBotMgr::addRandomBot()
 {
     uint32 alea = urand(0, totalChance);
-    std::map<uint32, PlayerBotEntry*>::iterator it;
+    std::map<uint32, EventBotEntry*>::iterator it;
     bool done = false;
     for (it = m_bots.begin(); it != m_bots.end() && !done; it++)
     {
@@ -1199,7 +1199,7 @@ void EventBotMgr::RefreshTempBot(uint32 account)
 
 bool EventBotMgr::deleteBot(uint32 playerGUID)
 {
-    std::map<uint32, PlayerBotEntry*>::iterator iter = m_bots.find(playerGUID);
+    std::map<uint32, EventBotEntry*>::iterator iter = m_bots.find(playerGUID);
     if (iter == m_bots.end())
         return false;
     uint32 accountId = iter->second->accountId;
@@ -1219,7 +1219,7 @@ bool EventBotMgr::deleteRandomBot()
         return false;
     uint32 idDelete = urand(0, m_stats.onlineCount);
     uint32 onlinePassed = 0;
-    std::map<uint32, PlayerBotEntry*>::iterator iter;
+    std::map<uint32, EventBotEntry*>::iterator iter;
     for (iter = m_bots.begin(); iter != m_bots.end(); iter++)
     {
         if (!iter->second->customBot && !iter->second->isChatBot && iter->second->state == PB_STATE_ONLINE)
@@ -1250,7 +1250,7 @@ bool EventBotMgr::ForceAccountConnection(WorldSession* sess)
 
 bool EventBotMgr::IsPermanentBot(uint32 playerGUID)
 {
-    std::map<uint32, PlayerBotEntry*>::iterator iter = m_bots.find(playerGUID);
+    std::map<uint32, EventBotEntry*>::iterator iter = m_bots.find(playerGUID);
     if (iter != m_bots.end())
         return true;
     return false;
@@ -1258,7 +1258,7 @@ bool EventBotMgr::IsPermanentBot(uint32 playerGUID)
 
 bool EventBotMgr::IsChatBot(uint32 playerGuid)
 {
-    std::map<uint32, PlayerBotEntry*>::iterator iter = m_bots.find(playerGuid);
+    std::map<uint32, EventBotEntry*>::iterator iter = m_bots.find(playerGuid);
     if (iter != m_bots.end() && iter->second->isChatBot)
         return true;
     return false;
@@ -1266,7 +1266,7 @@ bool EventBotMgr::IsChatBot(uint32 playerGuid)
 
 void EventBotMgr::addAllBots()
 {
-    std::map<uint32, PlayerBotEntry*>::iterator it;
+    std::map<uint32, EventBotEntry*>::iterator it;
     for (it = m_bots.begin(); it != m_bots.end(); it++)
     {
         if (!it->second->isChatBot && it->second->state == PB_STATE_OFFLINE)
@@ -1276,7 +1276,7 @@ void EventBotMgr::addAllBots()
 
 bool ChatHandler::HandleBotReloadCommand(char * args)
 {
-    sPlayerBotMgr.load();
+    sEventBotMgr.load();
     SendSysMessage("PlayerBot recharge");
     return true;
 }
@@ -1288,21 +1288,21 @@ bool ChatHandler::HandleBotAddRandomCommand(char * args)
     if (sCount)
         count = uint32(atoi(sCount));
     for (uint32 i = 0; i < count; ++i)
-        sPlayerBotMgr.addRandomBot();
+        sEventBotMgr.addRandomBot();
     PSendSysMessage("%u bots added", count);
     return true;
 }
 
 bool ChatHandler::HandleBotStopCommand(char * args)
 {
-    sPlayerBotMgr.deleteAll();
+    sEventBotMgr.deleteAll();
     SendSysMessage("Tous les bots ont ete decharges.");
     return true;
 }
 
 bool ChatHandler::HandleBotAddAllCommand(char * args)
 {
-    sPlayerBotMgr.addAllBots();
+    sEventBotMgr.addAllBots();
     SendSysMessage("Tous les bots ont ete connecte");
     return true;
 }
@@ -1325,7 +1325,7 @@ bool ChatHandler::HandleBotAddCommand(char* args)
             return false;
         }
     }
-    if (!guid || !sPlayerBotMgr.addBot(guid))
+    if (!guid || !sEventBotMgr.addBot(guid))
     {
         SendSysMessage("[PlayerBotMgr] Unable to load bot.");
         return true;
@@ -1351,7 +1351,7 @@ bool ChatHandler::HandleBotDeleteCommand(char * args)
         SetSentErrorMessage(true);
         return false;
     }
-    if (sPlayerBotMgr.deleteBot(lowGuid))
+    if (sEventBotMgr.deleteBot(lowGuid))
     {
         PSendSysMessage("Bot %s (GUID:%u) disconnected.", charname, lowGuid);
         return true;
@@ -1368,7 +1368,7 @@ bool ChatHandler::HandleBotInfoCommand(char * args)
 {
     uint32 online = sWorld.GetActiveSessionCount();
 
-    PlayerBotStats stats = sPlayerBotMgr.GetStats();
+    PlayerBotStats stats = sEventBotMgr.GetStats();
     SendSysMessage("-- PlayerBot stats --");
     PSendSysMessage("Min:%u Max:%u Total:%u", stats.confMinOnline, stats.confMaxOnline, stats.totalBots);
     PSendSysMessage("Loading : %u, Online : %u, Chat : %u", stats.loadingCount, stats.onlineCount, stats.onlineChat);
@@ -1379,6 +1379,6 @@ bool ChatHandler::HandleBotInfoCommand(char * args)
 
 bool ChatHandler::HandleBotStartCommand(char * args)
 {
-    sPlayerBotMgr.Start();
+    sEventBotMgr.Start();
     return true;
 }

@@ -2419,6 +2419,10 @@ class MANGOS_DLL_SPEC Player final: public Unit
         uint32 m_currentTicketCounter;
         bool m_smartInstanceRebind;
 
+		// Playerbot mod:
+		float m_minTargetDistance = .0f;
+		float m_minMasterDistance = .0f;
+
 	private:
 		float m_order_mov_x;
 		float m_order_mov_y;
@@ -2427,6 +2431,12 @@ class MANGOS_DLL_SPEC Player final: public Unit
 		uint32 m_order_mov_mapId;
 		bool mSemaphore_Process = false;
 	public:
+		void SetMinTargetDistance(float minTargetDistance) { m_minTargetDistance = minTargetDistance; }
+		void SetMinMasterDistance(float minMasterDistance) { m_minMasterDistance = minMasterDistance; }
+
+		float GetMinTargetDistance() { return m_minTargetDistance; }
+		float GetMinMasterDistance() { return m_minMasterDistance; }
+
 		typedef std::list<uint32> QuestList;
 		QuestList m_questIds;
 

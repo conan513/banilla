@@ -2,7 +2,7 @@
 #include "../../playerbot.h"
 #include "AttackersValue.h"
 
-#include "../../../../server/game/Entities/Pet/Pet.h"
+#include "Pet.h"
 
 using namespace ai;
 

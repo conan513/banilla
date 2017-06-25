@@ -2,11 +2,11 @@
 #include "playerbot.h"
 #include "PlayerbotAIConfig.h"
 #include "PlayerbotFactory.h"
-#include "../../../shared/Database/DatabaseEnv.h"
+#include "Database/DatabaseEnv.h"
 #include "PlayerbotAI.h"
-#include "../../game/Player.h"
-#include "../../game/Guild.h"
-#include "../../game/GuildMgr.h"
+#include "Player.h"
+#include "Guild.h"
+#include "GuildMgr.h"
 #include "RandomPlayerbotFactory.h"
 
 map<uint8, vector<uint8> > RandomPlayerbotFactory::availableRaces;
@@ -47,13 +47,13 @@ RandomPlayerbotFactory::RandomPlayerbotFactory(uint32 accountId) : accountId(acc
     availableRaces[CLASS_MAGE].push_back(RACE_HUMAN);
     availableRaces[CLASS_MAGE].push_back(RACE_GNOME);
     availableRaces[CLASS_MAGE].push_back(RACE_DRAENEI);
-    availableRaces[CLASS_MAGE].push_back(RACE_UNDEAD_PLAYER);
+    availableRaces[CLASS_MAGE].push_back(RACE_UNDEAD);
     availableRaces[CLASS_MAGE].push_back(RACE_TROLL);
     availableRaces[CLASS_MAGE].push_back(RACE_BLOODELF);
 
     availableRaces[CLASS_WARLOCK].push_back(RACE_HUMAN);
     availableRaces[CLASS_WARLOCK].push_back(RACE_GNOME);
-    availableRaces[CLASS_WARLOCK].push_back(RACE_UNDEAD_PLAYER);
+    availableRaces[CLASS_WARLOCK].push_back(RACE_UNDEAD);
     availableRaces[CLASS_WARLOCK].push_back(RACE_ORC);
     availableRaces[CLASS_WARLOCK].push_back(RACE_BLOODELF);
 
@@ -182,7 +182,7 @@ void RandomPlayerbotFactory::CreateRandomBots()
         {
             password += (char)urand('!', 'z');
         }
-        sAccountMgr.CreateAccount(accountName, password, "playerbot");
+        sAccountMgr.CreateAccount(accountName, password);
 
         sLog.outDebug( "Account %s created for random bots", accountName.c_str());
     }

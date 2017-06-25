@@ -15,7 +15,7 @@ bool QuestAction::Execute(Event event)
 
     if (!guid)
     {
-        Unit* target = master->GetSelectedUnit();
+        Unit* target = master->getSelectedUnit();
         if (target)
             guid = target->GetGUID();
     }
@@ -52,7 +52,7 @@ bool QuestAction::ProcessQuests(WorldObject* questGiver)
     if (!bot->isInFront(questGiver, M_PI / 2))
         bot->SetFacingTo(bot->GetAngle(questGiver));
 
-    bot->SetSelection(guid);
+    bot->SetSelectionGuid(guid);
     bot->PrepareQuestMenu(guid);
     QuestMenu& questMenu = bot->PlayerTalkClass->GetQuestMenu();
     for (uint32 i = 0; i < questMenu.GetMenuItemCount(); ++i)
@@ -122,13 +122,14 @@ bool QuestObjectiveCompletedAction::Execute(Event event)
     if (entry & 0x80000000)
     {
         entry &= 0x7FFFFFFF;
-        GameObjectTemplate const* info = sObjectMgr.GetGameObjectTemplate(entry);
+		GameObjectInfo const * info = ObjectMgr::GetGameObjectInfo(entry);
+        //GameObjectTemplate const* info = sObjectMgr.GetGameObjectTemplate(entry);
         if (info)
             ai->TellMaster(chat->formatQuestObjective(info->name, available, required));
     }
     else
     {
-        CreatureTemplate const* info = sObjectMgr.GetCreatureTemplate(entry);
+		CreatureInfo const* info = sObjectMgr.GetCreatureTemplate(entry);
         if (info)
             ai->TellMaster(chat->formatQuestObjective(info->Name, available, required));
     }

@@ -66,6 +66,7 @@
 #include "GMTicketMgr.h"
 #include "MasterPlayer.h"
 #include "LuaEngine.h"
+#include "PlayerBotMgr.h"
 
 /* Nostalrius */
 #include "Config/Config.h"
@@ -1285,7 +1286,8 @@ void Player::Update(uint32 update_diff, uint32 p_time)
 
 			if (isInCombat())
 			{
-				if (GetDistance(_old_pos.coord_x, _old_pos.coord_y, _old_pos.coord_z) > 0.01)
+				//if (GetDistance(_old_pos.coord_x, _old_pos.coord_y, _old_pos.coord_z) > 0.01)
+				if (IsMoving())
 				{
 					//sLog.outError("Player %u has moved.", GetObjectGuid());
 
@@ -1298,7 +1300,7 @@ void Player::Update(uint32 update_diff, uint32 p_time)
 							RemoveAurasDueToSpell(STANDING_STILL);
 					}
 
-					GetPosition(_old_pos);
+					//GetPosition(_old_pos);
 				}
 				else
 				{
@@ -15023,7 +15025,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SqlQueryHolder *holder)
         }
     }
 
-    if (PlayerBotEntry* e = GetSession()->GetBot())
+    if (EventBotEntry* e = GetSession()->GetBot())
         e->ai->BeforeAddToMap(this);
 
     // player bounded instance saves loaded in _LoadBoundInstances, group versions at group loading
@@ -22102,6 +22104,8 @@ WorldObject* Player::MoveToQuestEnder(uint32& mapId, uint32& areaId, uint32& zon
 
 	if (map->IsBattleGround() || map->IsDungeon() || map->IsRaid())
 		return NULL;
+
+	if (map->IsUnderWater(x, y, z))
 
 	areaId = map->GetTerrain()->GetAreaId(x, y, z);
 

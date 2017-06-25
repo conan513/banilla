@@ -1,7 +1,7 @@
 #include "../../../botpch.h"
 #include "../../playerbot.h"
 #include "StatsValues.h"
-#include "../../game/Pet.h"
+#include "Pet.h"
 
 using namespace ai;
 
@@ -37,7 +37,7 @@ bool IsTargetNormalValue::Calculate()
     if (!target)
         return false;
     else
-        return (((Creature*)this)->GetCreatureInfo()->Rank == CREATURE_ELITE_NORMAL);
+        return (((Creature*)this)->IsNormal());
 }
 
 bool IsTargetBossValue::Calculate()
@@ -46,7 +46,7 @@ bool IsTargetBossValue::Calculate()
     if (!target)
         return false;
     else
-        return (((Creature*)this)->GetCreatureInfo()->Rank == CREATURE_ELITE_WORLDBOSS);
+        return (((Creature*)this)->IsWorldBoss());
 }
 
 bool IsTargetEliteValue::Calculate()
@@ -55,7 +55,7 @@ bool IsTargetEliteValue::Calculate()
     if (!target)
         return false;
     else
-        return ((((Creature*)this)->GetCreatureInfo()->Rank == CREATURE_ELITE_WORLDBOSS) || (((Creature*)this)->GetCreatureInfo()->Rank == CREATURE_ELITE_ELITE) || (((Creature*)this)->GetCreatureInfo()->Rank == CREATURE_ELITE_RAREELITE));
+        return (((Creature*)this)->IsElite());
 }
 
 
@@ -76,11 +76,7 @@ bool IsDeadValue::Calculate()
 
 bool PetIsDeadValue::Calculate()
 {
-	PetDatabaseStatus status = Pet::GetStatusFromDB(bot);
-	if (status == PET_DB_DEAD)
-		 return true;
-	
-		return bot->GetPet() && bot->GetPet()->GetDeathState() != ALIVE;
+	return bot->GetPet() && (!bot->GetPet()->isAlive());
 	}
 
 bool IsCcValue::Calculate()
@@ -232,7 +228,7 @@ bool HasManaValue::Calculate()
 uint8 ComboPointsValue::Calculate()
 {
     Unit *target = GetTarget();
-    if (!target || target->GetGUID() != bot->etComboTarget())
+    if (!target || target->GetGUID() != bot->GetComboTargetGuid())
         return 0;
 
     return bot->GetComboPoints();

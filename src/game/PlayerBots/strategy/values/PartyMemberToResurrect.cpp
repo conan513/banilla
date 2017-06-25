@@ -7,13 +7,13 @@ using namespace ai;
 class IsTargetOfResurrectSpell : public SpellEntryPredicate
 {
 public:
-    virtual bool Check(SpellProto const* spell)
+    virtual bool Check(SpellEntry const* spell)
     {
         for (int i=0; i<3; i++)
         {
-            if (spell->Effects[i].Effect == SPELL_EFFECT_RESURRECT ||
-                spell->Effects[i].Effect == SPELL_EFFECT_RESURRECT_NEW ||
-                spell->Effects[i].Effect == SPELL_EFFECT_SELF_RESURRECT)
+            if (spell->Effect[i] == SPELL_EFFECT_RESURRECT ||
+                spell->Effect[i] == SPELL_EFFECT_RESURRECT_NEW ||
+                spell->Effect[i] == SPELL_EFFECT_SELF_RESURRECT)
                 return true;
         }
         return false;

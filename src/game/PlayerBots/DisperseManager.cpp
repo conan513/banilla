@@ -3,7 +3,7 @@
 #include "DisperseManager.h"
 #include "PlayerbotAIConfig.h"
 #include "AiFactory.h"
-#include "../Groups/Group.h"
+#include "Group.h"
 
 using namespace ai;
 using namespace std;
@@ -21,7 +21,7 @@ bool DisperseManager::calculateDistanceToPlayers(FleePoint *point)
 
 	for (GroupReference *gref = group->GetFirstMember(); gref; gref = gref->next())
     {
-		Player* player = gref->GetSource();
+		Player* player = gref->getSource();
 
 		if(player == bot)
 			continue;
@@ -50,25 +50,24 @@ bool DisperseManager::calculateDistanceToPlayers(FleePoint *point)
                         minDistance = d;
                     break;
                 case CLASS_SHAMAN:
-                if (spec != 1)
-                     if (minDistance > d)
-                        minDistance = d;
+					if (spec != 1)
+						if (minDistance > d)
+							minDistance = d;
                 break;
                 case CLASS_DRUID:
-                if (spec != 1)
-                     if (minDistance > d)
-                        minDistance = d;
+					if (spec != 1)
+						if (minDistance > d)
+							minDistance = d;
                 break;
                 case CLASS_PALADIN:
-			    if (spec == 0 && bot->getLevel() > 55)
-                     if (minDistance > d)
+					if (spec == 0 && bot->getLevel() > 55)
+						 if (minDistance > d)
                         minDistance = d;
                 break;
                 case CLASS_ROGUE:
                 case CLASS_WARRIOR:
-                case CLASS_DEATH_KNIGHT:
-				 if (minDistance > d)
-                    minDistance = d;
+					if (minDistance > d)
+						minDistance = d;
 				break;
             }
         }

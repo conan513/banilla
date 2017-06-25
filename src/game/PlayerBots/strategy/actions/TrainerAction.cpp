@@ -12,8 +12,8 @@ void TrainerAction::Learn(uint32 cost, TrainerSpell const* tSpell, ostringstream
     bot->ModifyMoney(-int32(cost));
     if (tSpell->IsCastable())
         bot->CastSpell(bot, tSpell->spell, true);
-    else
-        bot->LearnSpell(tSpell->learnedSpell[0], false, false);
+   // else
+   //     bot->LearnSpell(tSpell->learnedSpell[0], false, false);
 
     msg << " - learned";
 }
@@ -33,15 +33,15 @@ void TrainerAction::List(Creature* creature, TrainerSpellAction action, SpellIds
         if (!tSpell)
             continue;
 
-        if (!tSpell->learnedSpell && !bot->IsSpellFitByClassAndRace(tSpell->learnedSpell[0]))
-            continue;
+        //if (!tSpell->learnedSpell && !bot->IsSpellFitByClassAndRace(tSpell->learnedSpell[0]))
+        //    continue;
 
         TrainerSpellState state = bot->GetTrainerSpellState(tSpell);
         if (state != TRAINER_SPELL_GREEN)
             continue;
 
         uint32 spellId = tSpell->spell;
-        const SpellProto *const pSpellProto =  sSpellMgr->GetSpellProto(spellId);
+        SpellEntry const* pSpellProto =  sSpellMgr.GetSpellEntry(spellId);
         if (!pSpellProto)
             continue;
 
@@ -51,7 +51,8 @@ void TrainerAction::List(Creature* creature, TrainerSpellAction action, SpellIds
         ostringstream out;
         out << chat->formatSpell(pSpellProto) << chat->formatMoney(cost);
 
-        if (action && (spells.empty() || spells.find(tSpell->spell) != spells.end() || spells.find(tSpell->learnedSpell[0]) != spells.end()))
+        //if (action && (spells.empty() || spells.find(tSpell->spell) != spells.end() || spells.find(tSpell->learnedSpell[0]) != spells.end()))
+		if (action && (spells.empty() || spells.find(tSpell->spell) != spells.end()))
             (this->*action)(cost, tSpell, out);
 
         ai->TellMaster(out);
@@ -69,7 +70,7 @@ bool TrainerAction::Execute(Event event)
     if (!master)
         return false;
 
-    Unit* target = master->GetSelectedUnit();
+    Unit* target = master->getSelectedUnit();
     if (!target)
         return false;
 

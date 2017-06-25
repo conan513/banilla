@@ -40,7 +40,7 @@ bool BGJoinAction::JoinProposal()
 
 		// warsong only at start
 	// nyi: cycle based on time frame through AB and WS
-	BattleGroundTypeId bgTypeId = BattleGroundTypeId::BattleGround_WS;
+	BattleGroundTypeId bgTypeId = BattleGroundTypeId::BATTLEGROUND_WS;
 
 	// can do this, since it's BattleGround, not arena
 	BattleGroundQueueTypeId bgQueueTypeId = BattleGroundMgr::BGQueueTypeId(bgTypeId, 0);
@@ -84,13 +84,13 @@ bool BGJoinAction::JoinProposal()
 	BattleGroundQueue& bgQueue = sBattleGroundMgr.GetBattleGroundQueue(bgQueueTypeId);
 	if (bgQueue.m_QueuedPlayers.size()>0)
 	{
-		GroupQueueInfo* ginfo = bgQueue.AddGroup(bot, NULL, bgTypeId, bracketEntry, 0, false, false, 0, 0);
+		GroupQueueInfo* ginfo = bgQueue.AddGroup(bot, NULL, bgTypeId, bracketEntry, false);
 		uint32 avgTime = bgQueue.GetAverageQueueWaitTime(ginfo, bracketEntry->GetBracketId());
 		// already checked if queueSlot is valid, now just get it
 		uint32 queueSlot = bot->AddBattleGroundQueueId(bgQueueTypeId);
 
-		sLog->outMessage("bg.BattleGround", LogLevel::LOG_LEVEL_DEBUG, "BattleGround: player joined queue for bg queue type %u bg type %u: GUID %u, NAME %s",
-			bgQueueTypeId, bgTypeId, bot->GetGUID().GetCounter(), bot->GetName());
+		sLog.outError("BattleGround: player joined queue for bg queue type %u bg type %u: GUID %u, NAME %s",
+			bgQueueTypeId, bgTypeId, bot->GetGUID(), bot->GetName());
 		return true;
 	}
 	return false;
@@ -120,23 +120,23 @@ bool BGStatusAction::Execute(Event event)
 
 	if (statusid == STATUS_WAIT_LEAVE) //BattleGround is over, bot needs to leave
 	{
-		TC_LOG_DEBUG("bg.BattleGround", "BattleGround: player (bot) %s (%u) is going to leave BattleGround (%u).", bot->GetName(), bot->GetGUID().GetCounter(), battleId);
+		sLog.outError(("BattleGround: player (bot) %s (%u) is going to leave BattleGround (%u).", bot->GetName(), bot->GetGUID().GetCounter(), battleId);
 		bot->LeaveBattleGround(true);
 		ai->ResetStrategies();
 	}
 	if (statusid == STATUS_WAIT_QUEUE) //bot is in queue
 	{
-		TC_LOG_DEBUG("bg.BattleGround", "BattleGround: player (bot) %s (%u) is still in queue (%u).", bot->GetName(), bot->GetGUID().GetCounter(), battleId);
+		sLog.outError("BattleGround: player (bot) %s (%u) is still in queue (%u).", bot->GetName(), bot->GetGUID().GetCounter(), battleId);
 	}
 	if (statusid == STATUS_WAIT_JOIN) //bot may join
 	{
 		if (bot->InBattleGround())
 		{
-			TC_LOG_DEBUG("bg.BattleGround", "BattleGround: player (bot) %s (%u) is in BattleGround already. (%u, %u).", bot->GetName(), bot->GetGUID().GetCounter(), battleId, instanceId);
+			sLog.outError("BattleGround: player (bot) %s (%u) is in BattleGround already. (%u, %u).", bot->GetName(), bot->GetGUID().GetCounter(), battleId, instanceId);
 			return false;
 		}
 
-		TC_LOG_DEBUG("bg.BattleGround", "BattleGround: player (bot) %s (%u) received a invite to a BattleGround (%u, %u).", bot->GetName(), bot->GetGUID().GetCounter(), battleId, instanceId);
+		sLog.outError("BattleGround: player (bot) %s (%u) received a invite to a BattleGround (%u, %u).", bot->GetName(), bot->GetGUID().GetCounter(), battleId, instanceId);
 
 		bot->CombatStop(true);
 
@@ -146,8 +146,8 @@ bool BGStatusAction::Execute(Event event)
 
 		//get GroupQueueInfo from BattleGroundQueue
 		BattleGroundTypeId bgTypeId = BattleGroundTypeId(battleId);
-		BattleGroundQueueTypeId bgQueueTypeId = BattleGroundMgr::BGQueueTypeId(bgTypeId, 0);
-		BattleGroundQueue& bgQueue = sBattleGroundMgr->GetBattleGroundQueue(bgQueueTypeId);
+		BattleGroundQueueTypeId bgQueueTypeId = BattleGroundMgr::BGQueueTypeId(bgTypeId);
+		BattleGroundQueue& bgQueue = sBattleGroundMgr.GetBattleGroundQueue(bgQueueTypeId);
 		//we must use temporary variable, because GroupQueueInfo pointer can be deleted in BattleGroundQueue::RemovePlayer() function
 		GroupQueueInfo ginfo;
 		if (!bgQueue.GetPlayerGroupInfoData(bot->GetGUID(), &ginfo))

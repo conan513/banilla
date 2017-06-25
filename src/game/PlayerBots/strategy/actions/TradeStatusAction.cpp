@@ -4,7 +4,7 @@
 
 #include "../ItemVisitors.h"
 #include "../../PlayerbotAIConfig.h"
-#include "../../../ahbot/AhBot.h"
+#include "AhBot.h"
 #include "../../RandomPlayerbotMgr.h"
 #include "../../GuildTaskMgr.h"
 #include "../values/ItemUsageValue.h"

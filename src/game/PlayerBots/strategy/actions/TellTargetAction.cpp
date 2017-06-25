@@ -27,7 +27,7 @@ bool TellAttackersAction::Execute(Event event)
     for (list<ObjectGuid>::iterator i = attackers.begin(); i != attackers.end(); i++)
     {
         Unit* unit = ai->GetUnit(*i);
-        if (!unit || !unit->IsAlive())
+        if (!unit || !unit->isAlive())
             continue;
 
         ai->TellMaster(unit->GetName());
@@ -40,8 +40,8 @@ bool TellAttackersAction::Execute(Event event)
 
     while( ref )
     {
-        ThreatManager *threatManager = ref->GetSource();
-        Unit *unit = threatManager->GetOwner();
+        ThreatManager *threatManager = ref->getSource();
+        Unit *unit = threatManager->getOwner();
         float threat = ref->getThreat();
 
         ostringstream out; out << unit->GetName() << " (" << threat << ")";

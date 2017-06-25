@@ -251,7 +251,7 @@ protected:
 
 };
 
-struct PlayerBotEntry;
+struct EventBotEntry;
 class WorldSession;
 class EventBotAI;
 
@@ -264,14 +264,14 @@ class EventBotAI: public PlayerAI
         virtual ~EventBotAI() {}
         virtual void Remove();
 
-        virtual bool OnSessionLoaded(PlayerBotEntry* entry, WorldSession* sess);
-        virtual void OnBotEntryLoad(PlayerBotEntry* entry) {}
+        virtual bool OnSessionLoaded(EventBotEntry* entry, WorldSession* sess);
+        virtual void OnBotEntryLoad(EventBotEntry* entry) {}
         virtual void UpdateAI(const uint32 /*diff*/); // Handle delayed teleports
         virtual void OnPlayerLogin() {}
         virtual void BeforeAddToMap(Player* player) {} // me=NULL at call
         // Helpers
         bool SpawnNewPlayer(WorldSession* sess, uint8 _class, uint32 _race, uint32 mapId, uint32 instanceId, float dx, float dy, float dz, float o);
-        PlayerBotEntry* botEntry;
+        EventBotEntry* botEntry;
 };
 
 class PlayerCreatorAI: public EventBotAI
@@ -282,7 +282,7 @@ class PlayerCreatorAI: public EventBotAI
         {
         }
         virtual ~PlayerCreatorAI() {}
-        virtual bool OnSessionLoaded(PlayerBotEntry* entry, WorldSession* sess)
+        virtual bool OnSessionLoaded(EventBotEntry* entry, WorldSession* sess)
         {
             return SpawnNewPlayer(sess, _class, _race, _mapId, _instanceId, _x, _y, _z, _o);
         }
@@ -297,10 +297,10 @@ class PlayerCreatorAI: public EventBotAI
         float _o;
 };
 
-class PlayerBotFleeingAI : public EventBotAI
+class EventBotFleeingAI : public EventBotAI
 {
     public:
-        PlayerBotFleeingAI() : EventBotAI() {}
+        EventBotFleeingAI() : EventBotAI() {}
         virtual void OnPlayerLogin();
 };
 
@@ -309,7 +309,7 @@ class MageOrgrimmarAttackerAI: public EventBotAI
     public:
         explicit MageOrgrimmarAttackerAI(Player* pPlayer = NULL) : EventBotAI(pPlayer) {}
         virtual ~MageOrgrimmarAttackerAI() {}
-        virtual bool OnSessionLoaded(PlayerBotEntry* entry, WorldSession* sess);
+        virtual bool OnSessionLoaded(EventBotEntry* entry, WorldSession* sess);
         virtual void UpdateAI(const uint32 /*diff*/);
 };
 

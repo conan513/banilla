@@ -127,7 +127,6 @@ class MANGOS_DLL_SPEC ChatHandler
         std::string GetItemLink(ItemPrototype const* pItem) const;
 
         GameObject* GetGameObjectWithGuid(uint32 lowguid,uint32 entry);
-        WorldSession* GetSession() { return m_session; }
     protected:
         explicit ChatHandler() : m_session(nullptr), sentErrorMessage(false), m_cluster_is_master(true), m_cluster_is_node(true) {}      // for CLI subclass
 

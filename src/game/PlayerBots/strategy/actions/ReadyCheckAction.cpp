@@ -2,7 +2,7 @@
 #include "../../playerbot.h"
 #include "ReadyCheckAction.h"
 #include "../../PlayerbotAIConfig.h"
-#include "../../../Entities/Pet/Pet.h"
+#include "Pet.h"
 
 using namespace ai;
 
@@ -68,7 +68,7 @@ bool ReadyCheckAction::ReadyCheck()
         }
     }
 
-	std::unique_ptr<WorldPacket> packet(new WorldPacket(MSG_RAID_READY_CHECK));
+	WorldPacket* const packet = new WorldPacket(MSG_RAID_READY_CHECK);
     *packet << bot->GetGUID();
     *packet << uint8(1);
     bot->GetSession()->QueuePacket(std::move(packet));

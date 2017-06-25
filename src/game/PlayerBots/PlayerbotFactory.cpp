@@ -1373,7 +1373,7 @@ void PlayerbotFactory::InitMounts()
 
 	for (uint32 spellId = 0; spellId < sSpellStore.GetNumRows(); ++spellId)
 	{
-		SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellId);
+		SpellEntry const *spellInfo = sSpellMgr.GetSpellEntry(spellId);
 		if (!spellInfo || spellInfo->EffectApplyAuraName[0] != SPELL_AURA_MOUNTED)
 			continue;
 
@@ -1428,7 +1428,7 @@ void PlayerbotFactory::InitPotions()
 
 		for (int j = 0; j < MAX_ITEM_PROTO_SPELLS; j++)
 		{
-			const SpellEntry* const spellInfo = sSpellStore.LookupEntry(proto->Spells[j].SpellId);
+			const SpellEntry* const spellInfo = sSpellMgr.GetSpellEntry(proto->Spells[j].SpellId);
 			if (!spellInfo)
 				continue;
 

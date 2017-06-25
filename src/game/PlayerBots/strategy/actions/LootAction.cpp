@@ -4,7 +4,7 @@
 
 #include "../../LootObjectStack.h"
 #include "../../PlayerbotAIConfig.h"
-#include "../../game/AuctionHouseBot/AuctionHouseBot.h"
+#include "AuctionHouseBot/ahbot.h"
 #include "../../RandomPlayerbotMgr.h"
 #include "../values/ItemUsageValue.h"
 #include "../../GuildTaskMgr.h"
@@ -78,7 +78,7 @@ bool OpenLootAction::DoLoot(LootObject& lootObject)
     if (creature && creature->HasFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE))
     {
         bot->GetMotionMaster()->Clear();
-		std::unique_ptr<WorldPacket> packet(new WorldPacket(CMSG_LOOT, 8));
+		WorldPacket* const packet = new WorldPacket(CMSG_LOOT, 8);
         *packet << lootObject.guid;
         bot->GetSession()->QueuePacket(std::move(packet));
         return true;
@@ -144,7 +144,7 @@ uint32 OpenLootAction::GetOpeningSpell(LootObject& lootObject, GameObject* go)
 		if (spellId == MINING || spellId == HERB_GATHERING)
 			continue;
 
-		const SpellEntry* pSpellInfo = sSpellStore.LookupEntry(spellId);
+		const SpellEntry* pSpellInfo = sSpellMgr.GetSpellEntry(spellId);
 		if (!pSpellInfo)
 			continue;
 
@@ -157,7 +157,7 @@ uint32 OpenLootAction::GetOpeningSpell(LootObject& lootObject, GameObject* go)
 		if (spellId == MINING || spellId == HERB_GATHERING)
 			continue;
 
-		const SpellEntry* pSpellInfo = sSpellStore.LookupEntry(spellId);
+		const SpellEntry* pSpellInfo = sSpellMgr.GetSpellEntry(spellId);
 		if (!pSpellInfo)
 			continue;
 
@@ -237,7 +237,7 @@ bool StoreLootAction::Execute(Event event)
 
     if (gold > 0)
     {
-		std::unique_ptr<WorldPacket> packet(new WorldPacket(CMSG_LOOT_MONEY, 0));
+		WorldPacket* const packet = new WorldPacket(CMSG_LOOT_MONEY, 0);
         bot->GetSession()->QueuePacket(std::move(packet));
     }
 
@@ -291,7 +291,7 @@ bool StoreLootAction::Execute(Event event)
             }
         }
 
-		std::unique_ptr<WorldPacket> packet(new WorldPacket(CMSG_AUTOSTORE_LOOT_ITEM, 1));
+		WorldPacket* const packet = new WorldPacket(CMSG_AUTOSTORE_LOOT_ITEM, 1);
         *packet << itemindex;
         bot->GetSession()->QueuePacket(std::move(packet));
     }
@@ -299,9 +299,10 @@ bool StoreLootAction::Execute(Event event)
     AI_VALUE(LootObjectStack*, "available loot")->Remove(guid);
 
     // release loot
-	std::unique_ptr<WorldPacket> packet(new WorldPacket(CMSG_LOOT_RELEASE, 8));
+	WorldPacket* const packet = new WorldPacket(CMSG_LOOT_RELEASE, 8);
     *packet << guid;
     bot->GetSession()->QueuePacket(std::move(packet));
+	delete packet;
     return true;
 }
 

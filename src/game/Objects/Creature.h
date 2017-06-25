@@ -570,6 +570,21 @@ class MANGOS_DLL_SPEC Creature : public Unit
         bool IsImmuneToDamage(SpellSchoolMask meleeSchoolMask) override;
         bool IsImmuneToSpellEffect(SpellEntry const *spellInfo, SpellEffectIndex index, bool castOnSelf) const override;
 
+		bool IsNormal() const
+		{
+			if (IsPet())
+				return false;
+
+			if (IsPlayer())
+				return false;
+
+			if (!GetCreatureInfo())
+				return false;
+
+			uint32 rank = GetCreatureInfo()->rank;
+			return !(rank != CREATURE_ELITE_NORMAL || rank != CREATURE_ELITE_RARE || rank != CREATURE_ELITE_WORLDBOSS);
+		}
+
         bool IsElite() const
         {
             if(IsPet())

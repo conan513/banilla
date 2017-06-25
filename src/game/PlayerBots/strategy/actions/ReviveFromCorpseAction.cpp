@@ -20,7 +20,7 @@ bool ReviveFromCorpseAction::Execute(Event event)
     bot->SpawnCorpseBones();
     bot->SaveToDB();
     context->GetValue<Unit*>("current target")->Set(NULL);
-    bot->SetSelection(ObjectGuid::Empty);
+    bot->SetSelectionGuid(ObjectGuid());
     return true;
 }
 
@@ -34,14 +34,14 @@ bool SpiritHealerAction::Execute(Event event)
     for (list<ObjectGuid>::iterator i = npcs.begin(); i != npcs.end(); i++)
     {
         Unit* unit = ai->GetUnit(*i);
-        if (unit && unit->IsSpiritHealer())
+        if (unit && unit->isSpiritHealer())
         {
             PlayerbotChatHandler ch(bot);
             bot->ResurrectPlayer(0.5f);
             bot->SpawnCorpseBones();
             bot->SaveToDB();
             context->GetValue<Unit*>("current target")->Set(NULL);
-            bot->SetSelection(ObjectGuid::Empty);
+            bot->SetSelectionGuid(ObjectGuid());
             return true;
         }
     }

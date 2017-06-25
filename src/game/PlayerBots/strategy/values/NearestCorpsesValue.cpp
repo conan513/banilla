@@ -2,12 +2,11 @@
 #include "../../playerbot.h"
 #include "NearestCorpsesValue.h"
 
-#include "../../../Grids/Notifiers/GridNotifiers.h"
-#include "../../../Grids/Notifiers/GridNotifiersImpl.h"
-#include "../../../Grids/Cells/CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "CellImpl.h"
 
 using namespace ai;
-using namespace Trinity;
 
 class AnyDeadUnitInObjectRangeCheck
 {
@@ -16,7 +15,7 @@ public:
     WorldObject const& GetFocusObject() const { return *i_obj; }
     bool operator()(Unit* u)
     {
-        return !u->IsAlive() && i_obj->IsWithinDistInMap(u, i_range);
+        return !u->isAlive() && i_obj->IsWithinDistInMap(u, i_range);
     }
 private:
     WorldObject const* i_obj;

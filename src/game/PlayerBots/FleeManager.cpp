@@ -2,7 +2,7 @@
 #include "playerbot.h"
 #include "FleeManager.h"
 #include "PlayerbotAIConfig.h"
-#include "../../game/Group.h"
+#include "Group.h"
 #include "AiFactory.h"
 #include "strategy/values/LastMovementValue.h"
 

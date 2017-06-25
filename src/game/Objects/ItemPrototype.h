@@ -310,7 +310,7 @@ enum ItemSubclassTradeGoods
     ITEM_SUBCLASS_PARTS                         = 1,
     ITEM_SUBCLASS_EXPLOSIVES                    = 2,
     ITEM_SUBCLASS_DEVICES                       = 3,
-    // ITEM_SUBCLASS_JEWELCRAFTING                 = 4,
+    ITEM_SUBCLASS_JEWELCRAFTING                 = 4,
     ITEM_SUBCLASS_CLOTH                         = 5,
     ITEM_SUBCLASS_LEATHER                       = 6,
     ITEM_SUBCLASS_METAL_STONE                   = 7,

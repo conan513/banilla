@@ -2,6 +2,7 @@
 #include "../../playerbot.h"
 #include "SendMailAction.h"
 #include "../../PlayerbotAIConfig.h"
+#include "Mail.h"
 
 using namespace ai;
 
@@ -31,7 +32,6 @@ bool SendMailAction::Execute(Event event)
 
 	string text = event.getParam();
 
-	SQLTransaction trans = CharacterDatabase.BeginTransaction();
 	ostringstream body;
 	body << "Hello, " << master->GetName() << ",\n";
 	body << "\n";
@@ -65,17 +65,15 @@ bool SendMailAction::Execute(Event event)
 			}
 
 			ItemPrototype const *proto = item->GetProto();
-			item->SetNotRefundable(bot);
 			bot->MoveItemFromInventory(item->GetBagSlot(), item->GetSlot(), true);
-			item->DeleteFromInventoryDB(trans);
-			item->SetOwnerGUID(master->GetGUID());
-			item->SaveToDB(trans);
+			item->DeleteFromInventoryDB();
+			item->SetOwnerGuid(master->GetObjectGuid());
+			item->SaveToDB();
 			draft.AddItem(item);
 		}
 	}
 
-	draft.SendMailTo(trans, MailReceiver(master), MailSender(bot));
-	CharacterDatabase.CommitTransaction(trans);
+	draft.SendMailTo(MailReceiver(master), MailSender(bot));
 
 	ai->TellMaster("Mail sent");
 	return true;

@@ -618,7 +618,7 @@ bool PlayerHasNoFlag::IsActive()
 {
 	if (ai->GetBot()->InBattleGround())
 		{
-		if (ai->GetBot()->GetBattleGroundTypeId() == BattleGroundTypeId::BattleGround_WS)
+		if (ai->GetBot()->GetBattleGroundTypeId() == BattleGroundTypeId::BATTLEGROUND_WS)
 			{
 			BattleGroundWS *bg = (BattleGroundWS*)ai->GetBot()->GetBattleGround();
 			if (!(bg->GetFlagState(bg->GetOtherTeam(bot->GetTeam())) == BG_WS_FLAG_STATE_ON_PLAYER))

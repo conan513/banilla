@@ -67,11 +67,11 @@ Unit* GrindTargetValue::FindTargetForGrinding(int assistCount)
 		if (!bot->InBattleGround() && master && master->GetDistance(unit) >= sPlayerbotAIConfig.grindDistance && !sRandomPlayerbotMgr.IsRandomBot(bot))
             continue;
 
-		if (!bot->InBattleGround() && (int)unit->getLevel() - (int)bot->getLevel() > 4 && !unit->GetGUID().IsPlayer())
+		if (!bot->InBattleGround() && (int)unit->getLevel() - (int)bot->getLevel() > 4 && !unit->GetObjectGuid().IsPlayer())
 		    continue;
 
 		Creature* creature = dynamic_cast<Creature*>(unit);
-		if (creature && creature->GetCreatureInfo() && creature->GetCreatureInfo()->Rank > CREATURE_ELITE_NORMAL)
+		if (creature && creature->GetCreatureInfo() && creature->GetCreatureInfo()->rank > CREATURE_ELITE_NORMAL)
 		    continue;
 
         if (group)
@@ -79,7 +79,7 @@ Unit* GrindTargetValue::FindTargetForGrinding(int assistCount)
             Group::MemberSlotList const& groupSlot = group->GetMemberSlots();
             for (Group::member_citerator itr = groupSlot.begin(); itr != groupSlot.end(); itr++)
             {
-                Player *member = sObjectMgr.GetPlayerByLowGUID(itr->guid);
+				Player *member = sObjectMgr.GetPlayer(itr->guid);
                 if( !member || !member->isAlive())
                     continue;
 
@@ -116,13 +116,13 @@ int GrindTargetValue::GetTargetingPlayerCount( Unit* unit )
     Group::MemberSlotList const& groupSlot = group->GetMemberSlots();
     for (Group::member_citerator itr = groupSlot.begin(); itr != groupSlot.end(); itr++)
     {
-        Player *member = sObjectMgr.GetPlayerByLowGUID(itr->guid);
+		Player *member = sObjectMgr.GetPlayer(itr->guid);
         if( !member || !member->isAlive() || member == bot)
             continue;
 
         PlayerbotAI* ai = member->GetPlayerbotAI();
         if ((ai && *ai->GetAiObjectContext()->GetValue<Unit*>("current target") == unit) ||
-            (!ai && member->GetSelectedUnit() == unit))
+			(!ai && member->GetSelectionGuid() == unit->GetObjectGuid()))
             count++;
     }
 

@@ -17,7 +17,7 @@ bool TellCastFailedAction::Execute(Event event)
     if (result == SPELL_CAST_OK)
         return false;
 
-    const SpellProto *const pSpellProto =  sSpellMgr->GetSpellProto(spellId);
+	SpellEntry const* pSpellProto = sSpellMgr.GetSpellEntry(spellId);
     ostringstream out; out << chat->formatSpell(pSpellProto) << ": ";
     switch (result)
     {
@@ -30,10 +30,10 @@ bool TellCastFailedAction::Execute(Event event)
     case SPELL_FAILED_REQUIRES_AREA:
         out << "cannot cast here";
         break;
-    case SPELL_FAILED_TOTEMS:
-    case SPELL_FAILED_TOTEM_CATEGORY:
-        out << "requires totem";
-        break;
+    //case SPELL_FAILED_TOTEMS:
+    //case SPELL_FAILED_TOTEM_CATEGORY:
+    //    out << "requires totem";
+    //    break;
     case SPELL_FAILED_EQUIPPED_ITEM_CLASS:
         out << "requires item";
         break;
@@ -47,7 +47,7 @@ bool TellCastFailedAction::Execute(Event event)
     default:
         out << "cannot cast";
     }
-    Spell *spell = new Spell(bot, pSpellProto, TRIGGERED_NONE);
+    Spell *spell = new Spell(bot, pSpellProto, false);
     int32 castTime = spell->GetCastTime();
     delete spell;
 
@@ -65,7 +65,7 @@ bool TellSpellAction::Execute(Event event)
     if (!spellId)
         return false;
 
-    SpellProto const *SpellProto = sSpellMgr->GetSpellProto(spellId );
+	SpellEntry const* SpellProto = sSpellMgr.GetSpellEntry(spellId);
     if (!SpellProto)
         return false;
 

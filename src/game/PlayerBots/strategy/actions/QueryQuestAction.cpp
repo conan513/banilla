@@ -1,5 +1,5 @@
 #include "../../../botpch.h"
-#include "../../playerbot.h"
+#include "playerbot.h"
 #include "QueryQuestAction.h"
 
 
@@ -58,29 +58,29 @@ void QueryQuestAction::TellObjectives(uint32 questId)
         if (!questTemplate->ObjectiveText[i].empty())
             ai->TellMaster(questTemplate->ObjectiveText[i]);
 
-        if (questTemplate->RequiredItemId[i])
+        if (questTemplate->ReqItemId[i])
         {
-            int required = questTemplate->RequiredItemCount[i];
-            int available = questStatus.ItemCount[i];
-            ItemPrototype const* proto = sObjectMgr.GetItemPrototype(questTemplate->RequiredItemId[i]);
+            int required = questTemplate->ReqItemCount[i];
+            int available = questStatus.m_itemcount[i];
+            ItemPrototype const* proto = sObjectMgr.GetItemPrototype(questTemplate->ReqItemId[i]);
             TellObjective(chat->formatItem(proto), available, required);
         }
 
-        if (questTemplate->RequiredNpcOrGo[i])
+        if (questTemplate->ReqCreatureOrGOId[i])
         {
-            int required = questTemplate->RequiredNpcOrGoCount[i];
-            int available = questStatus.CreatureOrGOCount[i];
+            int required = questTemplate->ReqCreatureOrGOCount[i];
+            int available = questStatus.m_creatureOrGOcount[i];
 
-            if (questTemplate->RequiredNpcOrGo[i] < 0)
+            if (questTemplate->ReqCreatureOrGOId[i] < 0)
             {
-                GameObjectTemplate const* info = sObjectMgr.GetGameObjectTemplate(questTemplate->RequiredNpcOrGo[i]);
+				GameObjectInfo const* info = ObjectMgr::GetGameObjectInfo(questTemplate->ReqCreatureOrGOId[i]);
                 if (info)
                     TellObjective(info->name, available, required);
             }
             else
             {
-
-                CreatureTemplate const* info = sObjectMgr.GetCreatureTemplate(questTemplate->RequiredNpcOrGo[i]);
+				CreatureInfo const *info = ObjectMgr::GetCreatureTemplate(questTemplate->ReqCreatureOrGOId[i]);
+                //CreatureTemplate const* info = sObjectMgr.GetCreatureTemplate(questTemplate->RequiredNpcOrGo[i]);
                 if (info)
                     TellObjective(info->Name, available, required);
             }

@@ -33,8 +33,6 @@ bool CastMisdirectionOnPartyAction::isUseful()
     {
         switch (player->getClass())
         {
-            case CLASS_DEATH_KNIGHT:
-                return ai->HasAura("frost presence", player);
             case CLASS_WARRIOR:
                 return ai->HasAura("defensive stance", player);
             case CLASS_PALADIN:

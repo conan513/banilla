@@ -1,7 +1,8 @@
-#pragma once
-
+#include "../../../botpch.h"
+#include "playerbot.h"
 #include "../Action.h"
 #include "AttackAction.h"
+
 
 namespace ai
 {
@@ -31,9 +32,9 @@ namespace ai
         }
         virtual bool isUseful() {
             return GetTarget() &&
-				!AI_VALUE(list<ObjectGuid>, "nearest non bot players").empty() &&
+				(!AI_VALUE(list<ObjectGuid>, "nearest non bot players").empty() &&
                 (AI_VALUE2(uint8, "health", "self target") > sPlayerbotAIConfig.mediumHealth &&
-                (!AI_VALUE2(uint8, "mana", "self target") || AI_VALUE2(uint8, "mana", "self target") > sPlayerbotAIConfig.mediumMana)) || AI_VALUE2(bool, "combat", "self target");
+                (!AI_VALUE2(uint8, "mana", "self target") || AI_VALUE2(uint8, "mana", "self target") > sPlayerbotAIConfig.mediumMana)) || AI_VALUE2(bool, "combat", "self target"));
         }
         virtual bool isPossible()
         {
@@ -77,14 +78,14 @@ namespace ai
 
             Spell* spell = bot->GetCurrentSpell(CURRENT_GENERIC_SPELL);
 
-            if (spell && !spell->GetSpellProto()->IsPositive())
+            if (spell && !IsPositiveSpell(spell->m_spellInfo))
             {
                 ai->InterruptSpell();
                 ai->TellMaster("Interrupted spell for target switch");
             }
 
             Spell* channel_spell = bot->GetCurrentSpell(CURRENT_CHANNELED_SPELL);
-            if (channel_spell && !channel_spell->GetSpellProto()->IsPositive())
+            if (channel_spell && !IsPositiveSpell(channel_spell->m_spellInfo))
             {
                 ai->InterruptSpell();
                 ai->TellMaster("Interrupted channel spell for target switch");

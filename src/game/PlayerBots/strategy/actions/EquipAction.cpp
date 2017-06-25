@@ -45,7 +45,7 @@ void EquipAction::EquipItem(Item& item)
 	}
 	else
 	{
-		std::unique_ptr<WorldPacket> packet (new WorldPacket(CMSG_AUTOEQUIP_ITEM, 2));
+		WorldPacket* const packet = new WorldPacket(CMSG_AUTOEQUIP_ITEM, 2);
 		*packet << bagIndex << slot;
 		bot->GetSession()->QueuePacket(std::move(packet));
 	}

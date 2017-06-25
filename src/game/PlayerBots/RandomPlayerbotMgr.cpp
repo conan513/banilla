@@ -4,12 +4,14 @@
 #include "PlayerbotFactory.h"
 #include "../../shared/Database/DatabaseEnv.h"
 #include "PlayerbotAI.h"
+#include "Guild.h"
+#include "DBCStores.h"
 #include "AiFactory.h"
-#include "../../game/MapManager.h"
+#include "MapManager.h"
 #include "PlayerbotCommandServer.h"
 #include "GuildTaskMgr.h"
 #include <thread>
-#include "../../game/BattleGround/BattleGround.h"
+#include "BattleGround.h"
 #include "PlayerbotCommandServer.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
@@ -369,10 +371,6 @@ void RandomPlayerbotMgr::RandomTeleport(Player* bot, vector<WorldLocation> &locs
 
 		const TerrainInfo * terrain = map->GetTerrain();
 		if (!terrain)
-			continue;
-
-		AreaTableEntry const* area = sAreaStore.LookupEntry(terrain->GetAreaId(x, y, z));
-		if (!area)
 			continue;
 
 		if (!terrain->IsOutdoors(x, y, z) ||

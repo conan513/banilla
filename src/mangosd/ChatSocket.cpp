@@ -261,7 +261,7 @@ int OfflineChatSocket::handle_input(ACE_HANDLE)
             sendf("err_loading\n");
             return 0;
         }
-        if (!sPlayerBotMgr.addBot(playerGuid, true))
+        if (!sEventBotMgr.addBot(playerGuid, true))
         {
             sendf("err_internal\n");
             return 0;
@@ -269,7 +269,7 @@ int OfflineChatSocket::handle_input(ACE_HANDLE)
     }
     else
     {
-        sPlayerBotMgr.AddTempBot(player->GetSession()->GetAccountId(), 20000);
+        sEventBotMgr.AddTempBot(player->GetSession()->GetAccountId(), 20000);
 
         // Retrieve messages in queue
         if (messageType == OFFLINE_CHAT_GET_MESSAGES)

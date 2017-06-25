@@ -14,7 +14,7 @@ namespace ai
         virtual Item* Calculate();
 
     private:
-        Item* GetItemFitsToSpellRequirements(uint8 slot, SpellProto const *SpellProto);
+        Item* GetItemFitsToSpellRequirements(uint8 slot, SpellEntry const *SpellProto);
 
     };
 }

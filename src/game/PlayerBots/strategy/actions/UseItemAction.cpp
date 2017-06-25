@@ -114,7 +114,7 @@ bool UseItemAction::UseItem(Item* item, ObjectGuid goGuid, Item* itemTarget)
         }
     }
 
-	std::unique_ptr<WorldPacket> packet(new WorldPacket(CMSG_USE_ITEM, 1 + 1 + 1 + 4 + 8 + 4 + 1 + 8 + 1));
+	WorldPacket* const packet = new WorldPacket(CMSG_USE_ITEM, 1 + 1 + 1 + 4 + 8 + 4 + 1 + 8 + 1);
 	*packet << bagIndex << slot << cast_count;
 
     bool targetSelected = false;
@@ -156,7 +156,7 @@ bool UseItemAction::UseItem(Item* item, ObjectGuid goGuid, Item* itemTarget)
         Quest const* qInfo = sObjectMgr.GetQuestTemplate(questid);
         if (qInfo)
         {
-			std::unique_ptr<WorldPacket> packet(new WorldPacket(CMSG_QUESTGIVER_ACCEPT_QUEST, 8+4+4));
+			WorldPacket* const packet = new WorldPacket(CMSG_QUESTGIVER_ACCEPT_QUEST, 8+4+4);
             *packet << item_guid;
             *packet << questid;
             *packet << uint32(0);
@@ -190,7 +190,7 @@ bool UseItemAction::UseItem(Item* item, ObjectGuid goGuid, Item* itemTarget)
     bot->clearUnitState( UNIT_STAT_CHASE );
     bot->clearUnitState( UNIT_STAT_FOLLOW );
 
-    if (bot->isMoving())
+    if (bot->IsMoving())
         return false;
 
     for (int i=0; i<MAX_ITEM_PROTO_SPELLS; i++)
@@ -202,7 +202,7 @@ bool UseItemAction::UseItem(Item* item, ObjectGuid goGuid, Item* itemTarget)
         if (!ai->CanCastSpell(spellId, bot, false))
             continue;
 
-		const SpellEntry* const pSpellInfo = sSpellStore.LookupEntry(spellId);
+		const SpellEntry* const pSpellInfo = sSpellMgr.GetSpellEntry(spellId);
 		if (pSpellInfo->Targets & TARGET_FLAG_ITEM)
         {
             Item* itemForSpell = AI_VALUE2(Item*, "item for spell", spellId);
@@ -245,7 +245,7 @@ bool UseItemAction::UseItem(Item* item, ObjectGuid goGuid, Item* itemTarget)
 	if (item->GetProto()->Flags & ITEM_FLAG_HAS_LOOT)
     {
         // Open quest item in inventory, containing related items (e.g Gnarlpine necklace, containing Tallonkai's Jewel)
-		std::unique_ptr<WorldPacket> packet(new WorldPacket(CMSG_OPEN_ITEM, 2));
+		WorldPacket* const packet = new WorldPacket(CMSG_OPEN_ITEM, 2);
         *packet << item->GetBagSlot();
         *packet << item->GetSlot();
         bot->GetSession()->QueuePacket(std::move(packet));           // queue the packet to get around race condition
@@ -308,7 +308,7 @@ bool UseItemAction::UseItemOnUnit(Item* item, Unit* unitTarget)
     bot->clearUnitState( UNIT_STAT_CHASE );
     bot->clearUnitState( UNIT_STAT_FOLLOW );
 
-    if (bot->isMoving())
+    if (bot->IsMoving())
         return false;
 
 	uint32 spellId = 0;
@@ -328,13 +328,13 @@ bool UseItemAction::UseItemOnUnit(Item* item, Unit* unitTarget)
 
     uint32 targetFlag = TARGET_FLAG_UNIT;
 
-	std::unique_ptr<WorldPacket> packet(new WorldPacket(CMSG_USE_ITEM, 1 + 1 + 1 + 4 + 8 + 4 + 1 + 8 + 1));
+	WorldPacket* const packet = new WorldPacket(CMSG_USE_ITEM, 1 + 1 + 1 + 4 + 8 + 4 + 1 + 8 + 1);
         *packet << bagIndex << slot << cast_count << spellId << item_guid
         << glyphIndex << unk_flags << targetFlag;
 
     ai->TellMasterNoFacing(out.str());
 
-	const SpellEntry* const pSpellInfo = sSpellStore.LookupEntry(spellId);
+	const SpellEntry* const pSpellInfo = sSpellMgr.GetSpellEntry(spellId);
 
 	Spell *spell = new Spell(bot, pSpellInfo, false);
     ai->WaitForSpellCast(spell);

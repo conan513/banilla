@@ -16,7 +16,7 @@ bool InvalidTargetValue::Calculate()
                 target->IsPolymorphed() ||
                 target->IsCharmed() ||
                 target->isFeared() ||
-                target->HasUnitState(UNIT_STATE_ISOLATED) ||
+                //target->HasUnitState(UNIT_STATE_ISOLATED) ||
                 target->IsFriendlyTo(bot) ||
                 !bot->IsWithinDistInMap(target, sPlayerbotAIConfig.sightDistance) ||
                 !bot->IsWithinLOSInMap(target);

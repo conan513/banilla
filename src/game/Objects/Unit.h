@@ -1362,6 +1362,13 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
 		bool isBleeding() { return HasAuraState(AURA_STATE_BLEEDING); }
 		bool hasReducedArmor() { return (GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_RESISTANCE, 1) < 0); }
 
+		bool isAsleep() const { return HasAuraWithMechanic(MECHANIC_SLEEP); }
+		bool isSilenced()  const { return HasAuraWithMechanic(MECHANIC_SILENCE); }
+		bool TakesPeriodicDamage() const { return HasAuraType(SPELL_AURA_PERIODIC_DAMAGE); }
+		bool hasCriticalHealth() const;
+		bool hasLowHealth() const;
+		bool hasHighHealth() const;
+
         bool IsImmuneToSchoolMask(uint32 schoolMask) const;
 
         bool isFrozen() const;
@@ -1374,9 +1381,6 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
 		bool IsImmobilized() const { return hasUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED); }
 		bool IsRooted() const { return m_movementInfo.HasMovementFlag(MOVEFLAG_ROOT); }
 		bool IsImpaired() const { return isFrozen() || IsStunned() || IsIncapacitated() || isSnared() || IsImmobilized() || IsRooted(); }
-
-		bool isAsleep() const { return HasAuraWithMechanic(MECHANIC_SLEEP); }
-		bool isSilenced()  const { return HasAuraWithMechanic(MECHANIC_SILENCE); }
 
 		bool UnderCc() { return isConfused() || IsIncapacitated() || IsPolymorphed() || isPossessed() || isFeared() || isInRoots(); }
 
@@ -1594,7 +1598,11 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         // delayed+channeled spells are always accounted as casted
         // we can skip channeled or delayed checks using flags
         bool IsNonMeleeSpellCasted(bool withDelayed = false, bool skipChanneled = false, bool skipAutorepeat = false) const;
-        // for movement generators, check if current casted spell has movement interrupt flags
+		bool IsNonPositiveSpellCast(bool withDelayed, bool skipChanneled = false, bool skipAutorepeat = false, bool isAutoshoot = false, bool skipInstant = true) const;
+		
+		uint8 Preference = urand(0, 9); //Random preference
+        
+										// for movement generators, check if current casted spell has movement interrupt flags
         bool IsNoMovementSpellCasted() const;
         
         // set withDelayed to true to interrupt delayed spells too
@@ -2093,7 +2101,7 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         typedef std::map<ObjectGuid /*attackerGuid*/, uint32 /*damage*/ > DamageTakenHistoryMap;
         DamageTakenHistoryMap   _damageTakenHistory;
         uint32                  _lastDamageTaken;
-		WorldLocation			_old_pos;
+		//WorldLocation			_old_pos;
     private:
         void CleanupDeletedAuras();
         void UpdateSplineMovement(uint32 t_diff);

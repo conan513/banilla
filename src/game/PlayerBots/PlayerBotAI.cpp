@@ -4,9 +4,9 @@
 
 #include "AiFactory.h"
 
-#include "../../game/GridNotifiers.h"
-#include "../../game/GridNotifiersImpl.h"
-#include "../../game/CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "CellImpl.h"
 #include "strategy/values/LastMovementValue.h"
 #include "strategy/actions/LogLevelAction.h"
 #include "strategy/values/LastSpellCastValue.h"
@@ -15,16 +15,16 @@
 #include "PlayerbotAI.h"
 #include "PlayerbotFactory.h"
 #include "PlayerbotSecurity.h"
-#include "../../game/Group.h"
+#include "Group.h"
 //#include "../Spells/SpellHistory.h"
-#include "../../game/Pet.h"
-#include "../../game/SpellAuraDefines.h"
+#include "Pet.h"
+#include "SpellAuraDefines.h"
 #include "GuildTaskMgr.h"
 #include "PlayerbotDbStore.h"
 
 #include "PlayerBotAI.h"
 #include "Player.h"
-#include "DBCStores.h"
+#include "DBCStructure.h"
 #include "Log.h"
 #include "SocialMgr.h"
 #include "MotionMaster.h"
@@ -528,13 +528,13 @@ void PlayerbotAI::DoSpecificAction(string name)
 
 bool PlayerbotAI::PlaySound(uint32 emote)
 {
-   if (EmotesTextSoundEntry const* soundEntry = FindTextSoundEmoteFor(emote, bot->getRace(), bot->getGender()))
-    {
-        bot->PlayDistanceSound(soundEntry->SoundId);
-        return true;
-    }
+//	if (EmotesTextSoundEntry const* soundEntry = FindTextSoundEmoteFor(emote, bot->getRace(), bot->getGender()))
+//	{
+//		bot->PlayDistanceSound(soundEntry->SoundId);
+		return true;
+//	}
 
-    return false;
+//	return false;
 }
 
 //thesawolf - emotion responses
@@ -1203,7 +1203,7 @@ bool PlayerbotAI::TellMaster(string text, PlayerbotSecurityLevel securityLevel)
     if (!TellMasterNoFacing(text, securityLevel))
         return false;
 
-    if (!bot->isMoving() && !bot->isInCombat() && bot->GetMapId() == master->GetMapId())
+    if (!bot->IsMoving() && !bot->isInCombat() && bot->GetMapId() == master->GetMapId())
     {
         if (!bot->isInFront(master, M_PI / 2))
             bot->SetFacingTo(bot->GetAngle(master));
@@ -1412,7 +1412,7 @@ bool PlayerbotAI::CanCastSpell(uint32 spellid, Unit* target, bool checkHasSpell,
     if (bot->HasSpellCooldown(spellid))
        return false;
 
-	SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellid);
+	SpellEntry const *spellInfo = sSpellMgr.GetSpellEntry(spellid);
 	if (!spellInfo)
 		return false;
 
@@ -1531,7 +1531,7 @@ bool PlayerbotAI::CastSpell(uint32 spellId, Unit* target)
         target = bot;
 
     Pet* pet = bot->GetPet();
-	SpellEntry const *pSpellInfo = sSpellStore.LookupEntry(spellId);
+	SpellEntry const *pSpellInfo = sSpellMgr.GetSpellEntry(spellId);
 	if (pet && pet->HasSpell(spellId))
 	{
 		pet->ToggleAutocast(spellId, true);
@@ -1554,7 +1554,7 @@ bool PlayerbotAI::CastSpell(uint32 spellId, Unit* target)
 	bot->SetSelectionGuid(target->GetGUID());
 
 	Spell *spell = new Spell(bot, pSpellInfo, false);
-	if (bot->isMoving() && spell->GetCastTime())
+	if (bot->IsMoving() && spell->GetCastTime())
 	{
 		spell->cancel();
 		delete spell;		
@@ -1597,7 +1597,7 @@ bool PlayerbotAI::CastSpell(uint32 spellId, Unit* target)
 		GameObject* go = GetGameObject(loot.guid);
 		if (go && go->isSpawned())
 		{
-			std::unique_ptr<WorldPacket> packetgouse (new WorldPacket(CMSG_GAMEOBJ_USE, 8));
+			WorldPacket* packetgouse = new WorldPacket(CMSG_GAMEOBJ_USE, 8);
 			*packetgouse << loot.guid;
 			bot->GetSession()->QueuePacket(std::move(packetgouse));
 			targets.setGOTarget(go);
@@ -1624,7 +1624,7 @@ bool PlayerbotAI::CastSpell(uint32 spellId, Unit* target)
 		return false;
 	}
 
-	spell->SpellStart(&targets);
+	spell->prepare(targets);
 	WaitForSpellCast(spell);
 	aiObjectContext->GetValue<LastSpellCast&>("last spell cast")->Get().Set(spellId, target->GetGUID(), time(0));
 
@@ -1708,7 +1708,7 @@ bool PlayerbotAI::IsInterruptableSpellCasting(Unit* target, string spell)
     if (!spellid || !target->IsNonMeleeSpellCasted(true))
         return false;
 
-	SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellid);
+	SpellEntry const *spellInfo = sSpellMgr.GetSpellEntry(spellid);
 	if (!spellInfo)
 		return false;
 
@@ -2094,7 +2094,7 @@ void PlayerbotAI::LogAction(const char* format, ...)
     sLog.outDebug( "%s %s", bot->GetName(), buf);
 }
 
-bool PlayerBotAI::OnSessionLoaded(PlayerBotEntry* entry, WorldSession* sess)
+bool EventBotAI::OnSessionLoaded(EventBotEntry* entry, WorldSession* sess)
 {
     sess->LoginPlayer(entry->playerGUID);
     return true;
@@ -2192,7 +2192,7 @@ bool EventBotAI::SpawnNewPlayer(WorldSession* sess, uint8 class_, uint32 race_, 
     sObjectAccessor.AddObject(newChar);
     return true;
 }
-bool MageOrgrimmarAttackerAI::OnSessionLoaded(PlayerBotEntry* entry, WorldSession* sess)
+bool MageOrgrimmarAttackerAI::OnSessionLoaded(EventBotEntry* entry, WorldSession* sess)
 {
     return SpawnNewPlayer(sess, CLASS_MAGE, RACE_GNOME, 1, 0, 1017.0f, -4450, 12, 0.65f);
 }

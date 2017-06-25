@@ -6,13 +6,10 @@
 #include "AhBotConfig.h"
 #include "DBCStructure.h"
 #include "Log.h"
-#include "QueryResult.h"
-#include "DatabaseEnv.h"
-#include "SQLStorage.h"
-#include "DBCStore.h"
 #include "SQLStorages.h"
 #include "AuctionHouseMgr.h"
 #include "ObjectMgr.h"
+#include "AhBot.h"
 
 using namespace ahbot;
 char * strstri (const char* str1, const char* str2);

@@ -11,15 +11,15 @@ bool SpellCastUsefulValue::Calculate()
 	if (!spellid)
 		return true; // there can be known alternatives
 
-	SpellProto const *SpellProto = sSpellMgr->GetSpellProto(spellid);
+	SpellEntry const *SpellProto = sSpellMgr.GetSpellEntry(spellid);
 	if (!SpellProto)
 		return true; // there can be known alternatives
 
-	if (SpellProto->Attributes & SPELL_ATTR0_ON_NEXT_SWING ||
-		SpellProto->Attributes & SPELL_ATTR0_ON_NEXT_SWING_2)
+	if (SpellProto->Attributes & SPELL_ATTR_ON_NEXT_SWING_1 ||
+		SpellProto->Attributes & SPELL_ATTR_ON_NEXT_SWING_2)
 	{
 		Spell* spell = bot->GetCurrentSpell(CURRENT_MELEE_SPELL);
-		if (spell && spell->m_SpellProto->Id == spellid && spell->IsNextMeleeSwingSpell() && bot->HasUnitState(UNIT_STATE_MELEE_ATTACKING))
+		if (spell && spell->m_spellInfo->Id == spellid && spell->IsNextMeleeSwingSpell() && bot->hasUnitState(UNIT_STAT_MELEE_ATTACKING))
 			return false;
 	}
 	else
@@ -33,8 +33,8 @@ bool SpellCastUsefulValue::Calculate()
         }
 	}
 
-	if (SpellProto->IsAutoRepeatRangedSpell() && bot->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL) &&
-            bot->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL)->m_SpellProto->Id == spellid)
+	if (IsAutoRepeatRangedSpell(SpellProto) && bot->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL) &&
+		bot->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL)->m_spellInfo->Id == spellid)
     {
         return false;
     }

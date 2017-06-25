@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../Action.h"
-#include "../../../Globals/ObjectMgr.h"
+#include "ObjectMgr.h"
 
 namespace ai
 {
