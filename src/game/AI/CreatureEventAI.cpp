@@ -1102,8 +1102,8 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
 
 			if (target)
 			{
-				sLog.outError("CreatureEventAi::action(%u) creature %s [GUID: %u] escape from %s [GUID: %u]", static_cast<uint32>(action.type)),
-					m_creature->GetName(), m_creature->GetGUIDLow(), target->GetName(), target->GetGUIDLow();
+			//	sLog.outError("CreatureEventAi::action(%u) creature [GUID: %u] escape from [GUID: %u]", static_cast<uint32>(action.type)),
+			//		 m_creature->GetGUIDLow(), target->GetGUIDLow();
 
 				m_creature->EscapeMeleeRange(target, range, duration);
 			}
@@ -1120,8 +1120,8 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
 
 			if (target)
 			{
-				sLog.outError("CreatureEventAi::action(%u) creature %s [GUID: %u] move behind %s [GUID: %u]", static_cast<uint32>(action.type)),
-					m_creature->GetName(), m_creature->GetGUIDLow(), target->GetName(), target->GetGUIDLow();
+			//	sLog.outError("CreatureEventAi::action(%u) creature %s [GUID: %u] move behind %s [GUID: %u]", static_cast<uint32>(action.type)),
+			//		m_creature->GetName(), m_creature->GetGUIDLow(), target->GetName(), target->GetGUIDLow();
 
 				m_creature->MoveBehind(target);
 			}
