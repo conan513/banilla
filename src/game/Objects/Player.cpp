@@ -15343,6 +15343,9 @@ bool Player::LoadFromDB(ObjectGuid guid, SqlQueryHolder *holder)
 
 void Player::SendPacketsAtRelogin()
 {
+	SendProficiency(ITEM_CLASS_WEAPON, GetWeaponProficiency());
+	SendProficiency(ITEM_CLASS_ARMOR, GetArmorProficiency());
+
     for (uint8 i = 0; i < MAX_SPELLMOD; ++i)
         for (SpellModList::iterator itr = m_spellMods[i].begin(); itr != m_spellMods[i].end(); ++itr)
             SendSpellMod(*itr);
