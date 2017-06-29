@@ -1670,7 +1670,7 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                                 if (!player->InBattleGround())
                                     player->RemoveAurasDueToSpell(2584);
                         }
-                        return;                            
+                        return;
                     }
                     case 10255:                             // Stoned
                     {
@@ -5600,7 +5600,7 @@ void Aura::HandleAuraGhost(bool apply, bool /*Real*/)
         GetTarget()->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST);
     else
         GetTarget()->RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST);
-    
+
     if (((Player*)GetTarget())->GetGroup())
         ((Player*)GetTarget())->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_STATUS);
 }
@@ -5779,7 +5779,7 @@ void Aura::PeriodicTick(SpellEntry const* sProto, AuraType auraType, uint32 data
                 if (m_modifier.m_auraname == SPELL_AURA_PERIODIC_DAMAGE)
                     pdamage = amount;
                 else
-                    pdamage = uint32(target->GetMaxHealth() * amount / 100);                
+                    pdamage = uint32(target->GetMaxHealth() * amount / 100);
             }
 
 			bool isNotBleed = GetEffectMechanic(spellProto, m_effIndex) != MECHANIC_BLEED;
@@ -5803,6 +5803,9 @@ void Aura::PeriodicTick(SpellEntry const* sProto, AuraType auraType, uint32 data
                 pdamage = pdamageReductedArmor;
             }
 
+            // TODO (Curse of Agony/Starshards):
+            // only base damage should be affected, not whole damage
+
             // Curse of Agony damage-per-tick calculation
             if (spellProto->IsFitToFamily<SPELLFAMILY_WARLOCK, CF_WARLOCK_CURSE_OF_AGONY>())
             {
@@ -5814,6 +5817,16 @@ void Aura::PeriodicTick(SpellEntry const* sProto, AuraType auraType, uint32 data
                     pdamage += (pdamage + 1) / 2;       // +1 prevent 0.5 damage possible lost at 1..4 ticks
                 // 5..8 ticks have normal tick damage
             }
+            if (spellProto->IsFitToFamily<SPELLFAMILY_PRIEST, CF_PRIEST_STARSHARDS>())
+            {
+                //ticks: 2/3, 2/3, 1, 1, 4/3, 4/3
+                float ticks[] = {0,.111,.222,.389,.556,.778,1};
+                float dmg = ticks[GetAuraTicks() -1];
+                float ddone = ticks[GetAuraTicks()];
+                pdamage *= 6;
+                pdamage = std::round(std::round(pdamage * ddone) - pdamage * dmg);
+            }
+
 
             target->CalculateDamageAbsorbAndResist(pCaster, GetSpellSchoolMask(spellProto), DOT, pdamage, &absorb, &resist, spellProto);
 
@@ -6902,15 +6915,15 @@ bool SpellAuraHolder::IsNeedVisibleSlot(Unit const* caster) const
     // up a slot
     bool persistent = m_spellProto->Effect[EFFECT_INDEX_0] == SPELL_EFFECT_PERSISTENT_AREA_AURA;
     bool persistentWithSecondaryEffect = false;
-    
+
     for (int i = 0; i < MAX_EFFECT_INDEX; ++i)
     {
-        // Check for persistent aura here since the effect aura is applied to the holder 
-        // by a dynamic object as the target passes through the object field, meaning 
+        // Check for persistent aura here since the effect aura is applied to the holder
+        // by a dynamic object as the target passes through the object field, meaning
         // m_auras will be unset when this method is called (initialization)
         if (!m_auras[i] && !persistent)
             continue;
-            
+
         // special area auras cases
         switch (m_spellProto->Effect[i])
         {
@@ -6923,14 +6936,14 @@ bool SpellAuraHolder::IsNeedVisibleSlot(Unit const* caster) const
             case SPELL_EFFECT_APPLY_AREA_AURA_PARTY:
                 // passive auras (except totem auras) do not get placed in caster slot
                 return (m_target != caster || totemAura || !m_isPassive) && m_auras[i]->GetModifier()->m_auraname != SPELL_AURA_NONE;
-                
+
                 break;
             case SPELL_EFFECT_PERSISTENT_AREA_AURA:
                 // If spell aura applies something other than plain damage, it takes
                 // up a debuff slot.
                 if (m_spellProto->EffectApplyAuraName[i] != SPELL_AURA_PERIODIC_DAMAGE)
                     persistentWithSecondaryEffect = true;
-                    
+
                 break;
             default:
                 break;
@@ -6940,10 +6953,10 @@ bool SpellAuraHolder::IsNeedVisibleSlot(Unit const* caster) const
     /*  Persistent area auras such as Blizzard/RoF/Volley do not get require debuff slots
         since they just do area damage with no additional effects. However, spells like
         Hurricane do since they have a secondary effect attached to them. There are enough
-        persistent area spells in-game that making a switch for all of them is a bit 
+        persistent area spells in-game that making a switch for all of them is a bit
         unreasonable. Any spell with a secondary affect should take up a slot. Note
         that most (usable) persistent spells only deal damage.
-        
+
         It was considered whether spells with secondary effects should still deal damage,
         even if there is no room for the other effect, however the debuff tooltip states
         that the spell causes damage AND slows, therefore it must take a debuff slot.
@@ -6952,7 +6965,7 @@ bool SpellAuraHolder::IsNeedVisibleSlot(Unit const* caster) const
     {
         return false;
     }
-    
+
     // necessary for some spells, e.g. Immolate visual passive 28330
     if (m_spellProto->SpellVisual)
         return true;
@@ -7436,7 +7449,7 @@ void SpellAuraHolder::CalculateForDebuffLimit()
                 // Hakkar's Blood Siphon
                 case 24323:
                 case 24322:
-                    m_debuffLimitScore = 4; 
+                    m_debuffLimitScore = 4;
                     return;
             }
         }
