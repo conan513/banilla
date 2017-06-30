@@ -669,6 +669,8 @@ enum ReputationSource
 #define INJURED					54602
 #define GREVIOUS_WOUNDED		54603
 
+#define VISION_BLUR				55004
+
 struct InstancePlayerBind
 {
     DungeonPersistentState *state;

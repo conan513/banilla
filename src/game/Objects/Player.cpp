@@ -1457,18 +1457,6 @@ void Player::Update(uint32 update_diff, uint32 p_time)
 				if (!HasAura(GREVIOUS_WOUNDED))
 					_CreateCustomAura(GREVIOUS_WOUNDED);
 			}
-
-			//Dizzyness effect
-			if (health < 15)
-			{
-				if (!HasAura(55007))
-					_CreateCustomAura(55007);
-			}
-			else if (HasAura(55007))
-			{
-				RemoveAurasDueToSpell(55007);
-				SetDrunkValue(0);
-			}
 		}
 		//Custom
     }
@@ -2483,6 +2471,20 @@ void Player::RegenerateAll()
         if (!isInCombat() && !HasAuraType(SPELL_AURA_INTERRUPT_REGEN))
             Regenerate(POWER_RAGE);
     }
+
+	float health = GetHealthPercent();
+	//Dizzyness effect
+	if (health < 15.f)
+	{
+		if (roll_chance_i(15.f - health))
+			if (!HasAura(VISION_BLUR))
+				CastSpell(this, VISION_BLUR, false);
+	}
+	else if (HasAura(VISION_BLUR))
+	{
+		RemoveAurasDueToSpell(VISION_BLUR);
+		//	SetDrunkValue(0);
+	}
 
     Regenerate(POWER_ENERGY);
     Regenerate(POWER_MANA);
