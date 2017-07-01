@@ -528,13 +528,13 @@ void PlayerbotAI::DoSpecificAction(string name)
 
 bool PlayerbotAI::PlaySound(uint32 emote)
 {
-//	if (EmotesTextSoundEntry const* soundEntry = FindTextSoundEmoteFor(emote, bot->getRace(), bot->getGender()))
-//	{
-//		bot->PlayDistanceSound(soundEntry->SoundId);
+	if (EmotesTextSoundEntry const* soundEntry = FindTextSoundEmoteFor(emote, bot->getRace(), bot->getGender()))
+	{
+		bot->PlayDistanceSound(soundEntry->SoundId);
 		return true;
-//	}
+	}
 
-//	return false;
+	return false;
 }
 
 //thesawolf - emotion responses

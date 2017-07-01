@@ -30,6 +30,7 @@ public:
     uint32 criticalHealth, lowHealth, mediumHealth, highHealth, almostFullHealth, almostDead;
     uint32 lowMana, mediumMana, almostFullMana, almostNoMana;
 
+	uint32 openGoSpell;
     bool randomBotAutologin;
     std::string randomBotMapsAsString;
     std::vector<uint32> randomBotMaps;

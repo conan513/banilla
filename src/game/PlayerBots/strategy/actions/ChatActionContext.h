@@ -51,6 +51,10 @@
 #include "SaveManaAction.h"
 #include "../values/Formations.h"
 #include "SendMailAction.h"
+#include "MailAction.h"
+#include "GoAction.h"
+#include "SendMailAction.h"
+#include "SkipSpellsListAction.h"
 
 namespace ai
 {
@@ -128,9 +132,13 @@ namespace ai
             creators["boost chat shortcut"] = &ChatActionContext::boost_chat_shortcut;
             creators["burst chat shortcut"] = &ChatActionContext::burst_chat_shortcut;
 			creators["sendmail"] = &ChatActionContext::sendmail;
+			creators["mail"] = &ChatActionContext::mail;
+			creators["go"] = &ChatActionContext::go;
         }
 
     private:
+		static Action* go(PlayerbotAI* ai) { return new GoAction(ai); }
+		static Action* mail(PlayerbotAI* ai) { return new MailAction(ai); }
 		static Action* sendmail(PlayerbotAI* ai) { return new SendMailAction(ai); }
         static Action* formation(PlayerbotAI* ai) { return new SetFormationAction(ai); }
         static Action* tell_attackers(PlayerbotAI* ai) { return new TellAttackersAction(ai); }

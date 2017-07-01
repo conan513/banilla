@@ -579,6 +579,8 @@ PlayerBots/strategy/actions/GenericActions.cpp
 PlayerBots/strategy/actions/GenericActions.h
 PlayerBots/strategy/actions/GenericSpellActions.cpp
 PlayerBots/strategy/actions/GenericSpellActions.h
+PlayerBots/strategy/actions/GoAction.cpp
+PlayerBots/strategy/actions/GoAction.h
 PlayerBots/strategy/actions/GossipHelloAction.cpp
 PlayerBots/strategy/actions/GossipHelloAction.h
 PlayerBots/strategy/actions/GuildAcceptAction.cpp
@@ -607,6 +609,8 @@ PlayerBots/strategy/actions/LootRollAction.cpp
 PlayerBots/strategy/actions/LootRollAction.h
 PlayerBots/strategy/actions/LootStrategyAction.cpp
 PlayerBots/strategy/actions/LootStrategyAction.h
+PlayerBots/strategy/actions/MailAction.cpp
+PlayerBots/strategy/actions/MailAction.h
 PlayerBots/strategy/actions/MoveBehindAction.cpp
 PlayerBots/strategy/actions/MoveBehindAction.h
 PlayerBots/strategy/actions/MovementActions.cpp
@@ -654,6 +658,8 @@ PlayerBots/strategy/actions/SendMailAction.cpp
 PlayerBots/strategy/actions/SendMailAction.h
 PlayerBots/strategy/actions/SetHomeAction.cpp
 PlayerBots/strategy/actions/SetHomeAction.h
+PlayerBots/strategy/actions/SkipSpellsListAction.h
+PlayerBots/strategy/actions/SkipSpellsListAction.cpp
 PlayerBots/strategy/actions/StatsAction.cpp
 PlayerBots/strategy/actions/StatsAction.h
 PlayerBots/strategy/actions/StayActions.cpp

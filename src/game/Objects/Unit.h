@@ -1600,7 +1600,7 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         bool IsNonMeleeSpellCasted(bool withDelayed = false, bool skipChanneled = false, bool skipAutorepeat = false) const;
 		bool IsNonPositiveSpellCast(bool withDelayed, bool skipChanneled = false, bool skipAutorepeat = false, bool isAutoshoot = false, bool skipInstant = true) const;
 		
-		uint8 Preference = urand(0, 9); //Random preference
+		uint32 Preference = urand(0, 9); //Random preference
         
 										// for movement generators, check if current casted spell has movement interrupt flags
         bool IsNoMovementSpellCasted() const;
