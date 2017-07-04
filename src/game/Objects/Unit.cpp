@@ -10214,7 +10214,9 @@ uint32 createProcExtendMask(SpellNonMeleeDamage *damageInfo, SpellMissInfo missC
 
 void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* pTarget, uint32 procFlag, uint32 procExtra, WeaponAttackType attType, SpellEntry const* procSpell, uint32 damage, ProcTriggeredList& triggeredList, Spell* spell)
 {
-	//sLog.outError("PROC: Flags 0x%.5x Ex 0x%.3x Spell %5u %s", procFlag, procExtra, procSpell ? procSpell->Id : 0, isVictim ? "[victim]" : "");
+	if (GetTypeId() == TYPEID_PLAYER)
+		sLog.outError("PROC: Flags 0x%.5x Ex 0x%.3x Spell %5u %s", procFlag, procExtra, procSpell ? procSpell->Id : 0, isVictim ? "[victim]" : "");
+
     // For melee/ranged based attack need update skills and set some Aura states
     if (procFlag & MELEE_BASED_TRIGGER_MASK && pTarget)
     {
@@ -10232,7 +10234,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* pTarget, uint32 procFlag, 
                 ((Player*)this)->UpdateDefense();
         }
         // If exist crit/parry/dodge/block need update aura state (for victim and attacker)
-        if (procExtra & (PROC_EX_CRITICAL_HIT | PROC_EX_PARRY | PROC_EX_DODGE | PROC_EX_BLOCK))
+        if (procExtra & (PROC_EX_CRITICAL_HIT | PROC_EX_PARRY | PROC_EX_DODGE | PROC_EX_BLOCK | PROC_EX_MISS | PROC_EX_RESIST | PROC_EX_ABSORB | PROC_EX_INTERRUPT))
         {
             // for victim
             if (isVictim)
@@ -10246,12 +10248,15 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* pTarget, uint32 procFlag, 
                         ModifyAuraState(AURA_STATE_DEFENSE, true);
                         StartReactiveTimer(REACTIVE_DEFENSE, pTarget->GetObjectGuid());
                     }
+
+					ModifyAuraState(AURA_STATE_DODGE, true);
+					StartReactiveTimer(REACTIVE_DODGE, pTarget->GetObjectGuid());
                 }
                 // if victim and parry attack
                 if (procExtra & PROC_EX_PARRY)
                 {
-                    // For Hunters only Counterattack (skip Mongoose bite) and Warriors Counterstrike
-                    if (getClass() == CLASS_HUNTER || getClass() == CLASS_WARRIOR)
+                    // For Hunters only Counterattack (skip Mongoose bite)
+                    if (getClass() == CLASS_HUNTER)
                     {
                         ModifyAuraState(AURA_STATE_PARRY, true);
                         StartReactiveTimer(REACTIVE_PARRY, pTarget->GetObjectGuid());
@@ -10263,6 +10268,9 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* pTarget, uint32 procFlag, 
                     {
                         ModifyAuraState(AURA_STATE_DEFENSE, true);
                         StartReactiveTimer(REACTIVE_DEFENSE, pTarget->GetObjectGuid());
+
+						ModifyAuraState(AURA_STATE_PARRY, true);
+						StartReactiveTimer(REACTIVE_PARRY, pTarget->GetObjectGuid());
                     }
                 }
                 // if and victim block attack
@@ -10270,7 +10278,28 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* pTarget, uint32 procFlag, 
                 {
                     ModifyAuraState(AURA_STATE_DEFENSE, true);
                     StartReactiveTimer(REACTIVE_DEFENSE, pTarget->GetObjectGuid());
+
+					ModifyAuraState(AURA_STATE_BLOCK, true);
+					StartReactiveTimer(REACTIVE_BLOCK, pTarget->GetObjectGuid());
                 }
+				// if miss
+				if (procExtra & PROC_EX_MISS)
+				{
+					ModifyAuraState(AURA_STATE_MISS, true);
+					StartReactiveTimer(REACTIVE_MISS, pTarget->GetObjectGuid());
+				}
+				// if absorb
+				if (procExtra & PROC_EX_ABSORB)
+				{
+					ModifyAuraState(AURA_STATE_ABSORB, true);
+					StartReactiveTimer(REACTIVE_ABSORB, pTarget->GetObjectGuid());
+				}
+				// if resist
+				if (procExtra & PROC_EX_RESIST)
+				{
+					ModifyAuraState(AURA_STATE_RESIST, true);
+					StartReactiveTimer(REACTIVE_RESIST, pTarget->GetObjectGuid());
+				}
             }
             else //For attacker
             {
@@ -10333,6 +10362,11 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* pTarget, uint32 procFlag, 
 						}
 						
 					}
+				}
+				if (procExtra & PROC_EX_INTERRUPT)
+				{
+					ModifyAuraState(AURA_STATE_INTERRUPT, true);
+					StartReactiveTimer(REACTIVE_INTERRUPT, pTarget->GetObjectGuid());
 				}
             }
         }
@@ -10745,6 +10779,7 @@ void Unit::ClearAllReactives()
 
     if (HasAuraState(AURA_STATE_DEFENSE))
         ModifyAuraState(AURA_STATE_DEFENSE, false);
+
     if ((getClass() == CLASS_HUNTER || getClass() == CLASS_WARRIOR) && HasAuraState(AURA_STATE_PARRY))
         ModifyAuraState(AURA_STATE_PARRY, false);
 
@@ -10764,6 +10799,24 @@ void Unit::ClearAllReactives()
 
 	if (HasAuraState(AURA_STATE_LUCKY))
 		ModifyAuraState(AURA_STATE_LUCKY, false);
+
+	if (HasAuraState(AURA_STATE_MISS))
+		ModifyAuraState(AURA_STATE_MISS, false);
+
+	if (HasAuraState(AURA_STATE_BLOCK))
+		ModifyAuraState(AURA_STATE_BLOCK, false);
+
+	if (HasAuraState(AURA_STATE_RESIST))
+		ModifyAuraState(AURA_STATE_RESIST, false);
+
+	if (HasAuraState(AURA_STATE_ABSORB))
+		ModifyAuraState(AURA_STATE_ABSORB, false);
+
+	if (HasAuraState(AURA_STATE_DODGE))
+		ModifyAuraState(AURA_STATE_DODGE, false);
+
+	if (HasAuraState(AURA_STATE_INTERRUPT))
+		ModifyAuraState(AURA_STATE_INTERRUPT, false);
 }
 
 void Unit::ClearMovementReactive()
@@ -10828,7 +10881,31 @@ void Unit::UpdateReactives(uint32 p_time)
 					if (HasAuraState(AURA_STATE_LUCKY))
 						ModifyAuraState(AURA_STATE_LUCKY, false);
 					break;
-                default:
+				case REACTIVE_MISS:
+					if (HasAuraState(AURA_STATE_MISS))
+						ModifyAuraState(AURA_STATE_MISS, false);
+					break;
+				case REACTIVE_BLOCK:
+					if (HasAuraState(AURA_STATE_BLOCK))
+						ModifyAuraState(AURA_STATE_BLOCK, false);
+					break;
+                case REACTIVE_RESIST:
+					if (HasAuraState(AURA_STATE_RESIST))
+						ModifyAuraState(AURA_STATE_RESIST, false);
+					break;
+				case REACTIVE_ABSORB:
+					if (HasAuraState(AURA_STATE_ABSORB))
+						ModifyAuraState(AURA_STATE_ABSORB, false);
+					break;				
+				case REACTIVE_DODGE:
+						if (HasAuraState(AURA_STATE_DODGE))
+							ModifyAuraState(AURA_STATE_DODGE, false);
+						break;
+				case REACTIVE_INTERRUPT:
+					if (HasAuraState(AURA_STATE_INTERRUPT))
+						ModifyAuraState(AURA_STATE_INTERRUPT, false);
+					break;
+				default:
                     break;
             }
         }

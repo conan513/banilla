@@ -2420,7 +2420,7 @@ void Player::RegenerateAll()
 		if (HasAura(LOADED_DICE)) // Loaded Dice
 			luck = 4;
 		else
-			luck = 1;
+			luck = 2;
 	
 		if (roll_chance_i(luck + lucky_counter))
 		{
@@ -2476,7 +2476,7 @@ void Player::RegenerateAll()
 	//Dizzyness effect
 	if (health < 15.f)
 	{
-		if (roll_chance_i(15.f - health))
+		if (roll_chance_i(20.f - health))
 			if (!HasAura(VISION_BLUR))
 				CastSpell(this, VISION_BLUR, false);
 	}
