@@ -4434,7 +4434,7 @@ void Aura::HandlePeriodicDamage(bool apply, bool Real)
 					int32 mws = caster->GetAttackTime(BASE_ATTACK);
 					float mwb_min = caster->GetWeaponDamageRange(BASE_ATTACK, MINDAMAGE);
 					float mwb_max = caster->GetWeaponDamageRange(BASE_ATTACK, MAXDAMAGE);
-					m_modifier.m_amount = int32(((mwb_min + mwb_max) / 2 + ap * mws / 14000));
+					m_modifier.m_amount = int32(((mwb_min + mwb_max) / 6 + ap * mws / 14000));
 				}
                 break;
             }
