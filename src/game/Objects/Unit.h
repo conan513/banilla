@@ -37,6 +37,7 @@
 #include "WorldPacket.h"
 #include "Timer.h"
 #include <list>
+#include "Util.h"
 
 enum UnitMovementType
 {

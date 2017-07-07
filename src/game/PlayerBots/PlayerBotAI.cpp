@@ -1996,7 +1996,9 @@ string PlayerbotAI::HandleRemoteCommand(string command)
     else if (command == "position")
     {
         ostringstream out; out << bot->GetPositionX() << " " << bot->GetPositionY() << " " << bot->GetPositionZ() << " " << bot->GetMapId() << " " << bot->GetOrientation();
-        return out.str();
+		uint32 area = bot->GetAreaId();
+		if (const AreaTableEntry* entry = sAreaStore.LookupEntry(area))
+			out << " |" << entry->area_name[0] << "|";
     }
     else if (command == "tpos")
     {

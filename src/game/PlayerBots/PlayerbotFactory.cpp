@@ -32,6 +32,7 @@ uint32 PlayerbotFactory::tradeSkills[] =
     SKILL_FISHING
 };
 
+list<uint32> PlayerbotFactory::classQuestIds;
 
 void PlayerbotFactory::Randomize()
 {
@@ -85,69 +86,69 @@ void PlayerbotFactory::Prepare()
 
 void PlayerbotFactory::Randomize(bool incremental)
 {
-    sLog.outString("Preparing to randomize...");
+    sLog.outBasic("Preparing to randomize...");
     Prepare();
 
-    sLog.outString("Resetting player...");
+    sLog.outBasic("Resetting player...");
     bot->resetTalents(true);
     ClearSpells();
     ClearInventory();
     bot->SaveToDB();
 
 
-    sLog.outString("Initializing spells (step 1)...");
+    sLog.outBasic("Initializing spells (step 1)...");
     InitAvailableSpells();
 
-    sLog.outString("Initializing skills (step 1)...");
+    sLog.outBasic("Initializing skills (step 1)...");
     InitSkills();
     InitTradeSkills();
 
-    sLog.outString("Initializing talents...");
+    sLog.outBasic("Initializing talents...");
     InitTalents();
 
-    sLog.outString("Initializing spells (step 2)...");
+    sLog.outBasic("Initializing spells (step 2)...");
     InitAvailableSpells();
     InitSpecialSpells();
 
-    sLog.outString("Initializing mounts...");
+    sLog.outBasic("Initializing mounts...");
     InitMounts();
 
-    sLog.outString("Initializing skills (step 2)...");
+    sLog.outBasic("Initializing skills (step 2)...");
     UpdateTradeSkills();
     bot->SaveToDB();
 
-    sLog.outString("Initializing equipmemt...");
+    sLog.outBasic("Initializing equipmemt...");
     InitEquipment(incremental);
 
-    sLog.outString("Initializing bags...");
+    sLog.outBasic("Initializing bags...");
     InitBags();
 
-    sLog.outString("Initializing ammo...");
+    sLog.outBasic("Initializing ammo...");
     InitAmmo();
 
-    sLog.outString("Initializing food...");
+    sLog.outBasic("Initializing food...");
     InitFood();
 
-    sLog.outString("Initializing potions...");
+    sLog.outBasic("Initializing potions...");
     InitPotions();
 
-    sLog.outString("Initializing second equipment set...");
+    sLog.outBasic("Initializing second equipment set...");
     InitSecondEquipmentSet();
 
-    sLog.outString("Initializing inventory...");
+    sLog.outBasic("Initializing inventory...");
     InitInventory();
 
-    sLog.outString("Initializing guilds...");
+    sLog.outBasic("Initializing guilds...");
     InitGuild();
 
-    sLog.outString("Initializing pet...");
+    sLog.outBasic("Initializing pet...");
     InitPet();
 
-    sLog.outString("Saving to DB...");
+    sLog.outBasic("Saving to DB...");
     bot->SetMoney(urand(level * 1000, level * 5 * 1000));
     bot->SaveToDB();
 
-	sLog.outString("Initializing quests...");
+	sLog.outBasic("Initializing quests...");
 
 	    InitQuests();
 	// quest rewards boost bot level, so reduce back
@@ -1238,57 +1239,43 @@ void AddPrevQuests(uint32 questId, list<uint32>& questIds)
 
 void PlayerbotFactory::InitQuests()
 {
-//    ObjectMgr::QuestMap const& questTemplates = sObjectMgr.GetQuestTemplates();
+	if (classQuestIds.empty())
+	{
+		ObjectMgr::QuestMap const& questTemplates = sObjectMgr.GetQuestTemplates();
+		for (ObjectMgr::QuestMap::const_iterator i = questTemplates.begin(); i != questTemplates.end(); ++i)
+		{
+			uint32 questId = i->first;
+			Quest const *quest = i->second;
 
-	uint8 level = bot->getLevel();
+			if (!quest->GetRequiredClasses() || quest->IsRepeatable())
+				continue;
 
-    ObjectMgr::QuestMap const& questTemplates = sObjectMgr.GetQuestLevelTemplates(-1);
-    list<uint32> questIds;
-    for (ObjectMgr::QuestMap::const_iterator i = questTemplates.begin(); i != questTemplates.end(); ++i)
-    {
-        uint32 questId = i->first;
-        Quest const *quest = i->second;
+			AddPrevQuests(questId, classQuestIds);
+			classQuestIds.remove(questId);
+			classQuestIds.push_back(questId);
+		}
+	}
 
-	//	if (!quest->GetRequiredClasses())
-	//		continue;
-		if (quest->GetMinLevel() > level || quest->GetMinLevel() < 2)
-			continue;
-		if (quest->IsRepeatable())
-			continue;
+	int count = 0;
+	for (list<uint32>::iterator i = classQuestIds.begin(); i != classQuestIds.end(); ++i)
+	{
+		uint32 questId = *i;
+		Quest const *quest = sObjectMgr.GetQuestTemplate(questId);
 
 		if (!bot->SatisfyQuestClass(quest, false) ||
+			quest->GetMinLevel() > bot->getLevel() ||
 			!bot->SatisfyQuestRace(quest, false))
 			continue;
-		/*
-		if (!quest->GetRequiredClasses() ||
-			quest->GetMinLevel() > bot->getLevel() ||
-			quest->IsDailyOrWeekly() || quest->IsRepeatable() || quest->IsMonthly())
-			continue;
-		*/
-		AddPrevQuests(questId, questIds);
 
-        list<uint32>::iterator it2 = find(questIds.begin(), questIds.end(), questId);
-        if (it2 == questIds.end())
-            questIds.push_back(questId);
-    }
+		bot->SetQuestStatus(questId, QUEST_STATUS_COMPLETE);
+		bot->RewardQuest(quest, 0, bot, false);
+		if (!(count++ % 10))
+			ClearInventory();
+	}
+	ClearInventory();
+	sLog.outBasic("%d quests rewarded", count);
 
-    for (list<uint32>::iterator i = questIds.begin(); i != questIds.end(); ++i)
-    {
-        uint32 questId = *i;
-        Quest const *quest = sObjectMgr.GetQuestTemplate(questId);
-
-        bot->SetQuestStatus(questId, QUEST_STATUS_NONE);
-
-		if (!bot->SatisfyQuestStatus(quest, false))
-			continue;
-
-        bot->SetQuestStatus(questId, QUEST_STATUS_COMPLETE);
-        bot->RewardQuest(quest, 0, bot, false);
-//        ClearInventory();
-    }
-
-	sLog.outString("Initialed %u class quests for level %u", questIds.size(), level);
-    //new
+	//new
 	bot->ResetToDoQuests();
 	
 	if (level < 6)
@@ -2059,10 +2046,10 @@ void PlayerbotFactory::CleanBuild()
     }
     InitAvailableSpells();
     // Unlearn Fade
-    if (bot->getClass() == CLASS_PRIEST)
-    {
-        bot->RemoveSpell(586, false, false);
-    }    
+   // if (bot->getClass() == CLASS_PRIEST)
+    //{
+     //   bot->RemoveSpell(586, false, false);
+    //}    
     // Mounts
     switch (bot->getRace())
     {

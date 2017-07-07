@@ -5,7 +5,6 @@
 
 #include "AhBot.h"
 #include "GuildMgr.h"
-#include "Database/DatabaseEnv.h"
 #include "Mail.h"
 #include "PlayerbotAI.h"
 
@@ -36,6 +35,13 @@ void GuildTaskMgr::Update(Player* player, Player* guildMaster)
 	if (!sPlayerbotAIConfig.guildTaskEnabled)
 		return;
 
+	if (!GetTaskValue(0, 0, "advert_cleanup"))
+	{
+		CleanupAdverts();
+		RemoveDuplicatedAdverts();
+		SetTaskValue(0, 0, "advert_cleanup", 1, sPlayerbotAIConfig.guildTaskAdvertCleanupTime);
+	}
+
 	uint32 guildId = guildMaster->GetGuildId();
 	if (!guildId || !guildMaster->GetPlayerbotAI() || !guildMaster->GetGuildId())
 		return;
@@ -53,7 +59,7 @@ void GuildTaskMgr::Update(Player* player, Player* guildMaster)
 		return;
 	}
 
-	uint32 owner = (uint32)player->GetGUID();
+	uint32 owner = (uint32)player->GetGUIDLow();
 
 	uint32 activeTask = GetTaskValue(owner, guildId, "activeTask");
 	if (!activeTask)
@@ -190,10 +196,10 @@ bool GuildTaskMgr::CreateKillTask(uint32 owner, uint32 guildId)
 		if (!co)
 			continue;
 
-		if (co->Rank != rank)
+		if (co->rank != rank)
 			continue;
 
-		if (co->MaxLevel > player->getLevel() + 4 || co->MinLevel < player->getLevel() - 3)
+		if (co->maxlevel > player->getLevel() + 4 || co->minlevel < player->getLevel() - 3)
 			continue;
 
 		if (strstr(co->Name, "UNUSED"))
@@ -226,20 +232,18 @@ bool GuildTaskMgr::SendAdvertisement(uint32 owner, uint32 guildId)
 	if (!guild)
 		return false;
 
-	Player* player = sObjectMgr.GetPlayer((uint64)owner);
-	if (!player)
-		return false;
-
 	Player* leader = sObjectMgr.GetPlayer(guild->GetLeaderGuid());
 	if (!leader)
 		return false;
 
 	uint32 validIn;
-	uint32 itemTask = GetTaskValue(owner, guildId, "itemTask", &validIn);
+	GetTaskValue(owner, guildId, "activeTask", &validIn);
+
+	uint32 itemTask = GetTaskValue(owner, guildId, "itemTask");
 	if (itemTask)
 		return SendItemAdvertisement(itemTask, owner, guildId, validIn);
 
-	uint32 killTask = GetTaskValue(owner, guildId, "killTask", &validIn);
+	uint32 killTask = GetTaskValue(owner, guildId, "killTask");
 	if (killTask)
 		return SendKillAdvertisement(killTask, owner, guildId, validIn);
 
@@ -269,10 +273,30 @@ string formatTime(uint32 secs)
 	return out.str();
 }
 
+string formatDateTime(uint32 secs)
+{
+	time_t rawtime = time(0) + secs;
+	tm* timeinfo = localtime(&rawtime);
+
+	char buffer[256];
+	strftime(buffer, sizeof(buffer), "%b %d, %H:%M", timeinfo);
+	return string(buffer);
+}
+
+string GetHelloText(uint32 owner)
+{
+	ostringstream body;
+	body << "Hello";
+	string playerName;
+	sObjectMgr.GetPlayerNameByGUID(ObjectGuid(HIGHGUID_PLAYER, owner), playerName);
+	if (!playerName.empty()) body << ", " << playerName;
+	body << ",\n\n";
+	return body.str();
+}
+
 bool GuildTaskMgr::SendItemAdvertisement(uint32 itemId, uint32 owner, uint32 guildId, uint32 validIn)
 {
 	Guild *guild = sGuildMgr.GetGuildById(guildId);
-	Player* player = sObjectMgr.GetPlayer((uint64)owner);
 	Player* leader = sObjectMgr.GetPlayer(guild->GetLeaderGuid());
 
 	ItemPrototype const* proto = sObjectMgr.GetItemPrototype(itemId);
@@ -280,16 +304,15 @@ bool GuildTaskMgr::SendItemAdvertisement(uint32 itemId, uint32 owner, uint32 gui
 		return false;
 
 	ostringstream body;
-	body << "Hello, " << player->GetName() << ",\n";
-	body << "\n";
+	body << GetHelloText(owner);
 	body << "We are in a great need of " << proto->Name1 << ". If you could sell us ";
 	uint32 count = GetTaskValue(owner, guildId, "itemCount");
 	if (count > 1)
 		body << "at least " << count << " of them ";
 	else
 		body << "some ";
-	body << "we'd really appreciate that and pay a high price.\n";
-	body << "The task will expire in " << formatTime(validIn) << "\n";
+	body << "we'd really appreciate that and pay a high price.\n\n";
+	body << "The task will expire at " << formatDateTime(validIn) << "\n";
 	body << "\n";
 	body << "Best Regards,\n";
 	body << guild->GetName() << "\n";
@@ -297,7 +320,7 @@ bool GuildTaskMgr::SendItemAdvertisement(uint32 itemId, uint32 owner, uint32 gui
 
 	ostringstream subject;
 	subject << "Guild Task: " << proto->Name1;
-	MailDraft(subject.str(), body.str()).SendMailTo(MailReceiver(player), MailSender(leader));
+	MailDraft(subject.str(), body.str()).SendMailTo(MailReceiver(ObjectGuid(HIGHGUID_PLAYER, owner)), MailSender(leader));
 
 	return true;
 }
@@ -306,27 +329,55 @@ bool GuildTaskMgr::SendItemAdvertisement(uint32 itemId, uint32 owner, uint32 gui
 bool GuildTaskMgr::SendKillAdvertisement(uint32 creatureId, uint32 owner, uint32 guildId, uint32 validIn)
 {
 	Guild *guild = sGuildMgr.GetGuildById(guildId);
-	Player* player = sObjectMgr.GetPlayer((uint64)owner);
 	Player* leader = sObjectMgr.GetPlayer(guild->GetLeaderGuid());
 
 	CreatureInfo const* proto = sObjectMgr.GetCreatureTemplate(creatureId);
 	if (!proto)
 		return false;
 
+	QueryResult *result = WorldDatabase.PQuery("SELECT map, position_x, position_y, position_z FROM creature where id = '%u'", creatureId);
+	if (!result)
+		return false;
+
+	string location;
+	do
+	{
+		Field* fields = result->Fetch();
+		uint32 mapid = fields[0].GetUInt32();
+		float x = fields[1].GetFloat();
+		float y = fields[2].GetFloat();
+		float z = fields[3].GetFloat();
+		Map* map = sMapMgr.FindMap(mapid, 0);
+		if (!map) continue;
+		uint32 area = map->GetTerrain()->GetAreaId(x, y, z);
+		const AreaTableEntry* entry = sAreaStore.LookupEntry(area);
+		if (!entry) continue;
+		location = entry->area_name[0];
+		break;
+	} while (result->NextRow());
+	delete result;
+
 	ostringstream body;
-	body << "Hello, " << player->GetName() << ",\n";
-	body << "\n";
+	body << GetHelloText(owner);
 	body << "As you probably know " << proto->Name << " is wanted dead for the crimes it did against our guild. If you should kill it ";
-	body << "we'd really appreciate that.\n";
-	body << "The task will expire in " << formatTime(validIn) << "\n";
+	body << "we'd really appreciate that.\n\n";
+	if (!location.empty())
+		body << proto->Name << "'s the last known location was " << location << ".\n";
+	body << "The task will expire at " << formatDateTime(validIn) << "\n";
 	body << "\n";
 	body << "Best Regards,\n";
 	body << guild->GetName() << "\n";
 	body << leader->GetName() << "\n";
 
 	ostringstream subject;
-	subject << "Guild Task: " << proto->Name;
-	MailDraft(subject.str(), body.str()).SendMailTo(MailReceiver(player), MailSender(leader));
+	subject << "Guild Task: ";
+	if (proto->rank == CREATURE_ELITE_ELITE || proto->rank == CREATURE_ELITE_RAREELITE || proto->rank == CREATURE_ELITE_WORLDBOSS)
+		subject << "(Elite) ";
+	subject << proto->Name;
+	if (!location.empty())
+		subject << ", " << location;
+
+	MailDraft(subject.str(), body.str()).SendMailTo(MailReceiver(ObjectGuid(HIGHGUID_PLAYER, owner)), MailSender(leader));
 
 	return true;
 }
@@ -335,10 +386,6 @@ bool GuildTaskMgr::SendThanks(uint32 owner, uint32 guildId)
 {
 	Guild *guild = sGuildMgr.GetGuildById(guildId);
 	if (!guild)
-		return false;
-
-	Player* player = sObjectMgr.GetPlayer((uint64)owner);
-	if (!player)
 		return false;
 
 	Player* leader = sObjectMgr.GetPlayer(guild->GetLeaderGuid());
@@ -353,8 +400,7 @@ bool GuildTaskMgr::SendThanks(uint32 owner, uint32 guildId)
 			return false;
 
 		ostringstream body;
-		body << "Hello, " << player->GetName() << ",\n";
-		body << "\n";
+		body << GetHelloText(owner);
 		body << "One of our guild members wishes to thank you for the " << proto->Name1 << "!";
 		uint32 count = GetTaskValue(owner, guildId, "itemCount");
 		if (count)
@@ -369,7 +415,11 @@ bool GuildTaskMgr::SendThanks(uint32 owner, uint32 guildId)
 
 		MailDraft("Thank You", body.str()).
 			SetMoney(GetTaskValue(owner, guildId, "payment")).
-			SendMailTo(MailReceiver(player), MailSender(leader));
+			SendMailTo(MailReceiver(ObjectGuid(HIGHGUID_PLAYER, owner)), MailSender(leader));
+
+		Player* player = sObjectMgr.GetPlayer(ObjectGuid(HIGHGUID_PLAYER, owner));
+		if (player)
+			ChatHandler(player->GetSession()).PSendSysMessage("Guild task payment is pending");
 
 		return true;
 	}
@@ -383,12 +433,38 @@ uint32 GuildTaskMgr::GetMaxItemTaskCount(uint32 itemId)
 	if (!proto)
 		return 0;
 
-	if (proto->Quality == ITEM_QUALITY_NORMAL && proto->Stackable && proto->GetMaxStackSize() > 1)
-		return urand(2, 4) * proto->GetMaxStackSize();
-	else if (proto->Quality < ITEM_QUALITY_RARE && proto->Stackable && proto->GetMaxStackSize() > 1)
-		return proto->GetMaxStackSize();
-	else if (proto->Stackable && proto->GetMaxStackSize() > 1)
-		return urand(1 + proto->GetMaxStackSize() / 4, proto->GetMaxStackSize());
+	if (!proto->Stackable || proto->GetMaxStackSize() == 1)
+		return 1;
+
+	if (proto->Quality == ITEM_QUALITY_NORMAL)
+	{
+		switch (proto->GetMaxStackSize())
+		{
+		case 5:
+			return urand(1, 3) * proto->GetMaxStackSize();
+		case 10:
+			return urand(2, 6) * proto->GetMaxStackSize() / 2;
+		case 20:
+			return urand(4, 12) * proto->GetMaxStackSize() / 4;
+		default:
+			return proto->GetMaxStackSize();
+		}
+	}
+
+	if (proto->Quality < ITEM_QUALITY_RARE)
+	{
+		switch (proto->GetMaxStackSize())
+		{
+		case 5:
+			return proto->GetMaxStackSize();
+		case 10:
+			return urand(1, 2) * proto->GetMaxStackSize() / 2;
+		case 20:
+			return urand(1, 4) * proto->GetMaxStackSize() / 4;
+		default:
+			return proto->GetMaxStackSize();
+		}
+	}
 
 	return 1;
 }
@@ -525,7 +601,7 @@ bool GuildTaskMgr::HandleConsoleCommand(ChatHandler* handler, char const* args)
 		uint32 owner = (uint32)guid.GetRawValue();
 
 		QueryResult* result = CharacterDatabase.PQuery(
-			"select `value`, `time`, validIn, guildid, `type` from ai_playerbot_guild_tasks where owner = '%u' order by guildid, `type`",
+			"select `value`, `time`, validIn, guildid from ai_playerbot_guild_tasks where owner = '%u' and type='activeTask' order by guildid",
 			owner);
 
 		if (result)
@@ -539,38 +615,21 @@ bool GuildTaskMgr::HandleConsoleCommand(ChatHandler* handler, char const* args)
 				if ((time(0) - lastChangeTime) >= validIn)
 					value = 0;
 				uint32 guildId = fields[3].GetUInt32();
-				string type = fields[4].GetString();
 
 				Guild *guild = sGuildMgr.GetGuildById(guildId);
 				if (!guild)
 					continue;
 
 				ostringstream name;
-				name << value;
-				if (type == "killTask")
+				if (value == GUILD_TASK_TYPE_ITEM)
 				{
-					CreatureInfo const* proto = sObjectMgr.GetCreatureTemplate(value);
+					name << "ItemTask";
+					uint32 itemId = sGuildTaskMgr.GetTaskValue(owner, guildId, "itemTask");
+					uint32 itemCount = sGuildTaskMgr.GetTaskValue(owner, guildId, "itemCount");
+					ItemPrototype const* proto = sObjectMgr.GetItemPrototype(itemId);
 					if (proto)
 					{
-						name << " (" << proto->Name << ",";
-						switch (proto->Rank)
-						{
-						case CREATURE_ELITE_RARE:
-							name << "rare";
-							break;
-						case CREATURE_ELITE_RAREELITE:
-							name << "rare elite";
-							break;
-						}
-						name << ")";
-					}
-				}
-				else if (type == "itemTask")
-				{
-					ItemPrototype const* proto = sObjectMgr.GetItemPrototype(value);
-					if (proto)
-					{
-						name << " (" << proto->Name1 << ",";
+						name << " (" << proto->Name1 << " x" << itemCount << ",";
 						switch (proto->Quality)
 						{
 						case ITEM_QUALITY_UNCOMMON:
@@ -589,10 +648,51 @@ bool GuildTaskMgr::HandleConsoleCommand(ChatHandler* handler, char const* args)
 						name << ")";
 					}
 				}
+				else if (value == GUILD_TASK_TYPE_KILL)
+				{
+					name << "KillTask";
+					uint32 creatureId = sGuildTaskMgr.GetTaskValue(owner, guildId, "killTask");
+					CreatureInfo const* proto = sObjectMgr.GetCreatureTemplate(creatureId);
+					if (proto)
+					{
+						name << " (" << proto->Name << ",";
+						switch (proto->rank)
+						{
+						case CREATURE_ELITE_RARE:
+							name << "rare";
+							break;
+						case CREATURE_ELITE_RAREELITE:
+							name << "rare elite";
+							break;
+						}
+						name << ")";
+					}
+				}
+				else
+					continue;
 
-				sLog.outString("Player '%s' Guild '%s' %s=%s (%u secs)",
-					charName.c_str(), guild->GetName().c_str(),
-					type.c_str(), name.str().c_str(), validIn);
+				uint32 advertValidIn = 0;
+				uint32 advert = sGuildTaskMgr.GetTaskValue(owner, guildId, "advertisement", &advertValidIn);
+				if (advert && advertValidIn < validIn)
+					name << " advert in " << formatTime(advertValidIn);
+
+				uint32 thanksValidIn = 0;
+				uint32 thanks = sGuildTaskMgr.GetTaskValue(owner, guildId, "thanks", &thanksValidIn);
+				if (thanks && thanksValidIn < validIn)
+					name << " thanks in " << formatTime(thanksValidIn);
+
+				uint32 rewardValidIn = 0;
+				uint32 reward = sGuildTaskMgr.GetTaskValue(owner, guildId, "reward", &rewardValidIn);
+				if (reward && rewardValidIn < validIn)
+					name << " reward in " << formatTime(rewardValidIn);
+
+				uint32 paymentValidIn = 0;
+				uint32 payment = sGuildTaskMgr.GetTaskValue(owner, guildId, "payment", &paymentValidIn);
+				if (payment && paymentValidIn < validIn)
+					name << " payment " << ChatHelper::formatMoney(payment) << " in " << formatTime(paymentValidIn);
+
+				sLog.outString("%s: %s valid in %s ['%s']",
+					charName.c_str(), name.str().c_str(), formatTime(validIn).c_str(), guild->GetName().c_str());
 
 			} while (result->NextRow());
 
@@ -603,15 +703,32 @@ bool GuildTaskMgr::HandleConsoleCommand(ChatHandler* handler, char const* args)
 		return true;
 	}
 
+	if (cmd == "cleanup")
+	{
+		sGuildTaskMgr.CleanupAdverts();
+		sGuildTaskMgr.RemoveDuplicatedAdverts();
+		return true;
+	}
+
 	if (cmd == "reward")
 	{
 		sLog.outString("Usage: gtask reward <player name>");
 		return true;
 	}
 
-	if (cmd.find("reward ") != string::npos)
+	if (cmd == "advert")
 	{
-		string charName = cmd.substr(cmd.find("reward ") + 7);
+		sLog.outString("Usage: gtask advert <player name>");
+		return true;
+	}
+
+	bool reward = cmd.find("reward ") != string::npos;
+	bool advert = cmd.find("advert ") != string::npos;
+	if (reward || advert)
+	{
+		string charName;
+		if (reward) charName = cmd.substr(cmd.find("reward ") + 7);
+		if (advert) charName = cmd.substr(cmd.find("advert ") + 7);
 		ObjectGuid guid = sObjectMgr.GetPlayerGuidByName(charName);
 		if (!guid)
 		{
@@ -634,7 +751,8 @@ bool GuildTaskMgr::HandleConsoleCommand(ChatHandler* handler, char const* args)
 				if (!guild)
 					continue;
 
-				sGuildTaskMgr.Reward(owner, guildId);
+				if (reward) sGuildTaskMgr.Reward(owner, guildId);
+				if (advert) sGuildTaskMgr.SendAdvertisement(owner, guildId);
 			} while (result->NextRow());
 
 			Field* fields = result->Fetch();
@@ -652,7 +770,7 @@ void GuildTaskMgr::CheckItemTask(uint32 itemId, uint32 obtained, Player* ownerPl
 	if (!guildId)
 		return;
 
-	uint32 owner = (uint32)ownerPlayer->GetGUID();
+	uint32 owner = (uint32)ownerPlayer->GetGUIDLow();
 	Guild *guild = sGuildMgr.GetGuildById(bot->GetGuildId());
 	if (!guild)
 		return;
@@ -674,6 +792,7 @@ void GuildTaskMgr::CheckItemTask(uint32 itemId, uint32 obtained, Player* ownerPl
 		return;
 	}
 
+	uint32 rewardTime = urand(sPlayerbotAIConfig.minGuildTaskRewardTime, sPlayerbotAIConfig.maxGuildTaskRewardTime);
 	if (byMail)
 	{
 		ItemPrototype const* proto = sObjectMgr.GetItemPrototype(itemId);
@@ -681,16 +800,14 @@ void GuildTaskMgr::CheckItemTask(uint32 itemId, uint32 obtained, Player* ownerPl
 			return;
 
 		uint32 money = GetTaskValue(owner, guildId, "payment");
-		SetTaskValue(owner, guildId, "payment", money + auctionbot.GetBuyPrice(proto) * obtained,
-			sPlayerbotAIConfig.maxGuildTaskRewardTime);
+		SetTaskValue(owner, guildId, "payment", money + auctionbot.GetBuyPrice(proto) * obtained, rewardTime + 300);
 	}
 
 	if (obtained >= count)
 	{
 		sLog.outDebug("%s / %s: guild task complete",
 			guild->GetName().c_str(), ownerPlayer->GetName());
-		SetTaskValue(owner, guildId, "reward", 1,
-			urand(sPlayerbotAIConfig.minGuildTaskRewardTime, sPlayerbotAIConfig.maxGuildTaskRewardTime));
+		SetTaskValue(owner, guildId, "reward", 1, rewardTime - 15);
 		SetTaskValue(owner, guildId, "itemCount", 0, 0);
 		SetTaskValue(owner, guildId, "thanks", 0, 0);
 		ChatHandler(ownerPlayer->GetSession()).PSendSysMessage("You have completed a guild task");
@@ -700,8 +817,8 @@ void GuildTaskMgr::CheckItemTask(uint32 itemId, uint32 obtained, Player* ownerPl
 		sLog.outDebug("%s / %s: guild task progress %u/%u",
 			guild->GetName().c_str(), ownerPlayer->GetName(), obtained, count);
 		SetTaskValue(owner, guildId, "itemCount", count - obtained, sPlayerbotAIConfig.maxGuildTaskChangeTime);
-		SetTaskValue(owner, guildId, "thanks", 1,
-			urand(sPlayerbotAIConfig.minGuildTaskRewardTime, sPlayerbotAIConfig.maxGuildTaskRewardTime));
+		SetTaskValue(owner, guildId, "thanks", 1, rewardTime - 30);
+		ChatHandler(ownerPlayer->GetSession()).PSendSysMessage("You have made a progress with a guild task");
 	}
 }
 
@@ -709,10 +826,6 @@ bool GuildTaskMgr::Reward(uint32 owner, uint32 guildId)
 {
 	Guild *guild = sGuildMgr.GetGuildById(guildId);
 	if (!guild)
-		return false;
-
-	Player* player = sObjectMgr.GetPlayer((uint64)owner);
-	if (!player)
 		return false;
 
 	Player* leader = sObjectMgr.GetPlayer(guild->GetLeaderGuid());
@@ -725,8 +838,7 @@ bool GuildTaskMgr::Reward(uint32 owner, uint32 guildId)
 		return false;
 
 	ostringstream body;
-	body << "Hello, " << player->GetName() << ",\n";
-	body << "\n";
+	body << GetHelloText(owner);
 
 	RandomItemType rewardType;
 	if (itemTask)
@@ -756,6 +868,10 @@ bool GuildTaskMgr::Reward(uint32 owner, uint32 guildId)
 		rewardType = RANDOM_ITEM_GUILD_TASK_REWARD_TRADE;
 	}
 
+	uint32 payment = GetTaskValue(owner, guildId, "payment");
+	if (payment)
+		SendThanks(owner, guildId);
+
 	MailDraft draft("Thank You", body.str());
 
 	uint32 itemId = sRandomItemMgr.GetRandomItem(rewardType);
@@ -766,9 +882,13 @@ bool GuildTaskMgr::Reward(uint32 owner, uint32 guildId)
 		draft.AddItem(item);
 	}
 
-	draft.SetMoney(GetTaskValue(owner, guildId, "payment")).SendMailTo(MailReceiver(player), MailSender(leader));
+	draft.SendMailTo(MailReceiver(ObjectGuid(HIGHGUID_PLAYER, owner)), MailSender(leader));
+	Player* player = sObjectMgr.GetPlayer(ObjectGuid(HIGHGUID_PLAYER, owner));
+	if (player)
+		ChatHandler(player->GetSession()).PSendSysMessage("Guild task reward is pending");
 
 	SetTaskValue(owner, guildId, "activeTask", 0, 0);
+	SetTaskValue(owner, guildId, "payment", 0, 0);
 	return true;
 }
 
@@ -790,8 +910,8 @@ void GuildTaskMgr::CheckKillTask(Player* player, Unit* victim)
 
 void GuildTaskMgr::CheckKillTaskInternal(Player* player, Unit* victim)
 {
-	uint32 owner = player->GetGUID();
-	Creature* creature = victim->toCreature();
+	uint32 owner = player->GetGUIDLow();
+	Creature* creature = victim->ToCreature();
 	if (!creature)
 		return;
 
@@ -822,4 +942,86 @@ void GuildTaskMgr::CheckKillTaskInternal(Player* player, Unit* victim)
 		}
 		ChatHandler(player->GetSession()).PSendSysMessage("You have completed a guild task");
 	}
+}
+
+void GuildTaskMgr::CleanupAdverts()
+{
+	uint32 deliverTime = time(0) - sPlayerbotAIConfig.maxGuildTaskChangeTime;
+	QueryResult *result = CharacterDatabase.PQuery("select id, receiver from mail where subject like 'Guild Task%%' and deliver_time <= '%u'", deliverTime);
+	if (!result)
+		return;
+
+	int count = 0;
+	do
+	{
+		Field* fields = result->Fetch();
+		uint32 id = fields[0].GetUInt32();
+		uint32 receiver = fields[1].GetUInt32();
+		Player *player = sObjectMgr.GetPlayer(ObjectGuid(HIGHGUID_PLAYER, receiver));
+		if (player) player->RemoveMail(id);
+		count++;
+	} while (result->NextRow());
+	delete result;
+
+	if (count > 0)
+	{
+		CharacterDatabase.PExecute("delete from mail where subject like 'Guild Task%%' and deliver_time <= '%u'", deliverTime);
+		sLog.outBasic("%d old gtask adverts removed", count);
+	}
+}
+
+void GuildTaskMgr::RemoveDuplicatedAdverts()
+{
+	uint32 deliverTime = time(0);
+	QueryResult *result = CharacterDatabase.PQuery(
+		"select m.id, m.receiver from (SELECT max(id) as id, subject, receiver FROM mail where subject like 'Guild Task%%' and deliver_time <= '%u' group by subject, receiver) q "
+		"join mail m on m.subject = q.subject where m.id <> q.id and m.deliver_time <= '%u'",
+		deliverTime, deliverTime);
+	if (!result)
+		return;
+
+	list<uint32> ids;
+	int count = 0;
+	do
+	{
+		Field* fields = result->Fetch();
+		uint32 id = fields[0].GetUInt32();
+		uint32 receiver = fields[1].GetUInt32();
+		Player *player = sObjectMgr.GetPlayer(ObjectGuid(HIGHGUID_PLAYER, receiver));
+		if (player) player->RemoveMail(id);
+		count++;
+		ids.push_back(id);
+	} while (result->NextRow());
+	delete result;
+
+	if (count > 0)
+	{
+		list<uint32> buffer;
+		for (list<uint32>::iterator i = ids.begin(); i != ids.end(); ++i)
+		{
+			buffer.push_back(*i);
+			if (buffer.size() > 50)
+			{
+				DeleteMail(buffer);
+				buffer.clear();
+			}
+		}
+		DeleteMail(buffer);
+		sLog.outBasic("%d duplicated gtask adverts removed", count);
+	}
+
+}
+
+void GuildTaskMgr::DeleteMail(list<uint32> buffer)
+{
+	ostringstream sql;
+	sql << "delete from mail where id in ( ";
+	bool first = true;
+	for (list<uint32>::iterator j = buffer.begin(); j != buffer.end(); ++j)
+	{
+		if (first) first = false; else sql << ",";
+		sql << "'" << *j << "'";
+	}
+	sql << ")";
+	CharacterDatabase.PExecute(sql.str().c_str());
 }

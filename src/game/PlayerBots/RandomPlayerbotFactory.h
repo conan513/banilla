@@ -14,22 +14,22 @@ using namespace std;
 
 class RandomPlayerbotFactory
 {
-    public:
-        RandomPlayerbotFactory(uint32 accountId);
-		virtual ~RandomPlayerbotFactory() {}
+public:
+	RandomPlayerbotFactory(uint32 accountId);
+	virtual ~RandomPlayerbotFactory() {}
 
-	public:
-        bool CreateRandomBot(uint8 cls);
-        static void CreateRandomBots();
-        static void CreateRandomGuilds();
+public:
+	bool CreateRandomBot(uint8 cls);
+	static void CreateRandomBots();
+	static void CreateRandomGuilds();
 
-	private:
-        string CreateRandomBotName();
-        static string CreateRandomGuildName();
+private:
+	std::string CreateRandomBotName(uint8 gender);
+	static std::string CreateRandomGuildName();
 
-    private:
-        uint32 accountId;
-        static map<uint8, vector<uint8> > availableRaces;
+private:
+	uint32 accountId;
+	static map<uint8, vector<uint8> > availableRaces;
 };
 
 #endif

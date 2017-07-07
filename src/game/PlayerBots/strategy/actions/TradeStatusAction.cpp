@@ -22,7 +22,7 @@ bool TradeStatusAction::Execute(Event event)
 
     if (trader != master)
     {
-		bot->Whisper("I'm kind of busy now", LANG_UNIVERSAL, trader);
+		bot->Whisper("I'm kind of busy now", LANG_UNIVERSAL, trader->GetGUID());
     }
 
     if (trader != master || !ai->GetSecurity()->CheckLevelFor(PLAYERBOT_SECURITY_ALLOW_ALL, true, master))
@@ -92,7 +92,7 @@ void TradeStatusAction::BeginTrade()
     ListItemsVisitor visitor;
     IterateItems(&visitor);
 
-    ai->TellMaster("=== Trade ===");
+	ai->TellMaster("=== Inventory ===");
 	TellItems(visitor.items, visitor.soulbound);
 
     if (sRandomPlayerbotMgr.IsRandomBot(bot))

@@ -24,7 +24,7 @@ bool LogLevelAction::Execute(Event event)
     return true;
 }
 
-string LogLevelAction::logLevel2string(LogLevel level)
+std::string LogLevelAction::logLevel2string(LogLevel level)
 {
     switch (level)
     {

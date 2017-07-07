@@ -1,10 +1,9 @@
-#include "../pchdef.h"
+#include "../../botpch.h"
 #include "playerbot.h"
 #include "PlayerbotAIConfig.h"
 #include "RandomItemMgr.h"
 
 #include "AhBot.h"
-#include "DatabaseEnv.h"
 #include "PlayerbotAI.h"
 
 #include "../botpch.h"

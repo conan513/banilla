@@ -408,8 +408,8 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket & recv_data)
 				if (GetPlayer()->GetPlayerbotAI())
 				{
 					GetPlayer()->GetPlayerbotAI()->HandleCommand(type, msg, *GetPlayer());
-					GetPlayer()->m_speakTime = 0;
-					GetPlayer()->m_speakCount = 0;
+					//GetPlayer()->m_speakTime = 0;
+					//GetPlayer()->m_speakCount = 0;
 				}
 				else if (masterPlr->isGameMaster() || allowSendWhisper)
 				{
@@ -451,8 +451,8 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket & recv_data)
 				if (player && player->GetPlayerbotAI())
 				{
 					player->GetPlayerbotAI()->HandleCommand(type, msg, *GetPlayer());
-					GetPlayer()->m_speakTime = 0;
-					GetPlayer()->m_speakCount = 0;
+					//GetPlayer()->m_speakTime = 0;
+					//GetPlayer()->m_speakCount = 0;
 				}
 			}
 
@@ -529,8 +529,8 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket & recv_data)
 				if (player && player->GetPlayerbotAI())
 				{
 					player->GetPlayerbotAI()->HandleCommand(type, msg, *GetPlayer());
-					GetPlayer()->m_speakTime = 0;
-					GetPlayer()->m_speakCount = 0;
+					//GetPlayer()->m_speakTime = 0;
+					//GetPlayer()->m_speakCount = 0;
 				}
 			}
 
@@ -563,8 +563,8 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket & recv_data)
 				if (player && player->GetPlayerbotAI())
 				{
 					player->GetPlayerbotAI()->HandleCommand(type, msg, *GetPlayer());
-					GetPlayer()->m_speakTime = 0;
-					GetPlayer()->m_speakCount = 0;
+					//GetPlayer()->m_speakTime = 0;
+					//GetPlayer()->m_speakCount = 0;
 				}
 			}
 
@@ -593,8 +593,8 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket & recv_data)
 				if (player && player->GetPlayerbotAI())
 				{
 					player->GetPlayerbotAI()->HandleCommand(type, msg, *GetPlayer());
-					GetPlayer()->m_speakTime = 0;
-					GetPlayer()->m_speakCount = 0;
+					//GetPlayer()->m_speakTime = 0;
+					//GetPlayer()->m_speakCount = 0;
 				}
 			}
 

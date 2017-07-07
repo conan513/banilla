@@ -37,7 +37,7 @@ class RandomPlayerbotMgr : public PlayerbotHolder
         void Randomize(Player* bot);
         void RandomizeFirst(Player* bot);
         void IncreaseLevel(Player* bot);
-        void ScheduleTeleport(uint32 bot);
+		void ScheduleTeleport(uint32 bot, uint32 time = 0);
         void HandleCommand(uint32 type, const string& text, Player& fromPlayer);
         string HandleRemoteCommand(string request);
         void OnPlayerLogout(Player* player);
@@ -69,7 +69,7 @@ class RandomPlayerbotMgr : public PlayerbotHolder
         void RandomTeleport(Player* bot, vector<WorldLocation> &locs);
         uint32 GetZoneLevel(uint16 mapId, float teleX, float teleY, float teleZ);
 		uint32 GetMasterLevel();
-
+		void PrepareTeleportCache();
 	private:
 		int masterLevel = 0;
 		map<int, int> mapIdToLevel;

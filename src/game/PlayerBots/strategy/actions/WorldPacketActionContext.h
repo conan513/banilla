@@ -58,11 +58,6 @@ namespace ai
             creators["ready check"] = &WorldPacketActionContext::ready_check;
             creators["ready check finished"] = &WorldPacketActionContext::ready_check_finished;
             creators["uninvite"] = &WorldPacketActionContext::uninvite;
-            creators["lfg join"] = &WorldPacketActionContext::lfg_join;
-            creators["lfg accept"] = &WorldPacketActionContext::lfg_accept;
-            creators["lfg role check"] = &WorldPacketActionContext::lfg_role_check;
-            creators["lfg leave"] = &WorldPacketActionContext::lfg_leave;
-            creators["lfg teleport"] = &WorldPacketActionContext::lfg_teleport;
             creators["guild accept"] = &WorldPacketActionContext::guild_accept;
 			creators["bg join"] = &WorldPacketActionContext::bg_join;
 			creators["bg status"] = &WorldPacketActionContext::bg_status;
@@ -73,11 +68,6 @@ namespace ai
     private:
         static Action* guild_accept(PlayerbotAI* ai) { return new GuildAcceptAction(ai); }
         static Action* security_check(PlayerbotAI* ai) { return new SecurityCheckAction(ai); }
-        static Action* lfg_teleport(PlayerbotAI* ai) { return new LfgTeleportAction(ai); }
-        static Action* lfg_leave(PlayerbotAI* ai) { return new LfgLeaveAction(ai); }
-        static Action* lfg_accept(PlayerbotAI* ai) { return new LfgAcceptAction(ai); }
-        static Action* lfg_role_check(PlayerbotAI* ai) { return new LfgRoleCheckAction(ai); }
-        static Action* lfg_join(PlayerbotAI* ai) { return new LfgJoinAction(ai); }
         static Action* uninvite(PlayerbotAI* ai) { return new UninviteAction(ai); }
         static Action* ready_check_finished(PlayerbotAI* ai) { return new FinishReadyCheckAction(ai); }
         static Action* ready_check(PlayerbotAI* ai) { return new ReadyCheckAction(ai); }

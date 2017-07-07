@@ -1,6 +1,6 @@
 #pragma once
 #include "../Value.h"
-#include "../../../Groups/Group.h"
+#include "Group.h"
 
 namespace ai
 {

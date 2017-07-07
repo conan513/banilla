@@ -4877,7 +4877,7 @@ void Spell::TakePower()
 	{
 		if (powerType == POWER_ENERGY)
 			if (uint64 targetGUID = m_targets.getUnitTargetGuid())
-				for (tbb::concurrent_vector<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
+				for (Concurrency::concurrent_vector<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
 					if (ihit->targetGUID = targetGUID)
 					{
 						if (ihit->missCondition != SPELL_MISS_NONE)
