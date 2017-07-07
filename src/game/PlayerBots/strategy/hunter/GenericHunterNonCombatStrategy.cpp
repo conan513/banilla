@@ -48,6 +48,10 @@ void GenericHunterNonCombatStrategy::InitTriggers(std::list<TriggerNode*> &trigg
         NextAction::array(0, new NextAction("mend pet", 60.0f), NULL)));
 
     triggers.push_back(new TriggerNode(
+         "pet not happy",
+         NextAction::array(0, new NextAction("feed pet", 60.0f), NULL)));
+
+    triggers.push_back(new TriggerNode(
         "prepare attack",
         NextAction::array(0, new NextAction("aspect of the dragonhawk", 52.0f), new NextAction("freezing trap", 52.0f),NULL)));
 

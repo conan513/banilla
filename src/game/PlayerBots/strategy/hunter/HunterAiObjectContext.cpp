@@ -109,6 +109,7 @@ namespace ai
                 creators["misdirection on party"] = &TriggerFactoryInternal::misdirection_on_party;
                 creators["wyvern sting"] = &TriggerFactoryInternal::wyvern_sting;
                 creators["counterstrike"] = &TriggerFactoryInternal::counterstrike;
+		creators["pet not happy"] = &TriggerFactoryInternal::pet_not_happy;
             }
             ~TriggerFactoryInternal()
             {
@@ -136,6 +137,7 @@ namespace ai
                 creators.erase("misdirection on party");
                 creators.erase("wyvern sting");
                 creators.erase("counterstrike");
+                creators.erase("pet not happy");
             }
 
         private:
@@ -162,6 +164,7 @@ namespace ai
             static Trigger* misdirection_on_party(PlayerbotAI* ai) { return new MisdirectionOnPartyTrigger(ai); }
             static Trigger* wyvern_sting(PlayerbotAI* ai) { return new WyvernStingTrigger(ai); }
             static Trigger* counterstrike(PlayerbotAI* ai) { return new CounterstrikeTrigger(ai); }
+	    static Trigger* pet_not_happy(PlayerbotAI* ai) { return new HunterPetNotHappy(ai); }
         };
     };
 };
@@ -233,6 +236,7 @@ namespace ai
                 creators["immolation trap"] = &AiObjectContextInternal::immolation_trap;
                 creators["explosive trap"] = &AiObjectContextInternal::explosive_trap;
                 creators["instant action"] = &AiObjectContextInternal::explosive_shot;
+		creators["feed pet"] = &AiObjectContextInternal::feed_pet;
             }
             ~AiObjectContextInternal()
             {
@@ -289,9 +293,11 @@ namespace ai
                 creators.erase("snake trap");
                 creators.erase("immolation trap");
                 creators.erase("explosive trap");
+		creators.erase("feed pet");
             }
 
         private:
+	    static Action* feed_pet(PlayerbotAI* ai) { return new FeedPetAction(ai); }
             static Action* feign_death(PlayerbotAI* ai) { return new CastFeignDeathAction(ai); }
             static Action* trueshot_aura(PlayerbotAI* ai) { return new CastTrueshotAuraAction(ai); }
             static Action* auto_shot(PlayerbotAI* ai) { return new CastAutoShotAction(ai); }

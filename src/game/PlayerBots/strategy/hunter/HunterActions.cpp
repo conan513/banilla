@@ -25,6 +25,15 @@ Value<Unit*>* CastWyvernStingCcAction::GetTargetValue()
     return context->GetValue<Unit*>("cc target4", getName());
 }
 
+bool FeedPetAction::Execute(Event event)
+ {
+     Pet* pet = bot->GetPet();
+     if (pet && pet->getPetType() == HUNTER_PET && pet->GetHappinessState() != HAPPY)
+         pet->SetPower(POWER_HAPPINESS, HAPPINESS_LEVEL_SIZE * 2);
+ 
+     return true;
+}
+
 bool CastMisdirectionOnPartyAction::isUseful()
 {
     Unit* player = GetTarget();

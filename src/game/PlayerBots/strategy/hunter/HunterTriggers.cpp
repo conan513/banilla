@@ -28,6 +28,11 @@ bool HuntersPetLowHealthTrigger::IsActive()
         !AI_VALUE2(bool, "dead", "pet target") && !AI_VALUE2(bool, "mounted", "self target");
 }
 
+bool HunterPetNotHappy::IsActive()
+ {
+     return !AI_VALUE(bool, "pet happy") && !AI_VALUE2(bool, "mounted", "self target");
+ }
+
 bool HunterAspectOfTheDragonHawkTrigger::IsActive()
 {
     Unit* target = GetTarget();

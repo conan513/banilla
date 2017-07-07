@@ -304,6 +304,13 @@ namespace ai
         virtual uint8 Calculate();
     };
 
+   class PetIsHappyValue : public BoolCalculatedValue
+   {
+     public:
+         PetIsHappyValue(PlayerbotAI* ai) : BoolCalculatedValue(ai) {}
+         virtual bool Calculate();
+     };
+
     class EnergyValue : public Uint8CalculatedValue, public Qualified
     {
     public:

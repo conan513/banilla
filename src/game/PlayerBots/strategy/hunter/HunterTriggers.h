@@ -115,6 +115,9 @@ namespace ai
         SerpentStingOnAttackerTrigger(PlayerbotAI* ai) : DebuffOnAttackerTrigger(ai, "serpent sting") {}
     };
 
+    BEGIN_TRIGGER(HunterPetNotHappy, Trigger)
+    END_TRIGGER()
+
     class ArcaneShotOnAttackerTrigger : public TargetAuraDispelTrigger
     {
     public:

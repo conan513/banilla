@@ -126,7 +126,8 @@ namespace ai
             creators["mana"] = &ValueContext::mana;
             creators["combo"] = &ValueContext::combo;
             creators["dead"] = &ValueContext::dead;
-			creators["pet dead"] = &ValueContext::pet_dead;
+		creators["pet dead"] = &ValueContext::pet_dead;
+	    creators["pet happy"] = &ValueContext::pet_happy;
             creators["target in los"] = &ValueContext::target_in_los;
             creators["target normal"] = &ValueContext::target_normal;
             creators["target elite"] = &ValueContext::target_elite;
@@ -259,7 +260,8 @@ namespace ai
         static UntypedValue* mana(PlayerbotAI* ai) { return new ManaValue(ai); }
         static UntypedValue* combo(PlayerbotAI* ai) { return new ComboPointsValue(ai); }
         static UntypedValue* dead(PlayerbotAI* ai) { return new IsDeadValue(ai); }
-		static UntypedValue* pet_dead(PlayerbotAI* ai) { return new PetIsDeadValue(ai); }
+	static UntypedValue* pet_happy(PlayerbotAI* ai) { return new PetIsHappyValue(ai); }
+	static UntypedValue* pet_dead(PlayerbotAI* ai) { return new PetIsDeadValue(ai); }
         static UntypedValue* target_in_los(PlayerbotAI* ai) { return new IsTargetInLosValue(ai); }
         static UntypedValue* target_normal(PlayerbotAI* ai) { return new IsTargetNormalValue(ai); }
         static UntypedValue* target_elite(PlayerbotAI* ai) { return new IsTargetEliteValue(ai); }

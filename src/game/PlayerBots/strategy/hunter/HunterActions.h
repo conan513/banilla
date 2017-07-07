@@ -193,6 +193,13 @@ namespace ai
 		virtual bool isUseful() {return !AI_VALUE2(bool, "combat", "self target");}
 	};
 
+	class FeedPetAction : public Action
+     	{
+     	public:
+         	FeedPetAction(PlayerbotAI* ai) : Action(ai, "feed pet") {}
+         	virtual bool Execute(Event event);
+     	};
+
     class CastTrueshotAuraAction : public CastBuffSpellAction
     {
     public:

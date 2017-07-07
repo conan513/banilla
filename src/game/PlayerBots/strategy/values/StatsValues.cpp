@@ -79,6 +79,15 @@ bool PetIsDeadValue::Calculate()
 	return bot->GetPet() && (!bot->GetPet()->isAlive());
 	}
 
+bool PetIsHappyValue::Calculate()
+ {
+     PetDatabaseStatus status = Pet::GetStatusFromDB(bot);
+     if (status == PET_DB_DEAD)
+         return true;
+ 
+     return !bot->GetPet() || bot->GetPet()->GetHappinessState() == HAPPY;
+ }
+
 bool IsCcValue::Calculate()
 {
     Unit* target = GetTarget();
