@@ -1,4 +1,4 @@
-#include "../../../botpch.h"
+#include "botpch.h"
 #include "../../playerbot.h"
 #include "AddLootAction.h"
 
@@ -11,6 +11,8 @@
 
 using namespace ai;
 using namespace MaNGOS;
+
+using namespace ai;
 
 bool AddLootAction::Execute(Event event)
 {
@@ -71,7 +73,7 @@ bool AddGatheringLootAction::AddLoot(ObjectGuid guid)
 	if (bot->GetDistance2d(wo) > sPlayerbotAIConfig.tooCloseDistance)
 	{
 		list<Unit*> targets;
-		MaNGOS::AnyUnfriendlyUnitInObjectRangeCheck u_check(bot, sPlayerbotAIConfig.lootDistance);
+		MaNGOS::AnyUnfriendlyUnitInObjectRangeCheck u_check(bot, bot, sPlayerbotAIConfig.lootDistance);
 		MaNGOS::UnitListSearcher<MaNGOS::AnyUnfriendlyUnitInObjectRangeCheck> searcher(targets, u_check);
 		Cell::VisitAllObjects(wo, searcher, sPlayerbotAIConfig.spellDistance);
 		if (!targets.empty())

@@ -21,9 +21,13 @@ namespace ai
 	public:
         string getSource() { return source; }
         string getParam() { return param; }
+		void setSource(string src) { source = src; }
+		void setParam(string par) { param = par; }
         WorldPacket& getPacket() { return packet; }
+		void setPacket(WorldPacket& pct) { packet = std::move(pct); }
         ObjectGuid getObject();
         Player* getOwner() { return owner; }
+		void setOwner(Player* pl) { owner = pl; }
         bool operator! () const { return source.empty(); }
 
     protected:

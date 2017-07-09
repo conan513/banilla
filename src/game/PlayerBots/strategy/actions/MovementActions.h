@@ -14,7 +14,7 @@ namespace ai
 
         virtual bool isUseful()
         {
-            return !bot->IsPositiveSpellCasted(true);
+            return bot->IsNonPositiveSpellCast(true);
         }
 
 		virtual bool isInstant()

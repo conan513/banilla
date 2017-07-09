@@ -1,4 +1,4 @@
-#include "../../../botpch.h"
+#include "botpch.h"
 #include "../../playerbot.h"
 #include "DropQuestAction.h"
 
@@ -29,7 +29,7 @@ bool DropQuestAction::Execute(Event event)
 			bot->SetQuestSlot(slot, 0);
 
 			// we ignore unequippable quest items in this case, its' still be equipped
-			bot->TakeQuestSourceItem(logQuest, false);
+			bot->TakeOrReplaceQuestStartItems(logQuest, false, false);
 		}
 	}
 

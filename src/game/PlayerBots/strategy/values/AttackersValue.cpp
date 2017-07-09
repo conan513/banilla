@@ -1,94 +1,85 @@
-#include "../../../botpch.h"
+#include "botpch.h"
 #include "../../playerbot.h"
 #include "AttackersValue.h"
 
-#include "Pet.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "CellImpl.h"
 
 using namespace ai;
+using namespace MaNGOS;
 
 list<ObjectGuid> AttackersValue::Calculate()
 {
-    set<Unit*> targets;
+	set<Unit*> targets;
 
-    AddAttackersOf(bot, targets);
+	AddAttackersOf(bot, targets);
 
-    Group* group = bot->GetGroup();
-    if (group)
-        AddAttackersOf(group, targets);
+	Group* group = bot->GetGroup();
+	if (group)
+		AddAttackersOf(group, targets);
 
-    RemoveNonThreating(targets);
+	RemoveNonThreating(targets);
 
-    list<ObjectGuid> result;
+	list<ObjectGuid> result;
 	for (set<Unit*>::iterator i = targets.begin(); i != targets.end(); i++)
-		result.push_back((*i)->GetGUID());
+		result.push_back((*i)->GetObjectGuid());
 
-    if (bot->duel && bot->duel->opponent)
-        result.push_back(bot->duel->opponent->GetGUID());
+	if (bot->duel && bot->duel->opponent)
+		result.push_back(bot->duel->opponent->GetObjectGuid());
 
 	return result;
 }
 
 void AttackersValue::AddAttackersOf(Group* group, set<Unit*>& targets)
 {
-    Group::MemberSlotList const& groupSlot = group->GetMemberSlots();
-    for (Group::member_citerator itr = groupSlot.begin(); itr != groupSlot.end(); itr++)
-    {
-        Player *member = sObjectMgr.GetPlayerByLowGUID(itr->guid);
-        if (!member || !member->IsAlive() || member == bot)
-            continue;
+	Group::MemberSlotList const& groupSlot = group->GetMemberSlots();
+	for (Group::member_citerator itr = groupSlot.begin(); itr != groupSlot.end(); itr++)
+	{
+		Player *member = sObjectMgr.GetPlayer(itr->guid);
+		if (!member || !member->isAlive() || member == bot)
+			continue;
 
-        if (member->IsBeingTeleported())
-            return;
-
-        AddAttackersOf(member, targets);
-
-        Pet* pet = member->GetPet();
-        if (pet)
-            AddAttackersOf(pet, targets);
-    }
+		AddAttackersOf(member, targets);
+	}
 }
 
-void AttackersValue::AddAttackersOf(Unit* unit, set<Unit*>& targets)
+void AttackersValue::AddAttackersOf(Player* player, set<Unit*>& targets)
 {
-    HostileRefManager& refManager = unit->getHostileRefManager();
-    HostileReference *ref = refManager.getFirst();
-    if (!ref)
-        return;
+	if (player->IsBeingTeleported())
+		return;
 
-    while( ref )
-    {
-        ThreatManager *threatManager = ref->GetSource();
-        Unit *attacker = threatManager->GetOwner();
-        Unit *victim = attacker->GetVictim();
-        if (victim == unit)
-            targets.insert(attacker);
-        ref = ref->next();
-    }
+	list<Unit*> units;
+	MaNGOS::AnyUnfriendlyUnitInObjectRangeCheck u_check(player, player, sPlayerbotAIConfig.sightDistance);
+	MaNGOS::UnitListSearcher<MaNGOS::AnyUnfriendlyUnitInObjectRangeCheck> searcher(units, u_check);
+	Cell::VisitAllObjects(player, searcher, sPlayerbotAIConfig.sightDistance);
+	for (list<Unit*>::iterator i = units.begin(); i != units.end(); i++)
+		targets.insert(*i);
 }
 
 void AttackersValue::RemoveNonThreating(set<Unit*>& targets)
 {
-    for(set<Unit *>::iterator tIter = targets.begin(); tIter != targets.end();)
-    {
-        Unit* unit = *tIter;
-        if(!bot->IsWithinLOSInMap(unit) || bot->GetMapId() != unit->GetMapId() || !hasRealThreat(unit))
-        {
-            set<Unit *>::iterator tIter2 = tIter;
-            ++tIter;
-            targets.erase(tIter2);
-        }
-        else
-            ++tIter;
-    }
+	for (set<Unit *>::iterator tIter = targets.begin(); tIter != targets.end();)
+	{
+		Unit* unit = *tIter;
+		if (!bot->IsWithinLOSInMap(unit) || bot->GetMapId() != unit->GetMapId() || !hasRealThreat(unit))
+		{
+			set<Unit *>::iterator tIter2 = tIter;
+			++tIter;
+			targets.erase(tIter2);
+		}
+		else
+			++tIter;
+	}
 }
 
 bool AttackersValue::hasRealThreat(Unit *attacker)
 {
-    return attacker &&
-        attacker->IsInWorld() &&
-        attacker->IsAlive() &&
-        !attacker->IsPolymorphed() &&
-        !attacker->isInRoots() &&
-        !attacker->IsFriendlyTo(bot) &&
-        (attacker->getThreatManager().getCurrentVictim() || dynamic_cast<Player*>(attacker));
+	return attacker &&
+		attacker->IsInWorld() &&
+		attacker->isAlive() &&
+		!attacker->IsPolymorphed() &&
+		!attacker->isInRoots() &&
+		!attacker->IsFriendlyTo(bot) &&
+		(attacker->getThreatManager().getCurrentVictim() || attacker->GetObjectGuid().IsPlayer());
 }

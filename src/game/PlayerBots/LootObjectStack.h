@@ -1,5 +1,6 @@
 #pragma once
 
+#include "PlayerbotAi.h"
 using namespace std;
 
 namespace ai

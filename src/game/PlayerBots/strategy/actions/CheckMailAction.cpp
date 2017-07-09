@@ -11,11 +11,18 @@ bool CheckMailAction::Execute(Event event)
 	WorldPacket p;
 	bot->GetSession()->HandleQueryNextMailTime(p);
 
-	if (ai->GetMaster() || !bot->GetMailSize())
+	MasterPlayer* pl;
+	if (bot->GetSession())
+		pl = bot->GetSession()->GetMasterPlayer();
+
+	if (!pl)
+		return false;
+
+	if (ai->GetMaster() || !pl->GetMailSize())
 		return false;
 
 	list<uint32> ids;
-	for (PlayerMails::iterator i = bot->GetMailBegin(); i != bot->GetMailEnd(); ++i)
+	for (PlayerMails::iterator i = pl->GetMailBegin(); i != pl->GetMailEnd(); ++i)
 	{
 		Mail* mail = *i;
 
@@ -34,10 +41,10 @@ bool CheckMailAction::Execute(Event event)
 	for (list<uint32>::iterator i = ids.begin(); i != ids.end(); ++i)
 	{
 		uint32 id = *i;
-		bot->SendMailResult(id, MAIL_DELETED, MAIL_OK);
+		pl->SendMailResult(id, MAIL_DELETED, MAIL_OK);
 		CharacterDatabase.PExecute("DELETE FROM mail WHERE id = '%u'", id);
 		CharacterDatabase.PExecute("DELETE FROM mail_items WHERE mail_id = '%u'", id);
-		bot->RemoveMail(id);
+		pl ->RemoveMail(id);
 	}
 
 	return true;
@@ -49,14 +56,21 @@ void CheckMailAction::ProcessMail(Mail* mail, Player* owner)
 	if (!mail->HasItems())
 		return;
 
+	MasterPlayer* pl;
+	if (bot->GetSession())
+		pl = bot->GetSession()->GetMasterPlayer();
+
+	if (!pl)
+		return;
+
 	for (MailItemInfoVec::iterator i = mail->items.begin(); i != mail->items.end(); ++i)
 	{
-		Item *item = bot->GetMItem(i->item_guid);
+		Item *item = pl->GetMItem(i->item_guid);
 		if (!item)
 			continue;
 
 		sGuildTaskMgr.CheckItemTask(i->item_template, item->GetCount(), owner, bot, true);
-		bot->RemoveMItem(i->item_guid);
+		pl->RemoveMItem(i->item_guid);
 		item->DestroyForPlayer(bot);
 	}
 }

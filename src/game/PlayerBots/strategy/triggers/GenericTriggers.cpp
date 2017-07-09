@@ -204,7 +204,7 @@ bool RandomTrigger::IsActive()
 	lastCheck = time(0);
 	int k = (int)(probability / sPlayerbotAIConfig.randomChangeMultiplier);
 	if (k < 1) k = 1;
-		return (rand() % k) == 0
+	return (rand() % k) == 0;
 }
 
 bool AndTrigger::IsActive()
@@ -255,18 +255,18 @@ bool HasAuraIdTrigger::IsActive()
 
 bool TankAoeTrigger::IsActive()
 {
-    if (!AI_VALUE(uint8, "attacker count"))
-        return false;
+	if (!AI_VALUE(uint8, "attacker count"))
+		return false;
 
-    Unit* currentTarget = AI_VALUE(Unit*, "current target");
-    if (!currentTarget)
-        return true;
+	Unit* currentTarget = AI_VALUE(Unit*, "current target");
+	if (!currentTarget)
+		return true;
 
-    Unit* tankTarget = AI_VALUE(Unit*, "tank target");
-    if (!tankTarget || currentTarget == tankTarget)
-        return false;
+	Unit* tankTarget = AI_VALUE(Unit*, "tank target");
+	if (!tankTarget || currentTarget == tankTarget)
+		return false;
 
-    return currentTarget->GetVictim() == AI_VALUE(Unit*, "self target");
+	return currentTarget->getVictim() == AI_VALUE(Unit*, "self target");
 }
 
 bool IsBehindTargetTrigger::IsActive()
@@ -623,7 +623,7 @@ bool PlayerHasNoFlag::IsActive()
 			BattleGroundWS *bg = (BattleGroundWS*)ai->GetBot()->GetBattleGround();
 			if (!(bg->GetFlagState(bg->GetOtherTeam(bot->GetTeam())) == BG_WS_FLAG_STATE_ON_PLAYER))
 				 return false;
-			if (bot->GetGUID() == bg->GetFlagPickerGUID(bg->GetOtherTeam(bot->GetTeam()) == ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE)) //flag-Carrier, bring it home
+			if (bot->GetGUID() == bg->GetFlagKeeper(bg->GetOtherTeam(bot->GetTeam()) == ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE)) //flag-Carrier, bring it home
 				{
 				return false;
 				}
@@ -641,12 +641,12 @@ bool PlayerIsInBattleGroundWithoutFlag::IsActive()
  {
 	if (ai->GetBot()->InBattleGround())
 		{
-		if (ai->GetBot()->GetBattleGroundTypeId() == BattleGroundTypeId::BattleGround_WS)
+		if (ai->GetBot()->GetBattleGroundTypeId() == BattleGroundTypeId::BATTLEGROUND_WS)
 			{
 			BattleGroundWS *bg = (BattleGroundWS*)ai->GetBot()->GetBattleGround();
 			if (!(bg->GetFlagState(bg->GetOtherTeam(bot->GetTeam())) == BG_WS_FLAG_STATE_ON_PLAYER))
 				return true;
-			if (bot->GetGUID() == bg->GetFlagPickerGUID(bg->GetOtherTeam(bot->GetTeam()) == ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE)) //flag-Carrier, bring it home
+			if (bot->GetGUID() == bg->GetFlagKeeper(bg->GetOtherTeam(bot->GetTeam()) == ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE)) //flag-Carrier, bring it home
 			{
 				return false;
 				}

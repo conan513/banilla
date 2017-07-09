@@ -83,10 +83,10 @@ bool TradeSkill::Contains(ItemPrototype const* proto)
     for (uint32 id = 0; id < sCreatureStorage.GetMaxEntry(); ++id)
     {
         CreatureInfo const* co = sCreatureStorage.LookupEntry<CreatureInfo>(id);
-        if (!co || co->TrainerType != TRAINER_TYPE_TRADESKILLS)
+        if (!co || co->trainer_type != TRAINER_TYPE_TRADESKILLS)
             continue;
 
-        uint32 trainerId = co->TrainerTemplateId;
+        uint32 trainerId = co->trainerId;
         if (!trainerId)
             trainerId = co->Entry;
 

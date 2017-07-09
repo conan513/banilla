@@ -28,7 +28,7 @@ std::string LogLevelAction::logLevel2string(LogLevel level)
 {
     switch (level)
     {
-    case LOG_LEVEL_INFO:
+    case LOG_LVL_BASIC:
         return "info";
     default:
         return "debug";
@@ -37,7 +37,7 @@ std::string LogLevelAction::logLevel2string(LogLevel level)
 LogLevel LogLevelAction::string2logLevel(string level)
 {
     if (level == "debug")
-        return LOG_LEVEL_DEBUG;
+        return LOG_LVL_DEBUG;
     else
-        return LOG_LEVEL_INFO;
+        return LOG_LVL_BASIC;
 }

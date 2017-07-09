@@ -12,6 +12,8 @@
 
 #include "PlayerAI.h"
 #include "WorldSession.h"
+#include "ChatHelper.h"
+#include "Chat.h"
 
 class Player;
 class PlayerbotMgr;

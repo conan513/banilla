@@ -144,14 +144,14 @@ bool AttackAction::Attack(Unit* target)
     context->GetValue<Unit*>("current target")->Set(target);
     context->GetValue<LootObjectStack*>("available loot")->Get()->Add(guid);
 
-    Pet* pet = bot->GetPet();
-    if (pet)
-    {
-        pet->SetTarget(target->GetGUID());
-        pet->AI()->EnterCombat(target);
-		pet->GetCharmInfo()->SetIsCommandAttack(true);
-		pet->AI()->AttackStart(target);
-    }
+	Pet* pet = bot->GetPet();
+	if (pet)
+	{
+		CreatureAI* creatureAI = ((Creature*)pet)->AI();
+		if (creatureAI)
+			creatureAI->AttackStart(target);
+	}
+
 
     if (!((bot->getLevel() > 19 && ai->HasAura("stealth",bot)) || (bot->getLevel() > 31 && ai->HasAura("prowl",bot))))
         bot->Attack(target, true);

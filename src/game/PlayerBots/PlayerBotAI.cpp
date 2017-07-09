@@ -1293,6 +1293,8 @@ bool PlayerbotAI::HasAura(string name, Unit* unit, BotAuraType auratype)
 				return true;
 		}
     }
+
+  return false;
 }
 
 bool PlayerbotAI::HasOwnAura(string name, Unit* unit, BotAuraType auratype)

@@ -412,10 +412,6 @@ void RandomPlayerbotMgr::RandomTeleport(Player* bot, vector<WorldLocation> &locs
 		if (strstr(area->area_name[0], "UNUSED"))
 			continue;
 
-        float ground = map->GetHeight(x, y, z + 0.5f);
-        if (ground <= INVALID_HEIGHT)
-            continue;
-
         vector<uint32>::iterator a = find(active_areas.begin(), active_areas.end(), areaId);
         if (a == active_areas.end())
         {
@@ -661,7 +657,6 @@ void RandomPlayerbotMgr::RandomizeFirst(Player* bot)
 
 		uint16 mapId = sPlayerbotAIConfig.randomBotMaps[index];
 
-		vector<GameTele const*> locs;
 		GameTeleMap const & teleMap = sObjectMgr.GetGameTeleMap();
 		for (GameTeleMap::const_iterator itr = teleMap.begin(); itr != teleMap.end(); ++itr)
 		{
@@ -1025,10 +1020,7 @@ void RandomPlayerbotMgr::OnPlayerLogin(Player* player)
         }
     }
 
-    if (player->GetPlayerbotAI())
-        return;
-
-    players.push_back(player);
+	if (!IsRandomBot(player)) players.push_back(player);
 }
 
 Player* RandomPlayerbotMgr::GetRandomPlayer()

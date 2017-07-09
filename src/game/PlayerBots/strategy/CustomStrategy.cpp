@@ -54,7 +54,7 @@ void CustomStrategy::InitTriggers(std::list<TriggerNode*> &triggers)
                 do
                 {
                     Field* fields = results->Fetch();
-                    string action = fields[0].GetCString();
+                    string action = fields[0].GetCppString();
                     this->actionLines.push_back(action);
                 } while (results->NextRow());
             }

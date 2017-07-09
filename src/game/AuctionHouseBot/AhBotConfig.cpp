@@ -5,8 +5,6 @@ std::vector<std::string> split(const std::string &s, char delim);
 
 using namespace std;
 
-INSTANTIATE_SINGLETON_1(AhBotConfig);
-
 AhBotConfig::AhBotConfig()
 {
 }
@@ -27,7 +25,7 @@ void LoadSet(string value, T &res)
 
 bool AhBotConfig::Initialize()
 {
-    if (!config.SetSource(AUCTIONHOUSEBOT_CONFIG_NAME))
+    if (!config.SetSource("ahbot.conf"))
     {
         sLog.outString("AhBot is Disabled. Unable to open configuration file ahbot.conf");
         return false;

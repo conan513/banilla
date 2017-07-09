@@ -21,17 +21,17 @@ uint8 AoeHealValue::Calculate()
     else if (qualifier == "almost full")
     	range = sPlayerbotAIConfig.almostFullHealth;
 
-    uint8 count = 0;
+	uint8 count = 0;
 	Group::MemberSlotList const& groupSlot = group->GetMemberSlots();
 	for (Group::member_citerator itr = groupSlot.begin(); itr != groupSlot.end(); itr++)
 	{
-		Player *player = sObjectMgr.GetPlayerByLowGUID(itr->guid);
-		if( !player || !player->IsAlive())
+		Player *player = sObjectMgr.GetPlayer(itr->guid);
+		if (!player || !player->isAlive())
 			continue;
 
-	    float percent = (static_cast<float> (player->GetHealth()) / player->GetMaxHealth()) * 100;
-	    if (percent <= range)
-	    	count++;
+		float percent = (static_cast<float> (player->GetHealth()) / player->GetMaxHealth()) * 100;
+		if (percent <= range)
+			count++;
 	}
 
 	return count;

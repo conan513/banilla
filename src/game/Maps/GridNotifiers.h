@@ -1141,6 +1141,30 @@ namespace MaNGOS
             bool b_3dDist;
     };
 
+	class AnyGroupMemberInObjectRangeCheck
+	{
+	public:
+		AnyGroupMemberInObjectRangeCheck(WorldObject const* obj, float range, bool distance_3d = true) : i_obj(obj), i_range(range), b_3dDist(distance_3d) {}
+		WorldObject const& GetFocusObject() const { return *i_obj; }
+		bool operator()(Player* u)
+		{
+			if (G3D::fuzzyEq(i_range, 0.0f))
+				return false;
+
+			if (i_obj->IsPlayer())
+				if (u->GetGroup())
+					if (u->isAlive() && i_obj->IsWithinDistInMap(u, i_range, b_3dDist))
+						if (((Player*)i_obj)->IsInPartyWith(u) || (((Player*)i_obj)->IsInRaidWith(u)))
+						return true;
+
+			return false;
+		}
+	private:
+		WorldObject const* i_obj;
+		float i_range;
+		bool b_3dDist;
+	};
+
     class AnyPlayerInObjectRangeWithAuraCheck
     {
         public:

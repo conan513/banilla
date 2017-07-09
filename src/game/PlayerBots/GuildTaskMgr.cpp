@@ -958,7 +958,11 @@ void GuildTaskMgr::CleanupAdverts()
 		uint32 id = fields[0].GetUInt32();
 		uint32 receiver = fields[1].GetUInt32();
 		Player *player = sObjectMgr.GetPlayer(ObjectGuid(HIGHGUID_PLAYER, receiver));
-		if (player) player->RemoveMail(id);
+		MasterPlayer* pl;
+		if (player->GetSession())
+			pl = player->GetSession()->GetMasterPlayer();
+
+		if (pl) pl->RemoveMail(id);
 		count++;
 	} while (result->NextRow());
 	delete result;
@@ -988,7 +992,11 @@ void GuildTaskMgr::RemoveDuplicatedAdverts()
 		uint32 id = fields[0].GetUInt32();
 		uint32 receiver = fields[1].GetUInt32();
 		Player *player = sObjectMgr.GetPlayer(ObjectGuid(HIGHGUID_PLAYER, receiver));
-		if (player) player->RemoveMail(id);
+		MasterPlayer* pl;
+		if (player->GetSession())
+			pl = player->GetSession()->GetMasterPlayer();
+
+		if (pl) pl->RemoveMail(id);
 		count++;
 		ids.push_back(id);
 	} while (result->NextRow());

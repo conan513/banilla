@@ -5,16 +5,16 @@
 
 namespace ai
 {
-    class AttackersValue : public ObjectGuidListCalculatedValue
+	class AttackersValue : public ObjectGuidListCalculatedValue
 	{
 	public:
-        AttackersValue(PlayerbotAI* ai) : ObjectGuidListCalculatedValue(ai, "attackers", 5) {}
-        list<ObjectGuid> Calculate();
+		AttackersValue(PlayerbotAI* ai) : ObjectGuidListCalculatedValue(ai, "attackers", 5) {}
+		list<ObjectGuid> Calculate();
 
 	private:
-        void AddAttackersOf(Group* group, set<Unit*>& targets);
-        void AddAttackersOf(Unit* unit, set<Unit*>& targets);
+		void AddAttackersOf(Group* group, set<Unit*>& targets);
+		void AddAttackersOf(Player* player, set<Unit*>& targets);
 		void RemoveNonThreating(set<Unit*>& targets);
 		bool hasRealThreat(Unit* attacker);
-    };
+	};
 }

@@ -22105,8 +22105,6 @@ WorldObject* Player::MoveToQuestEnder(uint32& mapId, uint32& areaId, uint32& zon
 	if (map->IsBattleGround() || map->IsDungeon() || map->IsRaid())
 		return NULL;
 
-	if (map->IsUnderWater(x, y, z))
-
 	areaId = map->GetTerrain()->GetAreaId(x, y, z);
 
 	if (!areaId)

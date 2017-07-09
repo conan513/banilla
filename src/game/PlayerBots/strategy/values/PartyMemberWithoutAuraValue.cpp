@@ -21,7 +21,7 @@ public:
                 return false;
         }
 
-        return unit->IsAlive() && !ai->HasAura(aura, unit);
+        return unit->isAlive() && !ai->HasAura(aura, unit);
     }
 
 private:
@@ -47,7 +47,7 @@ public:
         if (unit != unitMaster)
                 return false;
 
-        return (unit->IsAlive() && !ai->HasAura(aura, unit));
+        return (unit->isAlive() && !ai->HasAura(aura, unit));
     }
 
 private:
@@ -76,7 +76,7 @@ public:
                 return false;
         }
 
-        return unit->IsAlive() && !ai->HasOwnAura(aura, unit);
+        return unit->isAlive() && !ai->HasOwnAura(aura, unit);
     }
 
 private:
@@ -102,7 +102,7 @@ public:
         if (unit != unitMaster)
                 return false;
 
-        return (unit->IsAlive() && !ai->HasOwnAura(aura, unit));
+        return (unit->isAlive() && !ai->HasOwnAura(aura, unit));
     }
 
 private:

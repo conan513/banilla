@@ -154,7 +154,6 @@ void DisperseManager::calculatePossibleDestinations(list<FleePoint*> &points)
 				break;
 			case CLASS_ROGUE:
 			case CLASS_WARRIOR:
-            case CLASS_DEATH_KNIGHT:
 				maxDistance = sPlayerbotAIConfig.meleeDistance;
 				minDistance = sPlayerbotAIConfig.contactDistance;
 				distanceStep = 2.0f;
@@ -285,39 +284,30 @@ void DisperseManager::cleanup(list<FleePoint*> &points)
 
 FleePoint* DisperseManager::selectOptimalDestination(list<FleePoint*> &points)
 {
-	FleePoint* byCreatures = NULL;
+	FleePoint* best = NULL;
 	for (list<FleePoint*>::iterator i = points.begin(); i != points.end(); i++)
-    {
-		FleePoint* point = *i;
-		if (point->isReasonable() && (!byCreatures || point->isBetterByCreatures(byCreatures)))
-			byCreatures = point;
-	}
-
-	FleePoint* byAll = NULL;
-	for (list<FleePoint*>::iterator i = points.begin(); i != points.end(); i++)
-    {
-		FleePoint* point = *i;
-		if (point->isReasonable() && (!byAll || point->isBetterByAll(byAll)))
-		    byAll = point;
-	}
-
-	FleePoint* byDistance = NULL;
-
-	for (list<FleePoint*>::iterator i = points.begin(); i != points.end(); i++)
-    {
-		FleePoint* point = *i;
-		if (point->isReasonable() && (!byDistance || point->isBetterByDistance(byDistance)))
-		    byDistance = point;
-	}
-
-	if (byAll && byCreatures)
 	{
-	    if (byAll->isBetterByDistance(byCreatures))
-	        return byAll;
-        else return byCreatures;
+		FleePoint* point = *i;
+		if (!best || (point->toCreatures.min - best->toCreatures.min) >= 0.5f)
+		{
+			best = point;
+		}
+		else if ((point->toCreatures.min - best->toCreatures.min) >= 0)
+		{
+			if (point->toRangedPlayers.max >= 0 && best->toRangedPlayers.max >= 0 &&
+				(point->toRangedPlayers.max - best->toRangedPlayers.max) <= 0.5f)
+			{
+				best = point;
+			}
+			else if (point->toMeleePlayers.max >= 0 && best->toMeleePlayers.max >= 0 &&
+				(point->toMeleePlayers.min - best->toMeleePlayers.min) >= 0.5f)
+			{
+				best = point;
+			}
+		}
 	}
-    else
-        return byDistance;
+
+	return best;
 }
 
 bool DisperseManager::CalculateDestination(float* rx, float* ry, float* rz)

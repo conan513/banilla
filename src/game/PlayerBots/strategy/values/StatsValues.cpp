@@ -81,9 +81,9 @@ bool PetIsDeadValue::Calculate()
 
 bool PetIsHappyValue::Calculate()
  {
-     PetDatabaseStatus status = Pet::GetStatusFromDB(bot);
-     if (status == PET_DB_DEAD)
-         return true;
+    // PetDatabaseStatus status = Pet::GetStatusFromDB(bot);
+    // if (status == PET_DB_DEAD)
+    //     return true;
  
      return !bot->GetPet() || bot->GetPet()->GetHappinessState() == HAPPY;
  }

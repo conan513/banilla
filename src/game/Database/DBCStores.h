@@ -38,6 +38,8 @@ uint32 GetTalentSpellCost(TalentSpellPos const* pos);
 TalentSpellPos const* GetTalentSpellPos(uint32 spellId);
 
 int32 GetAreaFlagByAreaID(uint32 area_id);                  // -1 if not found
+AreaTableEntry const* GetAreaEntryByAreaID(uint32 area_id);
+
 char const* GetAreaLocaleNameByAreaID(uint32 area_id, uint8 locale);
 //
 uint32 GetAreaIdByLocalizedName(const std::string& name);
@@ -72,7 +74,7 @@ extern DBCStorage <AreaTableEntry>		 sAreaStore;
 extern DBCStorage <AreaTriggerEntry>             sAreaTriggerStore;
 extern DBCStorage <AuctionHouseEntry>            sAuctionHouseStore;
 extern DBCStorage <BankBagSlotPricesEntry>       sBankBagSlotPricesStore;
-//extern DBCStorage <ChatChannelsEntry>           sChatChannelsStore; -- accessed using function, no usable index
+extern DBCStorage <ChatChannelsEntry>            sChatChannelsStore; 
 extern DBCStorage <CharStartOutfitEntry>         sCharStartOutfitStore;
 extern DBCStorage <ChrClassesEntry>              sChrClassesStore;
 extern DBCStorage <ChrRacesEntry>                sChrRacesStore;

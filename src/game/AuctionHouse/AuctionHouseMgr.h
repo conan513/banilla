@@ -79,6 +79,9 @@ struct AuctionEntry
     bool BuildAuctionInfo(WorldPacket & data) const;
     void DeleteFromDB() const;
     void SaveToDB() const;
+
+	void AuctionBidWinning(Player* bidder = NULL);
+	bool UpdateBid(uint32 newbid, Player* newbidder = NULL);// true if normal bid, false if buyout, bidder==NULL for generated bid
 };
 
 struct AuctionHouseClientQuery
@@ -107,6 +110,7 @@ class AuctionHouseObject
         uint32 GetCount() { return AuctionsMap.size(); }
 
         AuctionEntryMap *GetAuctions() { return &AuctionsMap; }
+		AuctionEntryMap const& GetAuctionList() const { return AuctionsMap; }
 
         void AddAuction(AuctionEntry *ah)
         {

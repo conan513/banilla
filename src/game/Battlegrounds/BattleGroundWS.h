@@ -82,6 +82,29 @@ enum BG_WS_GameObjects
     WS_ALLIANCE_FLAG_GROUND = 179785,
 };
 
+enum BG_WS_ObjectTypes
+{
+	BG_WS_OBJECT_DOOR_A_1 = 0,
+	BG_WS_OBJECT_DOOR_A_2 = 1,
+	BG_WS_OBJECT_DOOR_A_3 = 2,
+	BG_WS_OBJECT_DOOR_A_4 = 3,
+	BG_WS_OBJECT_DOOR_A_5 = 4,
+	BG_WS_OBJECT_DOOR_A_6 = 5,
+	BG_WS_OBJECT_DOOR_H_1 = 6,
+	BG_WS_OBJECT_DOOR_H_2 = 7,
+	BG_WS_OBJECT_DOOR_H_3 = 8,
+	BG_WS_OBJECT_DOOR_H_4 = 9,
+	BG_WS_OBJECT_A_FLAG = 10,
+	BG_WS_OBJECT_H_FLAG = 11,
+	BG_WS_OBJECT_SPEEDBUFF_1 = 12,
+	BG_WS_OBJECT_SPEEDBUFF_2 = 13,
+	BG_WS_OBJECT_REGENBUFF_1 = 14,
+	BG_WS_OBJECT_REGENBUFF_2 = 15,
+	BG_WS_OBJECT_BERSERKBUFF_1 = 16,
+	BG_WS_OBJECT_BERSERKBUFF_2 = 17,
+	BG_WS_OBJECT_MAX = 18
+};
+
 enum
 {
     AREATRIGGER_ALLIANCE_FLAG_SPAWN     = 3646,
@@ -165,6 +188,7 @@ class BattleGroundWS : public BattleGround
         void AddPoint(Team team, uint32 Points = 1)     { m_TeamScores[GetTeamIndexByTeamId(team)] += Points; }
         void SetTeamPoint(Team team, uint32 Points = 0) { m_TeamScores[GetTeamIndexByTeamId(team)] = Points; }
         void RemovePoint(Team team, uint32 Points = 1)  { m_TeamScores[GetTeamIndexByTeamId(team)] -= Points; }
+		ObjectGuid GetFlagKeeper(TeamId team) { return m_FlagKeepers[team]; }
     private:
         ObjectGuid m_FlagKeepers[BG_TEAMS_COUNT];
 

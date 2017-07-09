@@ -1,3 +1,5 @@
+#pragma once
+
 #include "../../../botpch.h"
 #include "playerbot.h"
 #include "../Action.h"
@@ -95,5 +97,4 @@ namespace ai
 			return false;
         }
     };
-
 }

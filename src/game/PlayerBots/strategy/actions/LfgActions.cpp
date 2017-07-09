@@ -1,9 +1,9 @@
 #include "../../../botpch.h"
 #include "../../playerbot.h"
 #include "LfgActions.h"
+#include "BattleGround.h"
 
 using namespace ai;
-
 
 bool BGJoinAction::Execute(Event event)
 {
@@ -36,14 +36,14 @@ int j = 0;
 
 bool BGJoinAction::JoinProposal()
 {
-	ai->GetAiObjectContext()->GetValue<uint32>("lfg proposal")->Set(1);
+//	ai->GetAiObjectContext()->GetValue<uint32>("lfg proposal")->Set(1);
 
 		// warsong only at start
 	// nyi: cycle based on time frame through AB and WS
 	BattleGroundTypeId bgTypeId = BattleGroundTypeId::BATTLEGROUND_WS;
 
 	// can do this, since it's BattleGround, not arena
-	BattleGroundQueueTypeId bgQueueTypeId = BattleGroundMgr::BGQueueTypeId(bgTypeId, 0);
+	BattleGroundQueueTypeId bgQueueTypeId = BattleGroundMgr::BGQueueTypeId(bgTypeId);
 
 	// ignore if player is already in BG
 	if (bot->InBattleGround())
@@ -54,14 +54,16 @@ bool BGJoinAction::JoinProposal()
 		return false;
 
 	// expected bracket entry
-	PvPDifficultyEntry const* bracketEntry = GetBattleGroundBracketByLevel(bg->GetMapId(), bot->getLevel());
-	if (!bracketEntry)
-		return false;
+	//PvPDifficultyEntry const* bracketEntry = GetBattleGroundBracketByLevel(bg->GetMapId(), bot->getLevel());
+	//if (!bracketEntry)
+	//	return false;
 
-	GroupJoinBattleGroundResult err;
+	BattleGroundBracketId bgBracketId = bot->GetBattleGroundBracketIdFromLevel(bgTypeId);
+
+	//GroupJoinBattleGroundResult err;
 
 	// check Deserter debuff
-	if (!bot->CanJoinToBattleGround(bg))
+	if (!bot->CanJoinToBattleground())
 	{
 		return false;
 	}
@@ -81,6 +83,7 @@ bool BGJoinAction::JoinProposal()
 	if (bot->HasAura(9454))
 		return false;
 
+	/*
 	BattleGroundQueue& bgQueue = sBattleGroundMgr.GetBattleGroundQueue(bgQueueTypeId);
 	if (bgQueue.m_QueuedPlayers.size()>0)
 	{
@@ -93,6 +96,24 @@ bool BGJoinAction::JoinProposal()
 			bgQueueTypeId, bgTypeId, bot->GetGUID(), bot->GetName());
 		return true;
 	}
+	*/
+	BattleGroundQueue& bgQueue = sBattleGroundMgr.m_BattleGroundQueues[bgQueueTypeId];
+	GroupQueueInfo * ginfo = bgQueue.AddGroup(bot, NULL, bgTypeId, bgBracketId, false);
+	uint32 avgTime = bgQueue.GetAverageQueueWaitTime(ginfo, bot->GetBattleGroundBracketIdFromLevel(bgTypeId));
+	// already checked if queueSlot is valid, now just get it
+	uint32 queueSlot = bot->AddBattleGroundQueueId(bgQueueTypeId);
+	// store entry point coords
+	bot->SetBattleGroundEntryPoint(bot, false);
+
+	WorldPacket data;
+	// send status packet (in queue)
+	sBattleGroundMgr.BuildBattleGroundStatusPacket(&data, bg, queueSlot, STATUS_WAIT_QUEUE, avgTime, 0);
+	bot->GetSession()->SendPacket(&data);
+	
+	sBattleGroundMgr.ScheduleQueueUpdate(bgQueueTypeId, bgTypeId, bot->GetBattleGroundBracketIdFromLevel(bgTypeId));
+
+	//sBattleGroundMgr.GetPlayerCount()
+
 	return false;
 }
 
@@ -120,34 +141,34 @@ bool BGStatusAction::Execute(Event event)
 
 	if (statusid == STATUS_WAIT_LEAVE) //BattleGround is over, bot needs to leave
 	{
-		sLog.outError(("BattleGround: player (bot) %s (%u) is going to leave BattleGround (%u).", bot->GetName(), bot->GetGUID().GetCounter(), battleId);
-		bot->LeaveBattleGround(true);
+		sLog.outError("BattleGround: player (bot) %s (%u) is going to leave BattleGround (%u).", bot->GetName(), bot->GetGUID(), battleId);
+		bot->LeaveBattleground();
 		ai->ResetStrategies();
 	}
 	if (statusid == STATUS_WAIT_QUEUE) //bot is in queue
 	{
-		sLog.outError("BattleGround: player (bot) %s (%u) is still in queue (%u).", bot->GetName(), bot->GetGUID().GetCounter(), battleId);
+		sLog.outError("BattleGround: player (bot) %s (%u) is still in queue (%u).", bot->GetName(), bot->GetGUID(), battleId);
 	}
 	if (statusid == STATUS_WAIT_JOIN) //bot may join
 	{
 		if (bot->InBattleGround())
 		{
-			sLog.outError("BattleGround: player (bot) %s (%u) is in BattleGround already. (%u, %u).", bot->GetName(), bot->GetGUID().GetCounter(), battleId, instanceId);
+			sLog.outError("BattleGround: player (bot) %s (%u) is in BattleGround already. (%u, %u).", bot->GetName(), bot->GetGUID(), battleId, instanceId);
 			return false;
 		}
 
-		sLog.outError("BattleGround: player (bot) %s (%u) received a invite to a BattleGround (%u, %u).", bot->GetName(), bot->GetGUID().GetCounter(), battleId, instanceId);
+		sLog.outError("BattleGround: player (bot) %s (%u) received a invite to a BattleGround (%u, %u).", bot->GetName(), bot->GetGUID(), battleId, instanceId);
 
 		bot->CombatStop(true);
 
 		sLog.outDebug( "Bot %s is going to join BG %d", bot->GetName(), battleId);
 
-		bot->ClearUnitState(UNIT_STATE_ALL_STATE_SUPPORTED);
+		bot->clearUnitState(UNIT_STAT_ALL_STATE);
 
 		//get GroupQueueInfo from BattleGroundQueue
 		BattleGroundTypeId bgTypeId = BattleGroundTypeId(battleId);
 		BattleGroundQueueTypeId bgQueueTypeId = BattleGroundMgr::BGQueueTypeId(bgTypeId);
-		BattleGroundQueue& bgQueue = sBattleGroundMgr.GetBattleGroundQueue(bgQueueTypeId);
+		BattleGroundQueue& bgQueue = sBattleGroundMgr.m_BattleGroundQueues[bgQueueTypeId];
 		//we must use temporary variable, because GroupQueueInfo pointer can be deleted in BattleGroundQueue::RemovePlayer() function
 		GroupQueueInfo ginfo;
 		if (!bgQueue.GetPlayerGroupInfoData(bot->GetGUID(), &ginfo))
@@ -162,10 +183,10 @@ bool BGStatusAction::Execute(Event event)
 			return false;
 		}
 
-		BattleGround* bg = sBattleGroundMgr->GetBattleGround(ginfo.IsInvitedToBGInstanceGUID, bgTypeId);
+		BattleGround* bg = sBattleGroundMgr.GetBattleGround(ginfo.IsInvitedToBGInstanceGUID, bgTypeId);
 		if (!bg)
 		{
-			bg = sBattleGroundMgr->GetBattleGroundTemplate(bgTypeId);
+			bg = sBattleGroundMgr.GetBattleGroundTemplate(bgTypeId);
 			if (!bg)
 			{
 				sLog.outDebug( "Bot %s could find no template for BattleGround %d", bot->GetName(), battleId);
@@ -174,18 +195,15 @@ bool BGStatusAction::Execute(Event event)
 		}
 
 		// expected bracket entry
-		PvPDifficultyEntry const* bracketEntry = GetBattleGroundBracketByLevel(bg->GetMapId(), bot->getLevel());
-		if (!bracketEntry)
-		{
-			sLog.outDebug( "Bot %s has no bracket (%d) available to join BG %d", bot->GetName(), bot->getLevel(), battleId);
+		BattleGroundBracketId bgBracketId = bot->GetBattleGroundBracketIdFromLevel(bgTypeId);
+		if (bgBracketId)		
 			return false;
-		}
 
 		//some checks if player isn't cheating - it is not exactly cheating, but we cannot allow it
-		if (ginfo.ArenaType == 0)
-		{
+		//if (ginfo.ArenaType == 0)
+		//{
 			//if player is trying to enter BattleGround (not arena!) and he has deserter debuff, we must just remove him from queue
-			if (!bot->CanJoinToBattleGround(bg))
+			if (!bot->CanJoinToBattleground())
 			{
 				sLog.outDebug( "Bot %s cant join BG %d because it has the deserter debuf", bot->GetName(), battleId);
 				return false;
@@ -196,7 +214,7 @@ bool BGStatusAction::Execute(Event event)
 				sLog.outDebug( "Bot %s cant join BG %d because its level does not fit", bot->GetName(), battleId);
 				return false;
 			}
-		}
+		//}
 		uint32 queueSlot = bot->GetBattleGroundQueueIndex(bgQueueTypeId);
 		// check Freeze debuff
 		if (bot->HasAura(9454))
@@ -215,16 +233,17 @@ bool BGStatusAction::Execute(Event event)
 			bot->SetBattleGroundEntryPoint();
 
 		// resurrect the player
-		if (!bot->IsAlive())
+		if (!bot->isAlive())
 		{
 			bot->ResurrectPlayer(1.0f);
 			bot->SpawnCorpseBones();
 		}
 		// stop taxi flight at port
 		bot->GetMotionMaster()->MovementExpired();
-		if (bot->IsInFlight())
+		if (bot->IsFlying())
 		{
-			bot->CleanupAfterTaxiFlight();
+//			bot->CleanupAfterTaxiFlight();
+			return false;
 		}
 
 		// remove BattleGround queue status from BGmgr
@@ -237,14 +256,14 @@ bool BGStatusAction::Execute(Event event)
 		// set the destination instance id
 		bot->SetBattleGroundId(bg->GetInstanceID(), bgTypeId);
 		// set the destination team
-		bot->SetBGTeam(ginfo.Team);
+		bot->SetBGTeam(bot->GetTeam());
 
 		// bg->HandleBeforeTeleportToBattleGround(_player);
-		sBattleGroundMgr->SendToBattleGround(bot, ginfo.IsInvitedToBGInstanceGUID, bgTypeId);
+		sBattleGroundMgr.SendToBattleGround(bot, ginfo.IsInvitedToBGInstanceGUID, bgTypeId);
 		ai->ResetStrategies();
 		// add only in HandleMoveWorldPortAck()
 		// bg->AddPlayer(_player, team);
-		TC_LOG_DEBUG("bg.BattleGround", "BattleGround: player (bot) %s (%u) joined battle for bg %u, bgtype %u, queue type %u.", bot->GetName(), bot->GetGUID().GetCounter(), bg->GetInstanceID(), bg->GetTypeID(), bgQueueTypeId);
+		sLog.outDebug("bg.BattleGround", "BattleGround: player (bot) %s (%u) joined battle for bg %u, bgtype %u, queue type %u.", bot->GetName(), bot->GetGUID(), bg->GetInstanceID(), bg->GetTypeID(), bgQueueTypeId);
 		sLog.outDebug( "Bot %s joined BG %d", bot->GetName(), battleId);
 	}
 	return true;
@@ -258,17 +277,17 @@ bool BGTacticsWS::consumeHealthy(BattleGround *bg)
 	//alliance healthy
 	if (bot->HealthBelowPct(50))
 	{
-		Position posH1 = Position(1111.526733f, 1352.458130f, 316.567047f, 0);
-		Position posA1 = Position(1320.670288f, 1549.642700f, 313.501404f, 0);
+		WorldLocation posH1 = WorldLocation(1111.526733f, 1352.458130f, 316.567047f, 0);
+		WorldLocation posA1 = WorldLocation(1320.670288f, 1549.642700f, 313.501404f, 0);
 
 
-		if (bot->GetDistance(posH1)<40)
+		if (bot->GetDistance(posH1.coord_x, posH1.coord_y, posH1.coord_z)<40)
 		{
-			return MoveTo(bg->GetMapId(), posH1.GetPositionX(), posH1.GetPositionY(), posH1.GetPositionZ());
+			return MoveTo(bg->GetMapId(), posH1.coord_x, posH1.coord_y, posH1.coord_z);
 		}
-		if (bot->GetDistance(posA1)<40)
+		if (bot->GetDistance(posA1.coord_x, posA1.coord_y, posA1.coord_z)<40)
 		{
-			return MoveTo(bg->GetMapId(), posH1.GetPositionX(), posH1.GetPositionY(), posH1.GetPositionZ());
+			return MoveTo(bg->GetMapId(), posH1.coord_x, posH1.coord_y, posH1.coord_z);
 		}
 	}
 	return false;
@@ -284,27 +303,27 @@ bool BGTacticsWS::moveTowardsEnemyFlag(BattleGroundWS *bg)
 		return false;
 	if (bg->GetFlagState(bot->GetTeam()) == BG_WS_FLAG_STATE_WAIT_RESPAWN)
 		return false;
-	GameObject* target_obj = bg->GetBgMap()->GetGameObject(bg->GetDroppedFlagGUID(bg->GetOtherTeam(bot->GetTeam()) == ALLIANCE ? TEAM_HORDE : TEAM_ALLIANCE));
+	GameObject* target_obj = bg->GetBgMap()->GetGameObject(bg->GetFlagKeeper(bg->GetOtherTeam(bot->GetTeam()) == ALLIANCE ? TEAM_HORDE : TEAM_ALLIANCE));
 	if (target_obj == NULL)
 	{
 		if (bot->GetTeam() == HORDE)
-			target_obj = bg->GetBgMap()->GetGameObject(bg->BgObjects[BG_WS_OBJECT_A_FLAG]);
+			target_obj = bg->GetBgMap()->GetGameObject(bg->m_BgObjects[BG_WS_OBJECT_A_FLAG]);
 		else
-			target_obj = bg->GetBgMap()->GetGameObject(bg->BgObjects[BG_WS_OBJECT_H_FLAG]);
+			target_obj = bg->GetBgMap()->GetGameObject(bg->m_BgObjects[BG_WS_OBJECT_H_FLAG]);
 	}
 	//Direct Movement, if we are close
 	if (bot->IsWithinDist(target_obj, 40))
 	{
-		ChaseTo(target_obj);
+		MoveNear(target_obj,1.f);
 		return true;
 	}
-	GameObject* obj = bg->GetBgMap()->GetGameObject(bg->GetFlagPickerGUID(bot->GetTeam() == ALLIANCE ? TEAM_HORDE : TEAM_ALLIANCE));
+	GameObject* obj = bg->GetBgMap()->GetGameObject(bg->GetFlagKeeper(bot->GetTeam() == ALLIANCE ? TEAM_HORDE : TEAM_ALLIANCE));
 	if (obj == NULL)
 	{
 		if (bot->GetTeamId() == TeamId::TEAM_HORDE)
-			obj = bg->GetBgMap()->GetGameObject(bg->BgObjects[BG_WS_OBJECT_A_FLAG]);
+			obj = bg->GetBgMap()->GetGameObject(bg->m_BgObjects[BG_WS_OBJECT_A_FLAG]);
 		else
-			obj = bg->GetBgMap()->GetGameObject(bg->BgObjects[BG_WS_OBJECT_H_FLAG]);
+			obj = bg->GetBgMap()->GetGameObject(bg->m_BgObjects[BG_WS_OBJECT_H_FLAG]);
 	}
 	return runPathTo(obj, bg);
 }
@@ -314,15 +333,15 @@ bool BGTacticsWS::homerun(BattleGroundWS *bg)
 {
 	if (!(bg->GetFlagState(bg->GetOtherTeam(bot->GetTeam())) == BG_WS_FLAG_STATE_ON_PLAYER))
 		return false;
-	if (bot->GetGUID() == bg->GetFlagPickerGUID(bg->GetOtherTeam(bot->GetTeam()) == ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE)) //flag-Carrier, bring it home
+	if (bot->GetGUID() == bg->GetFlagKeeper(bg->GetOtherTeam(bot->GetTeam()) == ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE)) //flag-Carrier, bring it home
 	{
-		GameObject* obj = bg->GetBgMap()->GetGameObject(bg->GetFlagPickerGUID(bot->GetTeam() == ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE));
+		GameObject* obj = bg->GetBgMap()->GetGameObject(bg->GetFlagKeeper(bot->GetTeam() == ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE));
 		if (obj == NULL)
 		{
 			if (bot->GetTeamId() == TeamId::TEAM_HORDE)
-				obj = bg->GetBgMap()->GetGameObject(bg->BgObjects[BG_WS_OBJECT_H_FLAG]);
+				obj = bg->GetBgMap()->GetGameObject(bg->m_BgObjects[BG_WS_OBJECT_H_FLAG]);
 			else
-				obj = bg->GetBgMap()->GetGameObject(bg->BgObjects[BG_WS_OBJECT_A_FLAG]);
+				obj = bg->GetBgMap()->GetGameObject(bg->m_BgObjects[BG_WS_OBJECT_A_FLAG]);
 		}
 		if (bot->IsWithinDistInMap(obj, 10) && (bg->GetFlagState(bot->GetTeam()) == BG_WS_FLAG_STATE_ON_BASE))
 		{
@@ -336,7 +355,7 @@ bool BGTacticsWS::homerun(BattleGroundWS *bg)
 		//random choice if defense or offense
 		if (supporter || (bg->GetFlagState(bot->GetTeam()) != BG_WS_FLAG_STATE_ON_PLAYER))
 		{
-			ObjectGuid guid = bg->GetFlagPickerGUID(bg->GetOtherTeam(bot->GetTeam()) == ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE);
+			ObjectGuid guid = bg->GetFlagKeeper(bg->GetOtherTeam(bot->GetTeam()) == ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE);
 			Player* ourGuy = ObjectAccessor::FindPlayer(guid);
 			if (ourGuy != NULL)
 			{
@@ -346,7 +365,7 @@ bool BGTacticsWS::homerun(BattleGroundWS *bg)
 			}
 		}
 		else { //as a none supporter, attack their flag, if they carry it
-			ObjectGuid guid = bg->GetFlagPickerGUID(bot->GetTeam() == ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE);
+			ObjectGuid guid = bg->GetFlagKeeper(bot->GetTeam() == ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE);
 			Player* theirGuy = ObjectAccessor::FindPlayer(guid);
 			if (theirGuy != NULL)
 			{
@@ -383,7 +402,7 @@ bool BGTacticsWS::runPathTo(WorldObject *unit, BattleGround *bg)
 	if (unit == NULL)
 		return false;
 	if (unit->IsWithinDist(bot, 40))
-		return ChaseTo(unit);
+		return MoveNear(unit,1.f);
 	if (unit->GetPositionX() > bot->GetPositionX()) //He's somewhere at the alliance side
 	{
 		if (bot->Preference < 4) //preference < 4 = move through tunnel
@@ -663,13 +682,13 @@ bool BGTacticsWS::Execute(Event event)
 	{
 		ai->SetMaster(NULL);
 		if (bot->HasAuraType(SPELL_AURA_SPIRIT_OF_REDEMPTION))
-			bot->RemoveAurasByType(SPELL_AURA_SPIRIT_OF_REDEMPTION);
+			bot->RemoveSpellsCausingAura(SPELL_AURA_SPIRIT_OF_REDEMPTION);
 		if (bot->isInCombat())
 		{
 			if (!wasInCombat)
 				bot->GetMotionMaster()->MovementExpired();
 		}
-		wasInCombat = bot->();
+		wasInCombat = bot->isInCombat();
 		//In Warsong, the bots run to the other flag and take it, try to get back and protect each other.
 		//If our flag was taken, pures will try to get it back
 		BattleGroundWS* bg = (BattleGroundWS *)bot->GetBattleGround();
@@ -679,16 +698,16 @@ bool BGTacticsWS::Execute(Event event)
 			bool alreadyHasFlag = bg->GetFlagState(bg->GetOtherTeam(bot->GetTeam())) == BG_WS_FLAG_STATE_ON_PLAYER;
 			if (!alreadyHasFlag)
 			{
-				GameObject* target_obj = bg->GetBgMap()->GetGameObject(bg->GetDroppedFlagGUID(bg->GetOtherTeam(bot->GetTeam()) == ALLIANCE ? TEAM_HORDE : TEAM_ALLIANCE));
+				GameObject* target_obj = bg->GetBgMap()->GetGameObject(bg->GetFlagKeeper(bg->GetOtherTeam(bot->GetTeam()) == ALLIANCE ? TEAM_HORDE : TEAM_ALLIANCE));
 				if (target_obj == NULL)
 				{
 					if (bot->GetTeam() == HORDE)
 					{
-						target_obj = bg->GetBgMap()->GetGameObject(bg->BgObjects[BG_WS_OBJECT_A_FLAG]);
+						target_obj = bg->GetBgMap()->GetGameObject(bg->m_BgObjects[BG_WS_OBJECT_A_FLAG]);
 					}
 					else
 					{
-						target_obj = bg->GetBgMap()->GetGameObject(bg->BgObjects[BG_WS_OBJECT_H_FLAG]);
+						target_obj = bg->GetBgMap()->GetGameObject(bg->m_BgObjects[BG_WS_OBJECT_H_FLAG]);
 					}
 				}
 				if (bot->IsWithinDistInMap(target_obj, 10))
@@ -719,21 +738,26 @@ bool BGTacticsWS::Execute(Event event)
 				}
 				if (!bot->isInCombat())
 				{
-					Position const* pos = bg->GetTeamStartPosition(BattleGround::GetTeamIndexByTeamId(bot->GetTeam()));
+					//= bg->GetTeamStartPosition(BattleGround::GetTeamIndexByTeamId(bot->GetTeam()));
 					for (std::map<ObjectGuid, BattleGroundPlayer>::const_iterator itr = bg->GetPlayers().begin(); itr != bg->GetPlayers().end(); ++itr)
 					{
 						if (urand(0, 100) < 2)
-							return MoveNear(bg->GetMapId(), pos->x, pos->y, pos->z, frand(1.0, 5.0));
+						{
+							if (bot->GetTeam() == ALLIANCE)
+								return MoveNear(bg->GetMapId(), 1523.811, 1481.757, 352.008, frand(1.0, 5.0));
+							else
+								return MoveNear(bg->GetMapId(), 933.331, 1433.724, 345.536, frand(1.0, 5.0));
+						}
 					}
 				}
 				return true;
 			}
 			//check if we are moving or in combat
-			if (!IsMovingAllowed() || bot->isMoving())
+			if (!IsMovingAllowed() || bot->IsMoving())
 				return false;
 			bool moving = false;
 			//Only go for directive, if not in combat
-			if (!bot->())
+			if (!bot->isInCombat())
 			{
 				moving = consumeHealthy(bg);
 				if (!moving)
@@ -743,8 +767,8 @@ bool BGTacticsWS::Execute(Event event)
 			}
 			if (!moving)
 			{
-				if (bg->GetBgMap()->GetGameObject(bg->BgObjects[BG_WS_OBJECT_A_FLAG]) == NULL &&
-					bg->GetBgMap()->GetGameObject(bg->BgObjects[BG_WS_OBJECT_H_FLAG]) == NULL)
+				if (bg->GetBgMap()->GetGameObject(bg->m_BgObjects[BG_WS_OBJECT_A_FLAG]) == NULL &&
+					bg->GetBgMap()->GetGameObject(bg->m_BgObjects[BG_WS_OBJECT_H_FLAG]) == NULL)
 				{
 					float distance = sPlayerbotAIConfig.tooCloseDistance + sPlayerbotAIConfig.grindDistance * urand(3, 10) / 10.0f;
 
@@ -759,8 +783,8 @@ bool BGTacticsWS::Execute(Event event)
 						y += urand(0, distance) - distance / 2;
 						bot->UpdateGroundPositionZ(x, y, z);
 
-						if (map->IsInWater(x, y, z))
-							continue;
+						//if (map->IsInWater(x, y, z))
+						//	continue;
 
 						bool moved = MoveNear(bot->GetMapId(), x, y, z);
 						if (moved)

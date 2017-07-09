@@ -82,7 +82,7 @@ struct pair_hash {
 };
 
 typedef std::pair<uint32, uint32> LowGuidPair;
-typedef tbb::concurrent_queue<MessageBlock> MessageQueue;
+typedef concurrency::concurrent_queue<MessageBlock> MessageQueue;
 typedef std::unordered_map<LowGuidPair, MessageBlock, pair_hash> MessageBlocks;
 typedef std::unordered_map<uint32, MessageCounter> MessageCounters;
 typedef std::unordered_map<uint32, std::list<std::string>> MessageRepeats;

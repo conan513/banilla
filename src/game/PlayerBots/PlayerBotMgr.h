@@ -61,6 +61,7 @@ public:
     void HandleMasterIncomingPacket(const WorldPacket& packet);
     void HandleMasterOutgoingPacket(const WorldPacket& packet);
     void HandleCommand(uint32 type, const string& text);
+	void OnPlayerLogin(Player* player);
 
     virtual void UpdateAIInternal(uint32 elapsed);
 
@@ -103,7 +104,7 @@ struct EventBotEntry
     {}
 };
 
-struct PlayerBotStats
+struct EventBotStats
 {
     /* Stats */
     uint32 onlineCount;
@@ -117,7 +118,7 @@ struct PlayerBotStats
     uint32 confBotsRefresh;
     uint32 confUpdateDiff;
 
-    PlayerBotStats() 
+	EventBotStats()
     : onlineCount(0), loadingCount(0), totalBots(0), onlineChat(0),
     confMaxOnline(0), confMinOnline(0), confBotsRefresh(0), confUpdateDiff(0) {}
 };
@@ -157,7 +158,7 @@ class EventBotMgr
         bool ForceLogoutDelay() const { return forceLogoutDelay; }
 
         uint32 GenBotAccountId() { return ++_maxAccountId; }
-        PlayerBotStats& GetStats(){ return m_stats; }
+		EventBotStats& GetStats(){ return m_stats; }
         void Start() { enable = true; }
     protected:
         /* Combien de temps depuis la derniere MaJ ?*/
@@ -169,7 +170,7 @@ class EventBotMgr
 
         std::map<uint32 /*pl guid*/, EventBotEntry*> m_bots;
         std::map<uint32 /*account*/, uint32> m_tempBots;
-        PlayerBotStats m_stats;
+		EventBotStats m_stats;
 
         uint32 confMinBots;
         uint32 confMaxBots;

@@ -13,7 +13,7 @@ namespace ai
     public:
         virtual bool Execute(Event event)
         {
-            if (bot->IsAlive() || bot->GetCorpse())
+            if (bot->isAlive() || bot->GetCorpse())
                 return false;
 
             ai->ChangeStrategy("-follow,+stay", BOT_STATE_NON_COMBAT);

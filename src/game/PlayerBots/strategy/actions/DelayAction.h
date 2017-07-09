@@ -17,7 +17,7 @@ namespace ai
             if (!sRandomPlayerbotMgr.IsRandomBot(bot) || bot->GetGroup() || ai->GetMaster())
                 return false;
 
-            if (bot->IsInCombat())
+            if (bot->isInCombat())
                 return true;
 
             ai->SetNextCheckDelay(sPlayerbotAIConfig.maxWaitForMove + sPlayerbotAIConfig.globalCoolDown);

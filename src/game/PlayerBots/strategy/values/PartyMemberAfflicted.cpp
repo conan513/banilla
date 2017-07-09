@@ -21,7 +21,7 @@ public:
                 return false;
         }
 
-        return unit->IsAlive() && unit->isFeared();
+        return unit->isAlive() && unit->isFeared();
     }
 };
 
@@ -47,7 +47,7 @@ public:
                 return false;
         }
 
-        return unit->IsAlive() && unit->IsCharmed();
+        return unit->isAlive() && unit->IsCharmed();
     }
 };
 
@@ -73,7 +73,7 @@ public:
                 return false;
         }
 
-        return unit->IsAlive() && unit->isPossessed();
+        return unit->isAlive() && unit->isPossessed();
     }
 };
 
@@ -99,7 +99,7 @@ public:
                 return false;
         }
 
-        return unit->IsAlive() && unit->IsPolymorphed();
+        return unit->isAlive() && unit->IsPolymorphed();
     }
 };
 
@@ -125,7 +125,7 @@ public:
                 return false;
         }
 
-        return unit->IsAlive() && unit->isSnared();
+        return unit->isAlive() && unit->isSnared();
     }
 };
 
@@ -151,7 +151,7 @@ public:
                 return false;
         }
 
-        return unit->IsAlive() && unit->isFrozen();
+        return unit->isAlive() && unit->isFrozen();
     }
 };
 
@@ -177,7 +177,7 @@ public:
                 return false;
         }
 
-        return unit->IsAlive() && unit->isInRoots();
+        return unit->isAlive() && unit->isInRoots();
     }
 };
 

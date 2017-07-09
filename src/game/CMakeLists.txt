@@ -1040,8 +1040,6 @@ PlayerBots/strategy/values/TargetValue.h
 PlayerBots/strategy/values/ThreatValues.cpp
 PlayerBots/strategy/values/ThreatValues.h
 PlayerBots/strategy/values/ValueContext.h
-PlayerBots/strategy/values/formations/Arrow.cpp
-PlayerBots/strategy/values/formations/Arrow.h
 PlayerBots/strategy/warlock/DpsWarlockStrategy.cpp
 PlayerBots/strategy/warlock/DpsWarlockStrategy.h
 PlayerBots/strategy/warlock/GenericWarlockNonCombatStrategy.cpp

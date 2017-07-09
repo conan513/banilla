@@ -612,7 +612,7 @@ void SilithusWarEffortBattle::Enable()
         RaceClassCombo RaceClass = AvaliableCombos[ComboID];
 
         BattlePlayerAI* PlayerAi = new BattlePlayerAI(nullptr, RaceClass.Race, RaceClass.Class, EventPos.mapid, 14, FinalX, FinalY, FinalZ, FinalO);
-        if (sPlayerBotMgr.addBot(PlayerAi))
+        if (sEventBotMgr.addBot(PlayerAi))
         {
             BotEventInfo EventInfo(PlayerAi);
 
@@ -625,7 +625,7 @@ void SilithusWarEffortBattle::Enable()
 
 void SilithusWarEffortBattle::Disable()
 {
-    sPlayerBotMgr.deleteAll();
+    sEventBotMgr.deleteAll();
 
     std::vector <Creature*> DeadCreatures;
 

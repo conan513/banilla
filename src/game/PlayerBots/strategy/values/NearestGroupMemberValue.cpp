@@ -7,19 +7,20 @@
 #include "CellImpl.h"
 
 using namespace ai;
-using namespace Trinity;
+using namespace MaNGOS;
 
 void NearestGroupMemberValue::FindUnits(list<Unit*> &targets)
 {
     if (bot->GetGroup())
     {
-        AnyGroupedUnitInObjectRangeCheck u_check(bot, bot, range, bot->GetGroup()->isRaidGroup());
-        UnitListSearcher<AnyGroupedUnitInObjectRangeCheck> searcher(bot, targets, u_check);
-        bot->VisitNearbyObject(bot->GetMap()->GetVisibilityRange(), searcher);
+		AnyFriendlyUnitInObjectRangeCheck u_check(bot, range);
+		UnitListSearcher<AnyFriendlyUnitInObjectRangeCheck> searcher(targets, u_check);
+		Cell::VisitAllObjects(bot, searcher, range);
     }
 }
 
 bool NearestGroupMemberValue::AcceptUnit(Unit* unit)
 {
-    return (!unit->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE) && (unit->IsInPartyWith(bot) || unit->IsInRaidWith(bot)));
+	ObjectGuid guid = unit->GetObjectGuid();
+    return (!guid.IsPlayer() && (unit->IsInPartyWith(bot) || unit->IsInRaidWith(bot)));
 }

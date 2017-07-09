@@ -12,6 +12,13 @@ bool MailAction::Execute(Event event)
 	if (!master)
 		return false;
 
+	MasterPlayer* pl;
+	if (bot->GetSession())
+		pl = bot->GetSession()->GetMasterPlayer();
+
+	if (!pl)
+		return false;
+
 	list<ObjectGuid> gos = *context->GetValue<list<ObjectGuid> >("nearest game objects");
 	ObjectGuid mailbox;
 	for (list<ObjectGuid>::iterator i = gos.begin(); i != gos.end(); ++i)
@@ -36,7 +43,7 @@ bool MailAction::Execute(Event event)
 		ai->TellMaster("=== Mailbox ===");
 		time_t cur_time = time(0);
 		int index = 1;
-		for (PlayerMails::iterator itr = bot->GetMailBegin(); itr != bot->GetMailEnd(); ++itr)
+		for (PlayerMails::iterator itr = pl->GetMailBegin(); itr != pl->GetMailEnd(); ++itr)
 		{
 			if ((*itr)->state == MAIL_STATE_DELETED || cur_time < (*itr)->deliver_time)
 				continue;
@@ -68,7 +75,7 @@ bool MailAction::Execute(Event event)
 		int index = 1;
 		vector<string> ids = split(text.substr(5), ',');
 		vector<string>::iterator i = ids.begin();
-		for (PlayerMails::iterator itr = bot->GetMailBegin(); itr != bot->GetMailEnd(); ++itr)
+		for (PlayerMails::iterator itr = pl->GetMailBegin(); itr != pl->GetMailEnd(); ++itr)
 		{
 			if ((*itr)->state == MAIL_STATE_DELETED || cur_time < (*itr)->deliver_time)
 				continue;
@@ -148,7 +155,7 @@ bool MailAction::Execute(Event event)
 		int index = 1;
 		vector<string> ids = split(text.substr(7), ',');
 		vector<string>::iterator i = ids.begin();
-		for (PlayerMails::iterator itr = bot->GetMailBegin(); itr != bot->GetMailEnd(); ++itr)
+		for (PlayerMails::iterator itr = pl->GetMailBegin(); itr != pl->GetMailEnd(); ++itr)
 		{
 			if ((*itr)->state == MAIL_STATE_DELETED || cur_time < (*itr)->deliver_time)
 				continue;
@@ -172,7 +179,7 @@ bool MailAction::Execute(Event event)
 		int index = 1;
 		vector<string> ids = split(text.substr(5), ',');
 		vector<string>::iterator i = ids.begin();
-		for (PlayerMails::iterator itr = bot->GetMailBegin(); itr != bot->GetMailEnd(); ++itr)
+		for (PlayerMails::iterator itr = pl->GetMailBegin(); itr != pl->GetMailEnd(); ++itr)
 		{
 			if ((*itr)->state == MAIL_STATE_DELETED || cur_time < (*itr)->deliver_time)
 				continue;

@@ -29,7 +29,7 @@ bool UseMeetingStoneAction::Execute(Event event)
 	if (master->IsBeingTeleported())
 		return false;
 
-	if (bot->IsInCombat())
+	if (bot->isInCombat())
 	{
 		ai->TellMasterNoFacing("I am in combat");
 		return false;

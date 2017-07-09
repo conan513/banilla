@@ -342,6 +342,7 @@ enum ItemSubclassRecipe
     ITEM_SUBCLASS_FIRST_AID_MANUAL              = 7,
     ITEM_SUBCLASS_ENCHANTING_FORMULA            = 8,
     ITEM_SUBCLASS_FISHING_MANUAL                = 9,
+	ITEM_SUBCLASS_JEWELCRAFTING_RECIPE			= 10,
 };
 
 #define MAX_ITEM_SUBCLASS_RECIPE                  11

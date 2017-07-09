@@ -2,14 +2,9 @@
 #include "playerbot.h"
 #include "PlayerbotAIConfig.h"
 #include "RandomItemMgr.h"
-
 #include "AhBot.h"
 #include "PlayerbotAI.h"
-
-#include "../botpch.h"
-#include "playerbot.h"
-#include "PlayerbotAIConfig.h"
-#include "RandomItemMgr.h"
+#include "AhBotConfig.h"
 
 char * strstri(const char* str1, const char* str2);
 
@@ -140,8 +135,8 @@ RandomItemList RandomItemMgr::Query(RandomItemType type)
 		if (proto->Duration & 0x80000000)
 			continue;
 
-		if (AuctionBotConfig.ignoreItemIds.find(proto->ItemId) != sAhBotConfig.ignoreItemIds.end())
-			continue;
+		//if (AuctionBotConfig.ignoreItemIds.find(proto->ItemId) != sAhBotConfig.ignoreItemIds.end())
+		//	continue;
 
 		if (strstri(proto->Name1, "qa") || strstri(proto->Name1, "test") || strstri(proto->Name1, "deprecated"))
 			continue;
@@ -152,7 +147,7 @@ RandomItemList RandomItemMgr::Query(RandomItemType type)
 		if (predicates[type] && !predicates[type]->Apply(proto))
 			continue;
 
-		if (sAuctionBot.GetSellPrice(proto))
+		if (auctionbot.GetSellPrice(proto))
 			continue;
 
 		items.push_back(itemId);

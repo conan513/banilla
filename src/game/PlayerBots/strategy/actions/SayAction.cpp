@@ -81,7 +81,7 @@ bool SayAction::Execute(Event event)
 		if (terrain)
 		{
 
-			uint32 areaId = bot->GetMap()->GetTerrain->GetAreaId(bot->GetPositionX(), bot->GetPositionY(), bot->GetPositionZ());
+			uint32 areaId = bot->GetMap()->GetTerrain()->GetAreaId(bot->GetPositionX(), bot->GetPositionY(), bot->GetPositionZ());
 			if (areaId)
 			{
 				AreaTableEntry const* area = GetAreaEntryByAreaID(areaId);

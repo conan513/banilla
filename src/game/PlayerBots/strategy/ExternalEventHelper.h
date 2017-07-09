@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Trigger.h"
+#include "ChatHelper.h"
 
 namespace ai
 {

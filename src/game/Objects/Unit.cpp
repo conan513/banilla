@@ -3833,8 +3833,8 @@ bool Unit::IsNonPositiveSpellCast(bool withDelayed, bool skipChanneled, bool ski
 	{
 		if (!skipInstant || m_currentSpells[CURRENT_GENERIC_SPELL]->GetCastTime())
 		{
-			if (!isAutoshoot || !(m_currentSpells[CURRENT_GENERIC_SPELL]->m_spellInfo->HasAttribute(SPELL_ATTR2_NOT_RESET_AUTO_ACTIONS)))
-				if (!m_currentSpells[CURRENT_GENERIC_SPELL]->m_spellInfo->IsPositive())
+			if (!isAutoshoot || !(m_currentSpells[CURRENT_GENERIC_SPELL]->m_spellInfo->HasAttribute(SPELL_ATTR_EX2_NOT_RESET_AUTO_ACTIONS)))
+				if (!IsPositiveSpell(m_currentSpells[CURRENT_GENERIC_SPELL]->m_spellInfo))
 					return true;
 		}
 	}
@@ -3842,13 +3842,13 @@ bool Unit::IsNonPositiveSpellCast(bool withDelayed, bool skipChanneled, bool ski
 	if (!skipChanneled && m_currentSpells[CURRENT_CHANNELED_SPELL] &&
 		(m_currentSpells[CURRENT_CHANNELED_SPELL]->getState() != SPELL_STATE_FINISHED))
 	{
-		if (!isAutoshoot || !(m_currentSpells[CURRENT_CHANNELED_SPELL]->m_spellInfo->HasAttribute(SPELL_ATTR2_NOT_RESET_AUTO_ACTIONS)))
-			if (!m_currentSpells[CURRENT_CHANNELED_SPELL]->m_spellInfo->IsPositive())
+		if (!isAutoshoot || !(m_currentSpells[CURRENT_CHANNELED_SPELL]->m_spellInfo->HasAttribute(SPELL_ATTR_EX2_NOT_RESET_AUTO_ACTIONS)))
+			if (!IsPositiveSpell(m_currentSpells[CURRENT_CHANNELED_SPELL]->m_spellInfo))
 				return true;
 	}
 	// autorepeat spells may be finished or delayed, but they are still considered cast
 	if (!skipAutorepeat && m_currentSpells[CURRENT_AUTOREPEAT_SPELL])
-		if (m_currentSpells[CURRENT_AUTOREPEAT_SPELL]->m_spellInfo->IsPositive())
+		if (!IsPositiveSpell(m_currentSpells[CURRENT_AUTOREPEAT_SPELL]->m_spellInfo))
 			return true;
 
 	return false;

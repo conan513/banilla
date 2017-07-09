@@ -4,33 +4,33 @@
 
 namespace ai
 {
-    class WorldPacketTrigger : public Trigger {
-    public:
-        WorldPacketTrigger(PlayerbotAI* ai, string command) : Trigger(ai, command), triggered(false) {}
+	class WorldPacketTrigger : public Trigger {
+	public:
+		WorldPacketTrigger(PlayerbotAI* ai, string command) : Trigger(ai, command), triggered(false) {}
 
-        virtual void ExternalEvent(WorldPacket &packet, Player* owner = NULL)
-        {
-            this->packet = packet;
-            this->owner = owner;
-            triggered = true;
-        }
+		virtual void ExternalEvent(WorldPacket &packet, Player* owner = NULL)
+		{
+			this->packet = std::move(packet);
+			this->owner = owner;
+			triggered = true;
+		}
 
-        virtual Event Check()
-        {
-            if (!triggered)
-                return Event();
+		virtual Event Check()
+		{
+			if (!triggered)
+				return Event();
 
-            return Event(getName(), packet, owner);
-        }
+			return Event(getName(), packet, owner);
+		}
 
-        virtual void Reset()
-        {
-            triggered = false;
-        }
+		virtual void Reset()
+		{
+			triggered = false;
+		}
 
-    private:
-        WorldPacket packet;
-        bool triggered;
-        Player* owner;
-    };
+	private:
+		WorldPacket packet;
+		bool triggered;
+		Player* owner;
+	};
 }

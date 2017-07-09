@@ -428,7 +428,10 @@ void Engine::ProcessTriggers()
             if (!event)
                 continue;
 
-			fires[trigger] = event;
+			fires[trigger].setSource(event.getSource());
+			fires[trigger].setOwner(event.getOwner());
+			fires[trigger].setParam(event.getParam());
+			fires[trigger].setPacket(event.getPacket());
             LogAction("T:%s", trigger->getName());
         }
     }

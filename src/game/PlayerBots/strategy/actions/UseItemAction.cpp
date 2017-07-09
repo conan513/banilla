@@ -94,62 +94,66 @@ bool UseItemAction::UseItem(Item* item, ObjectGuid goGuid, Item* itemTarget)
     if (bot->IsNonMeleeSpellCasted(true))
         return false;
 
-    uint8 bagIndex = item->GetBagSlot();
-    uint8 slot = item->GetSlot();
-    uint8 cast_count = 1;
-    uint64 item_guid = item->GetGUID();
-    uint32 glyphIndex = 0;
-    uint8 unk_flags = 0;
-
-    uint32 spellId = 0;
-
-    for (uint8 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
-    {
-        if (item->GetProto()->Spells[i].SpellId > 0)
-        {
-            spellId = item->GetProto()->Spells[i].SpellId;
-
-            if (ai->CanCastSpell(spellId, bot, false))
-                break;
-        }
-    }
+	uint8 bagIndex = item->GetBagSlot();
+	uint8 slot = item->GetSlot();
+	uint8 cast_count = 1;
+	uint64 item_guid = item->GetGUID();
+	uint32 glyphIndex = 0;
+	uint8 unk_flags = 0;
 
 	WorldPacket* const packet = new WorldPacket(CMSG_USE_ITEM, 1 + 1 + 1 + 4 + 8 + 4 + 1 + 8 + 1);
-	*packet << bagIndex << slot << cast_count;
+	*packet << bagIndex << slot << cast_count << uint32(0) << item_guid
+		<< glyphIndex << unk_flags;
 
-    bool targetSelected = false;
-    ostringstream out; out << "Using " << chat->formatItem(item->GetProto());
-    if (item->GetProto()->Stackable)
-    {
-        uint32 count = item->GetCount();
-        if (count > 1)
-            out << " (" << count << " available) ";
-        else
-            out << " (the last one!)";
-    }
+	bool targetSelected = false;
+	ostringstream out; out << "Using " << chat->formatItem(item->GetProto());
+	if (item->GetProto()->Stackable)
+	{
+		uint32 count = item->GetCount();
+		if (count > 1)
+			out << " (" << count << " available) ";
+		else
+			out << " (the last one!)";
+	}
 
-    if (goGuid)
-    {
-        GameObject* go = ai->GetGameObject(goGuid);
-        if (go && go->isSpawned())
-        {
-			uint16 targetFlag = TARGET_FLAG_OBJECT;
-            *packet << targetFlag;
-            packet->appendPackGUID(goGuid.GetRawValue());
-            out << " on " << chat->formatGameobject(go);
-            targetSelected = true;
-        }
-    }
+	if (goGuid)
+	{
+		GameObject* go = ai->GetGameObject(goGuid);
+		if (go && go->isSpawned())
+		{
+			uint32 targetFlag = TARGET_FLAG_UNIT;
+			*packet << targetFlag;
+			packet->appendPackGUID(goGuid.GetRawValue());
+			out << " on " << chat->formatGameobject(go);
+			targetSelected = true;
+		}
+	}
 
-    if (itemTarget)
-    {
-			uint16 targetFlag = TARGET_FLAG_ITEM;
-            *packet << targetFlag;
-            packet->appendPackGUID(itemTarget->GetGUID());
-            out << " on " << chat->formatItem(itemTarget->GetProto());
-            targetSelected = true;       
+	if (itemTarget)
+	{
+		uint32 targetFlag = TARGET_FLAG_ITEM;
+		*packet << targetFlag;
+		packet->appendPackGUID(itemTarget->GetGUID());
+		out << " on " << chat->formatItem(itemTarget->GetProto());
+		targetSelected = true;
+	}
 
-    }
+	Player* master = GetMaster();
+	if (!targetSelected && item->GetProto()->Class != ITEM_CLASS_CONSUMABLE && master)
+	{
+		ObjectGuid masterSelection = master->GetSelectionGuid();
+		if (masterSelection)
+		{
+			Unit* unit = ai->GetUnit(masterSelection);
+			if (unit)
+			{
+				uint32 targetFlag = TARGET_FLAG_UNIT;
+				*packet << targetFlag << masterSelection.WriteAsPacked();
+				out << " on " << unit->GetName();
+				targetSelected = true;
+			}
+		}
+	}
 
     if(uint32 questid = item->GetProto()->StartQuest)
     {
@@ -164,24 +168,6 @@ bool UseItemAction::UseItem(Item* item, ObjectGuid goGuid, Item* itemTarget)
             ostringstream out; out << "Got quest " << chat->formatQuest(qInfo);
             ai->TellMasterNoFacing(out.str());
             return true;
-        }
-    }
-
-    Player* master = GetMaster();
-    if (!targetSelected && item->GetProto()->Class != ITEM_CLASS_CONSUMABLE && master)
-    {
-		ObjectGuid selection = master->GetSelectionGuid();
-		if (selection.IsEmpty())
-			return false;
-
-        Unit* masterSelection = master->GetMap()->GetUnit(selection);
-        if (masterSelection)
-        {
-			uint16 targetFlag = TARGET_FLAG_UNIT;
-            *packet << targetFlag;
-            packet->appendPackGUID(masterSelection->GetGUID());
-            out << " on " << masterSelection->GetName();
-            targetSelected = true;
         }
     }
 
@@ -242,7 +228,7 @@ bool UseItemAction::UseItem(Item* item, ObjectGuid goGuid, Item* itemTarget)
         break;
     }
 
-	if (item->GetProto()->Flags & ITEM_FLAG_HAS_LOOT)
+	if (item->GetProto()->Flags & ITEM_FLAG_LOOTABLE)
     {
         // Open quest item in inventory, containing related items (e.g Gnarlpine necklace, containing Tallonkai's Jewel)
 		WorldPacket* const packet = new WorldPacket(CMSG_OPEN_ITEM, 2);
@@ -255,15 +241,14 @@ bool UseItemAction::UseItem(Item* item, ObjectGuid goGuid, Item* itemTarget)
     if (!targetSelected)
         return false;
 
-    ItemPrototype const* proto = item->GetProto();
-    if (proto->Class == ITEM_CLASS_CONSUMABLE && (proto->SubClass == ITEM_SUBCLASS_FOOD || proto->SubClass == ITEM_SUBCLASS_CONSUMABLE) &&
-		(proto->Spells[0].SpellCategory == 11 || proto->Spells[0].SpellCategory == 59))
-    {
+	if (item->GetProto()->Class == ITEM_CLASS_CONSUMABLE && item->GetProto()->SubClass == ITEM_SUBCLASS_FOOD)
+	{
+		if (bot->isInCombat())
+			return false;
 
-        bot->addUnitState(UNIT_STAND_STATE_SIT);
-        ai->InterruptSpell();
-        ai->SetNextCheckDelay(25000);
-    }
+		ai->InterruptSpell();
+		ai->SetNextCheckDelay(30000);
+	}
     else
         ai->SetNextCheckDelay(5000);
 

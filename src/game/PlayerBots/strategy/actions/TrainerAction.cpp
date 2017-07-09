@@ -10,7 +10,7 @@ void TrainerAction::Learn(uint32 cost, TrainerSpell const* tSpell, ostringstream
         return;
 
     bot->ModifyMoney(-int32(cost));
-    if (tSpell->IsCastable())
+    if (tSpell)
         bot->CastSpell(bot, tSpell->spell, true);
    // else
    //     bot->LearnSpell(tSpell->learnedSpell[0], false, false);

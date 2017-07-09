@@ -44,7 +44,7 @@ bool MovementAction::ChaseTo(Unit* obj)
 	if (bot->IsSitState())
 		bot->SetStandState(UNIT_STAND_STATE_STAND);
 	
-	if (!bot->IsPositiveSpellCasted(true))
+	if (bot->IsNonPositiveSpellCast(true))
 	{
 		bot->CastStop();
 		ai->InterruptSpell();
@@ -75,7 +75,7 @@ bool MovementAction::MoveTo(uint32 mapId, float x, float y, float z)
         if (bot->IsSitState())
             bot->SetStandState(UNIT_STAND_STATE_STAND);
 
-		if (!bot->IsPositiveSpellCasted(true))
+		if (bot->IsNonPositiveSpellCast(true))
         {
             bot->CastStop();
             ai->InterruptSpell();
@@ -142,7 +142,7 @@ bool MovementAction::FleeTo(Unit* target, uint32 mapId, float x, float y, float 
         if (bot->IsSitState())
             bot->SetStandState(UNIT_STAND_STATE_STAND);
 
-		if (!bot->IsPositiveSpellCasted(true))
+		if (bot->IsNonPositiveSpellCast(true))
 		{
 			bot->CastStop();
 			ai->InterruptSpell();
@@ -335,7 +335,7 @@ bool MovementAction::Follow(Unit* target, float distance, float angle)
     if (bot->IsSitState())
         bot->SetStandState(UNIT_STAND_STATE_STAND);
 
-	if (!bot->IsPositiveSpellCasted(true))
+	if (bot->IsNonPositiveSpellCast(true))
     {
         bot->CastStop();
         ai->InterruptSpell();
@@ -381,7 +381,7 @@ bool MovementAction::GetBehind(Unit* target, float distance, float angle)
     if (bot->IsSitState())
         bot->SetStandState(UNIT_STAND_STATE_STAND);
 
-	if (!bot->IsPositiveSpellCasted(true))
+	if (bot->IsNonPositiveSpellCast(true))
     {
         bot->CastStop();
         ai->InterruptSpell();

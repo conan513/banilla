@@ -1,4 +1,4 @@
-#include "../../../botpch.h"
+#include "botpch.h"
 #include "../../playerbot.h"
 #include "SuggestWhatToDoAction.h"
 #include "AhBot.h"
@@ -161,6 +161,10 @@ void SuggestWhatToDoAction::spam(string msg, uint32 channelId)
 		cityLookupAreaID = citiesZoneID;
 	}
 
+	PlayerPointer player =bot->GetSession()->GetPlayerPointer();
+	if (!player)
+		return;
+
 	for (uint32 i = 0; i < sChatChannelsStore.GetNumRows(); ++i)
 	{
 		ChatChannelsEntry const* channel = sChatChannelsStore.LookupEntry(i);
@@ -173,10 +177,10 @@ void SuggestWhatToDoAction::spam(string msg, uint32 channelId)
 
 			if (ChannelMgr* cMgr = channelMgr(bot->GetTeam()))
 			{
-				if (Channel* chn = cMgr->GetJoinChannel(channelName))
+				if (Channel* chn = cMgr->GetChannel(channelName, player))
 				{
-					chn->Join(bot->GetGUID(), "");
-					chn->Say(bot->GetGUID(), msg.c_str(), LANG_UNIVERSAL);
+					chn->Join(bot->GetGUID(), channelName, "");
+					chn->Say(bot->GetGUID(), msg.c_str(), channelName);
 				}
 			}
 		}

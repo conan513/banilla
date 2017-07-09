@@ -43,7 +43,6 @@ namespace ai
         private:
             static Strategy* nc(PlayerbotAI* ai) { return new GenericDruidNonCombatStrategy(ai); }
             static Strategy* nc_stealth(PlayerbotAI* ai) { return new GenericDruidStealthStrategy(ai); }
-            static Strategy* cat_aoe(PlayerbotAI* ai) { return new CatAoeDruidStrategy(ai); }
             static Strategy* caster_aoe(PlayerbotAI* ai) { return new CasterDruidAoeStrategy(ai); }
             static Strategy* caster_debuff(PlayerbotAI* ai) { return new CasterDruidDebuffStrategy(ai); }
 			static Strategy* cure(PlayerbotAI* ai) { return new DruidCureStrategy(ai); }
