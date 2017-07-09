@@ -6186,6 +6186,7 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                 if (!unitTarget || !unitTarget->isAlive())
                     return;
                 uint32 spellId2 = 0;
+				bool found_special_aura = false;
 
                 // all seals have aura dummy
                 Unit::AuraList const& m_dummyAuras = m_caster->GetAurasByType(SPELL_AURA_DUMMY);
@@ -6197,14 +6198,22 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     if (!spellInfo || !IsSealSpell((*itr)->GetSpellProto()) || (*itr)->GetEffIndex() != 2)
                         continue;
 
+					if (spellInfo->IsFitToFamily<SPELLFAMILY_PALADIN, CF_PALADIN_SEAL_OF_WISDOM_LIGHT>())
+						found_special_aura = true;
+
                     // must be calculated base at raw base points in spell proto, GetModifier()->m_value for S.Righteousness modified by SPELLMOD_DAMAGE
                     spellId2 = (*itr)->GetSpellProto()->CalculateSimpleValue(EFFECT_INDEX_2);
 
                     if (spellId2 <= 1)
                         continue;
 
-                    // found, remove seal
-                    m_caster->RemoveAurasDueToSpell((*itr)->GetId());
+                    // found, remove seal if not talent Light of Wisdom procs			
+					if (found_special_aura)
+						if (m_caster->HasAuraWithMiscValue(SPELL_AURA_DUMMY, 8024))
+							if (!roll_chance_i(m_caster->GetAuraWithMiscValue(SPELL_AURA_DUMMY, 8024)->GetModifierAmount()))
+								m_caster->RemoveAurasDueToSpell((*itr)->GetId());
+					else
+						m_caster->RemoveAurasDueToSpell((*itr)->GetId());
 
 					// Sanctified Judgement
 					Unit::AuraList const& m_auras = m_caster->GetAurasByType(SPELL_AURA_DUMMY);

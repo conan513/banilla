@@ -570,8 +570,8 @@ void World::LoadConfigSettings(bool reload)
     setConfigPos(CONFIG_FLOAT_CREATURE_FAMILY_ASSISTANCE_RADIUS,      "CreatureFamilyAssistanceRadius",     10.0f);
     setConfigPos(CONFIG_FLOAT_CREATURE_FAMILY_FLEE_ASSISTANCE_RADIUS, "CreatureFamilyFleeAssistanceRadius", 30.0f);
 
-     setConfig(CONFIG_BOOL_PATH_FIND_OPTIMIZE, "PathFinder.OptimizePath", true);
-     setConfig(CONFIG_BOOL_PATH_FIND_NORMALIZE_Z, "PathFinder.NormalizeZ", false);
+    setConfig(CONFIG_BOOL_PATH_FIND_OPTIMIZE, "PathFinder.OptimizePath", true);
+    setConfig(CONFIG_BOOL_PATH_FIND_NORMALIZE_Z, "PathFinder.NormalizeZ", false);
 	setConfig(CONFIG_BOOL_CUSTOM_ADVENTURE_MODE, "Custom.AdventureMode", false);
 	setConfig(CONFIG_UINT32_CUSTOM_ADVENTURE_MAX_LEVEL, "Custom.AdventureMaxLevel", 0);
 	setConfig(CONFIG_FLOAT_CUSTOM_ADVENTURE_KILLXP, "Custom.AdventureKillXP", 1);
@@ -583,6 +583,7 @@ void World::LoadConfigSettings(bool reload)
 	setConfig(CONFIG_FLOAT_CUSTOM_ADVENTURE_CREATURE_POWER_INCR, "Custom.AdventureCreaturePower", 0.5);
 
 	setConfig(CONFIG_BOOL_CUSTOM_RULES, "Custom.CustomRules", false);
+	setConfig(CONFIG_BOOL_CUSTOM_AI, "Custom.CustomAI", false);
 	setConfig(CONFIG_BOOL_CUSTOM_RANDOMIZE_ITEM, "Custom.RandomizeItem", false);
 	setConfig(CONFIG_BOOL_CUSTOM_FRIENDLY_FIRE, "Custom.FriendlyFire", false);
 	setConfig(CONFIG_UINT32_CUSTOM_RANDOMIZE_ITEM_MIN_LEVEL, "Custom.RandomizeItemMinLevel", 15);
@@ -935,6 +936,7 @@ void World::LoadConfigSettings(bool reload)
     setConfig(CONFIG_FLOAT_MAX_CREATURES_STEALTH_DETECT_RANGE,      "MaxCreaturesStealthDetectRange", 15.0f);
 
     setConfig(CONFIG_BOOL_IS_MAPSERVER,                             "IsMapServer", false);
+    setConfig(CONFIG_UINT32_UPDATE_STEADY_BUFFER,                   "MapUpdateSteadyBuffer", 0);
 
     m_timeZoneOffset = sConfig.GetIntDefault("TimeZoneOffset", 0) * HOUR;
     m_wowPatch = sConfig.GetIntDefault("WowPatch", WOW_PATCH_102);

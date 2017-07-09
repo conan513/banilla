@@ -209,6 +209,8 @@ Unit::Unit()
     _casterChaseDistance = 0.0f;
 
     m_doExtraAttacks = false;
+
+	m_spellUpdateTimeBuffer = 0;
 }
 
 Unit::~Unit()
@@ -262,13 +264,24 @@ void Unit::Update(uint32 update_diff, uint32 p_time)
 
 	elunaEvents->Update(update_diff);
 
-    // WARNING! Order of execution here is important, do not change.
-    // Spells must be processed with event system BEFORE they go to _UpdateSpells.
-    // Or else we may have some SPELL_STATE_FINISHED spells stalled in pointers, that is bad.
-    m_Events.Update(update_diff);
-    _UpdateSpells(update_diff);
+	// Buffer spell system update time to save on performance when players are updated twice per
+	// world update. We do not need to update spells when the interval is only a few ms (~10ms)
+		m_spellUpdateTimeBuffer += update_diff;
+	if (m_spellUpdateTimeBuffer >= UNIT_SPELL_UPDATE_TIME_BUFFER)
+	{
+	// WARNING! Order of execution here is important, do not change.
+	// Spells must be processed with event system BEFORE they go to _UpdateSpells.
+	// Or else we may have some SPELL_STATE_FINISHED spells stalled in pointers, that is bad.
+		m_Events.Update(m_spellUpdateTimeBuffer);
+		_UpdateSpells(m_spellUpdateTimeBuffer);
+		
+		CleanupDeletedAuras();
+		
+	// update abilities available only for fraction of time
+			UpdateReactives(m_spellUpdateTimeBuffer);
 
-    CleanupDeletedAuras();
+		m_spellUpdateTimeBuffer = 0;
+	}
 
     if (m_lastManaUseTimer)
     {
@@ -334,19 +347,18 @@ void Unit::Update(uint32 update_diff, uint32 p_time)
     if (uint32 ranged_att = getAttackTimer(RANGED_ATTACK))
         setAttackTimer(RANGED_ATTACK, (update_diff >= ranged_att ? 0 : ranged_att - update_diff));
 
-    // update abilities available only for fraction of time
-    UpdateReactives(update_diff);
+	if (isAlive())
+	{
+		ModifyAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, (GetHealth() < GetMaxHealth() * 0.35f));
+		ModifyAuraState(AURA_STATE_HEALTH_ABOVE_75_PERCENT, GetHealth() > GetMaxHealth() * 0.75f);
+		ModifyAuraState(AURA_STATE_HEALTH_ABOVE_50_PERCENT, GetHealth() > GetMaxHealth() * 0.5f);
 
-	ModifyAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, (GetHealth() < GetMaxHealth() * 0.35f));
-	ModifyAuraState(AURA_STATE_HEALTH_ABOVE_75_PERCENT, GetHealth() > GetMaxHealth() * 0.75f);
-	ModifyAuraState(AURA_STATE_HEALTH_ABOVE_50_PERCENT, GetHealth() > GetMaxHealth() * 0.5f);
-
-    if (isAlive())
-        //ModifyAuraState(AURA_STATE_HEALTHLESS_20_PERCENT, GetHealth() < GetMaxHealth() * 0.20f);
+		//ModifyAuraState(AURA_STATE_HEALTHLESS_20_PERCENT, GetHealth() < GetMaxHealth() * 0.20f);
 		if (HasAura(54781) || HasAura(54782) || HasAura(54783)) //sudden death
 			ModifyAuraState(AURA_STATE_HEALTHLESS_20_PERCENT, true);
 		else
 			ModifyAuraState(AURA_STATE_HEALTHLESS_20_PERCENT, (GetHealth() < GetMaxHealth() * 0.20f));
+	}
 
     UpdateSplineMovement(p_time);
     GetMotionMaster()->UpdateMotion(p_time);
@@ -651,7 +663,7 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
         if (pVictim != this)
             RemoveSpellsCausingAura(SPELL_AURA_MOD_INVISIBILITY);
 
-        if (pVictim->GetTypeId() == TYPEID_PLAYER && !pVictim->IsStandState() && !pVictim->hasUnitState(UNIT_STAT_STUNNED | UNIT_STAT_PENDING_STUNNED))
+		if (pVictim->GetTypeId() == TYPEID_PLAYER && !pVictim->IsMounted() && !pVictim->IsStandState())
             pVictim->SetStandState(UNIT_STAND_STATE_STAND);
     }
 
@@ -1322,10 +1334,13 @@ void Unit::CastSpell(Unit* Victim, SpellEntry const *spellInfo, bool triggered, 
     Spell *spell = new Spell(this, spellInfo, triggered, originalCaster, triggeredBy);
 
     SpellCastTargets targets;
-    targets.setUnitTarget(Victim);
-
+	// Don't set unit target on destination target based spells, otherwise the spell will cancel
+	// as soon as the target dies or leaves the area of the effect
     if (spellInfo->Targets & TARGET_FLAG_DEST_LOCATION)
         targets.setDestination(Victim->GetPositionX(), Victim->GetPositionY(), Victim->GetPositionZ());
+	else
+		targets.setUnitTarget(Victim);
+
     if (spellInfo->Targets & TARGET_FLAG_SOURCE_LOCATION)
         if (WorldObject* caster = spell->GetCastingObject())
             targets.setSource(caster->GetPositionX(), caster->GetPositionY(), caster->GetPositionZ());
@@ -1770,10 +1785,10 @@ void Unit::CalculateMeleeDamage(Unit *pVictim, uint32 damage, CalcDamageInfo *da
             int SkillDiff = 0;
             SkillDiff = pVictim->GetDefenseSkillValue(this) - GetWeaponSkillValue(damageInfo->attackType, pVictim);
             float reducePercent = 1.0f;
-            // (Youfie) Formule de calcul de la réduction de dégâts des érafles, influencée en pré-BC par le +skill au delà de [niveau du joueur * 5]
-            // Formule d'Athan retenue et supposée comme Blizz-like au regard des multiples sources et tests concordants
+			// (Youfie)Formule de calcul de la réduction de dégâts des érafles, influencée en pré - BC par le + skill au delà de[niveau du joueur * 5]
+			// Formule d'Athan retenue et supposée comme Blizz-like au regard des multiples sources et tests concordants
             // float reducePercent = 1 - (5*(pow(2,(victimDefenseSkill/5) - (attackerWeaponSkill/5) - 1))/100);
-            // Après tentative d'implémentation "propre" de la formule et de nombreux échecs, mise en place de celle-ci après calcul manuel des différentes valeurs
+			// Après tentative d'implémentation "propre" de la formule et de nombreux échecs, mise en place de celle-ci après calcul manuel des différentes valeurs
             // cf. http://nostalrius.org/forum/viewtopic.php?p=43964#p43964 pour infos et sources
             if (SkillDiff >= 15)
                 reducePercent = 0.6500f;
@@ -1825,7 +1840,7 @@ void Unit::CalculateMeleeDamage(Unit *pVictim, uint32 damage, CalcDamageInfo *da
                     break;
             }
 
-            // sLog.outString("SkillDiff = %i, reducePercent = %f", SkillDiff, reducePercent); // Pour tests & débug via la console
+			// sLog.outString("SkillDiff = %i, reducePercent = %f", SkillDiff, reducePercent); // Pour tests & débug via la console
 
             damageInfo->cleanDamage += uint32((1.0f - reducePercent) * damageInfo->totalDamage);
             damageInfo->totalDamage = uint32(reducePercent * damageInfo->totalDamage);
@@ -2151,7 +2166,7 @@ void Unit::CalculateDamageAbsorbAndResist(Unit *pCaster, SpellSchoolMask schoolM
     // Magic damage, check for resists
     bool canResist = (schoolMask & SPELL_SCHOOL_MASK_NORMAL) == 0;
 
-    // NOSTALRIUS: Sorts binaires ne sont pas résistés.
+	// NOSTALRIUS: Sorts binaires ne sont pas résistés.
     if (canResist && spellProto && spellProto->IsBinary())
         canResist = false;
     else if (spellProto && spellProto->AttributesEx4 & SPELL_ATTR_EX4_IGNORE_RESISTANCES)
@@ -2679,16 +2694,16 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(const Unit *pVictim, WeaponAttackT
         int32 maxskill = attackerMaxSkillValueForLevel;
         skill = (skill > maxskill) ? maxskill : skill;
 
-        // (Youfie) Le +skill avant BC ne permet pas de réduire la fréquence des glancing blows une fois qu'il est égal au niveau du joueur*5
+		// (Youfie) Le +skill avant BC ne permet pas de réduire la fréquence des glancing blows une fois qu'il est égal au niveau du joueur*5
         if (attackerWeaponSkill > maxskill)
             attackerWeaponSkill = maxskill;
 
-        // (Youfie) Chance de glance en Vanilla (inchangée par le +skill au delà de maxskill, cf. au dessus) :
+		// (Youfie) Chance de glance en Vanilla (inchangée par le +skill au delà de maxskill, cf. au dessus) :
         tmp = (10 + ((victimDefenseSkill - attackerWeaponSkill) * 2)) * 100;
         tmp = tmp > 4000 ? 4000 : tmp;
         if (tmp < 0)
             tmp = 0;
-        // sLog.outString("tmp = %i, Skill = %i, Max Skill = %i", tmp, attackerWeaponSkill, attackerMaxSkillValueForLevel); //Pour tests & débug via la console
+		// sLog.outString("tmp = %i, Skill = %i, Max Skill = %i", tmp, attackerWeaponSkill, attackerMaxSkillValueForLevel); //Pour tests & débug via la console
 
         if (roll < (sum += tmp))
         {
@@ -3606,6 +3621,12 @@ void Unit::_UpdateSpells(uint32 time)
     {
         SpellAuraHolder* i_holder = m_spellAuraHoldersUpdateIterator->second;
         ++m_spellAuraHoldersUpdateIterator;                            // need shift to next for allow update if need into aura update
+
+		// If channeled spell, do not update. The spell caster will update the holder on spell
+		// update to prevent loss of periodic ticks due to out of sync updates
+		if (i_holder->IsChanneled())
+			continue;
+
         i_holder->UpdateHolder(time);
     }
 
@@ -3791,10 +3812,10 @@ void Unit::FinishSpell(CurrentSpellTypes spellType, bool ok /*= true*/)
     if (!spell)
         return;
 
-    spell->finish(ok);
-
     if (spellType == CURRENT_CHANNELED_SPELL)
         spell->SendChannelUpdate(0);
+
+	spell->finish(ok);
 }
 
 
@@ -4631,14 +4652,14 @@ void Unit::RemoveAura(uint32 spellId, SpellEffectIndex effindex, Aura* except)
             ++iter;
     }
 }
-void Unit::RemoveAurasByCasterSpell(uint32 spellId, ObjectGuid casterGuid)
+void Unit::RemoveAurasByCasterSpell(uint32 spellId, ObjectGuid casterGuid, AuraRemoveMode mode)
 {
     SpellAuraHolderBounds spair = GetSpellAuraHolderBounds(spellId);
     for (SpellAuraHolderMap::iterator iter = spair.first; iter != spair.second;)
     {
         if (iter->second->GetCasterGuid() == casterGuid)
         {
-            RemoveSpellAuraHolder(iter->second);
+            RemoveSpellAuraHolder(iter->second, mode);
             spair = GetSpellAuraHolderBounds(spellId);
             iter = spair.first;
         }
@@ -4954,7 +4975,7 @@ void Unit::RemoveSpellAuraHolder(SpellAuraHolder *holder, AuraRemoveMode mode)
     SpellEntry const* AurSpellInfo = holder->GetSpellProto();
     Totem* statue = nullptr;
     Unit* caster = holder->GetCaster();
-    if (IsChanneledSpell(AurSpellInfo) && caster)
+	if (holder->IsChanneled() && caster)
         if (caster->GetTypeId() == TYPEID_UNIT && ((Creature*)caster)->IsTotem() && ((Totem*)caster)->GetTotemType() == TOTEM_STATUE)
             statue = ((Totem*)caster);
 
@@ -5022,11 +5043,18 @@ void Unit::RemoveSpellAuraHolder(SpellAuraHolder *holder, AuraRemoveMode mode)
 		// No break
 	default:
 	{
-		if (IsChanneledSpell(AurSpellInfo) && caster && (mode != AURA_REMOVE_BY_EXPIRE || caster->IsControlledByPlayer()))
+		if (holder->IsChanneled() && caster)
 		{
 			Spell *channeled = caster->GetCurrentSpell(CURRENT_CHANNELED_SPELL);
-			if (channeled && channeled->m_spellInfo->Id == auraSpellId && channeled->m_targets.getUnitTarget() == this)
-				caster->InterruptSpell(CURRENT_CHANNELED_SPELL);
+			if (channeled && channeled->m_spellInfo->Id == auraSpellId)
+			{
+				// If single target, interrupt cast. If not, notify the spell caster so we
+				// can stop processing this holder
+				if (channeled->m_targets.getUnitTarget() == this && mode != AURA_REMOVE_BY_CHANNEL && (mode != AURA_REMOVE_BY_EXPIRE || caster->IsControlledByPlayer()))
+					 caster->InterruptSpell(CURRENT_CHANNELED_SPELL);
+				else
+					channeled->RemoveChanneledAuraHolder(holder, mode);
+				}
 		}
 		break;
 	}
@@ -5165,6 +5193,8 @@ void Unit::DelaySpellAuraHolder(uint32 spellId, int32 delaytime, ObjectGuid cast
         else
             holder->SetAuraDuration(holder->GetAuraDuration() - delaytime);
 
+		// push down the tick timer with the delay, otherwise we can still get max ticks even with pushback
+		holder->RefreshAuraPeriodicTimers();
         holder->UpdateAuraDuration();
 
         DEBUG_FILTER_LOG(LOG_FILTER_SPELL_CAST, "Spell %u partially interrupted on %s, new duration: %u ms", spellId, GetObjectGuid().GetString().c_str(), holder->GetAuraDuration());
@@ -10220,7 +10250,9 @@ uint32 createProcExtendMask(SpellNonMeleeDamage *damageInfo, SpellMissInfo missC
 
 void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* pTarget, uint32 procFlag, uint32 procExtra, WeaponAttackType attType, SpellEntry const* procSpell, uint32 damage, ProcTriggeredList& triggeredList, Spell* spell)
 {
-	//sLog.outError("PROC: Flags 0x%.5x Ex 0x%.3x Spell %5u %s", procFlag, procExtra, procSpell ? procSpell->Id : 0, isVictim ? "[victim]" : "");
+	if (GetTypeId() == TYPEID_PLAYER)
+		sLog.outError("PROC: Flags 0x%.5x Ex 0x%.3x Spell %5u %s", procFlag, procExtra, procSpell ? procSpell->Id : 0, isVictim ? "[victim]" : "");
+
     // For melee/ranged based attack need update skills and set some Aura states
     if (procFlag & MELEE_BASED_TRIGGER_MASK && pTarget)
     {
@@ -10238,7 +10270,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* pTarget, uint32 procFlag, 
                 ((Player*)this)->UpdateDefense();
         }
         // If exist crit/parry/dodge/block need update aura state (for victim and attacker)
-        if (procExtra & (PROC_EX_CRITICAL_HIT | PROC_EX_PARRY | PROC_EX_DODGE | PROC_EX_BLOCK))
+        if (procExtra & (PROC_EX_CRITICAL_HIT | PROC_EX_PARRY | PROC_EX_DODGE | PROC_EX_BLOCK | PROC_EX_MISS | PROC_EX_RESIST | PROC_EX_ABSORB | PROC_EX_INTERRUPT))
         {
             // for victim
             if (isVictim)
@@ -10252,12 +10284,15 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* pTarget, uint32 procFlag, 
                         ModifyAuraState(AURA_STATE_DEFENSE, true);
                         StartReactiveTimer(REACTIVE_DEFENSE, pTarget->GetObjectGuid());
                     }
+
+					ModifyAuraState(AURA_STATE_DODGE, true);
+					StartReactiveTimer(REACTIVE_DODGE, pTarget->GetObjectGuid());
                 }
                 // if victim and parry attack
                 if (procExtra & PROC_EX_PARRY)
                 {
-                    // For Hunters only Counterattack (skip Mongoose bite) and Warriors Counterstrike
-                    if (getClass() == CLASS_HUNTER || getClass() == CLASS_WARRIOR)
+                    // For Hunters only Counterattack (skip Mongoose bite)
+                    if (getClass() == CLASS_HUNTER)
                     {
                         ModifyAuraState(AURA_STATE_PARRY, true);
                         StartReactiveTimer(REACTIVE_PARRY, pTarget->GetObjectGuid());
@@ -10269,6 +10304,9 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* pTarget, uint32 procFlag, 
                     {
                         ModifyAuraState(AURA_STATE_DEFENSE, true);
                         StartReactiveTimer(REACTIVE_DEFENSE, pTarget->GetObjectGuid());
+
+						ModifyAuraState(AURA_STATE_PARRY, true);
+						StartReactiveTimer(REACTIVE_PARRY, pTarget->GetObjectGuid());
                     }
                 }
                 // if and victim block attack
@@ -10276,7 +10314,28 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* pTarget, uint32 procFlag, 
                 {
                     ModifyAuraState(AURA_STATE_DEFENSE, true);
                     StartReactiveTimer(REACTIVE_DEFENSE, pTarget->GetObjectGuid());
+
+					ModifyAuraState(AURA_STATE_BLOCK, true);
+					StartReactiveTimer(REACTIVE_BLOCK, pTarget->GetObjectGuid());
                 }
+				// if miss
+				if (procExtra & PROC_EX_MISS)
+				{
+					ModifyAuraState(AURA_STATE_MISS, true);
+					StartReactiveTimer(REACTIVE_MISS, pTarget->GetObjectGuid());
+				}
+				// if absorb
+				if (procExtra & PROC_EX_ABSORB)
+				{
+					ModifyAuraState(AURA_STATE_ABSORB, true);
+					StartReactiveTimer(REACTIVE_ABSORB, pTarget->GetObjectGuid());
+				}
+				// if resist
+				if (procExtra & PROC_EX_RESIST)
+				{
+					ModifyAuraState(AURA_STATE_RESIST, true);
+					StartReactiveTimer(REACTIVE_RESIST, pTarget->GetObjectGuid());
+				}
             }
             else //For attacker
             {
@@ -10339,6 +10398,11 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* pTarget, uint32 procFlag, 
 						}
 						
 					}
+				}
+				if (procExtra & PROC_EX_INTERRUPT)
+				{
+					ModifyAuraState(AURA_STATE_INTERRUPT, true);
+					StartReactiveTimer(REACTIVE_INTERRUPT, pTarget->GetObjectGuid());
 				}
             }
         }
@@ -10755,6 +10819,7 @@ void Unit::ClearAllReactives()
 
     if (HasAuraState(AURA_STATE_DEFENSE))
         ModifyAuraState(AURA_STATE_DEFENSE, false);
+
     if ((getClass() == CLASS_HUNTER || getClass() == CLASS_WARRIOR) && HasAuraState(AURA_STATE_PARRY))
         ModifyAuraState(AURA_STATE_PARRY, false);
 
@@ -10774,6 +10839,24 @@ void Unit::ClearAllReactives()
 
 	if (HasAuraState(AURA_STATE_LUCKY))
 		ModifyAuraState(AURA_STATE_LUCKY, false);
+
+	if (HasAuraState(AURA_STATE_MISS))
+		ModifyAuraState(AURA_STATE_MISS, false);
+
+	if (HasAuraState(AURA_STATE_BLOCK))
+		ModifyAuraState(AURA_STATE_BLOCK, false);
+
+	if (HasAuraState(AURA_STATE_RESIST))
+		ModifyAuraState(AURA_STATE_RESIST, false);
+
+	if (HasAuraState(AURA_STATE_ABSORB))
+		ModifyAuraState(AURA_STATE_ABSORB, false);
+
+	if (HasAuraState(AURA_STATE_DODGE))
+		ModifyAuraState(AURA_STATE_DODGE, false);
+
+	if (HasAuraState(AURA_STATE_INTERRUPT))
+		ModifyAuraState(AURA_STATE_INTERRUPT, false);
 }
 
 void Unit::ClearMovementReactive()
@@ -10838,7 +10921,31 @@ void Unit::UpdateReactives(uint32 p_time)
 					if (HasAuraState(AURA_STATE_LUCKY))
 						ModifyAuraState(AURA_STATE_LUCKY, false);
 					break;
-                default:
+				case REACTIVE_MISS:
+					if (HasAuraState(AURA_STATE_MISS))
+						ModifyAuraState(AURA_STATE_MISS, false);
+					break;
+				case REACTIVE_BLOCK:
+					if (HasAuraState(AURA_STATE_BLOCK))
+						ModifyAuraState(AURA_STATE_BLOCK, false);
+					break;
+                case REACTIVE_RESIST:
+					if (HasAuraState(AURA_STATE_RESIST))
+						ModifyAuraState(AURA_STATE_RESIST, false);
+					break;
+				case REACTIVE_ABSORB:
+					if (HasAuraState(AURA_STATE_ABSORB))
+						ModifyAuraState(AURA_STATE_ABSORB, false);
+					break;				
+				case REACTIVE_DODGE:
+						if (HasAuraState(AURA_STATE_DODGE))
+							ModifyAuraState(AURA_STATE_DODGE, false);
+						break;
+				case REACTIVE_INTERRUPT:
+					if (HasAuraState(AURA_STATE_INTERRUPT))
+						ModifyAuraState(AURA_STATE_INTERRUPT, false);
+					break;
+				default:
                     break;
             }
         }

@@ -8,6 +8,7 @@
 #include "Guild.h"
 #include "GuildMgr.h"
 #include "RandomPlayerbotFactory.h"
+#include "DBCStores.h"
 
 map<uint8, vector<uint8> > RandomPlayerbotFactory::availableRaces;
 

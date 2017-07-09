@@ -62,13 +62,16 @@ uint32 const* /*[3]*/ GetTalentTabPages(uint32 cls);
 
 bool IsPointInAreaTriggerZone(AreaTriggerEntry const* atEntry, uint32 mapid, float x, float y, float z, float delta = 0.0f);
 
-MANGOS_DLL_SPEC uint32 GetCreatureModelRace(uint32 model_id);
+uint32 GetCreatureModelRace(uint32 model_id);
 
 typedef std::multimap<uint32, SkillRaceClassInfoEntry const*> SkillRaceClassInfoMap;
 typedef std::pair<SkillRaceClassInfoMap::iterator, SkillRaceClassInfoMap::iterator> SkillRaceClassInfoBounds;
 SkillRaceClassInfoEntry const* GetSkillRaceClassInfo(uint32 skill, uint8 race, uint8 class_);
 
 EmotesTextSoundEntry const* FindTextSoundEmoteFor(uint32 emote, uint32 race, uint32 gender);
+CharSectionsEntry const* GetCharSectionEntry(uint8 race, CharSectionType genType, uint8 gender, uint8 type, uint8 color);
+typedef std::multimap<uint32, CharSectionsEntry const*> CharSectionsMap;
+extern CharSectionsMap sCharSectionMap;
 
 extern DBCStorage <AreaTableEntry>		 sAreaStore;
 extern DBCStorage <AreaTriggerEntry>             sAreaTriggerStore;
@@ -91,9 +94,6 @@ extern DBCStorage <DurabilityQualityEntry>       sDurabilityQualityStore;
 extern DBCStorage <EmotesEntry>                  sEmotesStore;
 extern DBCStorage <EmotesTextEntry>              sEmotesTextStore;
 
-CharSectionsEntry const* GetCharSectionEntry(uint8 race, CharSectionType genType, uint8 gender, uint8 type, uint8 color);
-typedef std::multimap<uint32, CharSectionsEntry const*> CharSectionsMap;
-extern CharSectionsMap sCharSectionMap;
 
 extern DBCStorage <FactionEntry>                 sFactionStore;
 extern DBCStorage <FactionTemplateEntry>         sFactionTemplateStore;

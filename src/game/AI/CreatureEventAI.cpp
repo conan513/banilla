@@ -1102,9 +1102,8 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
 
 			if (target)
 			{
-				sLog.outError("CreatureEventAi::action(%u) creature %s [GUID: %u] escape from %s [GUID: %u]", static_cast<uint32>(action.type)),
-					m_creature->GetName(), m_creature->GetGUIDLow(), target->GetName(), target->GetGUIDLow();
-
+			//	sLog.outError("CreatureEventAi::action(%u) creature [GUID: %u] escape from [GUID: %u]", static_cast<uint32>(action.type)),
+			//		 m_creature->GetGUIDLow(), target->GetGUIDLow();
 				m_creature->EscapeMeleeRange(target, range, duration);
 			}
 			break;
@@ -1120,9 +1119,8 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
 
 			if (target)
 			{
-				sLog.outError("CreatureEventAi::action(%u) creature %s [GUID: %u] move behind %s [GUID: %u]", static_cast<uint32>(action.type)),
-					m_creature->GetName(), m_creature->GetGUIDLow(), target->GetName(), target->GetGUIDLow();
-
+			//	sLog.outError("CreatureEventAi::action(%u) creature %s [GUID: %u] move behind %s [GUID: %u]", static_cast<uint32>(action.type)),
+			//		m_creature->GetName(), m_creature->GetGUIDLow(), target->GetName(), target->GetGUIDLow();
 				m_creature->MoveBehind(target);
 			}
 			break;			
@@ -1773,7 +1771,7 @@ void CreatureEventAI::ReceiveEmote(Player* pPlayer, uint32 text_emote)
         if ((*itr).Event.event_type == EVENT_T_RECEIVE_EMOTE)
         {
             if ((*itr).Event.receive_emote.emoteId != text_emote)
-                return;
+                continue;
 
             PlayerCondition pcon(0, (*itr).Event.receive_emote.condition, (*itr).Event.receive_emote.conditionValue1, (*itr).Event.receive_emote.conditionValue2);
             if (pcon.Meets(pPlayer, m_creature->GetMap(), m_creature, CONDITION_FROM_EVENTAI))

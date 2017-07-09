@@ -18,7 +18,8 @@
 #include "Player.h"
 #include "PlayerBotAI.h"
 #include "Anticheat.h"
-
+#include "AhBot.h"
+#include "GuildTaskMgr.h"
 
 class LoginQueryHolder;
 class CharacterHandler;
@@ -1407,4 +1408,24 @@ bool ChatHandler::HandleBotStartCommand(char * args)
 {
     sEventBotMgr.Start();
     return true;
+}
+
+bool ChatHandler::HandlePlayerbotCommand(char* args)
+{
+	return PlayerbotMgr::HandlePlayerbotMgrCommand(this, args);
+}
+
+bool ChatHandler::HandleRandomPlayerbotCommand(char* args)
+{
+	return RandomPlayerbotMgr::HandlePlayerbotConsoleCommand(this, args);
+}
+
+bool ChatHandler::HandleAhBotCommand(char* args)
+{
+	return ahbot::AhBot::HandleAhBotCommand(this, args);
+}
+
+bool ChatHandler::HandleGuildTaskCommand(char* args)
+{
+	return GuildTaskMgr::HandleConsoleCommand(this, args);
 }

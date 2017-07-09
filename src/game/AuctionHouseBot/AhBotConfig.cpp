@@ -1,7 +1,12 @@
-#include "../botpch.h"
+#pragma once
+
+#include "../pchdef.h"
 #include "AhBotConfig.h"
-#include "SystemConfig.h"
+#include "Policies/SingletonImp.h"
+
 std::vector<std::string> split(const std::string &s, char delim);
+
+INSTANTIATE_SINGLETON_1(AhBotConfig);
 
 using namespace std;
 
